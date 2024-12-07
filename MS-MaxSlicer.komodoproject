@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="12089a42-ba37-4a31-ace1-064f036ed6fb" kpf_version="5" name="MS-MaxSlicer.komodoproject">
+<livefolder id="1eff869e-08e1-46aa-a66b-9a7f0c97667c" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-VERTEX_SELECTION" url="content/rollouts-Main/rollout-VERTEX_SELECTION/">
+</livefolder>
+<livefolder id="242925dc-6d51-4abc-86d2-43d98155ecf7" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-14-DRAINS" url="content/rollouts-Main/rollout-14-DRAINS/">
+</livefolder>
+<livefolder id="3f8cb66b-bbf6-4a8c-843c-97f4c465f424" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-01-SLICER" url="content/rollouts-Main/rollout-01-SLICER/">
+</livefolder>
+<livefolder id="472cea79-74fa-420a-affa-e12117ba4f5d" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-11-SUPPORTS" url="content/rollouts-Main/rollout-11-SUPPORTS/">
+</livefolder>
+<livefolder id="4c7107bd-2298-446a-8aff-03998a0032c8" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-15-PINS" url="content/rollouts-Main/rollout-15-PINS/">
+</livefolder>
+<livefolder id="5087d1f0-2781-4709-9980-98063267133e" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-MODIFY" url="content/rollouts-Main/rollout-MODIFY/">
+</livefolder>
+<livefolder id="53be75d4-c558-4e61-a3eb-d51dc8e59e10" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-13-BEAMS" url="content/rollouts-Main/rollout-13-BEAMS/">
+</livefolder>
+<livefolder id="55043b77-49d8-468c-b733-a2cab77c2656" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-02-ISLANDS" url="content/rollouts-Main/rollout-02-ISLANDS/">
+</livefolder>
+<livefolder id="60be88de-ce9c-4948-a1d9-127f5414a111" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-VERTEX_COLORS" url="content/rollouts-Main/rollout-VERTEX_COLORS/">
+</livefolder>
+<livefolder id="68512d1d-99a6-47c6-a41d-ba919c111ddf" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-12-RAFTS" url="content/rollouts-Main/rollout-12-RAFTS/">
+</livefolder>
+<livefolder id="99ea0fb6-3110-4c64-8b10-3831ac6e2187" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-10-GENERATOR" url="content/rollouts-Main/rollout-10-GENERATOR/">
+</livefolder>
+<livefolder id="f16f8e07-5cf8-4748-9d4f-1647a2a06faa" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-SELECTION_TOOLS" url="content/rollouts-Main/rollout-SELECTION_TOOLS/">
+</livefolder>
+<folder id="06112c53-4a9d-4438-af63-a32caa6ae30a" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="ROLLOUTS">
+</folder>
+<livefolder id="1f6fb6b3-7eb6-42fb-a2cd-eafd6b09c953" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="Lib" url="Lib/">
+</livefolder>
+<livefolder id="641183e0-0d1b-41bf-97e3-0a6881c9cfb4" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="content" url="content/">
+</livefolder>
+<livefolder id="74a24c1c-abd1-4b0e-8c4a-b9b736ebabb1" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="SupportManager" url="Lib/SupportManager/">
+</livefolder>
+<preference-set idref="12089a42-ba37-4a31-ace1-064f036ed6fb" id="project" preftype="project">
+  <long id="prefs_version">1</long>
+</preference-set>
+</project>

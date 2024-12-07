@@ -9,7 +9,7 @@ macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
 buttontext:	"SOURCE"
 tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
-icon:	"across:3|height:32|width:128"
+icon:	"across:3|height:32|width:128|border:false"
 (
 	on execute do
 		undo "Show\Hide Source" on
@@ -21,7 +21,7 @@ icon:	"across:3|height:32|width:128"
 macroscript	_print_support_visibility_source_hide
 category:	"_3D-Print"
 buttontext:	"SOURCE"
-icon:	""
+--icon:	""
 (
 	on execute do
 		undo "Show\Hide Source" on

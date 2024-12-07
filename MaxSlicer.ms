@@ -61,7 +61,7 @@ try(
 	--MaxToPrint = ContentLoader.create()
 	--MaxToPrint = ContentLoader.create width:420 height:unsupplied
 
-	--MaxToPrint.register()
+	MaxToPrint.register()
 
 	/*------------------------------------------------------------------------------
 		INIT GLOBAL CLASSES when ui exists

@@ -80,7 +80,7 @@ struct SupportManager_v
 	export_size,
 
 	/* properties */
-    SourceObjects	= Dictionary #STRING,
+    SourceObjects	= Dictionary #STRING, --"./SourceObject/SourceObject.ms"
     SupportObjects	= Dictionary #STRING,
     BeamObjects 	= Dictionary #STRING, --KEY:#POINTER_SUPORT_AxPOINTER_SUPORT_B VALUE:BeamObject_v
 
@@ -797,6 +797,18 @@ struct SupportManager_v
 		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
 
 		for sync_key in sync_keys collect SourceObjects[sync_key]
+	),
+	
+	/** Get supports and rafts
+	 */
+	function getSupportsAndRafts _objects =
+	(
+		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
+		
+		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+		rafts	 = SUPPORT_MANAGER.getObjectsByType _objects type:#RAFTS
+
+		supports + rafts --return
 	),
 
 	/*------------------------------------------------------------------------------*/

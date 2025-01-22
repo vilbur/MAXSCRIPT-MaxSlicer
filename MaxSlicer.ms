@@ -30,12 +30,19 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManag
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms" )	--"./Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-10-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms" )	--"./content/rollouts-Main/rollout-10-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms"
 
 current_dir = getFilenamePath(getSourceFileName())
 
 
 /*------------------------------------------------------------------------------
-	START VilTools
+	GENERATE MACROS
+--------------------------------------------------------------------------------*/
+--generateMacroscripts( current_dir + "/content" )
+
+
+/*------------------------------------------------------------------------------
+	START 
 ------------------------------------------------------------------------------*/
 try(
 

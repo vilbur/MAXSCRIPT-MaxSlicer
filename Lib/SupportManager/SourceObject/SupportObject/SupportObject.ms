@@ -21,7 +21,7 @@ struct SupportObject_v
 
 	private
 
-	_spline_index = 1, -- each support line has ony 1 spline
+	spline_1 = 1, -- each support line has ony 1 spline
 
 	hit_raft,
 	hit_support,
@@ -50,18 +50,20 @@ struct SupportObject_v
 		--format "KNOTS_POSITIONS: %\n" knots_positions
 
 		if obj_type == #SUPPORT and hit_raft == undefined then
-			this._setSupportKnots()
+			this._setSupportLegPositions()
 
 		if support_obj == undefined then
 			support_obj = SplineShape()
 
 		else
-			deleteSpline support_obj _spline_index
+			deleteSpline support_obj spline_1
 
 
 		support_obj.name	= (this._getName(vertex_index))
 		support_obj.wirecolor	= clr
 		--support_obj.first_knot_pos	= first_knot_pos
+		
+		this._isOnGround()
 
 		this._drawLine()
 
@@ -82,43 +84,47 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
 		--deleteAllChangeHandlers id:#updateSupportsEvent
 
+		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
-			this._setUpdatedKnots(first_knot_pos)
+			this._setSecondKnotPosition(  first_knot_pos)
 
 		else
-			this._getKnotsFromLine()
+			/* SET SECOND POINT BY EXISTING LINE */ 
+			this._getPositionsFromLine()
 
+		--is_on_ground = obj_type == #SUPPORT and hit_support == undefined
 
-		is_on_ground = obj_type == #SUPPORT and hit_support == undefined
-
-		num_knots = numKnots support_obj _spline_index
-
+		
 		if obj_type == #SUPPORT and hit_raft == undefined then
-			this._setSupportKnots()
+			this._setSupportLegPositions()
 
-		/* ADD KNOTS FOR SUPPORT */
-		if num_knots < knots_positions.count then
-			this._addKnots()
-
-		/* REMOVE REDUNTANT KNOTS FROM SUPPORT */
-		else if num_knots > knots_positions.count then
-			this._removeKnots()
+		--this._isOnGround()
+		
+		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
+		/* SET CORECT NUMBER OF KNOTS ON OBJECT */ 
+		if (num_knots = numKnots support_obj spline_1) != knots_positions.count then
+			case of
+			(
+				(num_knots < knots_positions.count): this._addKnots()
+				(num_knots > knots_positions.count): this._removeKnots()
+			)
 
 		--format "knots_positions.count: %\n" knots_positions.count
+		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
+		--is_on_ground = hit_raft == undefined and hit_support == undefined
 
 		this._updateLine()
 
 		this._setMaterialsToLineSegments()
 
 		this._setPivotToSecondPoint()
-		--updateShape support_obj
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
 	/** Convert support to raft or vice versa
@@ -128,9 +134,11 @@ struct SupportObject_v
 	 */
 	function convert to_type =
 	(
-		--format "\n"; print "SupportObject_v.convertToRaft()"
+		format "\n"; print "SupportObject_v.convert()"
 		--format "TO_TYPE: %\n" to_type
 
+		function _getKey type = ( toUpper (type as string ) + "_KEY")
+		
 		this.hit_raft = undefined
 		this.hit_support	= undefined
 		this.is_on_ground	= false
@@ -139,12 +147,13 @@ struct SupportObject_v
 
 		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 
-		deleteUserProp support_obj ( toUpper (from_type as string ) + "_KEY")
+		
+		/* REPLACE PROPERTY DATA */ 
+		deleteUserProp support_obj ( _getKey from_type  )
+		
+		setUserPropVal support_obj ( _getKey to_type  ) support_key
 
-		setUserPropVal support_obj ( toUpper (to_type as string ) + "_KEY") support_key
-
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
-
+		/* UPDATE SUPPORT */ 
 		this.updateSupport()
 	),
 
@@ -156,7 +165,7 @@ struct SupportObject_v
 
 		this._resetThisObject()
 
-		this._setUpdatedKnots(first_knot_pos)
+		this._setSecondKnotPosition(first_knot_pos)
 
 		this._updateSupportLeg()
 	),
@@ -166,19 +175,19 @@ struct SupportObject_v
 	function updateHeight =
 	(
 		--format "\n"; print "SupportObject_v.updateHeight()"
-		ground_knot	= numKnots support_obj _spline_index
+		ground_knot	= numKnots support_obj spline_1
 		base_knot	= ground_knot - 1
 
-		ground_knot_pos	= getKnotPoint support_obj _spline_index ground_knot
-		base_knot_pos	= getKnotPoint support_obj _spline_index base_knot
+		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
 
 
 		ground_knot_pos.z	= 0
 		base_knot_pos.z	= SUPPORT_OPTIONS.base_height
 
 
-		setKnotPoint support_obj _spline_index ground_knot	ground_knot_pos
-		setKnotPoint support_obj _spline_index base_knot	base_knot_pos
+		setKnotPoint support_obj spline_1 ground_knot	ground_knot_pos
+		setKnotPoint support_obj spline_1 base_knot	base_knot_pos
 
 		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		updateShape support_obj
@@ -230,21 +239,24 @@ struct SupportObject_v
 	function _addKnots =
 	(
 		--format "\n"; print "SupportObject_v._addKnots()"
-		num_knots = numKnots support_obj _spline_index
+		num_knots = numKnots support_obj spline_1
 
 		for knot_i = num_knots + 1 to knots_positions.count do
-			addKnot support_obj _spline_index #corner #line knots_positions[knot_i]
+			addKnot support_obj spline_1 #corner #line knots_positions[knot_i]
 	),
 
-	/** Remove knots
+	/** Remove redundant knots from line object
+	  * 
+	  * Used if updated shape has less knots then old shape
+	  * 
 	 */
 	function _removeKnots =
 	(
-		--format "\n"; print "SupportObject_v._removeKnots()"
-		num_knots = numKnots support_obj _spline_index
+		format "\n"; print "SupportObject_v._removeKnots()"
+		num_knots = numKnots support_obj spline_1
 
 		for knot_i = num_knots to knots_positions.count + 1 by -1 do
-			deleteKnot support_obj _spline_index knot_i
+			deleteKnot support_obj spline_1 knot_i
 	),
 
 	/** Set knots positions
@@ -293,9 +305,9 @@ struct SupportObject_v
 
 	/** Set support knots
 	 */
-	function _setSupportKnots =
+	function _setSupportLegPositions =
 	(
-		--format "\n"; print "SupportObject_v._setSupportKnots()"
+		--format "\n"; print "SupportObject_v._setSupportLegPositions()"
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) (direction_down)
 
 		is_on_ground = hit_support == undefined
@@ -316,36 +328,39 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
+			
+			
+		
 	),
 
 	/** Set update support knots
 	 */
-	function _setUpdatedKnots vertex_pos =
+	function _setSecondKnotPosition vertex_pos =
 	(
-		--function getNumKnots = numKnots support_obj _spline_index
-		knots_positions = Array (2)
+		--function getNumKnots = numKnots support_obj spline_1
+		--knots_positions = Array (2)
+		--knots_positions[1] = vertex_pos
+		
+		knots_positions = #( vertex_pos, undefined )
 
-		knots_positions[1] = vertex_pos
+		second_point_pos = getKnotPoint support_obj spline_1 2
 
-		second_point = getKnotPoint support_obj _spline_index 2
+		distance_of_points = distance knots_positions[1] second_point_pos
 
-
-		distance_of_points = distance knots_positions[1] second_point
-
-		direction = normalize (second_point - vertex_pos)
+		direction = normalize (second_point_pos - vertex_pos)
 
 		hit_support = this._intersectRaySourceObject (vertex_pos) ( direction )
 
+		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit_support != undefined and distance knots_positions[1] hit_support.pos > distance_of_points then
 			hit_support = undefined
 
+			
 		/* ADD SECOND POINT */
-		knots_positions[2] =  if hit_support != undefined then
-									hit_support.pos
-								else
-									second_point
+		knots_positions[2] =  if hit_support != undefined then hit_support.pos else second_point_pos
 
+		
 		/* KEEP SECOND POINT BELOW FIRST */
 		if knots_positions[2].z >= knots_positions[1].z then
 			knots_positions[2]-= SUPPORT_OPTIONS.bar_width
@@ -354,13 +369,17 @@ struct SupportObject_v
 
 	/** Get knots from line
 	 */
-	function _getKnotsFromLine =
+	function _getPositionsFromLine =
 	(
-		--format "\n"; print "SupportObject_v._getKnotsFromLine()"
-		knots_positions = Array (2)
-
-		knots_positions[1] = getKnotPoint support_obj _spline_index 1
-		knots_positions[2] = getKnotPoint support_obj _spline_index 2
+		format "\n"; print "SupportObject_v._getPositionsFromLine()"
+		
+		second_point = if obj_type == #RAFT then numKnots support_obj spline_1 else 2 -- get last point if RAFT, or second point if SUPPOIRT
+		
+		knots_positions =
+		#(
+			getKnotPoint support_obj spline_1 1,
+			getKnotPoint support_obj spline_1 second_point
+		)
 	),
 
 	/** Draw segments support
@@ -391,21 +410,21 @@ struct SupportObject_v
 			if update then
 				deleteSpline support_obj 1
 
-		ground_knot	= numKnots support_obj _spline_index
+		ground_knot	= numKnots support_obj spline_1
 		base_knot	= ground_knot - 1
 
 
 
-		--ground_knot_pos	= getKnotPoint support_obj _spline_index ground_knot
-		--base_knot_pos	= getKnotPoint support_obj _spline_index base_knot
+		--ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+		--base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
 		--
 		--
 		--ground_knot_pos.z	= 0
 		--base_knot_pos.z	= SUPPORT_OPTIONS.base_height
 		--
 		--
-		--setKnotPoint support_obj _spline_index ground_knot	ground_knot_pos
-		--setKnotPoint support_obj _spline_index base_knot	base_knot_pos
+		--setKnotPoint support_obj spline_1 ground_knot	ground_knot_pos
+		--setKnotPoint support_obj spline_1 base_knot	base_knot_pos
 		--
 		--updateShape support_obj
 
@@ -422,7 +441,7 @@ struct SupportObject_v
 			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
 		--------------------------------------------------------------------------------*/
 		for pos in knots_positions do
-			addKnot support_obj _spline_index #corner #line pos
+			addKnot support_obj spline_1 #corner #line pos
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
@@ -433,7 +452,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._updateLine()"
 		for knot_i = 1 to knots_positions.count do
-			setKnotPoint support_obj _spline_index knot_i	knots_positions[knot_i]
+			setKnotPoint support_obj spline_1 knot_i	knots_positions[knot_i]
 	),
 
 	/** Draw leg line
@@ -461,22 +480,22 @@ struct SupportObject_v
 			--------------------------------------------------------------------------------*/
 			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
 
-			addKnot support_obj _spline_index #corner #line pos
+			addKnot support_obj spline_1 #corner #line pos
 
 			pos.z = 0 -- set support_obj to ground
 
 			/*------------------------------------------------------------------------------
 				ADD GROUND POINT
 			--------------------------------------------------------------------------------*/
-			addKnot support_obj _spline_index #corner #line pos
+			addKnot support_obj spline_1 #corner #line pos
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 		(
 			--format "hit_support: %\n" hit_support
 			--pos.z = hit_support.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
 
-			--addKnot support_obj _spline_index #corner #line pos
-			addKnot support_obj _spline_index #corner #line hit_support.pos
+			--addKnot support_obj spline_1 #corner #line pos
+			addKnot support_obj spline_1 #corner #line hit_support.pos
 		)
 	),
 
@@ -489,12 +508,12 @@ struct SupportObject_v
 		num_of_segments = numSegments support_obj ( numSplines support_obj)
 
 		for segment_i = 1 to num_of_segments do
-			setMaterialID support_obj _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
+			setMaterialID support_obj spline_1 segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 
 		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
 		--if is_on_ground != undefined and is_on_ground then
 		if is_on_ground then
-			setMaterialID support_obj _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
+			setMaterialID support_obj spline_1 num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	),
 
 	/** Align to ctor
@@ -599,6 +618,15 @@ struct SupportObject_v
 		this.is_on_ground = false
 
 		this.hit_support = undefined
+	),
+	
+	/** Is on ground
+	 */
+	function _isOnGround =
+	(
+		--format "\n"; print "SupportObject_v.isOnGround()"
+		--is_on_ground = hit_raft == undefined and hit_support == undefined
+		is_on_ground = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
 	),
 
 	/*------------------------------------------------------------------------------

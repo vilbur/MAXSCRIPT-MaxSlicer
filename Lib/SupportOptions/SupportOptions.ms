@@ -78,7 +78,7 @@ struct SupportOptions_v
 	  */
 	function getValuesFroUi =
 	(
-		--format "\n"; print "SupportOptions_v.getValuesFroUi()"
+		format "\n"; print "SupportOptions_v.getValuesFroUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
@@ -112,10 +112,20 @@ struct SupportOptions_v
 		  *   Options.base_extrude	= roll.SPIN_base_width.value
 		  */
 		for _rollout in rollouts do
-			for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-				this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
+		(
+			if _rollout != undefined then 
+				for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+					this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
+			else
+				format "SupportOptions_v.getValuesFroUi() - _rollout IS UNDEFINED" 
+			
+		)
+		
+		--for _rollout in rollouts do
+		--	for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+		--		this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
 
-		--this.init()
+		--------this.init()
 	),
 
 	/** Init
@@ -294,7 +304,7 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.create()"
 
 		if rollouts == undefined then
-			messageBox ("UNDEFINED STRICT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
+			messageBox ("UNDEFINED CONSTRUCT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
 
 	)
 )

@@ -7,7 +7,7 @@
 */
 macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
-buttontext:	"SOURCE"
+buttontext:	"S O U  R C E"
 tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
 icon:	"across:3|height:32|width:128|border:false"
 (
@@ -20,7 +20,7 @@ icon:	"across:3|height:32|width:128|border:false"
 */
 macroscript	_print_support_visibility_source_hide
 category:	"_3D-Print"
-buttontext:	"SOURCE"
+buttontext:	"S O U  R C E"
 --icon:	""
 (
 	on execute do
@@ -36,7 +36,7 @@ buttontext:	"SOURCE"
 */
 macroscript	_print_support_visibility_show
 category:	"_3D-Print"
-buttontext:	"SUPPORTS"
+buttontext:	"S U P P O R T S"
 tooltip:	"Show SUPPORT objects\n\nCTRL: Select support objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select support objects\n\nSHIFT:Select more"
 (
@@ -49,8 +49,8 @@ tooltip:	"Show SUPPORT objects\n\nCTRL: Select support objects\n\nSHIFT:Select m
 */
 macroscript	_print_support_visibility_hide
 category:	"_3D-Print"
-buttontext:	"SUPPORTS"
-tooltip:	"Hide supports"
+buttontext:	"S U P P O R T S"
+tooltip:	"Hide supports\n\nCTRL + RMB: Hide unselected supports"
 --icon:	"id:BTN_visibility_Supports"
 (
 	on execute do
@@ -66,7 +66,7 @@ tooltip:	"Hide supports"
 */
 macroscript	_print_support_visibility_rafts
 category:	"_3D-Print"
-buttontext:	"RAFTS"
+buttontext:	"R A F T S"
 tooltip:	"Show RAFT objects\n\nCTRL: Select raft objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select raft objects\n\nSHIFT:Select more"
 (
@@ -82,7 +82,7 @@ tooltip:	"Show RAFT objects\n\nCTRL: Select raft objects\n\nSHIFT:Select more"
 */
 macroscript	_print_support_visibility_rafts_hide
 category:	"_3D-Print"
-buttontext:	"RAFTS"
+buttontext:	"R A F T S"
 tooltip:	"Hide rafts"
 --icon:	"id:BTN_visibility_Supports"
 (
@@ -101,7 +101,7 @@ tooltip:	"Hide rafts"
 */
 macroscript	_print_support_visibility_beams_show
 category:	"_3D-Print"
-buttontext:	"BEAMS"
+buttontext:	"B E A M S"
 tooltip:	"Show BEAMS objects\n\nCTRL: Select beams objects\n\nSHIFT:Select more"
 icon:	"across:3"
 (
@@ -114,7 +114,7 @@ icon:	"across:3"
 */
 macroscript	_print_support_visibility_beams_hide
 category:	"_3D-Print"
-buttontext:	"BEAMS"
+buttontext:	"B E A M S"
 tooltip:	"Hide beams"
 --icon:	"id:BTN_visibility_beams|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
@@ -130,7 +130,7 @@ tooltip:	"Hide beams"
 */
 macroscript	_print_support_visibility_pins_show
 category:	"_3D-Print"
-buttontext:	"PINS"
+buttontext:	"P I N S"
 tooltip:	"Show PINS objects\n\nCTRL: Select pins objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select pins objects\n\nSHIFT:Select more"
 (
@@ -143,7 +143,7 @@ tooltip:	"Show PINS objects\n\nCTRL: Select pins objects\n\nSHIFT:Select more"
 */
 macroscript	_print_support_visibility_pins_hide
 category:	"_3D-Print"
-buttontext:	"PINS"
+buttontext:	"P I N S"
 tooltip:	"Hide pins"
 --icon:	"id:BTN_visibility_pins|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
@@ -159,7 +159,7 @@ tooltip:	"Hide pins"
 */
 macroscript	_print_support_visibility_drains_show
 category:	"_3D-Print"
-buttontext:	"DRAINS"
+buttontext:	"D R A I N S"
 tooltip:	"Show DRAINS objects\n\nCTRL: Select drains objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select drains objects\n\nSHIFT:Select more"
 (
@@ -175,7 +175,7 @@ tooltip:	"Show DRAINS objects\n\nCTRL: Select drains objects\n\nSHIFT:Select mor
 */
 macroscript	_print_support_visibility_drains_hide
 category:	"_3D-Print"
-buttontext:	"DRAINS"
+buttontext:	"D R A I N S"
 tooltip:	"Hide drains"
 
 --icon:	"id:BTN_visibility_drains|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"

@@ -4,24 +4,17 @@
 function selectSupportsByBeamsCount count =
 (
 	--format "\n"; print ".selectSupportsByBeamsCount()"
-
 	_objects = (if selection.count > 0 then selection else objects) as Array
 
-	--source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
-
-	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-	format "supports.count: %\n" supports.count
-	--beams = SUPPORT_MANAfilein @"filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr""GER.getObjectsByType supports type:#BEAM
+	--supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+	supports = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
 
 	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
-	--SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
-	--format "bemas_of_supports.count: %\n" bemas_of_supports.count
-	--format "source_objects: %\n" source_objects
+
 	supports_by_count = for i = 1 to bemas_of_supports.count where bemas_of_supports[i].count == count collect supports[i]
 
 	if supports_by_count.count > 0 then
 		select supports_by_count
-
 )
 
 
@@ -151,9 +144,11 @@ toolTip:	"Select supports which are NOT on ground"
 	(
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
 
-		supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
+		--supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
+		
+		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
 
-		supports_on_ground = for support in supports where support.min.z as integer != 0 collect support
+		supports_on_ground = for support in supports_and_rafts where support.min.z as integer != 0 collect support
 
 		select supports_on_ground
 	)
@@ -173,10 +168,10 @@ toolTip:	"Select only supports with normal DOWN"
 	(
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
 
-		supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
+		--supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
+		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
 
-
-		filtered = for support in supports where getUserPropVal support "DIRECTION" == [0,0,-1] collect support
+		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" == [0,0,-1] collect support
 
 		select filtered
 	)
@@ -248,7 +243,8 @@ function searchInvalidSupports type: =
 	clearListener(); print("Cleared in:\n"+getSourceFileName())
 	_selection = ( if selection.count > 0 then selection else objects ) as Array
 
-	supports = SUPPORT_MANAGER.getObjectsByType _selection type:#SUPPORT
+	--supports = SUPPORT_MANAGER.getObjectsByType _selection type:#SUPPORT
+	supports = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
 
 	invalid_supports = Dictionary #( #ANGLE, #() ) #( #SHORT, #() ) #( #CHAMFER, #() ) #( #WIDTH, #() )
 

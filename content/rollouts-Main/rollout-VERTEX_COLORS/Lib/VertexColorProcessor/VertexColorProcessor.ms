@@ -1,9 +1,9 @@
-
-
---filein( getFilenamePath(getSourceFileName()) + "/../../../../Lib/MeshDataGetters/VertexColors/VertexColors.ms" )	--"./../../../../Lib/MeshDataGetters/VertexColors/VertexColors.ms"
-
-
-/** Vertex color processor
+/** Manage verts and their vertex colors
+  * 
+  * Set vertex COlor
+  * Select Verts by color
+  * Hide, unhide and isolate verts by colors
+  * 
  */
 struct VertexColorProcessor_v
 (

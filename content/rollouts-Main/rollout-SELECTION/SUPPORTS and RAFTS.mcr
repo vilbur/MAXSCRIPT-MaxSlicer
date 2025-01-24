@@ -184,7 +184,7 @@ macroscript	maxtoprint_select_supports_with_beams
 category:	"maxtoprint"
 buttontext:	"BY BEAMS"
 toolTip:	"Select supports without beams"
-icon:	"across:2"
+--icon:	"across:2"
 (
 	on execute do
 		selectSupportsByBeamsCount 0

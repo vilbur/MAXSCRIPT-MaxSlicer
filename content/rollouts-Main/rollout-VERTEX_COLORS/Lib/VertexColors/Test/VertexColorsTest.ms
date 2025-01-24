@@ -106,19 +106,24 @@ function selectVerts obj verts =
 )
 
 
+
+
+
 /*--------------------------------------------------------------------
+  
 	CREATE TEST OBJECTS
+	
 --------------------------------------------------------------------------------*/
 --global obj
 
 obj = if selection.count != 0 then selection[1] else
 (
 	--createSourceMesh()
-	--createSourceMesh segments:4
+	createSourceMesh segments:4
 	--createSourceMesh segments:4 break_map_faces:true
 	----createSourceMesh segments:16 add_modifiers:true
 	--createSourceMesh segments:16
-	createSourceMesh segments:64
+	--createSourceMesh segments:64
 	--createSourceMesh segments:128
 	--createSourceMesh segments:128 break_map_faces:true
 	--createSourceMesh segments:256
@@ -153,8 +158,7 @@ vertex_count	= getNumVerts obj.mesh
 /*--------------------------------------------------------------------
 	SET EXACT VERTEX COLORS
 --------------------------------------------------------------------------------*/
-
---setVertsColors()
+setVertsColors()
 
 /*==============================================================================
 		RUN TESTS

@@ -150,13 +150,15 @@ function checkLenghtsAndAnglesOfSupports type: =
 		messageBox "SUCCESS\n\nAll supports are valid" title:"Check lengths of supports"
 )
 
+
 /**
  *
  */
 macroscript	maxtoprint_supports_check
 category:	"maxtoprint"
-buttontext:	"C H E C K"
+buttontext:	"C H E C K  A L L"
 toolTip:	"SEARCH ANDF SELECT NOT VALID SUPORTS\n\n1) IF SUPPORT IS TOO SHORT \n\n2) IF ANGLE BETWEEN RAFT AND FOOT IS LESS THEN 90°\n\n3) IF CHMAFER VALUE IS TOO HIGH"
+icon:	"across:5"
 (
 	on execute do
 	(
@@ -172,7 +174,7 @@ toolTip:	"SEARCH ANDF SELECT NOT VALID SUPORTS\n\n1) IF SUPPORT IS TOO SHORT \n\
  */
 macroscript	maxtoprint_supports_check_menu
 category:	"maxtoprint"
-buttontext:	"C H E C K"
+buttontext:	"C H E C K  A L L"
 tooltip:	"Open menu"
 --toolTip:	"SEARCH ANDF SELECT NOT VALID SUPORTS\n\n1) IF TOO SUPPORT IS TOO SHORT \n\n2) IF ANGLE BETWEEN RAFT AND FOOT IS LESS THEN 90°"
 (
@@ -183,11 +185,98 @@ tooltip:	"Open menu"
 		/* DEFINE MENU */
 		Menu = RcMenu_v name:"CheckSupports"
 
-        Menu.item "High &RADIUS"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
-        Menu.item "High &ANGLE"    "checkLenghtsAndAnglesOfSupports type:#ANGLE"
+        Menu.item "High &WIDTH"  "checkLenghtsAndAnglesOfSupports type:#WIDTH"
+        Menu.item "High &ANGLE"   "checkLenghtsAndAnglesOfSupports type:#ANGLE"
         Menu.item "High &CHAMFER" "checkLenghtsAndAnglesOfSupports type:#CHAMFER"
-        Menu.item "Too  &SHORT"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
+        Menu.item "Too  &SHORT"   "checkLenghtsAndAnglesOfSupports type:#SHORT"
 
 		popUpMenu (Menu.create())
 	)
 )
+
+
+/**
+ *
+ */
+macroscript	maxtoprint_supports_check_short
+category:	"maxtoprint"
+buttontext:	"Short"
+toolTip:	"Test if too support is too short"
+icon:	"width:70|offset:[16,0]"
+(
+	on execute do
+        checkLenghtsAndAnglesOfSupports type:#SHORT
+)
+
+/**
+ *
+ */
+macroscript	maxtoprint_supports_check_chamfer
+category:	"maxtoprint"
+buttontext:	"Chamfer"
+toolTip:	"Test if too support is too short"
+(
+	on execute do
+        checkLenghtsAndAnglesOfSupports type:#CHAMFER
+)
+
+/**
+ *
+ */
+macroscript	maxtoprint_supports_check_angle
+category:	"maxtoprint"
+buttontext:	"Angle"
+toolTip:	"Test angle of support"
+(
+	on execute do
+        checkLenghtsAndAnglesOfSupports type:#ANGLE
+)
+
+/**
+ *
+ */
+macroscript	maxtoprint_supports_check_width
+category:	"maxtoprint"
+buttontext:	"Width "
+--toolTip:	"Test if too support is too short"
+(
+	on execute do
+        checkLenghtsAndAnglesOfSupports type:#WIDTH
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

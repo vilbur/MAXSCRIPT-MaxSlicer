@@ -16,16 +16,11 @@ global VERTEX_COLORS_CACHE = Dictionary #string
  *		 METHODS USING MAP VERTS:
  *				getvertcolor()
  *
-  *
- * NOTES:
+ *
+ *
+ * NOTES FOR METHODS:
  *		1) getvertcolor()	INPUT CPV vertex
  *		2) getVertsByColor()	RETURN MESH VERTEX
- *
- *
- * KNOWING ISSUE: remove_multi_colored_verts_from_white
- *				If vertex has mutliple colors, then first is used, include white color.
- *				Only way to make it work seem to iterate all map verts. THIS IS OVERKIL FOR SUCH SIPMPLE OPARTION ON HIGH VERTEX COUNT OBJECTS... MAX SUCKS !
- *
  *
  */
 struct VertexColors_v
@@ -72,8 +67,6 @@ struct VertexColors_v
 	--),
 
 	/** Get verts and their colors
-	  *
-	  * @param boolean remove_multi_colored_verts_from_white TRUE: collect first non white color | FALSE: collect all colors for vert ( mesh vert is occuring in muliple colors )
 	  *
 	  * @return Dictionary KEY: color as string VALUE: BitArray of verts
 	  */

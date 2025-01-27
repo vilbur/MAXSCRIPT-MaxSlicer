@@ -94,19 +94,21 @@ struct SupportManager_v
 		SourceObject = this._getSourceObject(source_obj)
 
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
-		format "supports_exists: %\n" supports_exists
+		--format "supports_exists: %\n" supports_exists
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
-		format "NEW SUPPORTS: %\n" new_nodes
-		format "COUNT: %\n" new_nodes.count
+		--format "NEW SUPPORTS: %\n" new_nodes
+		--format "COUNT: %\n" new_nodes.count
 
 		if new_nodes.count > 0 then
 		(
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 
-			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
+			
+			
+			--bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
-			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
+			--bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
 			this.updateShapes()
 		)
@@ -509,101 +511,6 @@ struct SupportManager_v
 
 
 
---	/** get objects by type
---	 */
---	function searchObjectsByType _objects type: hierarchy:false =
---	(
---		format "\n"; print "SupportManager_v.searchObjectsByType()"
---
---        source_keys = #()
---        supports	= #()
---        beams   	= #()
---
---        objects_to_process = #()
---
---
---		for obj in _objects do
---			case of
---			(
---                ((sync_key = this.isSourceObject obj) != false): append source_keys sync_key
---                --((this.isType #SOURCE  obj) != false): append source_keys obj
---                ((this.isType #SUPPORT obj) != false): append supports obj
---                ((this.isType #BEAM    obj) != false): append beams obj
---                --default:
---			)
---
---		format "source_keys: %\n" source_keys.count
---		format "supports: %\n" supports.count
---		format "beams: %\n" beams.count
---
---		if type == #SOURCE then
---		(
---			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
---			--if hierarchy then
---			--(
---				sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
---			--	format "sync_keys_of_objs: %\n" sync_keys_of_objs
---			--	format "source_keys: %\n" source_keys
---			--
---				source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
---			--	--objects_to_process = for key in  collect SourceObjects[key].obj
---			--
---			--	source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
---			--)
---
---
---			objects_to_process = for key in source_keys collect SourceObjects[key].obj
---		)
---
---		else if source_keys.count > 0 then
---		(
---
---			/* GET SUPPORTS OF SOURCE OBJECT */
---			if hierarchy or type == #SUPPORT  then
---				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
---					append objects_to_process SupportObjects[key].support_obj
---
---			/* GET BEAMS OF SOURCE OBJECT */
---			if hierarchy or type == #BEAM  then
---				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
---					append objects_to_process BeamObjects[key].beam
---
---		)
---		else if supports.count > 0 then
---		(
---
---			if  hierarchy or type == #SUPPORT then
---				objects_to_process += supports
---
---			/* GET BEAMS OF SOURCE OBJECT */
---				if hierarchy or type == #BEAM  then
---					for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
---						append objects_to_process BeamObjects[key].beam
---
---		)
---		else if beams.count > 0 then
---		(
---
---			if type == #BEAM  then
---				objects_to_process = beams
---
---
---			else if type == #SUPPORT then
---				for beam in beams do(
---
---					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
---					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
---				)
---
---		)
---
---
---
---		format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
---
---		objects_to_process --return
---	),
-
 	/*------------------------------------------------------------------------------
 		TEST OBEJCT TYPE
 	--------------------------------------------------------------------------------*/
@@ -818,52 +725,6 @@ struct SupportManager_v
 		for obj in _objects where this.isType #SUPPORT obj != false or this.isType #RAFT obj != false collect obj
 	),
 
-
-	--/** Get verts normals
-	-- */
-	--function _getVertsNormals =
-	--(
-	--	--format "\n"; print "MeshDataGetter_v._getVertsNormals()"
-	--	obj_mesh = obj.mesh
-	--
-	--	vertex_normals = #{1..obj.numverts} as Array
-	--
-	--	for i = 1 to verts_data[#VERTS].count do
-	--		vertex_normals[i] = point3 0 0 0
-	--
-	--	verts_process = verts_data[#VERTS]
-	--
-	--	faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
-	--
-	--	for face_of_vert in faces_of_verts do
-	--	(
-	--		--face_verts = getFace obj_mesh face_of_vert
-	--		--face_normal = getFaceNormal obj_mesh face_of_vert
-	--		--
-	--		--
-	--		--vertex_normals[face_verts.x] += face_normal
-	--		--vertex_normals[face_verts.y] += face_normal
-	--		--vertex_normals[face_verts.z] += face_normal
-	--
-	--		face_verts = getFace obj_mesh face_of_vert
-	--		face_normal = getFaceNormal obj_mesh face_of_vert
-	--
-	--		for vert in face_verts * verts_process do
-	--			vertex_normals[vert] += face_normal
-	--
-	--	)
-	--
-	--	for vert in verts_data[#VERTS] collect normalize vertex_normals[vert]
-	--),
-
-	--/** Get existing support and rafts
-	-- */
-	--function _getExistingSupportAndRafts sync_key =
-	--(
-	--	--format "\n"; print "SupportManager_v.getExistingSupportAndRafts()"
-	--	for obj in objects where superClassOf obj.baseobject == shape and getUserPropVal obj "SYNC_KEY" == sync_key collect obj
-	--),
-
 	/** Sort obejcts by source object
 	  *
 	  * @return Dictionary #STRING -- KEY:"SYNC_KEY" VALUE:#( nodes of source objects )
@@ -1054,7 +915,7 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.onCreate()"
 
 		--DisableSceneRedraw()
-		SLICER_SYSTEM.toggleModifiers false
+		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
 
 		this._loadSourceObjectsFromScene()
 
@@ -1063,7 +924,7 @@ struct SupportManager_v
 		this._loadBeamsFromScene()
 
 
-		SLICER_SYSTEM.toggleModifiers true
+		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers true
 		--EnableSceneRedraw()
 
 		--SUPPORT_OPTIONS.getValuesFroUi()

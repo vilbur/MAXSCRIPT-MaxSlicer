@@ -1,4 +1,8 @@
 /** Support object
+  
+  USES: global SUPPORT_OPTIONS --"./../../../SupportOptions/SupportOptions.ms"
+  
+  
  */
 struct SupportObject_v
 (
@@ -33,10 +37,16 @@ struct SupportObject_v
 
 
 	/** Generate support
+	  * 
+	  * 
+	  * 
+	  * @param point3 first_knot_pos	top position of support
+	  * @param point3 direction	vector of direction from 1st to 2nd point
+	  * @param color  wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: clr: direction: =
+	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:  =
 	(
-		--format "\n"; print "SupportObject_v.generateSupport()"
+		format "\n"; print "SupportObject_v.generateSupport()"
 		--format "vertex_index: %\n" vertex_index
 		--format "DIRECTION: %\n" direction
 
@@ -52,16 +62,13 @@ struct SupportObject_v
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
 
+		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
 			support_obj = SplineShape()
 
-		else
+		else /* DELETE SPLINE */ 
 			deleteSpline support_obj spline_1
-
-
-		support_obj.name	= (this._getName(vertex_index))
-		support_obj.wirecolor	= clr
-		--support_obj.first_knot_pos	= first_knot_pos
+	
 		
 		this._isOnGround()
 
@@ -73,11 +80,17 @@ struct SupportObject_v
 
 		this._alignPivotToSeconPoint()
 
-		support_key = (getHandleByAnim support_obj) as string
+		if source_obj != undefined then
+		(
+			support_obj.name	= (this._getName(vertex_index))
+			support_obj.wirecolor	= wirecolor
+	
+			support_key = (getHandleByAnim support_obj) as string
+	
+			setUserPropVal support_obj "DIRECTION" direction --asString:true
+		)
 
-		setUserPropVal support_obj "DIRECTION" direction --asString:true
-
-		this --return
+		support_obj --return
 	),
 
 	/** Update supports position
@@ -328,9 +341,6 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
-			
-			
-		
 	),
 
 	/** Set update support knots
@@ -587,24 +597,24 @@ struct SupportObject_v
 
 		local hit_result
 
-		half_of_bar_width = SUPPORT_OPTIONS.bar_width / 2
-
-
-		pos += 0.1 * direction
-
-		bar_bbox = #(
-			modifyPos pos 1 half_of_bar_width,
-			modifyPos pos 1 (half_of_bar_width * -1),
-			modifyPos pos 2 half_of_bar_width,
-			modifyPos pos 2 (half_of_bar_width * -1),
-			pos
+		if source_obj != undefined then
+		(
+			half_of_bar_width = SUPPORT_OPTIONS.bar_width / 2
+	
+			pos += 0.1 * direction
+	
+			bar_bbox = #(
+				modifyPos pos 1 half_of_bar_width,
+				modifyPos pos 1 (half_of_bar_width * -1),
+				modifyPos pos 2 half_of_bar_width,
+				modifyPos pos 2 (half_of_bar_width * -1),
+				pos
+			)
+	
+			for pos in bar_bbox do
+				if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
+					hit_result = copy hit
 		)
-		--format "bar_bbox: %\n" bar_bbox
-		--intersectRayScene
-		for pos in bar_bbox do
-			if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
-				hit_result = copy hit
-
 
 		hit_result --return
 	),

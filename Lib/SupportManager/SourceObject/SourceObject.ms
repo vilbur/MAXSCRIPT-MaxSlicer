@@ -42,51 +42,72 @@ struct SourceObject_v
 		format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
-		new_nodes = #()
+		/** Set user data to support
+		 */
+		function setUserDataToSupport SupportObject vert =
+		(
+			--format "\n"; print "SourceObject_v.setUserDataToSupport()"
+			setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key
 
-		--obj_type =  if isRaft() then #RAFT else #SUPPORT
+			setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+			setUserPropVal SupportObject.support_obj "INDEX"	vert
+		)
+		
+		new_nodes = #()
 
 		this._removeDeletedNodes()
 
-		--this._setVertsToProcess()
+		
+		/*------------------------------------------------------------------------------
+			GET VERTS TO PROCESS by vertex color
+		--------------------------------------------------------------------------------*/
 
 		verts_sel	= getVertSelection obj.mesh
-		format "verts_sel: %\n" verts_sel
 
 		supports_exists = Supports.keys as BitArray
-		--format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		verts_by_colors = this._getVertsByColors()
-		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-		--verts_process -= supports_exists -- remove verts which supports exists aleready
 
-		--if normals_local == undefined then
+		
+		/*------------------------------------------------------------------------------
+			NORMALS OF VERTS
+		--------------------------------------------------------------------------------*/
+
 		this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
-		format "VERTS_PROCESS A: %\n" verts_process
+
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
-		format "VERTS_PROCESS B: %\n" verts_process
+
+		
+		/*------------------------------------------------------------------------------
+			SORT VERTS BY COLORS
+		--------------------------------------------------------------------------------*/
+
+		verts_by_colors = Dictionary #STRING
+
+		for vertex_color in verts_by_colors.keys do
+			verts_by_colors[vertex_color] = verts_by_colors[vertex_color] * verts_process
+
+			
+		/*------------------------------------------------------------------------------
+			POSITIONS OF VERTS
+		--------------------------------------------------------------------------------*/
 
 		verts_pos = this._getVertsPositions(verts_process)
 
-		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
-		verts_by_colors_process = Dictionary #STRING
-
+		
+		/*------------------------------------------------------------------------------
+			CREATE SUPPORTS FOR EACH COLOR 
+		--------------------------------------------------------------------------------*/
+		
 		for vertex_color in verts_by_colors.keys do
-			verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
-
-
-		/* CREATE SUPPORTS FOR EACH COLOR */
-		for vertex_color in verts_by_colors_process.keys do
-			for vert in verts_by_colors_process[vertex_color] where not supports_exists[vert]  do
-
-			--if not supports_exists[vert] then
+			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
 				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
@@ -101,29 +122,32 @@ struct SourceObject_v
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				if SupportObject.support_obj != undefined then
 				(
+					setUserDataToSupport(SupportObject)(vert)
 
-					setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key asString:true
-
-					setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-					setUserPropVal SupportObject.support_obj "INDEX"	vert
-
+					/* LINK SUPPORT TO SOURCE OBJECT */ 
 					SupportObject.support_obj.parent = obj
 
 					/* ADD TO ARRAYS */
 					this.Supports[vert] = SupportObject
 
+					/* ADD TO ALL OTHERS SUPPORTS */ 
 					SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
 
 					append new_nodes SupportObject.support_obj
-
 				)
 			)
 
+		/*------------------------------------------------------------------------------
+			BIND EVENTS
+		--------------------------------------------------------------------------------*/
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
 		bindSourceObjectTransformEvent ( obj )
-		format "new_nodes.count: %\n" new_nodes.count
-		new_nodes --return
+		
+		
+		
+		/* RETURN */ 
+		new_nodes
 	),
 
 	/** Convert support to raft or vice versa
@@ -202,8 +226,8 @@ struct SourceObject_v
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
 
-		clr = VertexColors._getVertColor(index)
-		--format "clr: %\n" clr
+		wirecolor = VertexColors._getVertColor(index)
+		--format "wirecolor: %\n" wirecolor
 		verts_process = #{index}
 
 		--if normals_local == undefined then
@@ -217,7 +241,7 @@ struct SourceObject_v
 
 		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[index] else direction_down -- direction down
 
-		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction clr:clr
+		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction wirecolor:wirecolor
 	),
 
 	/** Get support by node

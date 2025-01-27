@@ -37,7 +37,7 @@ struct SupportOptions_v
 	base_width	= 4.0,
 
 	chamfer_base = 2,
-	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
+	chamfer_bar	= 1,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
 	extend_top	= 0.5,
 
@@ -159,8 +159,8 @@ struct SupportOptions_v
 		val = case prop_key of
 		(
 			#BAR_WIDTH:	bar_width	/ 2 -- get radius value
-			#BASE_WIDTH:	base_width	/ 2 -- get radius value
-			#DRAIN_WIDTH:	drain_width	/ 2 -- get radius value
+			#BASE_WIDTH:	(base_width - bar_width)	/ 2
+			#DRAIN_WIDTH:	drain_width	/ 2
 			#CHAMFER_BASE:	base_height	/ 2
 			#CHAMFER_BAR:	this._getChamferBarValue()
 
@@ -247,15 +247,19 @@ struct SupportOptions_v
 	  */
 	function _getChamferBarValue =
 	(
-		--format "\n"; print "SupportModifiers_v._getChamferBarValue()"
+		format "\n"; print "SupportModifiers_v._getChamferBarValue()"
+		format "bar_width: %\n" bar_width
+		format "chamfer_bar: %\n" chamfer_bar
+		--chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
 
-		chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
+		--chamfer_val = chamfer_step * chamfer_bar
 
-		chamfer_val = chamfer_step * chamfer_bar
+		--if this.bar_width / 2 == chamfer_val then
+			--chamfer_val -= 0.05
 
-		if this.bar_width / 2 == chamfer_val then
-			chamfer_val -= 0.05
-
+		chamfer_val = (bar_width - chamfer_bar) / 2
+		format "chamfer_val: %\n" chamfer_val
+			
 		chamfer_val --return
 	),
 
@@ -302,9 +306,10 @@ struct SupportOptions_v
 	on create do
 	(
 		--format "\n"; print "SupportOptions_v.create()"
-
-		if rollouts == undefined then
-			messageBox ("UNDEFINED CONSTRUCT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
+		
+		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 
+		--if rollouts == undefined then
+			--messageBox ("UNDEFINED CONSTRUCT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
 
 	)
 )

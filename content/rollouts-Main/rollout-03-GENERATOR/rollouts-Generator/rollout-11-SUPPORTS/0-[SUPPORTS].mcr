@@ -1,12 +1,4 @@
 filein( getFilenamePath(getSourceFileName()) + "/Lib/generateSupportsOrRafts.ms" )	--"./Lib/generateSupportsOrRafts.ms"
---DEV
-
---print("DEV IMPORT in:\n"+getSourceFileName());filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
-
-
-
-
-
 
 /*==============================================================================
 
@@ -14,6 +6,7 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/generateSupportsOrRafts.ms"
 
 ================================================================================*/
 
+global SPIN_CHAMFER_BAR_LAST_VALUE
 
 /** BAR WIDTH
  */
@@ -23,9 +16,25 @@ buttontext:	"WIDTH"
 tooltip:	"Bar width in mm of printed model.\n\nExported scale is used"
 icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 0, 0 ]"
 (
-		--format "EventFired:	% \n" EventFired
 	on execute do
+	(
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+		--format "EventFired:	% \n" EventFired
+		--format "TEST: %\n" (EventFired.val >= ROLLOUT_supports.SPIN_chamfer_bar.value)
+		
+		/* LINK MAXIMUM VALUE TO TOP WIDTH SPINNER _print_platform_generator_bar_chamfer */ 
+		if EventFired.val <= ROLLOUT_supports.SPIN_chamfer_bar.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_chamfer_bar.value then
+			ROLLOUT_supports.SPIN_chamfer_bar.value = EventFired.val
+		
+		/* LINK MAXIMUM VALUE TO BASE WIDTH SPINNER _print_platform_generator_base_width */ 
+		if EventFired.val >= ROLLOUT_supports.SPIN_base_width.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_base_width.value then
+			ROLLOUT_supports.SPIN_base_width.value = EventFired.val
+		
+		/* STORE VALUE */ 
+		SPIN_CHAMFER_BAR_LAST_VALUE = EventFired.val
+		
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
+	)
 )
 
 /**
@@ -34,11 +43,24 @@ macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
 buttontext:	"CHAMFER"
 tooltip:	"Chamfer of support`s top.\n\n\nCHAMFER MIN: 0\nCHAMFER MAX: 10\n\nValue is portion of bar radius.\n\nE.EG: 5 == 50% use of radius"
-icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|type:#integer|range:[ 0, 10, 5 ]|width:64|offset:[ 0, 0 ]"
+icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|range:[ 0, 3, 5 ]|width:64|offset:[ 0, 0 ]"
 (
-	--format "EventFired:	% \n" EventFired
 	on execute do
+	(
+		--format "EventFired:	% \n" EventFired
+		/* LINK MAXIMUM VALUE TO PREVIOUS SPINNER */ 
+		if EventFired.val > (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
+		(
+			EventFired.val = bar_width
+			
+			EventFired.control.value = bar_width
+			
+			format "TOP WITH MUST BE LESS THEN BAR WIDTH: %\n" bar_width
+		)
+	
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
+	)
+		
 )
 
 /** EXTRUDE TOP
@@ -83,9 +105,6 @@ icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
 		)
 )
 
-
-
-
 /**
  */
 macroscript	_print_platform_generator_base_width
@@ -97,7 +116,18 @@ icon:	"across:3|control:spinner|range:[ 0.1, 999, 10 ]|width:90|offset:[ -10, 12
 	on execute do
 	(
 		format "EventFired:	% \n" EventFired
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+	
+		/* LINK MAXIMUM VALUE TO PREVIOUS SPINNER */ 
+		if EventFired.val < (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
+		(
+			EventFired.val = bar_width
+			
+			EventFired.control.value = bar_width
+			
+			format "BASE WITH MUST MORE THEN BAR WIDTH: %\n" bar_width
+		)
+		
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
 	)
 )

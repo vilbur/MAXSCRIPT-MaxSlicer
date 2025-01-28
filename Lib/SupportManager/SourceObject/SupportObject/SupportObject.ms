@@ -231,7 +231,7 @@ struct SupportObject_v
 
 		result = true
 
-		if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #CHAMFER_BAR  then
+		if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #TOP_WIDTH  then
 		(
 			format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
 

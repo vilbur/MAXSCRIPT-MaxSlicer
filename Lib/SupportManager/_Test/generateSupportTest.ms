@@ -69,11 +69,11 @@ SUPPORT_MANAGER		= SupportManager_v()
 
 format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
 /* SET SUPPORT OPTIONS */ 
-SUPPORT_OPTIONS.chamfer_bar	= 1
+SUPPORT_OPTIONS.top_width	= 1
 SUPPORT_OPTIONS.bar_width	= 1.5
 SUPPORT_OPTIONS.base_width	= 5
 
-SUPPORT_OPTIONS.chamfer_bar	= 0.5
+SUPPORT_OPTIONS.top_width	= 0.5
 SUPPORT_OPTIONS.bar_width	= 2
 SUPPORT_OPTIONS.base_width	= 6
 

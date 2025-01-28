@@ -36,7 +36,7 @@ function searchInvalidSupports type: =
 	--treshold    = 0.05
 	treshold    = 0
 
-	for support in supports where ( chamfer_mod = support.modifiers[#CHAMFER_BAR]) != undefined and ( sweep_mod = support.modifiers[#BAR_WIDTH][#Cylinder_Section]) != undefined and (num_knots = numKnots support 1) <= 3 do
+	for support in supports where ( chamfer_mod = support.modifiers[#TOP_WIDTH]) != undefined and ( sweep_mod = support.modifiers[#BAR_WIDTH][#Cylinder_Section]) != undefined and (num_knots = numKnots support 1) <= 3 do
 	(
 		sweep_radius   = sweep_mod.radius
 		chamfer_amount = chamfer_mod.amount

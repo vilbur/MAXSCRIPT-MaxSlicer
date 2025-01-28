@@ -77,7 +77,7 @@ try(
 	--------------------------------------------------------------------------------*/
 	SUPPORT_OPTIONS = SupportOptions_v #(ROLLOUT_generator, ROLLOUT_supports)
 
-	SUPPORT_OPTIONS.getValuesFroUi()
+	SUPPORT_OPTIONS.getValuesFromUi()
 
 	MODIFIERS_MANAGER = ModifiersManager_v()
 

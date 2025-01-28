@@ -37,11 +37,11 @@ struct SupportOptions_v
 	base_width	= 4.0,
 
 	chamfer_base = 2,
-	chamfer_bar	= 1,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
+	top_width	= 1,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
 	extend_top	= 0.5,
 
-	oot_enabled = true,
+	foot_enabled = true,
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
@@ -80,9 +80,9 @@ struct SupportOptions_v
 	  * 
 	  * 
 	  */
-	function getValuesFroUi =
+	function getValuesFromUi =
 	(
-		format "\n"; print "SupportOptions_v.getValuesFroUi()"
+		format "\n"; print "SupportOptions_v.getValuesFromUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
@@ -121,7 +121,7 @@ struct SupportOptions_v
 				for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
 					this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
 			else
-				format "SupportOptions_v.getValuesFroUi() - _rollout IS UNDEFINED" 
+				format "SupportOptions_v.getValuesFromUi() - _rollout IS UNDEFINED" 
 			
 		)
 		
@@ -147,8 +147,8 @@ struct SupportOptions_v
 	 */
 	function setOptionValue prop_key val =
 	(
-		--format "\n"; print "SupportOptions_v.setOptionValue()"
-		--format "%: %\n" prop_key val
+		format "\n"; print "SupportOptions_v.setOptionValue()"
+		format "%: %\n" prop_key val
 
 		setProperty this prop_key val
 		--this.init()
@@ -161,7 +161,7 @@ struct SupportOptions_v
 		format "\n"; print "SupportOptions_v.getProp()"
 		
 	
-		function getChamferBarValue = (bar_width - chamfer_bar) / 2
+		function getChamferBarValue = (bar_width - top_width) / 2
 	
 		function getBaseWidthValue = if (base_width_value = (base_width - bar_width) / 2.0 ) > 0 then base_width_value else 0 -- base_width is always > 0
 		--function getBaseWidthValue = 5
@@ -173,7 +173,7 @@ struct SupportOptions_v
 			#BASE_WIDTH:	getBaseWidthValue()
 			#DRAIN_WIDTH:	drain_width	/ 2.0
 			#CHAMFER_BASE:	base_height	/ 2.0
-			#CHAMFER_BAR:	getChamferBarValue()
+			#TOP_WIDTH:	getChamferBarValue()
 
 			default: getProperty this ( prop_key as string )
 		)
@@ -261,15 +261,15 @@ struct SupportOptions_v
 	--(
 	--	format "\n"; print "SupportModifiers_v._getChamferBarValue()"
 	--	format "bar_width: %\n" bar_width
-	--	format "chamfer_bar: %\n" chamfer_bar
+	--	format "top_width: %\n" top_width
 	--	--chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
 	--
-	--	--chamfer_val = chamfer_step * chamfer_bar
+	--	--chamfer_val = chamfer_step * top_width
 	--
 	--	--if this.bar_width / 2 == chamfer_val then
 	--		--chamfer_val -= 0.05
 	--
-	--	chamfer_val = (bar_width - chamfer_bar) / 2
+	--	chamfer_val = (bar_width - top_width) / 2
 	--	format "chamfer_val: %\n" chamfer_val
 	--		
 	--	chamfer_val --return

@@ -95,6 +95,8 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
+		SUPPORT_OPTIONS.getValuesFromUi()
+
 		SourceObject = this._getSourceObject(source_obj)
 
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
@@ -949,8 +951,6 @@ struct SupportManager_v
 
 		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers true
 		--EnableSceneRedraw()
-
-		--SUPPORT_OPTIONS.getValuesFroUi()
 
 	)
 )

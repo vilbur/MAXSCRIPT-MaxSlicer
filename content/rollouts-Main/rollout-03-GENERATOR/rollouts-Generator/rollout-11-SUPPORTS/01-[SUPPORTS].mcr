@@ -8,13 +8,32 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/generateSupportsOrRafts.ms"
 
 global SPIN_CHAMFER_BAR_LAST_VALUE
 
+/*------------------------------------------------------------------------------
+	GENERATE SUPPORT BUTTON
+--------------------------------------------------------------------------------*/
+macroscript	_print_support_generator
+category:	"_3D-Print"
+buttontext:	"S U P P O R T"
+icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]"
+(
+	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
+	on isEnabled return selection.count > 0
+
+	on execute do
+		undo "Generate Supports" on
+		(
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+			generateSupportsOrRafts obj_type:#SUPPORT
+		)
+)
+
 /** BAR WIDTH
  */
 macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
-tooltip:	"Bar width in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 0, 0 ]"
+tooltip:	"WIDTH SUPPORT LEG\n\nALL UNITS ARE IN MILIMETERS OF PRINTED MODEL.\N\NEXPORTED SCALE IS USED"
+icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 16, 4 ]"
 (
 	on execute do
 	(
@@ -37,13 +56,14 @@ icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64
 	)
 )
 
+
 /**
  */
 macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
-buttontext:	"CHAMFER"
-tooltip:	"Chamfer of support`s top.\n\n\nCHAMFER MIN: 0\nCHAMFER MAX: 10\n\nValue is portion of bar radius.\n\nE.EG: 5 == 50% use of radius"
-icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|range:[ 0, 3, 5 ]|width:64|offset:[ 0, 0 ]"
+buttontext:	"TOP"
+tooltip:	"WIDTH OF TOP PART OF SUPPORT.\n\n\nPOINT WHERE SUPPORT STARTS"
+icon:	"control:spinner|id:SPIN_chamfer_bar|fieldwidth:32|range:[ 0, 3, 5 ]|width:64|offset:[ 8, 4 ]"
 (
 	on execute do
 	(
@@ -63,55 +83,14 @@ icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|range:[ 0, 3, 5 ]|width:64|o
 		
 )
 
-/** EXTRUDE TOP
- */
-macroscript	_print_platform_generator_extrude_top
-category:	"_3D-Print"
-buttontext:	"EXTEND"
-tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_extend_top|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
-(
-	--format "EventFired:	% \n" EventFired
-	on execute do
-		SUPPORT_MANAGER.updateModifiers ( EventFired )
-)
-
-
-
-
-/*==============================================================================
-
-		COTNROLS ROW 2
-
-================================================================================*/
-
-
-/*------------------------------------------------------------------------------
-	GENERATE SUPPORT BUTTON
---------------------------------------------------------------------------------*/
-macroscript	_print_support_generator
-category:	"_3D-Print"
-buttontext:	"S U P P O R T"
-icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
-(
-	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
-	on isEnabled return selection.count > 0
-
-	on execute do
-		undo "Generate Supports" on
-		(
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
-			generateSupportsOrRafts obj_type:#SUPPORT
-		)
-)
 
 /**
  */
 macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
-buttontext:	"BASE width"
+buttontext:	"BASE"
 tooltip:	"Width of base part\n\nRECOMENDED: 10"
-icon:	"across:3|control:spinner|range:[ 0.1, 999, 10 ]|width:90|offset:[ -10, 12 ]"
+icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 0.1, 999, 10 ]|width:90|offset:[ 0, 4 ]"
 (
 	on execute do
 	(
@@ -132,13 +111,54 @@ icon:	"across:3|control:spinner|range:[ 0.1, 999, 10 ]|width:90|offset:[ -10, 12
 	)
 )
 
+
+
+/*==============================================================================
+
+		COTNROLS ROW 2
+
+================================================================================*/
+
+
+/*
+*/ 
+macroscript	_print_support_foot_option
+category:	"_3D-Print"
+buttontext:	"Foot"
+tooltip:	"Generate supports WITH\WITHOUT FOOT"
+icon:	"ACROSS:3|control:checkbox|id:CBX_foot_enabled|offset:[ 112, -16 ]"
+(
+	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
+	on isEnabled return selection.count > 0
+
+	on execute do
+		SUPPORT_OPTIONS.foot_enabled = EventFired.val
+		--SUPPORT_MANAGER.updateModifiers ( EventFired )
+
+)
+
+
+/** EXTRUDE TOP
+ */
+macroscript	_print_platform_generator_extrude_top
+category:	"_3D-Print"
+buttontext:	"EXT"
+tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
+icon:	"ACROSS:3|control:spinner|id:SPIN_extend_top|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ 34, -16 ]"
+(
+	--format "EventFired:	% \n" EventFired
+	on execute do
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
+)
+
+
 /**
  */
 macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
-buttontext:	"BASE Height"
+buttontext:	"HEIGHT"
 tooltip:	"Height of support base"
-icon:	"across:3|control:spinner|range:[ 0.1, 999, 1 ]|width:72|offset:[ 30, 12 ]"
+icon:	"control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 0.1, 999, 1 ]|width:72|offset:[ 16, -16 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

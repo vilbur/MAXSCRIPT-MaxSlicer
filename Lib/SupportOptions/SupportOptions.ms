@@ -41,6 +41,7 @@ struct SupportOptions_v
 
 	extend_top	= 0.5,
 
+	oot_enabled = true,
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
@@ -73,8 +74,11 @@ struct SupportOptions_v
 
 	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION ),
 
-	/** GET INSTANCE OF SUPPORT GENERATOR
-	  *
+	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
+	  * 
+	  * CONTROL ID >>> PROPERTY NAME 		E.G.: Rollout.BTN_prop_name >>> SupportOptions.prop_name
+	  * 
+	  * 
 	  */
 	function getValuesFroUi =
 	(
@@ -106,7 +110,7 @@ struct SupportOptions_v
 
 		control_type_to_fetch_values = "SPIN|CBX|RB"
 
-		/** FILL SupportManager PROPERTIES WITH DATA FROM UI
+		/** 
 		  *
 		  * Perform kind of this in loop:
 		  *   Options.base_extrude	= roll.SPIN_base_width.value

@@ -44,31 +44,34 @@ struct SupportObject_v
 	  * @param point3 direction	vector of direction from 1st to 2nd point
 	  * @param color  wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:  =
+	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
 		format "\n"; print "SupportObject_v.generateSupport()"
-		--format "vertex_index: %\n" vertex_index
-		--format "DIRECTION: %\n" direction
+		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		
+		/* CREATE NEW OBJECT */ 
+		if support_obj == undefined then
+			support_obj = SplineShape wirecolor:wirecolor
+
+		else /* RESET SPLINE */ 
+			deleteSpline support_obj spline_1
+			
+			
+		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
+		if direction.z > -0.25 then direction.z = -0.25
 
 
-		if direction.z > -0.25 then
-			direction.z = -0.25
-
-		--format "DIRECTION: %\n" direction
-
+		/* SET RAFT PART of support */ 
 		this._setRaftKnots(first_knot_pos)(direction)
-		--format "KNOTS_POSITIONS: %\n" knots_positions
-
+		
+		/* SET LEG PART of support - if raft do not hit source object */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
 
-		/* CREATE NEW OBJECT */ 
-		if support_obj == undefined then
-			support_obj = SplineShape()
-
-		else /* DELETE SPLINE */ 
-			deleteSpline support_obj spline_1
-	
+		
+		/*------------------------------------------------------------------------------
+			CREATE SUPPORT
+		--------------------------------------------------------------------------------*/
 		
 		this._isOnGround()
 
@@ -80,17 +83,20 @@ struct SupportObject_v
 
 		this._alignPivotToSeconPoint()
 
-		if source_obj != undefined then
-		(
-			support_obj.name	= (this._getName(vertex_index))
-			support_obj.wirecolor	= wirecolor
+		this._setName(vertex_index)
 	
-			support_key = (getHandleByAnim support_obj) as string
-	
-			setUserPropVal support_obj "DIRECTION" direction --asString:true
-		)
+		SUPPORT_MANAGER.addSupportObjects (this)
 
-		support_obj --return
+	
+		/* SET USER DATA TO SUPPORT OBJECT */ 	
+		support_key = (getHandleByAnim support_obj) as string
+
+		setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
+
+		setUserPropVal support_obj "DIRECTION" direction --asString:true
+		
+		/* RETURN */ 
+		this
 	),
 
 	/** Update supports position
@@ -276,8 +282,8 @@ struct SupportObject_v
 	 */
 	function _setRaftKnots vertex_pos direction =
 	(
-		--format "\n"; print "SupportRaftBaseObject._setRaftKnots()"
-
+		format "\n"; print "SupportObject_v._setRaftKnots()"
+		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
 
 		/* ADD FIRST POINT */
@@ -645,20 +651,22 @@ struct SupportObject_v
 
 	--------------------------------------------------------------------------------*/
 
-	/** Get name
+	/** Set nide name
 	 */
-	function _getName vertex_index =
+	function _setName vertex_index =
 	(
 		--format "\n"; print "SupportRaftBaseObject._getName()"
-
-		support_name = substituteString source_obj.name "-source" ""
-
-		if not matchPattern support_name pattern:("*-support*") then
-			support_name += "-support"
-		--support_name + "-support-" + vertex_index as string -- + "-" + index as string
-		support_name += "-"+ vertex_index as string
-
-		support_name --return
+		if source_obj != undefined then
+		(
+			support_name = substituteString source_obj.name "-source" ""
+	
+			if not matchPattern support_name pattern:("*-support*") then
+				support_name += "-support"
+			--support_name + "-support-" + vertex_index as string -- + "-" + index as string
+			support_name += "-"+ vertex_index as string
+	
+			support_obj.name = support_name --return
+		)
 	),
 
 	/** Shift wirecolor sligtly
@@ -683,7 +691,8 @@ struct SupportObject_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportObject.onCreate()"
+		format "\n"; print "SupportObject.onCreate()"
+		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS		
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

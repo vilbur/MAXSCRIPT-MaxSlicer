@@ -154,20 +154,28 @@ struct SupportOptions_v
 	 */
 	function getOption prop_key =
 	(
-		--format "\n"; print "SupportOptions_v.getProp()"
+		format "\n"; print "SupportOptions_v.getProp()"
+		
+	
+		function getChamferBarValue = (bar_width - chamfer_bar) / 2
+	
+		function getBaseWidthValue = if (base_width_value = (base_width - bar_width) / 2.0 ) > 0 then base_width_value else 0 -- base_width is always > 0
+		--function getBaseWidthValue = 5
+		
 		/* Mutate value for modifier */
 		val = case prop_key of
 		(
-			#BAR_WIDTH:	bar_width	/ 2 -- get radius value
-			#BASE_WIDTH:	(base_width - bar_width)	/ 2
-			#DRAIN_WIDTH:	drain_width	/ 2
-			#CHAMFER_BASE:	base_height	/ 2
-			#CHAMFER_BAR:	this._getChamferBarValue()
+			#BAR_WIDTH:	bar_width	/ 2.0 -- get radius value
+			#BASE_WIDTH:	getBaseWidthValue()
+			#DRAIN_WIDTH:	drain_width	/ 2.0
+			#CHAMFER_BASE:	base_height	/ 2.0
+			#CHAMFER_BAR:	getChamferBarValue()
 
 			default: getProperty this ( prop_key as string )
 		)
 
-		--format "%: %\n" prop_key val
+		format "%: %\n" prop_key val
+
 		val --return
 	),
 
@@ -242,26 +250,26 @@ struct SupportOptions_v
 
 	private
 
-
-	/** Make sure that chamfer value is less then bar radius
-	  */
-	function _getChamferBarValue =
-	(
-		format "\n"; print "SupportModifiers_v._getChamferBarValue()"
-		format "bar_width: %\n" bar_width
-		format "chamfer_bar: %\n" chamfer_bar
-		--chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
-
-		--chamfer_val = chamfer_step * chamfer_bar
-
-		--if this.bar_width / 2 == chamfer_val then
-			--chamfer_val -= 0.05
-
-		chamfer_val = (bar_width - chamfer_bar) / 2
-		format "chamfer_val: %\n" chamfer_val
-			
-		chamfer_val --return
-	),
+	--
+	--/** Make sure that chamfer value is less then bar radius
+	--  */
+	--function _getChamferBarValue =
+	--(
+	--	format "\n"; print "SupportModifiers_v._getChamferBarValue()"
+	--	format "bar_width: %\n" bar_width
+	--	format "chamfer_bar: %\n" chamfer_bar
+	--	--chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
+	--
+	--	--chamfer_val = chamfer_step * chamfer_bar
+	--
+	--	--if this.bar_width / 2 == chamfer_val then
+	--		--chamfer_val -= 0.05
+	--
+	--	chamfer_val = (bar_width - chamfer_bar) / 2
+	--	format "chamfer_val: %\n" chamfer_val
+	--		
+	--	chamfer_val --return
+	--),
 
 	/** Convert values of properties to milimeters on export
 	  *
@@ -305,11 +313,12 @@ struct SupportOptions_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportOptions_v.create()"
-		
+		format "\n"; print "SupportOptions_v.create()"
+		--format "THIS: %\n" this
 		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 
 		--if rollouts == undefined then
 			--messageBox ("UNDEFINED CONSTRUCT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
 
+		--this --return
 	)
 )

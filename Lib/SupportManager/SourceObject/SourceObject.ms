@@ -42,17 +42,6 @@ struct SourceObject_v
 		format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
-		/** Set user data to support
-		 */
-		function setUserDataToSupport SupportObject vert =
-		(
-			--format "\n"; print "SourceObject_v.setUserDataToSupport()"
-			setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key
-
-			setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-			setUserPropVal SupportObject.support_obj "INDEX"	vert
-		)
-		
 		new_nodes = #()
 
 		this._removeDeletedNodes()
@@ -69,31 +58,35 @@ struct SourceObject_v
 		verts_by_colors = this._getVertsByColors()
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
+		format "colored_verts: %\n" colored_verts
 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
+		format "VERTS_PROCESS: %\n" verts_process
 
 		
 		/*------------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
-
 		this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
 
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
+		format "VERTS_PROCESS: %\n" verts_process
 
 		
 		/*------------------------------------------------------------------------------
 			SORT VERTS BY COLORS
 		--------------------------------------------------------------------------------*/
 
-		verts_by_colors = Dictionary #STRING
+		verts_by_colors_process = Dictionary #STRING
 
 		for vertex_color in verts_by_colors.keys do
-			verts_by_colors[vertex_color] = verts_by_colors[vertex_color] * verts_process
+			verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
 
+		format "verts_by_colors.keys: %\n" verts_by_colors.keys
+		format "verts_by_colors: %\n" verts_by_colors
 			
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS
@@ -106,8 +99,8 @@ struct SourceObject_v
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
 		
-		for vertex_color in verts_by_colors.keys do
-			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
+		for vertex_color in verts_by_colors_process.keys do
+			for vert in verts_by_colors_process[vertex_color] where not supports_exists[vert]  do
 			(
 				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
@@ -122,17 +115,16 @@ struct SourceObject_v
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				if SupportObject.support_obj != undefined then
 				(
-					setUserDataToSupport(SupportObject)(vert)
-
 					/* LINK SUPPORT TO SOURCE OBJECT */ 
 					SupportObject.support_obj.parent = obj
 
 					/* ADD TO ARRAYS */
 					this.Supports[vert] = SupportObject
 
-					/* ADD TO ALL OTHERS SUPPORTS */ 
-					SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
-
+					/* SET USER DATA TO SUPPORT */ 
+					setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+					setUserPropVal SupportObject.support_obj "INDEX"	vert
+					
 					append new_nodes SupportObject.support_obj
 				)
 			)
@@ -146,7 +138,8 @@ struct SourceObject_v
 		
 		
 		
-		/* RETURN */ 
+		/* RETURN */
+		format "new_nodes: %\n" new_nodes
 		new_nodes
 	),
 

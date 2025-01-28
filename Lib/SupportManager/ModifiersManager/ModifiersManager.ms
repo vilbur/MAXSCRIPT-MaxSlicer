@@ -13,7 +13,7 @@ struct ModifiersManager_v
 
 
 	/* properties */
-	SupportModifiers	=  Dictionary #STRING, -- KEY: VALUE:
+	SupportModifiers	= Dictionary(), -- KEY: VALUE:
 
 	/* private */
 	/* dependency */
@@ -30,26 +30,43 @@ struct ModifiersManager_v
 		format "\n"; print "ModifiersManager_v.addModifiers()"
 		format "_objects: %\n" _objects
 		format "_objects_exists: %\n" _objects_exists
-		--format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
+		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
 
+		if SupportModifiers[#DEFAULT] == undefined then
+			SupportModifiers[#DEFAULT] = SupportModifiers_v()
+
+		format "SupportModifiers: %\n" SupportModifiers[#DEFAULT]
+		
+		
 		_objects_exists = for obj in _objects_exists where isValidNode obj collect obj
-		format "_objects_exists: %\n" _objects_exists
+
 		this._objects =	_objects
-		--this._objects_exists =	_objects_exists
+
 		--support_with_modifiers	= (this._getSupportsWithModfiers(_objects_exists))[1]
 
 		if _objects_exists.count == 0 then
 		(
 			select _objects
 
-			modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
-			format "modifiers: %\n" modifiers
-
+			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
+			format "MODIFIERS: %\n" modifiers
+			format "selection: %\n" ( selection as Array ) 
+			format "selection.count: %\n" selection.count
 			--max create mode
+			max modify mode
 
 			for i = modifiers.count to 1 by -1 do
-			--for _mod in modifiers do
-				modPanel.addModToSelection ( modifiers[i] ) --ui:on
+			--for i = 1 to modifiers.count do 
+			(
+				--format "mod: %\n" (modifiers[i])
+				--addModifier _objects modifiers[i]
+				--
+				--if classOf modifiers[i] == sweep then
+				--	this._setSweepRadius (_objects[1])
+				--	
+				--else
+					modPanel.addModToSelection ( modifiers[i] ) --ui:on
+			)
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepRadius (_objects[1])
@@ -62,13 +79,17 @@ struct ModifiersManager_v
 	 */
 	function _setSweepRadius obj =
 	(
-		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
 		max modify mode
 
 		try(
-		obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-
-			)catch()
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
+		)catch(
+			format "****************\n"
+			
+		)
 	),
 
 	/** Update modifier by value in SUPPORT_OPTIONS
@@ -128,8 +149,8 @@ struct ModifiersManager_v
 		modifiers_add = case of
 		(
 			(modifiers != undefined):	modifiers
-			(obj_type == #SUPPORT):	SupportModifiers["default"].mods_support
-			(obj_type == #RAFT):	SupportModifiers["default"].mods_raft
+			(obj_type == #SUPPORT):	SupportModifiers[#DEFAULT].mods_support
+			(obj_type == #RAFT):	SupportModifiers[#DEFAULT].mods_raft
 		)
 
 			for _mod in modifiers_add do
@@ -216,7 +237,7 @@ struct ModifiersManager_v
 	on create do
 	(
 		--format "\n"; print "ModifiersManager.onCreate()"
-		SupportModifiers["default"] = SupportModifiers_v()
+		--SupportModifiers[#DEFAULT] = SupportModifiers_v()
 	)
 
 )

@@ -25,6 +25,15 @@ struct SupportModifiers_v
 		OPTIONS = SUPPORT_OPTIONS
 
 		/* SUPPORT MODIFIERS */
+		--append mods_support ( this._sweepSetup	(sweep	name:"BAR WIDTH")	(OPTIONS.getOption #BAR_WIDTH ))
+		--append mods_support ( this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE ))
+		--append mods_support ( this._extrudeSetup	(Face_Extrude	name:"BASE WIDTH")	(OPTIONS.getOption #BASE_WIDTH ))
+		--append mods_support ( this._chamferSetup	(Chamfer	name:"chamfer base")	(OPTIONS.getOption #CHAMFER_BASE ))
+		--append mods_support ( this._chamferSetup	(Chamfer	name:"CHAMFER BAR")	(OPTIONS.getOption #CHAMFER_BAR )	selection_option:#ALL  materialoption:#DIFFERENT)
+		--append mods_support ( this._volSelectSetup	(Vol__Select	name:"select top")	(OPTIONS.getMatId  #TOP ))
+		--append mods_support ( this._extrudeSetup	(Face_Extrude	name:"EXTEND TOP")	(OPTIONS.getOption #EXTEND_TOP ))
+
+		
 		mods_support[7]	= this._sweepSetup	(sweep	name:"BAR WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
 		mods_support[6]	= this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE )
 		mods_support[5]	= this._extrudeSetup	(Face_Extrude	name:"BASE WIDTH")	(OPTIONS.getOption #BASE_WIDTH )
@@ -45,7 +54,7 @@ struct SupportModifiers_v
 	  */
 	function _sweepSetup sweep_mod diameter =
 	(
-		--format "\n"; print "SupportModifiers_v._sweep()"
+		--format "\n"; print "SupportModifiers_v._sweepSetup()"
 
 		/** Reset mod propertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
 
@@ -163,7 +172,7 @@ struct SupportModifiers_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportModifiers_v.onCreate()"
+		format "\n"; print "SupportModifiers_v.onCreate()"
 		this._initModifiers()
 	)
 )

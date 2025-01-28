@@ -85,6 +85,10 @@ struct SupportManager_v
 	/* reference */
 	/* inhered */
 
+	/*------------------------------------------------------------------------------
+		GENERATE
+	--------------------------------------------------------------------------------*/
+	
 	/** Generate points
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
@@ -97,18 +101,16 @@ struct SupportManager_v
 		--format "supports_exists: %\n" supports_exists
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
-		--format "NEW SUPPORTS: %\n" new_nodes
+		format "NEW SUPPORTS: %\n" new_nodes
 		--format "COUNT: %\n" new_nodes.count
 
 		if new_nodes.count > 0 then
 		(
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
-
-			
 			
 			--bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
-			--bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
+			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
 			this.updateShapes()
 		)
@@ -285,6 +287,12 @@ struct SupportManager_v
 
 	),
 
+
+	/*------------------------------------------------------------------------------
+		UPDATE & CONVERT
+	--------------------------------------------------------------------------------*/
+
+
 	/** Update supports
 	 */
 	function updateSupportsBySourceObject source_objects only_height:false =
@@ -445,6 +453,34 @@ struct SupportManager_v
 	),
 
 
+
+	/** Update shape add
+	 */
+	function updateShapeAdd _shape =
+	(
+		--format "\n"; print "SupportManager_v.updateShapeAdd()"
+		appendIfUnique shapes_to_update _shape
+	),
+
+	/** Update shapes
+	 */
+	function updateShapes =
+	(
+		--format "\n"; print "SupportManager_v.updateShapes()"
+
+		with redraw off
+			for _shape in shapes_to_update do
+				updateShape _shape
+
+		redrawViews()
+
+		shapes_to_update = #()
+	),
+
+	/*------------------------------------------------------------------------------
+		CALLBACK
+	--------------------------------------------------------------------------------*/
+
 	/** On beam deleted
 	 */
 	function onObjectDeleted obj =
@@ -485,36 +521,20 @@ struct SupportManager_v
 
 	),
 
-	/** Update shape add
-	 */
-	function updateShapeAdd _shape =
-	(
-		--format "\n"; print "SupportManager_v.updateShapeAdd()"
-		appendIfUnique shapes_to_update _shape
-	),
-
-	/** Update shapes
-	 */
-	function updateShapes =
-	(
-		--format "\n"; print "SupportManager_v.updateShapes()"
-
-		with redraw off
-			for _shape in shapes_to_update do
-				updateShape _shape
-
-		redrawViews()
-
-		shapes_to_update = #()
-	),
-
-
-
-
 	/*------------------------------------------------------------------------------
-		TEST OBEJCT TYPE
+		HELPERS
 	--------------------------------------------------------------------------------*/
-
+	
+	/** Add SupportObject to this.SupportObjects Array
+	 */
+	function addSupportObjects SupportObject =
+	(
+		format "\n"; print "SupportManager_v.addSupportObjects()"
+		format "SupportObject: %\n" SupportObject
+		obj_pointer = (getHandleByAnim SupportObject.support_obj) as string 
+		SupportObjects[obj_pointer] = SupportObject
+	),
+	
 	/** Test if object is support|beam|raft
 	  *
 	  * @return boolean
@@ -784,23 +804,26 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
 			(
+				format "OBJ_IN_SCENE: %\n" obj_in_scene
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
-
-				if ( SourceObjects[sync_key] ) != undefined then
 				(
-					SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
+					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
+					
+					
+					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
 
 					SupportObjects[SupportObject.support_key] = SupportObject
-
-					SourceObjects[sync_key].Supports[index] = SupportObject
+					
+					if sync_key != undefined then 
+						SourceObjects[sync_key].Supports[index] = SupportObject
 				)
 			)
 
@@ -815,6 +838,7 @@ struct SupportManager_v
 	function _loadBeamsFromScene =
 	(
 		--format "\n"; print "SupportManager_v._loadBeamsFromScene()"
+		--if ( SourceObjects[sync_key] ) != undefined then
 
 		/* REMOVE DELETE NODES */
 		for key in BeamObjects.keys where not isValidNode BeamObject[key].beam do
@@ -846,7 +870,6 @@ struct SupportManager_v
 
 		bindBeamOnDeleteCallback( for key in BeamObjects.keys collect BeamObjects[key].beam )
 	),
-
 
 	/** Get sync key from source object
 	 */
@@ -912,15 +935,15 @@ struct SupportManager_v
 	*/
 	on create do
 	(
-		--format "\n"; print "SupportManager_v.onCreate()"
+		format "\n"; print "SupportManager_v.onCreate()"
 
 		--DisableSceneRedraw()
 		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
 
 		this._loadSourceObjectsFromScene()
-
+		
 		this._loadSupportsFromScene()
-
+		
 		this._loadBeamsFromScene()
 
 

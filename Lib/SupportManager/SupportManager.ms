@@ -93,7 +93,7 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		format "\n"; print "SupportManager_v.generateSupports()"
+		--format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
 		SUPPORT_OPTIONS.getValuesFromUi()
 
@@ -103,7 +103,7 @@ struct SupportManager_v
 		--format "supports_exists: %\n" supports_exists
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
-		format "NEW SUPPORTS: %\n" new_nodes
+		--format "NEW SUPPORTS: %\n" new_nodes
 		--format "COUNT: %\n" new_nodes.count
 
 		if new_nodes.count > 0 then
@@ -418,8 +418,10 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		format "\n"; print "SupportManager_v.updateModifiers()"
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--format "\n"; print "SupportManager_v.updateModifiers()"
 		_selection = ( if selection.count > 0 then selection else objects ) as Array
+		--format "_SELECTION: %\n" _selection
 
 		/* GET OBJECT TYPE BY ROLLOUT NAME  */
 		obj_type = substring EventFired.Roll.name    ((findString EventFired.Roll.name "_")+1) -1
@@ -427,19 +429,19 @@ struct SupportManager_v
 		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
 
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
-		obj_type = trimRight obj_type "S"
+		obj_type = (trimRight obj_type "Ss") as name
 
 
-		--format "obj_type: %\n" obj_type
-		format "prop_key: %\n" prop_key
+		--format "OBJ_TYPE: %\n" obj_type
+		--format "PROP_KEY: %\n" prop_key
 
 		/* GET SOURCE OBJECTS */
 		source_objects = this.getSourceObjects ( _selection )
-
+		--format "SOURCE_OBJECTS: %\n" source_objects
 		/* GET OBJECTS BY TYPE */
 		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type )
-		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
-		format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
 
 		--for SourceObject in source_objects do
 		--	join objects_by_type (SourceObject.getSupportNodes())
@@ -532,8 +534,8 @@ struct SupportManager_v
 	 */
 	function addSupportObjects SupportObject =
 	(
-		format "\n"; print "SupportManager_v.addSupportObjects()"
-		format "SupportObject: %\n" SupportObject
+		--format "\n"; print "SupportManager_v.addSupportObjects()"
+		--format "SupportObject: %\n" SupportObject
 		obj_pointer = (getHandleByAnim SupportObject.support_obj) as string 
 		SupportObjects[obj_pointer] = SupportObject
 	),
@@ -585,9 +587,9 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
-		--format "type: %\n" type
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
 		--format "_objects: %\n" _objects
+		--format "type: %\n" type
 		--/** Is type support
 		-- */
 		--function isTypeSupport type =
@@ -671,11 +673,20 @@ struct SupportManager_v
 		================================================================================*/
 		else if supports.count > 0 or rafts.count > 0 then
 		(
-			supports_or_rafts = if type == #SUPPORT then supports else rafts
+			--format "\n"
+			--format "TEST: %\n" (type == #SUPPORT)
+			--format "SUPPORTS: %\n" supports
+			
+			objects_by_type = deepCopy (if type == #SUPPORT then supports else rafts)
 
-			objects_by_type = deepCopy supports_or_rafts
+			--format "\n"
+			--format "supports_or_rafts: %\n" supports_or_rafts
+			--format "objects_by_type: %\n" objects_by_type
+			--objects_by_type = deepCopy supports_or_rafts
+			--format "\n"
 
-			format "supports_or_rafts X: %\n" supports_or_rafts
+			--format "supports_or_rafts: %\n" supports_or_rafts
+			--format "objects_by_type: %\n" objects_by_type
 
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
@@ -706,7 +717,7 @@ struct SupportManager_v
 				)
 		)
 
-		--objects_by_type --return
+		--format "OBJECTS_BY_TYPE: %\n" objects_by_type
 		--format "objects_by_type: %\n" objects_by_type
 		for obj in objects_by_type where isValidNode obj collect obj  --return
 
@@ -716,9 +727,10 @@ struct SupportManager_v
 	 */
 	function getSourceObjects _objects =
 	(
-		--format "\n"; print "SupportManager_v._getSourceObject()"
+		--format "\n"; print "SupportManager_v.getSourceObjects()"
 		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
-
+		--format "sync_keys: %\n" sync_keys
+		
 		for sync_key in sync_keys collect SourceObjects[sync_key]
 	),
 	
@@ -807,12 +819,12 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
 			(
-				format "OBJ_IN_SCENE: %\n" obj_in_scene
+				--format "OBJ_IN_SCENE: %\n" obj_in_scene
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
@@ -878,7 +890,8 @@ struct SupportManager_v
 	 */
 	function _getSyncSourceKey source_obj =
 	(
-		--format "\n"; print "SupportManager_v.getSyncKey()"
+		--format "\n"; print "SupportManager_v._getSyncSourceKey()"
+		--format "source_obj: %\n" source_obj
 		getUserPropVal source_obj "SOURCE_KEY" asString:true
 	),
 
@@ -938,7 +951,7 @@ struct SupportManager_v
 	*/
 	on create do
 	(
-		format "\n"; print "SupportManager_v.onCreate()"
+		--format "\n"; print "SupportManager_v.onCreate()"
 
 		--DisableSceneRedraw()
 		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
@@ -952,6 +965,5 @@ struct SupportManager_v
 
 		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers true
 		--EnableSceneRedraw()
-
 	)
 )

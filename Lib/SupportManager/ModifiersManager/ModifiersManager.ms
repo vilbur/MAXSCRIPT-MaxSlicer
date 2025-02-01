@@ -26,16 +26,16 @@ struct ModifiersManager_v
 	  */
 	function addModifiers _objects obj_type:#SUPPORT _objects_exists:#() =
 	(
-		format "\n-----------------------------------------\n"
-		format "\n"; print "ModifiersManager_v.addModifiers()"
-		format "_objects: %\n" _objects
-		format "_objects_exists: %\n" _objects_exists
-		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
+		--format "\n-----------------------------------------\n"
+		--format "\n"; print "ModifiersManager_v.addModifiers()"
+		--format "_objects: %\n" _objects
+		--format "_objects_exists: %\n" _objects_exists
+		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
 
 		if SupportModifiers[#DEFAULT] == undefined then
 			SupportModifiers[#DEFAULT] = SupportModifiers_v()
 
-		format "SupportModifiers: %\n" SupportModifiers[#DEFAULT]
+		--format "SupportModifiers: %\n" SupportModifiers[#DEFAULT]
 		
 		
 		_objects_exists = for obj in _objects_exists where isValidNode obj collect obj
@@ -49,9 +49,9 @@ struct ModifiersManager_v
 			select _objects
 
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
-			format "MODIFIERS: %\n" modifiers
-			format "selection: %\n" ( selection as Array ) 
-			format "selection.count: %\n" selection.count
+			--format "MODIFIERS: %\n" modifiers
+			--format "selection: %\n" ( selection as Array ) 
+			--format "selection.count: %\n" selection.count
 			--max create mode
 			max modify mode
 
@@ -79,15 +79,15 @@ struct ModifiersManager_v
 	 */
 	function _setSweepRadius obj =
 	(
-		format "\n"; print "SupportModifiers_v.setSweepRadius()"
-		format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
+		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
 		max modify mode
 
 		try(
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
 		)catch(
-			format "****************\n"
+			--format "****************\n"
 			
 		)
 	),
@@ -120,7 +120,9 @@ struct ModifiersManager_v
 				(
 					(sweep):	_mod[#Cylinder_Section].radius	= val
 
-					(Chamfer or Face_Extrude ):	_mod.amount	= val
+					--(Chamfer or Face_Extrude ):	_mod.amount	= val
+					(Chamfer ):	_mod.amount	= val
+					(Face_Extrude ):	_mod.amount	= val
 
 
 					--#EXTEND_END:	_mod.amount	= SUPPORT_OPTIONS.extend_end
@@ -135,10 +137,10 @@ struct ModifiersManager_v
 	 */
 	function convertSupportType _objects obj_type:#RAFT modifiers:undefined =
 	(
-		format "\n"; print "ModifiersManager_v.convertSupportType()"
-		format "obj_type: %\n" obj_type
-		format "modifiers: %\n" modifiers
-		format "_objects: %\n" _objects
+		--format "\n"; print "ModifiersManager_v.convertSupportType()"
+		--format "obj_type: %\n" obj_type
+		--format "modifiers: %\n" modifiers
+		--format "_objects: %\n" _objects
 
 		--mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
 		--mods_raft	= #( "Chamfer Bar", "Select Ends" )
@@ -154,7 +156,7 @@ struct ModifiersManager_v
 		)
 
 			for _mod in modifiers_add do
-				format "modifier add: %\n" _mod
+				--format "modifier add: %\n" _mod
 
 		for obj in _objects do
 		(
@@ -184,7 +186,7 @@ struct ModifiersManager_v
 	 */
 	function _copyModifiers support_exists modifiers =
 	(
-		format "\n"; print "SupportModifiers_v._copyModifiers()"
+		--format "\n"; print "SupportModifiers_v._copyModifiers()"
 
 		/* DIRTY CODE - TIME RPOEASSURE */
 		--support_with_modifiers	= (this._getSupportsWithModfiers(_objects_exists))[1]

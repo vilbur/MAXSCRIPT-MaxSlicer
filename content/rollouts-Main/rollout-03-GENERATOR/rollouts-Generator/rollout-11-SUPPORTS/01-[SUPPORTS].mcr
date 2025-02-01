@@ -37,9 +37,9 @@ icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.5 ]|wid
 (
 	on execute do
 	(
-		format "(EventFired.control.range).z: %\n" (EventFired.control.range).z
-		format "EventFired.val == (EventFired.control.range).x: %\n" (EventFired.val == (EventFired.control.range).x)
-		format "not EventFired.inspin: %\n" (not EventFired.inspin)
+		--format "(EventFired.control.range).z: %\n" (EventFired.control.range).z
+		--format "EventFired.val == (EventFired.control.range).x: %\n" (EventFired.val == (EventFired.control.range).x)
+		--format "not EventFired.inspin: %\n" (not EventFired.inspin)
 		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
@@ -75,9 +75,8 @@ icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|wid
 (
 	on execute do
 	(
-		format "EventFired:	% \n" EventFired
+		--format "EventFired:	% \n" EventFired
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
-		recomended_value = 10
 		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
@@ -109,8 +108,6 @@ icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 0.5 ]|width
 (
 	on execute do
 	(
-		recomended_value = 0.5
-		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
 			EventFired.val = EventFired.control.value = (SupportOptions_v()).top_width

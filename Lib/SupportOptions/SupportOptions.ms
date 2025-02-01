@@ -147,8 +147,8 @@ struct SupportOptions_v
 	 */
 	function setOptionValue prop_key val =
 	(
-		format "\n"; print "SupportOptions_v.setOptionValue()"
-		format "%: %\n" prop_key val
+		--format "\n"; print "SupportOptions_v.setOptionValue()"
+		--format "%: %\n" prop_key val
 
 		setProperty this prop_key val
 		--this.init()
@@ -158,7 +158,7 @@ struct SupportOptions_v
 	 */
 	function getOption prop_key =
 	(
-		format "\n"; print "SupportOptions_v.getProp()"
+		--format "\n"; print "SupportOptions_v.getProp()"
 		
 	
 		function getChamferBarValue = (bar_width - top_width) / 2
@@ -178,7 +178,7 @@ struct SupportOptions_v
 			default: getProperty this ( prop_key as string )
 		)
 
-		format "%: %\n" prop_key val
+		--format "%: %\n" prop_key val
 
 		val --return
 	),
@@ -317,7 +317,7 @@ struct SupportOptions_v
 	 */
 	on create do
 	(
-		format "\n"; print "SupportOptions_v.create()"
+		--format "\n"; print "SupportOptions_v.create()"
 		--format "THIS: %\n" this
 		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 
 		--if rollouts == undefined then

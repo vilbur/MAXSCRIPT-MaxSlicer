@@ -108,8 +108,8 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else direction_down -- direction down
-
+				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else direction_down -- direction NORMAL|DOWN
+				format "SECOND_POINT_DIRECTION: %\n" second_point_direction
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj

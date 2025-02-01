@@ -16,9 +16,9 @@ struct SupportOptions_v
 
 	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
-	normal_length	= 1,
+	normal_length	= 3,
 
-	second_point_direction	= 1,
+	second_point_direction	= 1, -- 1:NORMAL|2:DOWN
 
 	use_nth_vertex	= 1,
 
@@ -34,10 +34,10 @@ struct SupportOptions_v
 	bar_width 	= 1.5, -- default width is 1.5mm
 
 	base_height	= 1.0,
-	base_width	= 4.0,
+	base_width	= 10.0,
 
-	chamfer_base = 2,
-	top_width	= 1,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
+	chamfer_base	= 2,
+	top_width	= 0.5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
 	extend_top	= 0.5,
 

@@ -20,12 +20,16 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 0.5 ]"
+icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]"
 (
 	on execute do
 	(
 		format "EventFired	= % \n" EventFired
-
+		
+		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
+		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			EventFired.val = EventFired.control.value = (SupportOptions_v()).normal_length
+		
 		bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 
 		range = ROLLOUT_generator.SPIN_normal_length.range

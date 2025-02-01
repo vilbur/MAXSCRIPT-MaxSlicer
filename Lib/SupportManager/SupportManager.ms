@@ -426,11 +426,12 @@ struct SupportManager_v
 		/* GET PROPERTY KEY BY CONTROL NAME */
 		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
 
-		obj_type = trimRight obj_type "s"
+		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
+		obj_type = trimRight obj_type "S"
 
 
 		--format "obj_type: %\n" obj_type
-		--format "prop_key: %\n" prop_key
+		format "prop_key: %\n" prop_key
 
 		/* GET SOURCE OBJECTS */
 		source_objects = this.getSourceObjects ( _selection )

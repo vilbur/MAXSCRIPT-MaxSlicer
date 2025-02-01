@@ -32,26 +32,34 @@ icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]"
 macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
-tooltip:	"WIDTH SUPPORT LEG\n\nALL UNITS ARE IN MILIMETERS OF PRINTED MODEL.\N\NEXPORTED SCALE IS USED"
-icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 16, 4 ]"
+tooltip:	""
+icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.5 ]|width:64|offset:[ 16, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
-		--format "EventFired:	% \n" EventFired
-		--format "TEST: %\n" (EventFired.val >= ROLLOUT_supports.SPIN_top_width.value)
+		format "(EventFired.control.range).z: %\n" (EventFired.control.range).z
+		format "EventFired.val == (EventFired.control.range).x: %\n" (EventFired.val == (EventFired.control.range).x)
+		format "not EventFired.inspin: %\n" (not EventFired.inspin)
 		
-		/* LINK MAXIMUM VALUE TO TOP WIDTH SPINNER _print_platform_generator_bar_chamfer */ 
-		if EventFired.val <= ROLLOUT_supports.SPIN_top_width.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_top_width.value then
-			ROLLOUT_supports.SPIN_top_width.value = EventFired.val
+		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
+		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			EventFired.val = EventFired.control.value = (SupportOptions_v()).bar_width
 		
-		/* LINK MAXIMUM VALUE TO BASE WIDTH SPINNER _print_platform_generator_base_width */ 
-		if EventFired.val >= ROLLOUT_supports.SPIN_base_width.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_base_width.value then
-			ROLLOUT_supports.SPIN_base_width.value = EventFired.val
+		--else
+		(
+			/* BASE VALUE MUST BE HIGHER THEN WIDTH */ 
+			if EventFired.val >= ROLLOUT_supports.SPIN_base_width.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_base_width.value then
+				ROLLOUT_supports.SPIN_base_width.value = EventFired.val + 1
+			
+			/* TOP VALUE MUST BE LESS THEN WIDTH */ 
+			if EventFired.val <= ROLLOUT_supports.SPIN_top_width.value or SPIN_CHAMFER_BAR_LAST_VALUE == ROLLOUT_supports.SPIN_top_width.value then
+				ROLLOUT_supports.SPIN_top_width.value = EventFired.val
+		)
 		
 		/* STORE VALUE */ 
 		SPIN_CHAMFER_BAR_LAST_VALUE = EventFired.val
 		
+		/* UPDATE VALUE */ 
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
 	)
 )
@@ -62,22 +70,29 @@ icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.0 ]|wid
 macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE"
-tooltip:	"Width of base part\n\nRECOMENDED: 10"
-icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 0.1, 999, 10 ]|width:90|offset:[ 8, 4 ]"
+tooltip:	""
+icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|width:90|offset:[ 8, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
 		format "EventFired:	% \n" EventFired
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+		recomended_value = 10
+		
+		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
+		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			EventFired.val = EventFired.control.value = (SupportOptions_v()).base_width
 	
-		/* LINK MAXIMUM VALUE TO PREVIOUS SPINNER */ 
-		if EventFired.val < (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
+		/* BASE VALUE MUST BE HIGHER THEN WIDTH */ 
+		else if EventFired.val < (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
 		(
-			EventFired.val = bar_width
+			base_width = bar_width + 1
 			
-			EventFired.control.value = bar_width
+			EventFired.val = base_width
 			
-			format "BASE WITH MUST MORE THEN BAR WIDTH: %\n" bar_width
+			EventFired.control.value = base_width
+			
+			format "BASE WITH MUST MORE THEN BAR WIDTH: %\n" base_width
 		)
 		
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
@@ -89,14 +104,19 @@ icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 0.1, 999, 10 ]|w
 macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
 buttontext:	"TOP"
-tooltip:	"WIDTH OF TOP PART OF SUPPORT.\n\n\nPOINT WHERE SUPPORT STARTS"
-icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 5 ]|width:64|offset:[ 8, 4 ]"
+tooltip:	""
+icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 0.5 ]|width:64|offset:[ 8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
-		--format "EventFired:	% \n" EventFired
-		/* LINK MAXIMUM VALUE TO PREVIOUS SPINNER */ 
-		if EventFired.val > (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
+		recomended_value = 0.5
+		
+		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
+		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			EventFired.val = EventFired.control.value = (SupportOptions_v()).top_width
+		
+		/* TOP VALUE MUST BE LESS THEN WIDTH */ 
+		else if EventFired.val > (bar_width = ROLLOUT_supports.SPIN_bar_width.value) then
 		(
 			EventFired.val = bar_width
 			
@@ -107,7 +127,6 @@ icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 5 ]|width:6
 	
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
 	)
-		
 )
 
 

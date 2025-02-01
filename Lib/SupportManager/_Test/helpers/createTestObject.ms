@@ -1,7 +1,6 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
-filein( getFilenamePath(getSourceFileName()) + "/../SupportObject.ms" )	--"./../SupportObject.ms"
-
+filein( getFilenamePath(getSourceFileName()) + "/../../SourceObject/SupportObject/SupportObject.ms" )	--"./../../SourceObject/SupportObject/SupportObject.ms"
 
 /** Prepare object
  */
@@ -15,7 +14,7 @@ function prepareObject =
 	(
 		verts_colors = Dictionary #string
 	
-		verts_colors[ "red" as string ]	= #{22,29}
+		verts_colors[ "red" as string ]	= #{22,29,30,40,45}
 		--verts_colors[ "green" as string ]	= #{3..4}
 	
 		for color_verts in verts_colors do
@@ -33,7 +32,9 @@ function prepareObject =
 	segments = 10
 	seg_angle = (360 / segments) as integer
 	
-	obj = Cylinder radius:100 height:50 sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, 200] )  isSelected:on
+	radius = 100
+	
+	obj = Cylinder radius:radius height:50 sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] )  isSelected:on
 	
 	addModifier obj ( meshsmooth sepBySmGroups:true )
 	
@@ -44,6 +45,6 @@ function prepareObject =
 	obj --return
 )
 
-obj = prepareObject()
+
 
 

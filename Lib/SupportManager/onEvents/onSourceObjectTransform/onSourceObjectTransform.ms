@@ -3,7 +3,7 @@ global SOURCE_OBJECTS_BINDED = #()
 global SOURCE_OBJECT_POSITION
 
 
-/** On timeout callback
+/** Execute callback on timeout
  */
 function onObjectTransformTimeoutCallback sender evt =
 (
@@ -33,11 +33,7 @@ function onObjectTransformTimeoutCallback sender evt =
 
 	if selection.count > 0 then
 	(
-		--format "saved_rotation.x:   %\n" (roundFloat saved_rotation.x)
-		--format "current_rotation.x: %\n" (roundFloat current_rotation.x)
-		--format "saved_rotation.y:   %\n" (roundFloat saved_rotation.y)
-		--format "current_rotation.y: %\n" (roundFloat current_rotation.y)
-
+		/* ROTATION CHANGED */ 		
 		if roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y then
 		(
 			print "ROTATION CHANGED"
@@ -45,9 +41,10 @@ function onObjectTransformTimeoutCallback sender evt =
 
 			removeTimeout sender
 		)
+		/* Z POSITION  ROTATION CHANGED */ 		
 		else if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
 		(
-			print "Z POZITION CHANGED"
+			print "Z POSITION CHANGED"
 			SUPPORT_MANAGER.updateSupportsBySourceObject( selection as Array ) only_height:true
 
 			removeTimeout sender
@@ -55,7 +52,6 @@ function onObjectTransformTimeoutCallback sender evt =
 	)
 	else if selection.count == 0 then
 		removeTimeout sender
-
 )
 
 /** Start timeout
@@ -85,6 +81,7 @@ function bindSourceObjectTransformEvent source_obj =
 	--format "\n"; print "onSourceObjectTransform.ms.bindSourceObjectTransformEvent()"
 	SOURCE_OBJECTS_BINDED = for obj in SOURCE_OBJECTS_BINDED where isValidNode obj collect obj
 
+	/* GET OBJECT BIND TO EVENT */ 
 	if classOf source_obj == Array then
 		join SOURCE_OBJECTS_BINDED source_obj
 
@@ -94,6 +91,8 @@ function bindSourceObjectTransformEvent source_obj =
 
 	deleteAllChangeHandlers id:#onSourceObjectTransform
 
+	
+	
 	when transform SOURCE_OBJECTS_BINDED changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 	(
 		if SOURCE_OBJECT_POSITION == undefined then

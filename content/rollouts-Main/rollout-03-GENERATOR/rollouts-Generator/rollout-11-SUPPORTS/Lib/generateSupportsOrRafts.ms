@@ -12,15 +12,15 @@ function generateSupportsOrRafts obj_type: =
 	/* GET NEW SOURCE OBJECT IF ANY OBJECT HAS NOT BEEN FOUND */ 
 	if source_objects.count == 0 then
 		source_objects = for obj in _selection where not SUPPORT_MANAGER.isManaged(obj) collect obj
-
-		
+	
+	--format "SOURCE_OBJECTS: %\n" source_objects
 		
 	/*------------------------------------------------------------------------------
 		GENERATE NEW OBJECTS by source object
-	--------------------------------------------------------------------------------*/
+	------------------------------------------------------------------------------*/
 	if source_objects.count > 0 then
 		new_nodes = SUPPORT_MANAGER.generateSupports source_objects[1] obj_type:obj_type
-
+	
 	else
 	(
 		/* GET SELECTED SUPPORTS & RAFTS */ 
@@ -34,7 +34,7 @@ function generateSupportsOrRafts obj_type: =
 		/* SUPPORTS TO RAFTS */
 		if obj_type == #RAFT and selected_supports.count > 0 then
 			SUPPORT_MANAGER.convert(selected_supports) obj_type:#RAFT
-
+	
 		/* RAFTS TO SUPPORTS */
 		if obj_type == #SUPPORT and selected_rafts.count > 0 then
 			SUPPORT_MANAGER.convert(selected_rafts) obj_type:#SUPPORT
@@ -47,11 +47,22 @@ function generateSupportsOrRafts obj_type: =
 		if obj_type == #SUPPORT and selected_supports.count > 0 then
 		(
 			pauseSupportToTransformEvent()
-
-			SUPPORT_MANAGER.rebuildSupports(selected_supports) obj_type:#SUPPORT
-
+		
+			SUPPORT_MANAGER.rebuildSupports(selected_supports)
+		
 			resumeSupportToTransformEvent()
 		)
+		--
+		--if obj_type == #RAFT and selected_rafts.count > 0 then
+		--(
+		--	pauseSupportToTransformEvent()
+		--
+		--	SUPPORT_MANAGER.rebuildSupports(selected_rafts) obj_type:#RAFT
+		--
+		--	resumeSupportToTransformEvent()
+		--)
+		
+		
 	)
 
 	

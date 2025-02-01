@@ -1,4 +1,82 @@
 
+/** Rebuild supports
+ */
+function rebuildSupports =
+(
+	--format "\n"; print ".rebuildSupports()"
+		
+		_selection = for obj in selection collect obj
+
+		/* GET SELECTED SUPPORTS & RAFTS */ 
+		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		
+
+		pauseSupportToTransformEvent()
+		/*------------------------------------------------------------------------------
+			REBUILD SELECTED SUPPORTS & RAFTS
+		--------------------------------------------------------------------------------*/
+		SUPPORT_MANAGER.rebuildSupports(selected_supports)
+
+		resumeSupportToTransformEvent()
+		
+		--if selected_supports.count > 0 then
+		--(
+		--	pauseSupportToTransformEvent()
+		--
+		--	SUPPORT_MANAGER.rebuildSupports(selected_supports)
+		--
+		--	resumeSupportToTransformEvent()
+		--)
+		--
+		--if selected_rafts.count > 0 then
+		--(
+		--	pauseSupportToTransformEvent()
+		--
+		--	SUPPORT_MANAGER.rebuildSupports(selected_rafts)
+		--
+		--	resumeSupportToTransformEvent()
+		--)
+		
+	
+)
+
+
+
+/*
+*/
+macroscript	_print_support_generator_live_update
+category:	"_3D-Print"
+buttontext:	"LIVE UPDATE"
+tooltip:	"Live update supports on their transfrom"
+icon:	"control:#checkbutton|across:1|offset:[0, 6]|height:32|width:96|tooltip:"
+(
+	on execute do
+		--undo "Generate Rafts" on
+		(
+			SUPPORT_OPTIONS.live_update_supports = EventFired.val
+		)
+)
+/*
+*/
+macroscript	_print_support_generator_update
+category:	"_3D-Print"
+buttontext:	"LIVE UPDATE"
+tooltip:	"Update selected supports"
+icon:	"control:#checkbutton"
+(
+	on execute do
+		--undo "Generate Rafts" on
+		(
+			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
+			print "update"
+		)
+)
+
+
+
+
+
 /**  Export format
   *
  */
@@ -6,12 +84,24 @@ macroscript	_print_generator_normal_mode
 category:	"_Export"
 buttontext:	"Second Point Direction"
 toolTip:	"Where support is connected to beam"
-icon:	"across:3|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
+icon:	"across:2|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
 (
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
 	--DosCommand ("explorer \""+export_dir+"\"")
-	SUPPORT_MANAGER.updateModifiers ( EventFired )
+	--SUPPORT_MANAGER.updateModifiers ( EventFired )
+	on execute do
+	(
+		format "EventFired	= % \n" EventFired
+	
+		SUPPORT_OPTIONS.second_point_direction = EventFired.val
+		
+		rebuildSupports()
+		
+	)
+
+	
+	
 )
 
 /** SPINNER
@@ -20,38 +110,41 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]"
+icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
-		format "EventFired	= % \n" EventFired
+		--format "EventFired	= % \n" EventFired
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\SupportManager.ms"
+		
 		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
 			EventFired.val = EventFired.control.value = (SupportOptions_v()).normal_length
 		
-		bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+		--bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+		--
+		--range = ROLLOUT_generator.SPIN_normal_length.range
+		--
+		--/* SET MIN VALUE */
+		----if range.x > bar_radius then
+		--
+		--if EventFired.val < bar_radius then
+		--(
+		--	EventFired.val = bar_radius
+		--
+		--	range.x = bar_radius
+		--	range.z = bar_radius
+		--
+		--	ROLLOUT_generator.SPIN_normal_length.range = range
+		--)
+		--
+		SUPPORT_OPTIONS.normal_length = EventFired.val
 
-		range = ROLLOUT_generator.SPIN_normal_length.range
 
-		/* SET MIN VALUE */
-		--if range.x > bar_radius then
-
-		if EventFired.val < bar_radius then
-		(
-			EventFired.val = bar_radius
-
-			range.x = bar_radius
-			range.z = bar_radius
-
-			ROLLOUT_generator.SPIN_normal_length.range = range
-		)
-
-		SUPPORT_MANAGER.updateModifiers (EventFired)
+		rebuildSupports()
 	)
-
 )
-
 
 --/**
 --  *
@@ -64,37 +157,5 @@ icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999,
 --(
 --	--(PrinterVolume_v()).createVolume(#box)(ROLLOUT_export.SPIN_export_size.value)
 --)
-
-
-
-/*
-*/
-macroscript	_print_support_generator_live_update
-category:	"_3D-Print"
-buttontext:	"UPDATE"
-tooltip:	"Live update supports on their transfrom"
-icon:	"control:#checkbutton|across:3|offset:[0, 6]|height:32|width:96|tooltip:"
-(
-	on execute do
-		--undo "Generate Rafts" on
-		(
-			SUPPORT_OPTIONS.live_update_supports = EventFired.val
-		)
-)
-/*
-*/
-macroscript	_print_support_generator_update
-category:	"_3D-Print"
-buttontext:	"UPDATE"
-tooltip:	"Update selected supports"
-icon:	"control:#checkbutton"
-(
-	on execute do
-		--undo "Generate Rafts" on
-		(
-			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
-			print "update"
-		)
-)
 
 

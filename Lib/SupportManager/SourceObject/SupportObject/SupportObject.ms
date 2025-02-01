@@ -20,7 +20,7 @@ struct SupportObject_v
 
 	knots_positions = Array (2),
 
-	is_on_ground	= false,
+	is_on_ground, -- boolean
 
 
 	private
@@ -46,8 +46,28 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
-		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+	
+		/** Set nide name
+		 */
+		function _setName vertex_index =
+		(
+			--format "\n"; print "SupportRaftBaseObject._getName()"
+			if source_obj != undefined then
+			(
+				support_name = substituteString source_obj.name "-source" ""
+		
+				if not matchPattern support_name pattern:("*-support*") then
+					support_name += "-support"
+				--support_name + "-support-" + vertex_index as string -- + "-" + index as string
+				support_name += "-"+ vertex_index as string
+		
+				support_obj.name = support_name --return
+			)
+		)
+			
+		
 		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
@@ -73,6 +93,8 @@ struct SupportObject_v
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
 		
+		_setName(vertex_index)
+		
 		this._isOnGround()
 
 		this._drawLine()
@@ -83,7 +105,6 @@ struct SupportObject_v
 
 		this._alignPivotToSeconPoint()
 
-		this._setName(vertex_index)
 	
 		SUPPORT_MANAGER.addSupportObjects (this)
 
@@ -95,6 +116,7 @@ struct SupportObject_v
 
 		setUserPropVal support_obj "DIRECTION" direction --asString:true
 		
+		
 		/* RETURN */ 
 		this
 	),
@@ -103,7 +125,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
 		--deleteAllChangeHandlers id:#updateSupportsEvent
@@ -117,7 +139,7 @@ struct SupportObject_v
 			this._getPositionsFromLine()
 
 		--is_on_ground = obj_type == #SUPPORT and hit_support == undefined
-
+		--format "HIT_RAFT: %\n" HIT_RAFT
 		
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
@@ -136,12 +158,16 @@ struct SupportObject_v
 		--format "knots_positions.count: %\n" knots_positions.count
 		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
 		--is_on_ground = hit_raft == undefined and hit_support == undefined
+		
 
 		this._updateLine()
 
+		this._isOnGround()
+		
 		this._setMaterialsToLineSegments()
 
 		this._setPivotToSecondPoint()
+		
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
@@ -194,25 +220,30 @@ struct SupportObject_v
 	function updateHeight =
 	(
 		--format "\n"; print "SupportObject_v.updateHeight()"
-		ground_knot	= numKnots support_obj spline_1
-		base_knot	= ground_knot - 1
-
-		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
-
-
-		ground_knot_pos.z	= 0
-		base_knot_pos.z	= SUPPORT_OPTIONS.base_height
-
-
-		setKnotPoint support_obj spline_1 ground_knot	ground_knot_pos
-		setKnotPoint support_obj spline_1 base_knot	base_knot_pos
-
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		updateShape support_obj
+		--format "is_on_ground: %\n" this.is_on_ground
+		
+		--if this.is_on_ground then
+		if this.is_on_ground != undefined and this.is_on_ground then
+		(
+			ground_knot	= numKnots support_obj spline_1
+			base_knot	= ground_knot - 1
+	
+			ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+			base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+	
+	
+			ground_knot_pos.z	= 0
+			base_knot_pos.z	= SUPPORT_OPTIONS.base_height
+	
+	
+			setKnotPoint support_obj spline_1 ground_knot	ground_knot_pos
+			setKnotPoint support_obj spline_1 base_knot	base_knot_pos
+	
+			--updateShape support_obj
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
 	),
-
-
+ 
 	/** Is raft
 	 */
 	function isRaft =
@@ -271,7 +302,7 @@ struct SupportObject_v
 	 */
 	function _removeKnots =
 	(
-		format "\n"; print "SupportObject_v._removeKnots()"
+		--format "\n"; print "SupportObject_v._removeKnots()"
 		num_knots = numKnots support_obj spline_1
 
 		for knot_i = num_knots to knots_positions.count + 1 by -1 do
@@ -282,8 +313,8 @@ struct SupportObject_v
 	 */
 	function _setRaftKnots vertex_pos direction =
 	(
-		format "\n"; print "SupportObject_v._setRaftKnots()"
-		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		--format "\n"; print "SupportObject_v._setRaftKnots()"
+		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
 
 		/* ADD FIRST POINT */
@@ -329,7 +360,8 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v._setSupportLegPositions()"
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) (direction_down)
 
-		is_on_ground = hit_support == undefined
+		--is_on_ground = hit_support == undefined
+		hit_support == undefined
 
 		pos = copy knots_positions[2] -- copy to avoid modifing of value in array
 
@@ -635,6 +667,12 @@ struct SupportObject_v
 
 		this.hit_support = undefined
 	),
+
+	/*------------------------------------------------------------------------------
+
+		HELPERS
+
+	--------------------------------------------------------------------------------*/
 	
 	/** Is on ground
 	 */
@@ -642,33 +680,16 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v.isOnGround()"
 		--is_on_ground = hit_raft == undefined and hit_support == undefined
-		is_on_ground = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
-	),
-
-	/*------------------------------------------------------------------------------
-
-		HELPERS
-
-	--------------------------------------------------------------------------------*/
-
-	/** Set nide name
-	 */
-	function _setName vertex_index =
-	(
-		--format "\n"; print "SupportRaftBaseObject._getName()"
-		if source_obj != undefined then
+		new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
+		
+		if is_on_ground == undefined or is_on_ground != new_value then
 		(
-			support_name = substituteString source_obj.name "-source" ""
-	
-			if not matchPattern support_name pattern:("*-support*") then
-				support_name += "-support"
-			--support_name + "-support-" + vertex_index as string -- + "-" + index as string
-			support_name += "-"+ vertex_index as string
-	
-			support_obj.name = support_name --return
+			is_on_ground = new_value
+			
+			setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
 		)
 	),
-
+		
 	/** Shift wirecolor sligtly
 	  * Each level of points has different wirecolor for better selection
 	  */
@@ -691,8 +712,8 @@ struct SupportObject_v
 	 */
 	on create do
 	(
-		format "\n"; print "SupportObject.onCreate()"
-		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS		
+		--format "\n"; print "SupportObject.onCreate()"
+		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS		
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

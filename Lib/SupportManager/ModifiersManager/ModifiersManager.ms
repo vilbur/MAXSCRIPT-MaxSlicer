@@ -96,9 +96,9 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key =
 	(
-		--format "\n"; print "ModifiersManager_v.updateModifier()"
-		--format "_objects: %\n" _objects
-		--format "prop_key: %\n" prop_key
+		format "\n"; print "ModifiersManager_v.updateModifier()"
+		format "_objects: %\n" _objects
+		format "prop_key: %\n" prop_key
 
 		mods = #()
 
@@ -107,7 +107,7 @@ struct ModifiersManager_v
 		for obj in _objects where obj.modifiers[mod_name] != undefined do
 			appendIfUnique mods obj.modifiers[mod_name]
 
-		--format "mods.count: %\n" mods.count
+		format "mods.count: %\n" mods.count
 
 		if mods.count > 0 then
 		(

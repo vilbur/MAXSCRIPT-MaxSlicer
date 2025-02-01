@@ -6,6 +6,8 @@ global MODIFIERS_MANAGER
 global SUPPORT_OPTIONS	
 global SUPPORT_MANAGER	
 
+filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/../SupportManager.ms" )	--"./../SupportManager.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/helpers/createTestObject.ms" )	--"./helpers/createTestObject.ms"
@@ -41,6 +43,7 @@ SUPPORT_OPTIONS.base_width	= 10
 
 
 SUPPORT_OPTIONS.second_point_direction	= 1 -- 1:NORMAL|2:DOWN
+--SUPPORT_OPTIONS.second_point_direction	= 2 -- 1:NORMAL|2:DOWN
 
 
 

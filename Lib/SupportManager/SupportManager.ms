@@ -95,6 +95,8 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
+		max modify mode
+
 		SUPPORT_OPTIONS.getValuesFromUi()
 
 		SourceObject = this._getSourceObject(source_obj)
@@ -110,7 +112,7 @@ struct SupportManager_v
 		(
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 			
-			--bindSupportToTransformEvent( SourceObject.getSupportNodes() )
+			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
 			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
@@ -295,7 +297,7 @@ struct SupportManager_v
 	--------------------------------------------------------------------------------*/
 
 
-	/** Update supports
+	/** Update supports of given source object
 	 */
 	function updateSupportsBySourceObject source_objects only_height:false =
 	(
@@ -303,6 +305,7 @@ struct SupportManager_v
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 
+		
 		/* UPDATE SUPPORTS */
 		for sync_key in sync_keys do
 			if only_height then
@@ -310,7 +313,8 @@ struct SupportManager_v
 
 			else
 				SourceObjects[sync_key].updateSupports()
-
+				
+				
 		/* UPDATE ALL BEAMS OF SOURCE OBEJCTS */
 		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()
@@ -318,12 +322,11 @@ struct SupportManager_v
 		this.updateShapes()
 	),
 
-
 	/** Update supports
 	 */
 	function updateSupports support_nodes =
 	(
-		--format "\n"; print "SupportManager_v.updateSupportPosition()"
+		format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -345,21 +348,21 @@ struct SupportManager_v
 	 */
 	function rebuildSupports support_nodes =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		format "\n"; print "SupportManager_v.rebuildSupports()"
 		format "SUPPORT_NODES: %\n" support_nodes
-
+	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
-
+	
 		for sync_key in supports_by_source.keys do
 			for support_node in supports_by_source[sync_key] do
 				SourceObjects[sync_key].rebuildSupport(support_node)
-
+	
 		/* UPDATE ALL BEAMS OF SELECTED SUPPORTS */
 		/* !!!!!!!!!!!!! TODO UPDATE ONLY BEAMS OF UPDATED SUPPORTS */
 		for key in BeamObjects.keys where findItem supports_by_source.keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()
-
-
+	
+	
 		this.updateShapes()
 	),
 
@@ -429,7 +432,7 @@ struct SupportManager_v
 		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
 
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
-		obj_type = (trimRight obj_type "Ss") as name
+		obj_type = ( trimRight obj_type "Ss" ) as name
 
 
 		--format "OBJ_TYPE: %\n" obj_type
@@ -440,8 +443,8 @@ struct SupportManager_v
 		--format "SOURCE_OBJECTS: %\n" source_objects
 		/* GET OBJECTS BY TYPE */
 		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type )
-		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
-		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
 
 		--for SourceObject in source_objects do
 		--	join objects_by_type (SourceObject.getSupportNodes())
@@ -676,25 +679,19 @@ struct SupportManager_v
 			--format "\n"
 			--format "TEST: %\n" (type == #SUPPORT)
 			--format "SUPPORTS: %\n" supports
+
+			supports_or_rafts = if type == #SUPPORT then supports else rafts
+
+			objects_by_type = deepCopy supports_or_rafts
 			
-			objects_by_type = deepCopy (if type == #SUPPORT then supports else rafts)
-
-			--format "\n"
-			--format "supports_or_rafts: %\n" supports_or_rafts
-			--format "objects_by_type: %\n" objects_by_type
-			--objects_by_type = deepCopy supports_or_rafts
-			--format "\n"
-
-			--format "supports_or_rafts: %\n" supports_or_rafts
-			--format "objects_by_type: %\n" objects_by_type
-
-			/* GET BEAMS OF SOURCE OBJECT */
-			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem supports_or_rafts BeamObjects[key].support_A > 0 or findItem supports_or_rafts BeamObjects[key].support_B > 0 do
-					append objects_by_type BeamObjects[key].beam
+			
+			/* GET BEAMS OF SUPPORTS OR RAFTS */
+			if hierarchy or type == #BEAM  then       
+				for beam_key in BeamObjects.keys where findItem supports_or_rafts BeamObjects[beam_key].support_A > 0 or findItem supports_or_rafts BeamObjects[beam_key].support_B > 0 do
+					append objects_by_type BeamObjects[beam_key].beam
 
 			/* add to current selection */
-			--if hierarchy or type == #SUPPORT or type == #RAFT then
+			------if hierarchy or type == #SUPPORT or type == #RAFT then
 			if hierarchy then
 				objects_by_type += _objects
 		)
@@ -782,6 +779,12 @@ struct SupportManager_v
 		supports_by_source --return
 	),
 
+	/*------------------------------------------------------------------------------
+	
+		LOAD OBJECTS FROM SCENE
+	
+	--------------------------------------------------------------------------------*/
+	
 	/** Load source objects from scene
 	 */
 	function _loadSourceObjectsFromScene =
@@ -819,7 +822,7 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
@@ -828,12 +831,13 @@ struct SupportManager_v
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
+				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
+				format "IS_ON_GROUND: %\n" IS_ON_GROUND
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
 					
-					
-					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
+					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type is_on_ground:is_on_ground
 
 					SupportObjects[SupportObject.support_key] = SupportObject
 					
@@ -885,6 +889,13 @@ struct SupportManager_v
 
 		bindBeamOnDeleteCallback( for key in BeamObjects.keys collect BeamObjects[key].beam )
 	),
+
+
+	/*------------------------------------------------------------------------------
+	
+		GETTERS
+	
+	--------------------------------------------------------------------------------*/
 
 	/** Get sync key from source object
 	 */

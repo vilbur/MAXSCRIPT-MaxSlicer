@@ -14,7 +14,9 @@ function prepareObject =
 	(
 		verts_colors = Dictionary #string
 	
-		verts_colors[ "red" as string ]	= #{22,29,30,40,45}
+		--verts_colors[ "red" as string ]	= #{22}
+		--verts_colors[ "red" as string ]	= #{22,29,30,40,45}
+		verts_colors[ "red" as string ]	= #{30}
 		--verts_colors[ "green" as string ]	= #{3..4}
 	
 		for color_verts in verts_colors do

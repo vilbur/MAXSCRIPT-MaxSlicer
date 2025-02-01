@@ -46,7 +46,6 @@ struct SourceObject_v
 
 		this._removeDeletedNodes()
 
-		
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
 		--------------------------------------------------------------------------------*/
@@ -58,7 +57,7 @@ struct SourceObject_v
 		verts_by_colors = this._getVertsByColors()
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		format "colored_verts: %\n" colored_verts
+		--format "colored_verts: %\n" colored_verts
 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
 		format "VERTS_PROCESS: %\n" verts_process
@@ -110,7 +109,7 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else direction_down -- direction NORMAL|DOWN
 				format "SECOND_POINT_DIRECTION: %\n" second_point_direction
-				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] wirecolor:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				if SupportObject.support_obj != undefined then
@@ -153,6 +152,8 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v.convert()"
 
 		from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
+		
+		this._removeDeletedNodes()
 
 		for support_node in support_nodes do
 			(this._getSupportByNode (support_node)).convert(obj_type)
@@ -168,39 +169,34 @@ struct SourceObject_v
 		--resumeSupportToTransformEvent()
 	),
 
+
+
+	/*------------------------------------------------------------------------------
+	
+		UPDATE
+	
+	--------------------------------------------------------------------------------*/
+
+
 	/** Update all supports of source objects
 	 */
 	function updateSupports =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
+		this._removeDeletedNodes()
+		
 		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
 
 		for index in Supports.keys where not Supports[index].isRaft() do
 			Supports[index].updateSupport first_knot_pos:( verts_pos[index])
 	),
 
-	/** Update supports height
-	 */
-	function updateSupportsHeight =
-	(
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()"
-		--for SupportObjectData in Supports where SupportObjectData.value.is_on_ground do
-		--for SupportObjectData in Supports do
-			--SupportObjectData.value.updateHeight()
-
-		--for key in Supports.keys where not Supports[key].isRaft() do
-		for key in Supports.keys where not Supports[key].isRaft() do
-			Supports[key].updateHeight()
-
-	),
-
-
 	/** Update support
 	 */
 	function updateSupport support_node =
 	(
-		--format "\n"; print "SourceObject_v.updateSupport()"
+		format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
 
@@ -210,11 +206,27 @@ struct SourceObject_v
 		Supports[index].updateSupport first_knot_pos:verts_pos[index]
 	),
 
+	/** Update supports height
+	 */
+	function updateSupportsHeight =
+	(
+		format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		format "supports.count: %\n" (Supports.count)
+		this._removeDeletedNodes()
+		
+		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
+
+		--for key in Supports.keys where not Supports[key].isRaft() do
+		for key in Supports.keys where not Supports[key].isRaft() do
+			Supports[key].updateHeight()
+
+	),
+
 	/** Rebuild support
 	 */
 	function rebuildSupport support_node =
 	(
-		--format "\n"; print "SourceObject_v.updateSupport()"
+		format "\n"; print "SourceObject_v.rebuildSupport()"
 		--format "normals_local: %\n" normals_local
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
@@ -237,6 +249,9 @@ struct SourceObject_v
 		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction wirecolor:wirecolor
 	),
 
+	
+	
+	
 	/** Get support by node
 	 */
 	function _getSupportByNode support_node =
@@ -274,6 +289,23 @@ struct SourceObject_v
 
 	),
 
+
+	/** Delete support
+	  UNUSED
+	 */
+	function _deleteSupport key =
+	(
+		--format "\n"; print "SourceObject_v._deleteSupport()"
+
+		delete Supports[key].support_obj
+
+		removeDictValue Supports key
+
+		/* TODO: DELETE BEAMS ? */
+	),
+
+	private
+
 	/** Init objects from scene
 	 */
 	function _setLocalVertexNormals verts =
@@ -307,23 +339,21 @@ struct SourceObject_v
 
 	),
 
-	/** Delete support
-	  UNUSED
+	/** Set world space vertex normals
 	 */
-	function _deleteSupport key =
+	function _setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._deleteSupport()"
+		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
+		obj_pos	= obj.pos
+		obj_transform	= obj.transform
 
-		delete Supports[key].support_obj
+		if normals_world == undefined then
+			normals_world = deepCopy normals_local
 
-		removeDictValue Supports key
-
-		/* TODO: DELETE BEAMS ? */
+		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
-
-	private
-
-
 
 	/** Get local vertex normals by modifier
 	 */
@@ -406,22 +436,6 @@ struct SourceObject_v
 
 		format "_updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
 
-	),
-
-	/** Set world space vertex normals
-	 */
-	function _setWorldSpaceVertexNormals verts =
-	(
-		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
-		--format "verts: %\n" verts
-		--format "verts.numberSet: %\n" verts.numberSet
-		obj_pos	= obj.pos
-		obj_transform	= obj.transform
-
-		if normals_world == undefined then
-			normals_world = deepCopy normals_local
-
-		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
 
 	/** Set verts positions

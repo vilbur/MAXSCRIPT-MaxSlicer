@@ -27,17 +27,18 @@ function generateSupportsOrRafts obj_type: =
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
 		
+		
 		/*------------------------------------------------------------------------------
 			CONVERT SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
 	
 		/* SUPPORTS TO RAFTS */
 		if obj_type == #RAFT and selected_supports.count > 0 then
-			SUPPORT_MANAGER.convert(selected_supports) obj_type:#RAFT
+			SUPPORT_MANAGER.convertType(selected_supports) to_type:#RAFT
 	
 		/* RAFTS TO SUPPORTS */
 		if obj_type == #SUPPORT and selected_rafts.count > 0 then
-			SUPPORT_MANAGER.convert(selected_rafts) obj_type:#SUPPORT
+			SUPPORT_MANAGER.convertType(selected_rafts) to_type:#SUPPORT
 		
 		
 		/*------------------------------------------------------------------------------

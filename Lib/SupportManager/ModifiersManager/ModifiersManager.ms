@@ -135,48 +135,39 @@ struct ModifiersManager_v
 
 	/** Convert obj type
 	 */
-	function convertSupportType _objects obj_type:#RAFT modifiers:undefined =
+	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
 	(
-		--format "\n"; print "ModifiersManager_v.convertSupportType()"
-		--format "obj_type: %\n" obj_type
-		--format "modifiers: %\n" modifiers
+		format "\n"; print "ModifiersManager_v.convertSupportType()"
+		format "to_type: %\n" to_type
+		format "modifiers: %\n" modifiers
 		--format "_objects: %\n" _objects
-
-		--mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
-		--mods_raft	= #( "Chamfer Bar", "Select Ends" )
-		--
-		--mod_names_delete	= if obj_type == #RAFT then mods_support else mods_raft
-		--mod_names_add	= if obj_type == #RAFT then mods_raft	else mods_support
+		format "SupportModifiers[#DEFAULT]: %\n" SupportModifiers[#DEFAULT]
 
 		modifiers_add = case of
 		(
 			(modifiers != undefined):	modifiers
-			(obj_type == #SUPPORT):	SupportModifiers[#DEFAULT].mods_support
-			(obj_type == #RAFT):	SupportModifiers[#DEFAULT].mods_raft
+			(to_type == #SUPPORT):	SupportModifiers[#DEFAULT].mods_support
+			(to_type == #RAFT):	SupportModifiers[#DEFAULT].mods_raft
 		)
 
-			for _mod in modifiers_add do
-				--format "modifier add: %\n" _mod
+		format "MODIFIERS_ADD: %\n" modifiers_add
+		format "MODIFIERS_ADD: %\n" modifiers_add.count
 
 		for obj in _objects do
 		(
 			for i = obj.modifiers.count to 1 by -1 do
-			--for i = 1 to obj.modifiers.count do
 				deleteModifier obj 1
 
-
-			--if obj_type == #SUPPORT then
-			for i = modifiers_add.count to 1 by -1 do
-					addModifier obj modifiers_add[i]
-			--else
-			--	for _mod in modifiers_add do
-			--		addModifier obj _mod
+			--
+			--for i = modifiers_add.count to 1 by -1 do
+			--		addModifier obj modifiers_add[i]
 		)
 
+		for i = modifiers_add.count to 1 by -1 do
+				addModifier _objects modifiers_add[i]
 
 		/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 		this._setSweepRadius (_objects[1])
-
 	),
 
 
@@ -239,7 +230,7 @@ struct ModifiersManager_v
 	on create do
 	(
 		--format "\n"; print "ModifiersManager.onCreate()"
-		--SupportModifiers[#DEFAULT] = SupportModifiers_v()
+		SupportModifiers[#DEFAULT] = SupportModifiers_v() -- INIT DEFAULT MODIFIERS
 	)
 
 )

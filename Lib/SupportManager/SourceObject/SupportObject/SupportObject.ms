@@ -126,9 +126,9 @@ struct SupportObject_v
 	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
 	  *
 	 */
-	function convert to_type =
+	function convertType to_type =
 	(
-		format "\n"; print "SupportObject_v.convert()"
+		--format "\n"; print "SupportObject_v.convert()"
 		--format "TO_TYPE: %\n" to_type
 
 		function _getKey type = ( toUpper (type as string ) + "_KEY")
@@ -163,15 +163,15 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_direction:false =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		format "SUPPORT: %\n" support_obj.name
-		format "first_knot_pos: %\n" first_knot_pos
-		format "update_direction: %\n" update_direction
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "SUPPORT: %\n" support_obj.name
+		--format "first_knot_pos: %\n" first_knot_pos
+		--format "update_direction: %\n" update_direction
 
 		direction = getUserPropVal support_obj "DIRECTION"
 		
-		format "direction: %\n" direction
-		format "direction==direction_down: %\n" (direction==direction_down)
+		--format "direction: %\n" direction
+		--format "direction==direction_down: %\n" (direction==direction_down)
 		
 		
 		/* GENERATE SECOND POINT */ 
@@ -391,7 +391,7 @@ struct SupportObject_v
 	 */
 	function _setSecondKnotPosition vertex_pos =
 	(
-		format "\n"; print "SupportObject_v._setSecondKnotPosition()"
+		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
 
 		--function getNumKnots = numKnots support_obj spline_1
 		--knots_positions = Array (2)
@@ -437,7 +437,7 @@ struct SupportObject_v
 	 */
 	function _getPositionsFromLineOnConvert =
 	(
-		format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
+		--format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
 		
 		second_point = if obj_type == #RAFT and is_on_ground then 2 else numKnots support_obj spline_1
 		

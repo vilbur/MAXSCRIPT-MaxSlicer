@@ -147,7 +147,7 @@ struct SourceObject_v
 	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
 	  *
 	 */
-	function convert support_nodes obj_type:#RAFT  =
+	function convertType support_nodes obj_type:#RAFT  =
 	(
 		--format "\n"; print "SourceObject_v.convert()"
 
@@ -156,7 +156,7 @@ struct SourceObject_v
 		this.removeDeletedNodes()
 
 		for support_node in support_nodes do
-			(this._getSupportByNode (support_node)).convert(obj_type)
+			(this._getSupportByNode (support_node)).convertType(obj_type)
 
 
 		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:obj_type ) obj_type:obj_type
@@ -181,7 +181,7 @@ struct SourceObject_v
 	 */
 	function updateSupports =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		for index in Supports.keys where not Supports[index].isRaft() do
@@ -192,7 +192,7 @@ struct SourceObject_v
 	 */
 	function updateSupport support_node update_direction:false =
 	(
-		format "\n"; print "SourceObject_v.updateSupport()"
+		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
 

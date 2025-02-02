@@ -84,7 +84,7 @@ macroscript	_print_generator_normal_mode
 category:	"_Export"
 buttontext:	"Second Point Direction"
 toolTip:	"Where support is connected to beam"
-icon:	"across:2|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
+icon:	"across:2|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
 (
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 

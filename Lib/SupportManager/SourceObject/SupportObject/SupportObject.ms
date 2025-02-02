@@ -121,13 +121,51 @@ struct SupportObject_v
 		this
 	),
 
+	/** Convert SUPPORT to RAFT and vice versa
+	  *
+	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
+	  *
+	 */
+	function convert to_type =
+	(
+		format "\n"; print "SupportObject_v.convert()"
+		--format "TO_TYPE: %\n" to_type
+
+		function _getKey type = ( toUpper (type as string ) + "_KEY")
+		
+		/* SET PROPERTIES */ 
+		this.obj_type = to_type
+		
+		this.hit_raft 	= undefined
+		this.hit_support	= undefined
+		--this.is_on_ground	= false
+
+
+		/* GET TYPE OF ORIGIN OBJECT */ 
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+
+		
+		/* REPLACE OBJECT PROPERTY DATA */ 
+		deleteUserProp support_obj ( _getKey from_type  )
+		
+		setUserPropVal support_obj ( _getKey to_type  ) support_key
+
+		
+		/* IF TYPE IS CONVERTED */ 
+		this._getPositionsFromLineOnConvert()
+		
+		
+		/* UPDATE SUPPORT */ 
+		this.updateSupport()
+	),
+
 	/** Update supports position
 	 */
 	function updateSupport first_knot_pos: update_direction:false =
 	(
 		format "\n"; print "SupportObject_v.updateSupport()"
 		format "SUPPORT: %\n" support_obj.name
-		--format "first_knot_pos: %\n" first_knot_pos
+		format "first_knot_pos: %\n" first_knot_pos
 		format "update_direction: %\n" update_direction
 
 		direction = getUserPropVal support_obj "DIRECTION"
@@ -138,15 +176,12 @@ struct SupportObject_v
 		
 		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
-			this._setSecondKnotPosition(  first_knot_pos)
-
-		else
-			/* SET SECOND POINT BY EXISTING LINE */ 
-			this._getPositionsFromLine()
-
-		--is_on_ground = obj_type == #SUPPORT and hit_support == undefined
-		--format "HIT_RAFT: %\n" HIT_RAFT
+			this._setSecondKnotPosition( first_knot_pos )
 		
+		--else
+
+		
+		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
 			
@@ -172,48 +207,19 @@ struct SupportObject_v
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
-	/** Convert support to raft or vice versa
-	  *
-	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
-	  *
-	 */
-	function convert to_type =
-	(
-		format "\n"; print "SupportObject_v.convert()"
-		--format "TO_TYPE: %\n" to_type
 
-		function _getKey type = ( toUpper (type as string ) + "_KEY")
-		
-		this.hit_raft = undefined
-		this.hit_support	= undefined
-		this.is_on_ground	= false
-
-		this.obj_type = to_type
-
-		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-
-		
-		/* REPLACE PROPERTY DATA */ 
-		deleteUserProp support_obj ( _getKey from_type  )
-		
-		setUserPropVal support_obj ( _getKey to_type  ) support_key
-
-		/* UPDATE SUPPORT */ 
-		this.updateSupport()
-	),
-
-	/** Update support
-	 */
-	function updateRotation first_knot_pos: =
-	(
-		--format "\n"; print "SupportObject_v.updateRotation()"
-
-		this._resetThisObject()
-
-		this._setSecondKnotPosition(first_knot_pos)
-
-		this._updateSupportLeg()
-	),
+	--/** Update support
+	-- */
+	--function updateRotation first_knot_pos: =
+	--(
+	--	--format "\n"; print "SupportObject_v.updateRotation()"
+	--
+	--	this._resetThisObject()
+	--
+	--	this._setSecondKnotPosition(first_knot_pos)
+	--
+	--	this._updateSupportLeg()
+	--),
 
 	/** Update support height
 	 */
@@ -385,6 +391,8 @@ struct SupportObject_v
 	 */
 	function _setSecondKnotPosition vertex_pos =
 	(
+		format "\n"; print "SupportObject_v._setSecondKnotPosition()"
+
 		--function getNumKnots = numKnots support_obj spline_1
 		--knots_positions = Array (2)
 		--knots_positions[1] = vertex_pos
@@ -415,16 +423,26 @@ struct SupportObject_v
 
 	),
 
-	/** Get knots from line
+	/** Get knots postions from existing line
+	  * 
+	  * 1) SUPPORT > RAFT 
+	  * 
+	  *		A) Get 2nd point if support is on ground
+	  * 		B) Get LAST knot if support is NOT on ground
+	  * 
+	  * 
+	  *  2) RAFT > SUPPORT
+	  * 
+	  * 	 	Get LAST knot of raft
 	 */
-	function _getPositionsFromLine =
+	function _getPositionsFromLineOnConvert =
 	(
-		format "\n"; print "SupportObject_v._getPositionsFromLine()"
+		format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
 		
-		second_point = if obj_type == #RAFT then numKnots support_obj spline_1 else 2 -- get last point if RAFT, or second point if SUPPOIRT
+		second_point = if obj_type == #RAFT and is_on_ground then 2 else numKnots support_obj spline_1
 		
-		knots_positions =
-		#(
+		
+		knots_positions = #(
 			getKnotPoint support_obj spline_1 1,
 			getKnotPoint support_obj spline_1 second_point
 		)

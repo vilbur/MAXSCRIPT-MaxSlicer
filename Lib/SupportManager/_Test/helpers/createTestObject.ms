@@ -16,10 +16,10 @@ function prepareObject =
 		
 		
 		
-		--verts_colors[ "red" as string ]	= #{ 29, 40, 45 }
-		--verts_colors[ "green" as string ]	= #{ 22 }
+		verts_colors[ "red" as string ]	= #{ 29, 40, 45 }
+		verts_colors[ "green" as string ]	= #{ 22 }
 		verts_colors[ ( color 0 255 255 ) as string  ]	= #{ 30 }
-		--verts_colors[ "orange" as string ]	= #{ 40 }
+		verts_colors[ "orange" as string ]	= #{ 40 }
 	
 
 		/* SET VERTEX COLOR */ 

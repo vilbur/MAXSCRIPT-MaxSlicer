@@ -44,7 +44,7 @@ struct SourceObject_v
 
 		new_nodes = #()
 
-		this._removeDeletedNodes()
+		this.removeDeletedNodes()
 
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
@@ -68,7 +68,7 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 		this._setLocalVertexNormals(verts_process)
 
-		this._setWorldSpaceVertexNormals(verts_process)
+		this.setWorldSpaceVertexNormals(verts_process)
 
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
@@ -91,7 +91,7 @@ struct SourceObject_v
 			POSITIONS OF VERTS
 		--------------------------------------------------------------------------------*/
 
-		verts_pos = this._getVertsPositions(verts_process)
+		verts_pos = this.getVertsPositions(verts_process)
 
 		
 		/*------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ struct SourceObject_v
 
 		from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
 		
-		this._removeDeletedNodes()
+		this.removeDeletedNodes()
 
 		for support_node in support_nodes do
 			(this._getSupportByNode (support_node)).convert(obj_type)
@@ -170,7 +170,6 @@ struct SourceObject_v
 	),
 
 
-
 	/*------------------------------------------------------------------------------
 	
 		UPDATE
@@ -184,9 +183,9 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		this._removeDeletedNodes()
+		--this.removeDeletedNodes()
 		
-		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
+		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 		for index in Supports.keys where not Supports[index].isRaft() do
 			Supports[index].updateSupport first_knot_pos:( verts_pos[index])
@@ -200,8 +199,8 @@ struct SourceObject_v
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
 
-		if verts_pos == undefined then
-			verts_pos = this._getVertsPositions(#{index})
+		--if verts_pos == undefined then
+			--verts_pos = this.getVertsPositions(#{index})
 
 		Supports[index].updateSupport first_knot_pos:verts_pos[index]
 	),
@@ -210,11 +209,11 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n"; print "SourceObject_v.updateSupportsHeight()"
-		format "supports.count: %\n" (Supports.count)
-		this._removeDeletedNodes()
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		--format "supports.count: %\n" (Supports.count)
+		--this.removeDeletedNodes()
 		
-		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
+		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 		--for key in Supports.keys where not Supports[key].isRaft() do
 		for key in Supports.keys where not Supports[key].isRaft() do
@@ -235,23 +234,24 @@ struct SourceObject_v
 		--format "wirecolor: %\n" wirecolor
 		verts_process = #{index}
 
+		
+		
 		--if normals_local == undefined then
-			this._setLocalVertexNormals(verts_process)
+			--this._setLocalVertexNormals(verts_process)
 
 		--if normals_world == undefined then
-			this._setWorldSpaceVertexNormals(verts_process)
+			--this.setWorldSpaceVertexNormals(verts_process)
 
 		--if verts_pos == undefined then
-			verts_pos = this._getVertsPositions(#{index})
+			--verts_pos = this.getVertsPositions(#{index})
 
+		
+		
 		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[index] else direction_down -- direction down
 
 		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction wirecolor:wirecolor
 	),
 
-	
-	
-	
 	/** Get support by node
 	 */
 	function _getSupportByNode support_node =
@@ -279,16 +279,31 @@ struct SourceObject_v
 			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
 	),
 
+	/** Set world space vertex normals
+	 */
+	function setWorldSpaceVertexNormals verts =
+	(
+		--format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
+		obj_pos	= obj.pos
+		obj_transform	= obj.transform
+
+		if normals_world == undefined then
+			normals_world = deepCopy normals_local
+
+		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+	),
+
 	/** Set verts pos by supports
 	 */
 	function setVertsPosBySupports =
 	(
 		--format "\n"; print "SourceObject_v.setVertsPosBySupports()"
 
-		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
+		verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 	),
-
 
 	/** Delete support
 	  UNUSED
@@ -303,7 +318,51 @@ struct SourceObject_v
 
 		/* TODO: DELETE BEAMS ? */
 	),
+	
+	/** Set verts positions
+	 */
+	function getVertsPositions verts =
+	(
+		--format "\n"; print "SourceObject_v.getVertsPositions()"
+		--format "obj: %\n" obj
+		--format "verts_process: %\n" verts_process
+		--format "verts: %\n" verts
+		--format "all_verts: %\n" all_verts
+		--format "all_verts.numberSet: %\n" all_verts.numberSet
+		--format "verts.numberSet: %\n" verts.numberSet
+		timer__getVertsPositions = timeStamp()
 
+		if verts_pos == undefined then
+			this.verts_pos = all_verts as Array
+
+		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		--format "verts_process_pos: %\n" verts_process_pos
+
+		for i = 1 to verts_process_pos.count do
+		(
+			vert = (verts  as Array )[i]
+			--format "vert: %\n" vert
+
+			verts_pos[vert] = verts_process_pos[i]
+		)
+
+		--format "getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
+
+		verts_pos --return
+
+		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		--verts_pos --return
+	),
+	
+	/** Remove deleted nodes
+	 */
+	function removeDeletedNodes =
+	(
+		--format "\n"; print "SourceObject_v.removeDeletedNodes()"
+		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
+	),
+	
 	private
 
 	/** Init objects from scene
@@ -337,22 +396,6 @@ struct SourceObject_v
 		--this._updateLocalNormals( verts )
 		--format "NORMALS: % seconds\n" ((( timeStamp()) - timer_NORMLAS) / 1000.0)
 
-	),
-
-	/** Set world space vertex normals
-	 */
-	function _setWorldSpaceVertexNormals verts =
-	(
-		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
-		--format "verts: %\n" verts
-		--format "verts.numberSet: %\n" verts.numberSet
-		obj_pos	= obj.pos
-		obj_transform	= obj.transform
-
-		if normals_world == undefined then
-			normals_world = deepCopy normals_local
-
-		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
 
 	/** Get local vertex normals by modifier
@@ -438,41 +481,7 @@ struct SourceObject_v
 
 	),
 
-	/** Set verts positions
-	 */
-	function _getVertsPositions verts =
-	(
-		--format "\n"; print "SourceObject_v._getVertsPositions()"
-		--format "obj: %\n" obj
-		--format "verts_process: %\n" verts_process
-		--format "verts: %\n" verts
-		--format "all_verts: %\n" all_verts
-		--format "all_verts.numberSet: %\n" all_verts.numberSet
-		--format "verts.numberSet: %\n" verts.numberSet
-		timer__getVertsPositions = timeStamp()
 
-		if verts_pos == undefined then
-			this.verts_pos = all_verts as Array
-
-		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		--format "verts_process_pos: %\n" verts_process_pos
-
-		for i = 1 to verts_process_pos.count do
-		(
-			vert = (verts  as Array )[i]
-			--format "vert: %\n" vert
-
-			verts_pos[vert] = verts_process_pos[i]
-		)
-
-		--format "_getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
-
-		verts_pos --return
-
-		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-
-		--verts_pos --return
-	),
 
 	--/** Get vertex pos by support
 	-- */
@@ -509,14 +518,6 @@ struct SourceObject_v
 		for key in verts_by_colors.keys where key != obj.wirecolor as string do flattern_dict += verts_by_colors[key]
 
 		flattern_dict --return
-	),
-
-	/** Remove deleted nodes
-	 */
-	function _removeDeletedNodes =
-	(
-		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
-		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
 	),
 
 	/** Set vertex normals empty array

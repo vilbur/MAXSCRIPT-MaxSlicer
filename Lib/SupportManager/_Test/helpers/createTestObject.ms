@@ -14,11 +14,11 @@ function prepareObject =
 	(
 		verts_colors = Dictionary #string
 	
-		--verts_colors[ "red" as string ]	= #{22}
-		--verts_colors[ "red" as string ]	= #{22,29,30,40,45}
-		verts_colors[ "red" as string ]	= #{30}
-		--verts_colors[ "green" as string ]	= #{3..4}
+		verts_colors[ "red" as string ]	= #{ 29, 30, 40, 45 }
+		verts_colors[ "orange" as string ]	= #{ 40 }
+		verts_colors[ "green" as string ]	= #{ 22 }
 	
+		/* SET VERTEX COLOR */ 
 		for color_verts in verts_colors do
 			polyop.setVertColor obj.baseobject 0 color_verts.value ( execute color_verts.key )
 		

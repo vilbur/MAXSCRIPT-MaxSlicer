@@ -1,13 +1,13 @@
 
 global SOURCE_OBJECTS_BINDED = #()
-global SOURCE_OBJECT_POSITION
+global SOURCE_OBJECT_TRANSFORM -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
 
 
 /** Execute callback on timeout
  */
 function onObjectTransformTimeoutCallback sender evt =
 (
-	--format "\n"; print "onSourceObjectTransform.ms.onObjectTransformTimeoutCallback()"
+	format "\n"; print "onSourceObjectTransform.ms.onObjectTransformTimeoutCallback()"
 
 	/* Round position or rotation of object to 3 deciamls
 	 *
@@ -20,35 +20,42 @@ function onObjectTransformTimeoutCallback sender evt =
 	fn removeTimeout sender =
 	(
 		--format "\n"; print "onSourceObjectTransform.ms.removeTimeout()"
-		SOURCE_OBJECT_POSITION = undefined
+		SOURCE_OBJECT_TRANSFORM = undefined
 
 		sender.enabled = false
 		-- for sanity and cleanup
 		dotNet.removeEventHandler sender "Elapsed" onObjectTransformTimeoutCallback
 	)
+	
+	obj = SOURCE_OBJECT_TRANSFORM[#OBJECT]
 
-	saved_rotation = SOURCE_OBJECT_POSITION[#ROTATION]
+	saved_rotation = SOURCE_OBJECT_TRANSFORM[#ROTATION]
 
-	current_rotation = quatToEuler2 SOURCE_OBJECT_POSITION[#OBJECT].rotation.controller.value
+	current_rotation = quatToEuler2 obj.rotation.controller.value
 
+	--format "saved_rotation: %\n" saved_rotation
+	--format "current_rotation: %\n" current_rotation
+	--format "TEST: %\n" (current_rotation==saved_rotation)
+	
 	if selection.count > 0 then
 	(
-		/* ROTATION CHANGED */ 		
-		if roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y then
+		what_to_update = #ROTATION
+		
+		/* POSITION CHANGED */ 
+		if current_rotation == saved_rotation then
 		(
-			print "ROTATION CHANGED"
-			SUPPORT_MANAGER.updateSupportsBySourceObject( selection as Array )
-
-			removeTimeout sender
+			if roundFloat SOURCE_OBJECT_TRANSFORM[#POS_Z] == roundFloat obj.position.z then
+				what_to_update = #POSITION_XY  -- XY POSITION  CHANGED
+			
+			else
+				what_to_update = #POSITION_Z  -- Z POSITION  CHANGED
 		)
-		/* Z POSITION  ROTATION CHANGED */ 		
-		else if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
-		(
-			print "Z POSITION CHANGED"
-			SUPPORT_MANAGER.updateSupportsBySourceObject( selection as Array ) only_height:true
 
-			removeTimeout sender
-		)
+		/* Update SourceObject and its suports if necessary */ 
+		SUPPORT_MANAGER.updateSourceObject( selection as Array ) (what_to_update)
+
+		removeTimeout sender
+		
 	)
 	else if selection.count == 0 then
 		removeTimeout sender
@@ -95,9 +102,9 @@ function bindSourceObjectTransformEvent source_obj =
 	
 	when transform SOURCE_OBJECTS_BINDED changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 	(
-		if SOURCE_OBJECT_POSITION == undefined then
+		if SOURCE_OBJECT_TRANSFORM == undefined then
 		(
-			SOURCE_OBJECT_POSITION = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+			SOURCE_OBJECT_TRANSFORM = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
 
 			startObjectTransformTimeout()
 		)

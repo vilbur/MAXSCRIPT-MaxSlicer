@@ -298,27 +298,40 @@ struct SupportManager_v
 
 
 	/** Update supports of given source object
+	  * 
+      * @param #ROTATION|#POSITION_Z|#POSITION_XY what_to_update
+	  * 
 	 */
-	function updateSupportsBySourceObject source_objects only_height:false =
+	function updateSourceObject source_objects what_to_update =
 	(
-		format "\n"; print "SupportManager_v.updateSupportsBySourceObject()"
+		--format "\n"; print "SupportManager_v.updateSourceObject()"
+		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 
 		
 		/* UPDATE SUPPORTS */
 		for sync_key in sync_keys do
-			if only_height then
-				SourceObjects[sync_key].updateSupportsHeight()
-
-			else
-				SourceObjects[sync_key].updateSupports()
-				
+		(
+			SourceObject = SourceObjects[sync_key]
+			
+			SourceObject.removeDeletedNodes()
+			
+			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
+			
+			/* UPDATE SUPPORTS */
+			if what_to_update != undefined then 
+				case what_to_update of
+				(
+					#ROTATION:   SourceObject.updateSupports()
+					#POSITION_Z: SourceObject.updateSupportsHeight()
+				)
+		)	
 				
 		/* UPDATE ALL BEAMS OF SOURCE OBEJCTS */
 		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()
-
+		
 		this.updateShapes()
 	),
 
@@ -326,7 +339,7 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)

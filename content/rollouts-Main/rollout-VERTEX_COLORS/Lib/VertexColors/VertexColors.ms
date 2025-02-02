@@ -1,5 +1,9 @@
 filein( getFilenamePath(getSourceFileName()) + "/MeshVertToColorVertexConvertor/MeshVertToColorVertexConvertor.ms" )	--"./MeshVertToColorVertexConvertor/MeshVertToColorVertexConvertor.ms"
 
+--global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#ORANGE, color 225 60 0 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
+
+
+
 
 global VERTEX_COLORS_CACHE = Dictionary #string
 

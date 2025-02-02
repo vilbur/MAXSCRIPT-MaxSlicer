@@ -183,26 +183,20 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		--this.removeDeletedNodes()
-		
-		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 		for index in Supports.keys where not Supports[index].isRaft() do
-			Supports[index].updateSupport first_knot_pos:( verts_pos[index])
+			Supports[index].updateSupport first_knot_pos:( verts_pos[index]) update_direction:true
 	),
 
-	/** Update support
+	/** Update single support
 	 */
-	function updateSupport support_node =
+	function updateSupport support_node update_direction:false =
 	(
 		format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"
 
-		--if verts_pos == undefined then
-			--verts_pos = this.getVertsPositions(#{index})
-
-		Supports[index].updateSupport first_knot_pos:verts_pos[index]
+		Supports[index].updateSupport first_knot_pos:verts_pos[index] update_direction:update_direction
 	),
 
 	/** Update supports height

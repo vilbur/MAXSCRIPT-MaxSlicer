@@ -123,13 +123,19 @@ struct SupportObject_v
 
 	/** Update supports position
 	 */
-	function updateSupport first_knot_pos: =
+	function updateSupport first_knot_pos: update_direction:false =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "SUPPORT: %\n" support_obj.name
+		format "\n"; print "SupportObject_v.updateSupport()"
+		format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
-		--deleteAllChangeHandlers id:#updateSupportsEvent
+		format "update_direction: %\n" update_direction
 
+		direction = getUserPropVal support_obj "DIRECTION"
+		
+		format "direction: %\n" direction
+		format "direction==direction_down: %\n" (direction==direction_down)
+		
+		
 		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
 			this._setSecondKnotPosition(  first_knot_pos)
@@ -143,10 +149,8 @@ struct SupportObject_v
 		
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
-
-		--this._isOnGround()
-		
-		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
+			
+			
 		/* SET CORECT NUMBER OF KNOTS ON OBJECT */ 
 		if (num_knots = numKnots support_obj spline_1) != knots_positions.count then
 			case of
@@ -155,10 +159,6 @@ struct SupportObject_v
 				(num_knots > knots_positions.count): this._removeKnots()
 			)
 
-		--format "knots_positions.count: %\n" knots_positions.count
-		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
-		--is_on_ground = hit_raft == undefined and hit_support == undefined
-		
 
 		this._updateLine()
 

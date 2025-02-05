@@ -18,6 +18,12 @@
 - **Live update** of supports when position of model is changed  
 - Manage visibility and selection of print helpers
 
+- Use vertex colors for placing of supports
+
+
+[![Showcase](documentation/video-screen.jpg)](https://www.youtube.com/watch?v=HTJ5l8UVlBs)
+
+
 ## UI
 
 ![ui-screen](documentation/ui-screen.jpg)

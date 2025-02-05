@@ -21,8 +21,8 @@
 - Use vertex colors for placing of supports
 
 
-[![Showcase](documentation/video-screen.jpg)](https://www.youtube.com/watch?v=HTJ5l8UVlBs)
 
+<iframe width="420" height="315"src="https://www.youtube.com/embed/HTJ5l8UVlBs"></iframe>
 
 ## UI
 

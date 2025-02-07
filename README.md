@@ -5,6 +5,7 @@
 
 [![Showcase](documentation/supports-generator-showcase-youTube.jpg)](https://www.youtube.com/watch?v=WVPYBLx4q8I)
 
+[![Showcase](documentation/slicer-showcase-youTube.jpg)](https://www.youtube.com/watch?v=_YPodOSh0rc)
 
 ## Features
 

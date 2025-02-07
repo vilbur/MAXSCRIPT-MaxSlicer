@@ -3,6 +3,9 @@
 ### Set of 3D print tools for 3Ds Max  
 
 
+[![Showcase](documentation/supports-generator-showcase-youTube.jpg)](https://www.youtube.com/watch?v=WVPYBLx4q8I)
+
+
 ## Features
 
 - Slice object per print layer  
@@ -19,9 +22,6 @@
 - Manage visibility and selection of print helpers
 
 - Use vertex colors for placing of supports
-
-
-[![Showcase](documentation/supports-generator-showcase-youTube.jpg)](https://www.youtube.com/watch?v=WVPYBLx4q8I)
 
 
 

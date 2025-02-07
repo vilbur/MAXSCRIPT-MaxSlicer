@@ -3,9 +3,11 @@
 ### Set of 3D print tools for 3Ds Max  
 
 
-[![Showcase](documentation/supports-generator-showcase-youTube-low.jpg)](https://www.youtube.com/watch?v=WVPYBLx4q8I)
 
-[![Showcase](documentation/slicer-showcase-youTube-low.jpg)](https://www.youtube.com/watch?v=_YPodOSh0rc)
+| SUPPORTS      | SLICER |
+| ----------- | ----------- |
+| [![Showcase](documentation/supports-generator-showcase-youTube-low.jpg)](https://www.youtube.com/watch?v=WVPYBLx4q8I)	| [![Showcase](documentation/slicer-showcase-youTube-low.jpg)](https://www.youtube.com/watch?v=_YPodOSh0rc)
+
 
 ## Features
 

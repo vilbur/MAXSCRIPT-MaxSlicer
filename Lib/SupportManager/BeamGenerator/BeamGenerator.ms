@@ -14,9 +14,9 @@ struct BeamGenerator_v
 	 */
 	function generateBeam support_A support_B =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeam()"
-		format "support_A: %\n" support_A
-		format "support_B: %\n" support_B
+		--format "\n"; print "BeamGenerator_v.generateBeam()"
+		--format "support_A: %\n" support_A
+		--format "support_B: %\n" support_B
 		BeamObject = (BeamObject_v support_A support_B )
 
 		/* IF BEAM DOES NOT EXISTS YET */
@@ -47,14 +47,14 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsChain supports max_distance =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeamsChain()"
-		format "supports: %\n" supports
+		--format "\n"; print "BeamGenerator_v.generateBeamsChain()"
+		--format "supports: %\n" supports
 		new_beams = #()
 
 		sorted_supports = this._sortSupportsByDistance(supports) (max_distance)
 
 		for supports_in_cluster in sorted_supports do
-			format "SUPPORTS_IN_CLUSTER %: %\n" supports_in_cluster.count supports_in_cluster
+			--format "SUPPORTS_IN_CLUSTER %: %\n" supports_in_cluster.count supports_in_cluster
 
 		for supports_in_cluster in sorted_supports do
 			for i = 1 to supports_in_cluster.count - 1 do
@@ -68,12 +68,13 @@ struct BeamGenerator_v
 	function generateBeamsToClosestSupports _objects max_distance: use_only_selected_supports:false max_connections: only_ground:true =
 	(
 		format "\n"; print ".generateBeamsToClosestSupports()"
+		format "max_connections: %\n" max_connections
 
 		procesed_supports = #()
 		new_beams = #()
 
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
-		format "source_objects: %\n" source_objects
+		--format "source_objects: %\n" source_objects
 
 		objects_support = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 
@@ -90,8 +91,8 @@ struct BeamGenerator_v
 		/* USE ONLY SUPPORTS TOUCHING GROUND - dont use rafts and supports without foot */
 		this._filterOnlyGroundedSupports(only_ground)(&supports_to_connect)
 
-		format "supports_to_connect.count: %\n" supports_to_connect.count
-		format "MAX_DISTANCE: %\n" max_distance
+		--format "supports_to_connect.count: %\n" supports_to_connect.count
+		--format "MAX_DISTANCE: %\n" max_distance
 
 		--format "supports_to_connect: %\n" supports_to_connect
 
@@ -135,7 +136,7 @@ struct BeamGenerator_v
 	 */
 	function beamExists support_A support_B =
 	(
-		format "\n"; print "SupportManager_v.beamExists()"
+		--format "\n"; print "SupportManager_v.beamExists()"
 		SUPPORT_MANAGER.BeamObjects[this._getBeamKey support_A support_B] != undefined
 	),
 
@@ -147,9 +148,9 @@ struct BeamGenerator_v
 	 */
 	function _getBeamKey support_A support_B =
 	(
-		format "\n"; print "SupportManager_v.getBeamKey()"
+		--format "\n"; print "SupportManager_v.getBeamKey()"
 		pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
-		format "pointers: %\n" pointers
+		--format "pointers: %\n" pointers
 		( pointers[1] + "x" + pointers[2] ) --return
 	),
 
@@ -175,8 +176,8 @@ struct BeamGenerator_v
 	 */
 	function _sortSupportsByDistance supports max_distance =
 	(
-		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
-		format "max_distance: %\n" max_distance
+		--format "\n"; print "SupportManager_v.sortSupportsByDistance()"
+		--format "max_distance: %\n" max_distance
         sorted_all = #()
 		cluster    = #()
 

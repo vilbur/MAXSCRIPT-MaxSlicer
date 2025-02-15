@@ -96,9 +96,9 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key =
 	(
-		format "\n"; print "ModifiersManager_v.updateModifier()"
-		format "_objects: %\n" _objects
-		format "prop_key: %\n" prop_key
+		--format "\n"; print "ModifiersManager_v.updateModifier()"
+		--format "_objects: %\n" _objects
+		--format "prop_key: %\n" prop_key
 
 		mods = #()
 
@@ -107,7 +107,7 @@ struct ModifiersManager_v
 		for obj in _objects where obj.modifiers[mod_name] != undefined do
 			appendIfUnique mods obj.modifiers[mod_name]
 
-		format "mods.count: %\n" mods.count
+		--format "mods.count: %\n" mods.count
 
 		if mods.count > 0 then
 		(
@@ -137,11 +137,11 @@ struct ModifiersManager_v
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
 	(
-		format "\n"; print "ModifiersManager_v.convertSupportType()"
-		format "to_type: %\n" to_type
-		format "modifiers: %\n" modifiers
+		--format "\n"; print "ModifiersManager_v.convertSupportType()"
+		--format "to_type: %\n" to_type
+		--format "modifiers: %\n" modifiers
 		--format "_objects: %\n" _objects
-		format "SupportModifiers[#DEFAULT]: %\n" SupportModifiers[#DEFAULT]
+		--format "SupportModifiers[#DEFAULT]: %\n" SupportModifiers[#DEFAULT]
 
 		modifiers_add = case of
 		(
@@ -150,8 +150,8 @@ struct ModifiersManager_v
 			(to_type == #RAFT):	SupportModifiers[#DEFAULT].mods_raft
 		)
 
-		format "MODIFIERS_ADD: %\n" modifiers_add
-		format "MODIFIERS_ADD: %\n" modifiers_add.count
+		--format "MODIFIERS_ADD: %\n" modifiers_add
+		--format "MODIFIERS_ADD: %\n" modifiers_add.count
 
 		for obj in _objects do
 		(

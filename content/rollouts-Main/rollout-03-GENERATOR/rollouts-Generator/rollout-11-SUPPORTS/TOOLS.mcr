@@ -37,7 +37,7 @@ tooltip:	""
  */
 macroscript	_print_support_toggle_foot_false
 category:	"_3D-Print"
-buttontext:	"Toggle Foot"
+buttontext:	"FOOT Toggle"
 tooltip:	""
 icon:	""
 (

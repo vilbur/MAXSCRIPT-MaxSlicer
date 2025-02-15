@@ -5,7 +5,7 @@
 
 
  */
-function selectHideUnhideSupports type: state: select_mode: keyboard.controlPressed select_more:keyboard.shiftPressed =
+function selectHideUnhideSupports type: state: select_mode:keyboard.controlPressed select_more:keyboard.shiftPressed =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
 	format "\n"; print ".selectHideUnhideSupports()"
@@ -15,7 +15,8 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	--format "select_mode: %\n" select_mode
 	--format "select_more: %\n" select_more
 	
-	visible_objects	= for obj in objects where not obj.isHidden collect obj
+	--visible_objects	= for obj in objects where not obj.isHidden collect obj
+	visible_objects	= for obj in objects where obj.isHidden == state collect obj
 	
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
@@ -24,10 +25,11 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	timer_GETTING_OBJECTS = timeStamp()
 
 	objs_input = if selection.count > 0 then selection as Array else visible_objects
+	--objs_input = if selection.count > 0 then selection as Array else objects as Array
 
-	objs_by_type = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:false
+	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:false
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
-
+	--format "OBJS_BY_TYPE: %\n" objs_by_type
 	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
 
 	/* GET ALL OBEJCTS OF GIVEN TYPE - WORKS LIKE NOTHING SELECTED, IF SELECTION EXISTS BUT OBJECTS ARE NOT IN SUPPORT SYSTEM */ 
@@ -50,8 +52,8 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	--		deleteItem objs_input index
 
 
-	timer_SELECTING = timeStamp()
-	format "SELECTING START\n"
+	--timer_SELECTING = timeStamp()
+	--format "SELECTING START\n"
 
 	with redraw off
 	(
@@ -80,9 +82,37 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	)
 	--format "select: % ms\n" (( timeStamp()) - timer_select)
 	redrawViews()
-	format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
-	format "is_manager_open: %\n" is_manager_open
+	--format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
+	--format "is_manager_open: %\n" is_manager_open
 	/* REOPEN LAYER MANAGER */
 	--if is_manager_open then
 		--LayerManager.editLayerByName ""
 )
+
+
+/*------------------------------------------------------------------------------
+
+	TEST - ONLY DEV - CAN BE DELETED
+
+
+filein( getFilenamePath(getSourceFileName()) + "/../SupportManager.ms" )	--"./../SupportManager.ms"
+
+/* UNHIDE RAFTS */ 
+--selectHideUnhideSupports type:#RAFT state:true
+
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
+
+/* HIDE\UNHIDE DRAINS */ 
+--selectHideUnhideSupports type:#DRAIN state:false
+--selectHideUnhideSupports type:#DRAIN state:true
+--
+
+
+
+--selectHideUnhideSupports type:#DRAIN state:true select_mode:true
+
+/* HIDE\UNHIDE PINS */ 
+--selectHideUnhideSupports type:#PIN state:false
+
+
+--------------------------------------------------------------------------------*/

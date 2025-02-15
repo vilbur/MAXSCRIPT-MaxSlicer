@@ -158,7 +158,7 @@ macroscript	maxtoprint_supports_check
 category:	"maxtoprint"
 buttontext:	"C H E C K  A L L"
 toolTip:	"SEARCH ANDF SELECT NOT VALID SUPORTS\n\n1) IF SUPPORT IS TOO SHORT \n\n2) IF ANGLE BETWEEN RAFT AND FOOT IS LESS THEN 90°\n\n3) IF CHMAFER VALUE IS TOO HIGH"
-icon:	"across:5"
+icon:	"across:4"
 (
 	on execute do
 	(
@@ -208,17 +208,17 @@ icon:	"width:70|offset:[16,0]"
         checkLenghtsAndAnglesOfSupports type:#SHORT
 )
 
-/**
- *
- */
-macroscript	maxtoprint_supports_check_chamfer
-category:	"maxtoprint"
-buttontext:	"Chamfer"
-toolTip:	"Test if too support is too short"
-(
-	on execute do
-        checkLenghtsAndAnglesOfSupports type:#CHAMFER
-)
+--/**
+-- *
+-- */
+--macroscript	maxtoprint_supports_check_chamfer
+--category:	"maxtoprint"
+--buttontext:	"Top"
+--toolTip:	"Test if too support is too short"
+--(
+--	on execute do
+--        checkLenghtsAndAnglesOfSupports type:#CHAMFER
+--)
 
 /**
  *

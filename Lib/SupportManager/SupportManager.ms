@@ -126,9 +126,9 @@ struct SupportManager_v
 	 */
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
 	(
-		format "\n"; print "SupportManager_v.generateBeams()"
+		--format "\n"; print "SupportManager_v.generateBeams()"
 		--format "supports: %\n" supports
-		format "max_connections: %\n" max_connections
+		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
 
 		/** if support height is greater then min height option
@@ -141,12 +141,12 @@ struct SupportManager_v
 		_selection = selection as Array
 
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
-		format "selected_supports: %\n" selected_supports
+		--format "selected_supports: %\n" selected_supports
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		format "selected_rafts: %\n" selected_rafts
+		--format "selected_rafts: %\n" selected_rafts
 		supports = selected_supports + selected_rafts
 
-		format "supports: %\n" supports
+		--format "supports: %\n" supports
 
 		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
 		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
@@ -167,7 +167,7 @@ struct SupportManager_v
 
 		)
 
-		format "NEW_BEAMS: %\n" new_beams
+		--format "NEW_BEAMS: %\n" new_beams
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()
@@ -449,8 +449,8 @@ struct SupportManager_v
 		--format "SOURCE_OBJECTS: %\n" source_objects
 		/* GET OBJECTS BY TYPE */
 		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type )
-		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
-		format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
 
 		--for SourceObject in source_objects do
 		--	join objects_by_type (SourceObject.getSupportNodes())
@@ -592,7 +592,7 @@ struct SupportManager_v
 
 	/** get objects by type
 	  *
-	  * @param name type of object: #SOURCE|#SUPPORT|#BEAM|#RAFT
+	  * @param name type of object: #SOURCE|#SUPPORT|#BEAM|#RAFT|#DRAIN|#PIN
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
@@ -612,10 +612,12 @@ struct SupportManager_v
         rafts		  = #()
         beams   	= #()
         drains   	= #()
+        pins   		= #()
 
         objects_by_type = #()
 
 
+		/* SORT BY TYPE */ 
 		for obj in _objects do
 			case of
 			(
@@ -625,20 +627,25 @@ struct SupportManager_v
                 ((this._getKey #RAFT	obj) != undefined ): append rafts obj
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
                 ((this._getKey #DRAIN   obj) != undefined ): append drains obj
+                ((this._getKey #PIN     obj) != undefined ): append pins obj
+
                 --default:
 			)
 
-		--format "SOURCE_KEYS: %\n" source_keys.count
-		--format "SUPPORTS: %\n" supports.count
-		--format "RAFTS: %\n" rafts.count
-		--format "BEAMS: %\n" beams.count
+		--format "\n\n"
+		--format "SOURCE_KEYS: %\n" source_keys
+		--format "SUPPORTS: %\n" supports
+		--format "RAFTS: %\n" rafts
+		--format "BEAMS: %\n" beams
 		--format "DRAINS: %\n" drains
+		--format "PINS: %\n" pins
 
 		/*==============================================================================
 			GET SOURCE OBJECTS
 		================================================================================*/
 		if type == #SOURCE then
 		(
+			--format "GET SOURCE OBJECTS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			sync_keys_of_objs = for obj in supports + beams + rafts collect this._getSyncKey(obj)
 
@@ -650,6 +657,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if type == #DRAIN then
 		(
+			--format "GET DRAINS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			objects_by_type = drains --return
 
@@ -658,12 +666,19 @@ struct SupportManager_v
                     appendIfUnique objects_by_type obj
 
 		)
-		/*=
-		  =============================================================================
+		else if type == #PIN then
+		(
+			--format "GET PINS\n"
+			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
+			objects_by_type = pins --return
+		)
+		
+		/*==============================================================================
 			GET BY SOURCE OBEJCT
 		================================================================================*/
 		else if source_keys.count > 0 then
 		(
+			--format "GET BY SOURCE OBEJCT\n"
 			raft_test = type == #RAFT
 
 			/* GET BEAMS OF SOURCE OBJECT */
@@ -683,6 +698,7 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
+			--format "GET BY SUPPORTS\n"
 			--format "TEST: %\n" (type == #SUPPORT)
 			--format "SUPPORTS: %\n" supports
 
@@ -707,6 +723,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if beams.count > 0 then
 		(
+			--format "GET BY BEAMS\n"
 			/* GET BEAMS */
 			if type == #BEAM  then
 				objects_by_type = beams
@@ -720,10 +737,11 @@ struct SupportManager_v
 				)
 		)
 
+		objects_by_type = for obj in objects_by_type where isValidNode obj collect obj  --return
 		--format "OBJECTS_BY_TYPE: %\n" objects_by_type
-		--format "objects_by_type: %\n" objects_by_type
-		for obj in objects_by_type where isValidNode obj collect obj  --return
-
+		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		
+		objects_by_type --return
 	),
 
 	/** Get source object
@@ -828,7 +846,7 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
@@ -838,7 +856,7 @@ struct SupportManager_v
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
-				format "IS_ON_GROUND: %\n" IS_ON_GROUND
+				--format "IS_ON_GROUND: %\n" IS_ON_GROUND
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
@@ -927,6 +945,8 @@ struct SupportManager_v
 	function _getKey type obj =
 	(
 		--format "\n"; print "SupportManager_v._getKey()"
+		--format "obj: %\n" obj.name
+		
 		type_full = toUpper (type as string ) + "_KEY"
 		--format "type_full: %\n" type_full
 

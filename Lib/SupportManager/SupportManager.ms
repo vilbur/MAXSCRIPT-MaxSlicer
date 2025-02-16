@@ -596,7 +596,8 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "hierarchy: %\n" hierarchy
 		--format "_objects: %\n" _objects
 		--format "type: %\n" type
 		--/** Is type support
@@ -606,6 +607,7 @@ struct SupportManager_v
 		--	--format "\n"; print "SupportManager_v.isTypeSupport()"
 		--	type == #SUPPORT or type == #RAFT
 		--)
+        objects_by_type = #()
 
         source_keys = #()
         supports	= #()
@@ -613,9 +615,6 @@ struct SupportManager_v
         beams   	= #()
         drains   	= #()
         pins   		= #()
-
-        objects_by_type = #()
-
 
 		/* SORT BY TYPE */ 
 		for obj in _objects do
@@ -655,9 +654,10 @@ struct SupportManager_v
 		(
 			format "GET SOURCE OBJECTS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
+			
 			sync_keys_of_objs = for obj in supports + beams + rafts collect this._getSyncKey(obj)
 
-			objects_by_type = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
+			objects_by_type = for key in makeUniqueArray ( source_keys + sync_keys_of_objs ) where SourceObjects[key] != undefined collect SourceObjects[key].obj
 		)
 
 		/*==============================================================================
@@ -686,14 +686,14 @@ struct SupportManager_v
 		================================================================================*/
 		else if source_keys.count > 0 then
 		(
-			format "GET BY SOURCE OBEJCT\n"
+			format "GET BY SOURCE OBJECT\n"
 			raft_test = type == #RAFT
-
+			
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
 					append objects_by_type BeamObjects[key].beam
-
+			
 			/* GET SUPPORTS OF SOURCE OBJECT */
 			if hierarchy or type == #SUPPORT or type == #RAFT  then
 				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 and SupportObjects[key].isRaft() == raft_test do
@@ -712,7 +712,7 @@ struct SupportManager_v
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			objects_by_type = deepCopy supports_and_rafts
+			--objects_by_type = deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then

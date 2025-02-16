@@ -118,7 +118,7 @@ icon:	"MENU:&SELECT Color"
 macroscript	epoly_vertex_color_hide_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"HIDE"
-toolTip:	"Hide verts with same color as selected verts"
+toolTip:	"Hide verts with same color as selected verts.\n\nHIDE ONLY WHITE IF VERTEX IS NOT SELECTED"
 icon:	"across:3"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0

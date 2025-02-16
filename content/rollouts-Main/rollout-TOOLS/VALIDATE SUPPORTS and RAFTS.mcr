@@ -36,20 +36,36 @@ function searchInvalidSupports type: =
 	--treshold    = 0.05
 	treshold    = 0
 
-	for support in supports where ( chamfer_mod = support.modifiers[#TOP_WIDTH]) != undefined and ( sweep_mod = support.modifiers[#BAR_WIDTH][#Cylinder_Section]) != undefined and (num_knots = numKnots support 1) <= 3 do
+	for support in supports where ( sweep_mod = support.modifiers[#BAR_WIDTH][#Cylinder_Section]) != undefined do
+	--for support in supports where ( chamfer_mod = support.modifiers[#TOP_WIDTH]) != undefined and ( sweep_mod = support.modifiers[#BAR_WIDTH][#Cylinder_Section]) != undefined do
 	(
+		chamfer_mod = support.modifiers[#TOP_WIDTH]
+		
+		
+		num_knots = numKnots support 1
+		
 		sweep_radius   = sweep_mod.radius
-		chamfer_amount = chamfer_mod.amount
+		
+		chamfer_amount = if chamfer_mod != undefined then  chamfer_mod.amount else 0
+		
 		format "sweep_radius: %\n" sweep_radius
 		format "chamfer_amount: %\n" chamfer_amount
 
 		shape_lengths = getSegLengths support 1
 
 		segments_lengths = for i = ( numSegments support 1 ) + 1 to shape_lengths.count - 1 collect shape_lengths[i]
-		format "segments_lengths: %\n" segments_lengths
+		--format "segments_lengths: %\n" segments_lengths
 
 		support_invalid = false
+		
+		for segment_length in segments_lengths while not support_invalid where segment_length < chamfer_amount do
+		(
+			support_invalid = true
 
+			append invalid_supports[#SHORT] support
+		)
+		
+				
 		if num_knots == 3 then
 		(
 			_angle = getAngleBetweenSegments(support)
@@ -69,7 +85,7 @@ function searchInvalidSupports type: =
 				for segment_length in segments_lengths while not support_invalid where segment_length < chamfer_amount do
 				(
 					support_invalid = true
-
+				
 					append invalid_supports[#SHORT] support
 				)
 
@@ -101,8 +117,6 @@ function searchInvalidSupports type: =
 
 
 				)
-
-
 				--
 				--/* IF SUPPORT IS BEND ENOUGHT */
 				----if _angle < 145 and (segments_lengths[1] - treshold ) * angle_multiplier <= limit_lenght then
@@ -119,17 +133,30 @@ function searchInvalidSupports type: =
 			else /* ANGLE IS TOO SHARP - higher priority - support is unprintable */
 				append invalid_supports[#ANGLE] support
 		)
+		else if num_knots == 2 then
+		(
+			
+			format "segments_lengths: %\n" segments_lengths
+			format "chamfer_amount: %\n" chamfer_amount
+			
+			
+			if ( chamfer_amount * 2 ) > segments_lengths[1] then
+				append invalid_supports[#SHORT] support
+		)
+		
 		else if shape_lengths[shape_lengths.count] < chamfer_amount *2 then
 			append invalid_supports[#CHAMFER] support
 
 
 	)
+	
 	format "INVALID_SUPPORTS: %\n" invalid_supports
 
+	/* RETURN SINGLE ERROR TYPE */ 
 	if type != unsupplied then
 		invalid_supports[type] --return
 
-	else
+	else /* RETURN ALL ERROR TYPES */ 
 		invalid_supports[#ANGLE] + invalid_supports[#SHORT] + invalid_supports[#CHAMFER]  + invalid_supports[#WIDTH]  --return
 
 )
@@ -237,7 +264,7 @@ toolTip:	"Test angle of support"
  */
 macroscript	maxtoprint_supports_check_width
 category:	"maxtoprint"
-buttontext:	"Width "
+buttontext:	"Bar Width"
 --toolTip:	"Test if too support is too short"
 (
 	on execute do

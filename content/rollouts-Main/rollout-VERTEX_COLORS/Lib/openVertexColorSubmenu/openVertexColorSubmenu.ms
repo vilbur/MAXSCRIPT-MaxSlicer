@@ -19,7 +19,6 @@ function openVertexColorSubmenu method =
 		#HIDE:	"&Hide By Selection"
 		#UNHIDE:	"&Unide By Selection"
 		#ISOLATE:	"&Isolate By Selection"
-
 	)
 
 

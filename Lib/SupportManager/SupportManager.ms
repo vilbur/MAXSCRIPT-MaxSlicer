@@ -361,8 +361,8 @@ struct SupportManager_v
 	 */
 	function rebuildSupports support_nodes =
 	(
-		format "\n"; print "SupportManager_v.rebuildSupports()"
-		format "SUPPORT_NODES: %\n" support_nodes
+		--format "\n"; print "SupportManager_v.rebuildSupports()"
+		--format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 	

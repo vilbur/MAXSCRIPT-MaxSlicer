@@ -47,6 +47,7 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "support_obj: %\n" support_obj
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 	
 		/** Set nide name

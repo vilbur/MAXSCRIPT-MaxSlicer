@@ -2,7 +2,7 @@
  */
 function generateSupportsOrRafts obj_type: =
 (
-	--format "\n"; print ".generateSupportsOrRafts()"
+	format "\n"; print ".generateSupportsOrRafts()"
 
 	_selection = for obj in selection collect obj
 
@@ -45,11 +45,12 @@ function generateSupportsOrRafts obj_type: =
 			REBUILD SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
 		
-		if obj_type == #SUPPORT and selected_supports.count > 0 then
+		if  obj_type == #SUPPORT and selected_supports.count > 0 \
+		or obj_type == #RAFT and selected_rafts.count > 0 then
 		(
 			pauseSupportToTransformEvent()
 		
-			SUPPORT_MANAGER.rebuildSupports(selected_supports)
+			SUPPORT_MANAGER.rebuildSupports(selected_supports) obj_type:obj_type
 		
 			resumeSupportToTransformEvent()
 		)
@@ -58,11 +59,11 @@ function generateSupportsOrRafts obj_type: =
 		--(
 		--	pauseSupportToTransformEvent()
 		--
-		--	SUPPORT_MANAGER.rebuildSupports(selected_rafts) obj_type:#RAFT
+		--	SUPPORT_MANAGER.rebuildSupports(selected_rafts) obj_type:obj_type
 		--
 		--	resumeSupportToTransformEvent()
 		--)
-		
+		--
 		
 	)
 

@@ -8,15 +8,21 @@
 function selectHideUnhideSupports type: state: select_mode:keyboard.controlPressed select_more:keyboard.shiftPressed =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
-	format "\n"; print ".selectHideUnhideSupports()"
+	format "\n"; print "selectHideUnhideSupports()"
 	format "type:  %\n" type
 	--format "state: %\n" state
 	--format "\n"
 	--format "select_mode: %\n" select_mode
-	--format "select_more: %\n" select_more
 	
 	--visible_objects	= for obj in objects where not obj.isHidden collect obj
-	visible_objects	= for obj in objects where obj.isHidden == state collect obj
+	--visible_objects	= for obj in objects where obj.isHidden == state collect obj
+	
+	visible_objects	= case select_mode of
+	(
+		(true):  for obj in objects where obj.isHidden == false collect obj
+		default: for obj in objects where obj.isHidden == state collect obj
+	)
+	
 	
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
@@ -25,16 +31,18 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	timer_GETTING_OBJECTS = timeStamp()
 
 	objs_input = if selection.count > 0 then selection as Array else visible_objects
+	format "OBJS_INPUT: %\n" objs_input
 	--objs_input = if selection.count > 0 then selection as Array else objects as Array
 
-	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:false
+	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
-	--format "OBJS_BY_TYPE: %\n" objs_by_type
+	format "OBJS_BY_TYPE: %\n" objs_by_type
 	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
-
+ 
+ 
 	/* GET ALL OBEJCTS OF GIVEN TYPE - WORKS LIKE NOTHING SELECTED, IF SELECTION EXISTS BUT OBJECTS ARE NOT IN SUPPORT SYSTEM */ 
 	if source_objects.count == 0 and objs_by_type.count == 0 then
-		objs_by_type = SUPPORT_MANAGER.getObjectsByType visible_objects type:type hierarchy:false
+		objs_by_type = SUPPORT_MANAGER.getObjectsByType visible_objects type:type hierarchy:select_more
 
 	
 	--format "SOURCE_OBJECTS: %\n" source_objects

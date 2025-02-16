@@ -23,7 +23,7 @@ struct SourceObject_v
 
 	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
-	direction_down = [0,0,-1],
+	--direction_down = [0,0,-1],
 	/* dependency */
 
 	VertexColors,	--"./../../VertexColors/VertexColors.ms"
@@ -58,23 +58,23 @@ struct SourceObject_v
 		--format "colored_verts: %\n" colored_verts
 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-		format "VERTS_PROCESS: %\n" verts_process
-		format "VERTS_PROCESS: %\n" verts_process.numberSet
-		format "Normals: %\n" Normals
+		--format "VERTS_PROCESS: %\n" verts_process
+		--format "VERTS_PROCESS: %\n" verts_process.numberSet
 		
 		/*------------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
 		Normals.setLocalVertexNormals(verts_process)
-
-		format "NORMALS_LOCAL: %\n" Normals.normals_local
-		format "NORMALS_LOCAL: %\n" Normals.normals_local.count
+		--format "NORMALS_LOCAL: %\n" Normals.normals_local
+		--format "NORMALS_LOCAL: %\n" Normals.normals_local.count
 		
+		Normals.saveNormalsToUserProps()
+
 		Normals.setWorldSpaceVertexNormals(verts_process)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
-		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
-		format "VERTS_PROCESS: %\n" verts_process
+		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
+		--format "VERTS_PROCESS: %\n" verts_process
 		
 		
 		/*------------------------------------------------------------------------------
@@ -86,10 +86,9 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys do
 			verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
 		
-		format "verts_by_colors.keys: %\n" verts_by_colors.keys
-		format "verts_by_colors: %\n" verts_by_colors
+		--format "verts_by_colors.keys: %\n" verts_by_colors.keys
+		--format "verts_by_colors: %\n" verts_by_colors
 			
-			 
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS
 		--------------------------------------------------------------------------------*/
@@ -232,11 +231,11 @@ struct SourceObject_v
 		verts_process = #{index}
 
 		
-		--if Normals.normals_local == undefined then
-		--	Normals.setLocalVertexNormals(verts_process)
-		--
-		--if Normals.Normals.ormals_world == undefined then
-		--	Normals.etWorldSpaceVertexNormals(verts_process)
+		if Normals.normals_local == undefined then
+			Normals.setLocalVertexNormals(verts_process)
+		
+		if Normals.Normals.ormals_world == undefined then
+			Normals.setWorldSpaceVertexNormals(verts_process)
 
 		if verts_pos == undefined then
 			verts_pos = this.getVertsPositions(#{index})
@@ -407,14 +406,6 @@ struct SourceObject_v
 		rounded_rotation --return
 	),
 
-	/** Is vertex normal pointing DOWN or SIDE but not UP
-	 */
-	function _isNormalValid vert =
-	(
-		--format "\n"; print "SourceObject_v._isNormalValid()"
-		Normals.normals_world[vert].z < 0 --return
-		--Normals.normals_world[vert].z < 1 --return
-	),
 
 	/** Save object rounded rotation in X and Y axis
 	 */

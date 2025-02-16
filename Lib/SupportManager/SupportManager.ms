@@ -621,6 +621,16 @@ struct SupportManager_v
 		for obj in _objects do
 			case of
 			(
+				/* TODO NOTICES
+				   
+				   this._getKey() SHOULD MODIFIED BE PERFOMED ONLY ONCE
+					
+					it should return #( #TYPE, KEY )
+					
+					USE getUserPropBuffer TO PARSE USER PROPS
+				
+				*/ 
+				
                 ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
 
                 ((this._getKey #SUPPORT obj) != undefined ): append supports obj
@@ -628,8 +638,6 @@ struct SupportManager_v
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
                 ((this._getKey #DRAIN   obj) != undefined ): append drains obj
                 ((this._getKey #PIN     obj) != undefined ): append pins obj
-
-                --default:
 			)
 
 		--format "\n\n"
@@ -645,7 +653,7 @@ struct SupportManager_v
 		================================================================================*/
 		if type == #SOURCE then
 		(
-			--format "GET SOURCE OBJECTS\n"
+			format "GET SOURCE OBJECTS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			sync_keys_of_objs = for obj in supports + beams + rafts collect this._getSyncKey(obj)
 
@@ -657,7 +665,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if type == #DRAIN then
 		(
-			--format "GET DRAINS\n"
+			format "GET DRAINS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			objects_by_type = drains --return
 
@@ -678,7 +686,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if source_keys.count > 0 then
 		(
-			--format "GET BY SOURCE OBEJCT\n"
+			format "GET BY SOURCE OBEJCT\n"
 			raft_test = type == #RAFT
 
 			/* GET BEAMS OF SOURCE OBJECT */
@@ -698,20 +706,19 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
-			--format "GET BY SUPPORTS\n"
-			--format "TEST: %\n" (type == #SUPPORT)
-			--format "SUPPORTS: %\n" supports
+			format "GET BY SUPPORTS\n"
+			--format "HIERARCHY: %\n" HIERARCHY
 
-			supports_or_rafts = if type == #SUPPORT then supports else rafts
+			--supports_and_rafts = if type == #SUPPORT then supports else rafts
+			supports_and_rafts = supports + rafts
 
-			objects_by_type = deepCopy supports_or_rafts
-			
+			objects_by_type = deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
-			if hierarchy or type == #BEAM  then       
-				for beam_key in BeamObjects.keys where findItem supports_or_rafts BeamObjects[beam_key].support_A > 0 or findItem supports_or_rafts BeamObjects[beam_key].support_B > 0 do
+			if hierarchy or type == #BEAM  then
+				for beam_key in BeamObjects.keys where findItem supports_and_rafts BeamObjects[beam_key].support_A > 0 or findItem supports_and_rafts BeamObjects[beam_key].support_B > 0 do
 					append objects_by_type BeamObjects[beam_key].beam
-
+			
 			/* add to current selection */
 			------if hierarchy or type == #SUPPORT or type == #RAFT then
 			if hierarchy then
@@ -723,7 +730,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if beams.count > 0 then
 		(
-			--format "GET BY BEAMS\n"
+			format "GET BY BEAMS\n"
 			/* GET BEAMS */
 			if type == #BEAM  then
 				objects_by_type = beams
@@ -736,6 +743,7 @@ struct SupportManager_v
 					appendIfUnique objects_by_type SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
 				)
 		)
+		
 
 		objects_by_type = for obj in objects_by_type where isValidNode obj collect obj  --return
 		--format "OBJECTS_BY_TYPE: %\n" objects_by_type

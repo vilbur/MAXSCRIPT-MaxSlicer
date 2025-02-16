@@ -13,13 +13,17 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	format "state: %\n" state
 	format "SELECT_MODE: %\n" select_mode
 	format "select_more: %\n" select_more
-	--format "\n"
+	format "\n"
 
+	--fn arraysAreSame arr1 arr2 = with PrintAllElements on arr1 as string == arr2 as string
+	
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
 		LayerManager.closeDialog()
 
 		
+	--select_by_source_objects = selection.count == 0
+
 	
 	objects_by_visibility	= if select_mode then
 			  for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
@@ -31,11 +35,16 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 
 	/* GET INPUT SOURCE OBJECTS */ 
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
+	format "SOURCE_OBJECTS: %\n" source_objects
 	
+	
+	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect obj.name ) ) as string == ( sort (for obj in source_objects collect obj.name) ) as string
+	format "select_by_source_objects: %\n" select_by_source_objects
 	/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
 	if selection.count == 0 then
 		objs_input = source_objects
-
+	format "OBJS_INPUT: %\n" objs_input
+		
 	/* GET OBJECTS BY TYPE */ 	
 	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
 	
@@ -49,12 +58,14 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	/* SELECT|DESELECT SOURCE OBJECT */
 	--if type == #SOURCE then
 	--	objs_by_type = source_objects
-
+	--format "TEST: %\n" (select_more and selection.count > 0)
+	format "TEST: %\n" (select_more and selection.count > 0 and not select_by_source_objects )
 
 	/* SELECT MORE - If shift key presssed*/
-	if select_more and selection.count > 0 then
+	if select_more and selection.count > 0 and not select_by_source_objects then
 		objs_by_type += objs_input
 
+	format "OBJS_BY_TYPE: %\n" objs_by_type
 		
 	with redraw off
 	(
@@ -63,7 +74,7 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 		case of
 		(
 			/* SELECT */
-			(select_mode and state ): select objs_by_type
+			(select_mode and state ): select ( for obj in objs_by_type where obj.isHidden == false collect obj )
 
 			/* DESELECT */
 			(select_mode and not state) : deselect objs_by_type
@@ -72,7 +83,7 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 			default: for obj in objs_by_type do obj.isHidden = not state
 		)
 	)
-
+	
 	redrawViews()
 
 	/* REOPEN LAYER MANAGER */

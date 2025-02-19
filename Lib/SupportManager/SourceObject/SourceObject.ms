@@ -109,7 +109,7 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else direction_down -- direction NORMAL|DOWN
+				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 				format "SECOND_POINT_DIRECTION: %\n" second_point_direction
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] wirecolor:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 		
@@ -221,7 +221,7 @@ struct SourceObject_v
 	 */
 	function rebuildSupport supporwt_node =
 	(
-		format "\n"; print ("SourceObject_v.rebuildSupport( "+support_node.name+" )")
+		--format "\n"; print ("SourceObject_v.rebuildSupport( "+support_node.name+" )")
 		--format "Normals.normals_local: %\n" Normals.normals_local
 		--format "support_node.name: %\n" support_node.name
 		index = getUserPropVal support_node "INDEX"

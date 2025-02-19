@@ -712,7 +712,7 @@ struct SupportManager_v
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			--objects_by_type = deepCopy supports_and_rafts
+			objects_by_type = deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then

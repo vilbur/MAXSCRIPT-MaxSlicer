@@ -111,7 +111,7 @@ macroscript	maxtoprint_get_convex_verts
 category:	"maxtoprint"
 buttontext:	"CONVEX"
 toolTip:	"VERTS"
-icon:	"across:4|tooltip:CTRL: Reset selection"
+icon:	"across:3|tooltip:CTRL: Reset selection"
 (
 	on execute do
 	(
@@ -292,7 +292,7 @@ macroscript	_print_select_single_vert_of_faces
 category:	"_Print-Points-Tools"
 buttonText:	"1 on island"
 toolTip:	"Get only signlge vertex of each face island"
-icon:	"MENU:true|across:4|height:24"
+icon:	"MENU:true|height:24"
 (
 	on execute do
 	if subObjectLevel == 1 then
@@ -323,7 +323,7 @@ macroscript	_print_select_verts_checker_pattern
 category:	"_Print-Points-Tools"
 buttonText:	"Checker"
 toolTip:	"Get selection of selected vertices in cheker pattern"
-icon:	"MENU:false|across:4|height:24"
+icon:	"MENU:false|height:24"
 (
 	on execute do
 	if selection.count > 0 then

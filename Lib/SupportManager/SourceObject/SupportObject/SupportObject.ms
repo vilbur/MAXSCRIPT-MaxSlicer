@@ -164,24 +164,17 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_direction:false =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
-		--format "update_direction: %\n" update_direction
 
 		direction = getUserPropVal support_obj "DIRECTION"
-		
-		--format "direction: %\n" direction
-		--format "direction==direction_down: %\n" (direction==direction_down)
-		
 		
 		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
 			this._setSecondKnotPosition( first_knot_pos )
 		
-		--else
 
-		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegPositions()
@@ -393,11 +386,6 @@ struct SupportObject_v
 	function _setSecondKnotPosition vertex_pos =
 	(
 		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
-
-		--function getNumKnots = numKnots support_obj spline_1
-		--knots_positions = Array (2)
-		--knots_positions[1] = vertex_pos
-		
 		knots_positions = #( vertex_pos, undefined )
 
 		second_point_pos = getKnotPoint support_obj spline_1 2
@@ -420,8 +408,7 @@ struct SupportObject_v
 		
 		/* KEEP SECOND POINT BELOW FIRST */
 		if knots_positions[2].z >= knots_positions[1].z then
-			knots_positions[2]-= SUPPORT_OPTIONS.bar_width
-
+			knots_positions[2].z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
 	),
 
 	/** Get knots postions from existing line

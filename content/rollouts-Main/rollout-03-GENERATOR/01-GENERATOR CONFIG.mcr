@@ -1,7 +1,7 @@
 
 /** Rebuild supports
  */
-function rebuildSupports =
+function rebuildSupports param: =
 (
 	--format "\n"; print ".rebuildSupports()"
 		
@@ -13,10 +13,20 @@ function rebuildSupports =
 		
 
 		pauseSupportToTransformEvent()
+		
+		
 		/*------------------------------------------------------------------------------
 			REBUILD SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
-		SUPPORT_MANAGER.rebuildSupports(selected_supports)
+		
+		
+		--if param == #NORMAL_LENGTH then 
+		--	SUPPORT_MANAGER.updateSupports(selected_supports)
+		--
+		--else
+			SUPPORT_MANAGER.rebuildSupports(selected_supports)
+		
+		
 
 		resumeSupportToTransformEvent()
 		
@@ -38,9 +48,7 @@ function rebuildSupports =
 		--	resumeSupportToTransformEvent()
 		--)
 		
-	
 )
-
 
 
 /*
@@ -57,6 +65,7 @@ icon:	"control:#checkbutton|across:1|offset:[0, 6]|height:32|width:96|tooltip:"
 			SUPPORT_OPTIONS.live_update_supports = EventFired.val
 		)
 )
+
 /*
 */
 macroscript	_print_support_generator_update
@@ -72,10 +81,6 @@ icon:	"control:#checkbutton"
 			print "update"
 		)
 )
-
-
-
-
 
 /**  Export format
   *
@@ -97,11 +102,7 @@ icon:	"across:2|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 		SUPPORT_OPTIONS.second_point_direction = EventFired.val
 		
 		rebuildSupports()
-		
 	)
-
-	
-	
 )
 
 /** SPINNER
@@ -140,9 +141,9 @@ icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 99
 		--)
 		--
 		SUPPORT_OPTIONS.normal_length = EventFired.val
-
-
 		rebuildSupports()
+
+		--rebuildSupports param:#NORMAL_LENGTH
 	)
 )
 

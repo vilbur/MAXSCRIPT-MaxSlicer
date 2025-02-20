@@ -39,9 +39,10 @@ function onObjectTransformTimeoutCallback sender evt =
 	
 	if selection.count > 0 then
 	(
+		/* UPDATE ROTATION */ 
 		what_to_update = #ROTATION
 		
-		/* POSITION CHANGED */ 
+		/* OR POSITION - IF CHANGED */ 
 		if current_rotation == saved_rotation then
 		(
 			if roundFloat SOURCE_OBJECT_TRANSFORM[#POS_Z] == roundFloat obj.position.z then

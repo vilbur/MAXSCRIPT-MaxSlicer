@@ -109,7 +109,7 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
+				second_point_direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
 				format "SECOND_POINT_DIRECTION: %\n" second_point_direction
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] wirecolor:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 		
@@ -213,38 +213,37 @@ struct SourceObject_v
 
 		--for key in Supports.keys where not Supports[key].isRaft() do
 		for key in Supports.keys where not Supports[key].isRaft() do
-			Supports[key].updateHeight()
+			Supports[key].updateLegPosition()
 
 	),
 
 	/** Rebuild support
 	 */
-	function rebuildSupport supporwt_node =
+	function rebuildSupport support_node =
 	(
 		--format "\n"; print ("SourceObject_v.rebuildSupport( "+support_node.name+" )")
 		--format "Normals.normals_local: %\n" Normals.normals_local
 		--format "support_node.name: %\n" support_node.name
-		index = getUserPropVal support_node "INDEX"
+		vert = getUserPropVal support_node "INDEX"
 
-		wirecolor = VertexColors._getVertColor(index)
+		wirecolor = VertexColors._getVertColor(vert)
 		--format "wirecolor: %\n" wirecolor
-		verts_process = #{index}
+		verts_process = #{vert}
 
 		
 		if Normals.normals_local == undefined then
 			Normals.setLocalVertexNormals(verts_process)
 		
-		if Normals.Normals.ormals_world == undefined then
+		if Normals.normals_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts_process)
 
 		if verts_pos == undefined then
-			verts_pos = this.getVertsPositions(#{index})
+			verts_pos = this.getVertsPositions(#{vert})
 
 		
-		
-		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.ormals_world[index] else direction_down -- direction down
+		direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
 
-		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction wirecolor:wirecolor
+		Supports[vert].generateSupport vert first_knot_pos:verts_pos[vert] direction:direction wirecolor:wirecolor
 	),
 
 	/** Get support by node
@@ -281,7 +280,6 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v.setVertsPosBySupports()"
 
 		verts_pos = this.getVertsPositions( Supports.keys as BitArray )
-
 	),
 
 	/** Delete support
@@ -344,6 +342,14 @@ struct SourceObject_v
 	
 	private
 
+	/** Get normal or down direction
+	 */
+	function _getNormalOrDownDirection vert =
+	(
+		--format "\n"; print "SourceObject_v._getNormalOrDownDirection()"
+		if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1]
+	),
+	
 	/** Get verts by colors
 	 */
 	function _getVertsByColors =

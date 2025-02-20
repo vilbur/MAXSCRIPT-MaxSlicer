@@ -69,7 +69,6 @@ struct SupportObject_v
 		)
 			
 		
-		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
 			support_obj = SplineShape wirecolor:wirecolor
@@ -81,13 +80,18 @@ struct SupportObject_v
 		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
 		if direction.z > -0.25 then direction.z = -0.25
 
+		
+		/* ADD FIRST POINT */
+		this.knots_positions[1] = first_knot_pos
+	
 
 		/* SET RAFT PART of support */ 
-		this._setRaftKnots(first_knot_pos)(direction)
+		this._setSecondKnotPosition(first_knot_pos)(direction)
+		
 		
 		/* SET LEG PART of support - if raft do not hit source object */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
-			this._setSupportLegPositions()
+			this._setSupportLegKnotPositions()
 
 		
 		/*------------------------------------------------------------------------------
@@ -164,20 +168,24 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_direction:false =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
 
 		direction = getUserPropVal support_obj "DIRECTION"
+
+		/* ADD FIRST POINT */
+		knots_positions = #( first_knot_pos, undefined )
+		
 		
 		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
-			this._setSecondKnotPosition( first_knot_pos )
+			this._updateSecondKnotPosition( first_knot_pos )
 		
 
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
-			this._setSupportLegPositions()
+			this._setSupportLegKnotPositions()
 			
 			
 		/* SET CORECT NUMBER OF KNOTS ON OBJECT */ 
@@ -201,23 +209,9 @@ struct SupportObject_v
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
-
-	--/** Update support
-	-- */
-	--function updateRotation first_knot_pos: =
-	--(
-	--	--format "\n"; print "SupportObject_v.updateRotation()"
-	--
-	--	this._resetThisObject()
-	--
-	--	this._setSecondKnotPosition(first_knot_pos)
-	--
-	--	this._updateSupportLeg()
-	--),
-
-	/** Update support height
+	/** Update leg position
 	 */
-	function updateHeight =
+	function updateLegPosition =
 	(
 		--format "\n"; print "SupportObject_v.updateHeight()"
 		--format "is_on_ground: %\n" this.is_on_ground
@@ -254,6 +248,94 @@ struct SupportObject_v
 
 	private
 
+	/** Get secon point position
+	 */
+	function _getRaftHitPosition first_knot_pos direction max_distance =
+	(
+		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
+		
+		hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
+		
+		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
+			hit_raft = undefined
+
+		--/* KEEP SECOND POINT BELOW FIRST */
+		--if second_point_pos.z >= knots_positions[1].z then
+		--	second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
+			
+		 if hit_raft != undefined then
+			hit_raft.pos --return
+	),
+	
+	/** Set knots positions of raft part of support
+	  
+	  
+	 */
+	function _setSecondKnotPosition first_knot_pos direction =
+	(
+		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
+		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
+
+		length_multiplier = if obj_type == #SUPPORT then 1 else 10
+		
+		
+		/* ADD SECOND POINT */
+		second_point_pos = if ( hit_raft_pos = this._getRaftHitPosition first_knot_pos direction SUPPORT_OPTIONS.normal_length ) != undefined then 
+			hit_raft_pos
+		else
+			first_knot_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
+
+
+		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
+		if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
+		(
+			normal_length = abs ((first_knot_pos.z - limit_height_to_base ) / direction.z)
+		
+			second_point_pos = first_knot_pos + ( normal_length * direction)
+		)
+
+			
+		
+		/* ADD 2nd POINT */
+		knots_positions[2] = second_point_pos
+	),
+
+	/** Set update support knots
+	 */
+	function _updateSecondKnotPosition first_knot_pos =
+	(
+		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+
+		second_point_pos = getKnotPoint support_obj spline_1 2
+
+		distance_of_points = distance knots_positions[1] second_point_pos
+
+		direction = normalize (second_point_pos - first_knot_pos)
+
+		
+		if ( hit_raft_pos = this._getRaftHitPosition first_knot_pos direction distance_of_points ) != undefined then 
+			second_point_pos = hit_raft_pos
+		
+		--hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
+		--
+		--/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		--if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > distance_of_points then
+		--	hit_raft = undefined
+		--
+		--/* ADD SECOND POINT */
+		--second_point_pos =  if hit_raft != undefined then hit_raft.pos else second_point_pos
+		--	
+		--/* KEEP SECOND POINT BELOW FIRST */
+		--if second_point_pos.z >= knots_positions[1].z then
+		--	second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
+		--	
+
+		knots_positions[2] = second_point_pos
+		
+	),
+	
 	/** Check segments lenghts
 	 */
 	function _checkSegmentsLenghts vertex_index =
@@ -309,65 +391,25 @@ struct SupportObject_v
 			deleteKnot support_obj spline_1 knot_i
 	),
 
-	/** Set knots positions
+
+
+	/** Set knots of support`s leg part
 	 */
-	function _setRaftKnots vertex_pos direction =
+	function _setSupportLegKnotPositions =
 	(
-		--format "\n"; print "SupportObject_v._setRaftKnots()"
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
-		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
-
-		/* ADD FIRST POINT */
-		knots_positions[1] = vertex_pos
-
-
-		/* TEST COLLISTION WITH SOURCE OBJECT FOR 2nd POINT */
-		hit_raft = this._intersectRaySourceObject (vertex_pos) (direction)
-
-		/* RESET COLLISION IF DISTANCE TO HIT IS GRTEATER THEN NORMAL - only for support */
-		if obj_type == #SUPPORT and hit_raft != undefined and distance knots_positions[1] hit_raft.pos > SUPPORT_OPTIONS.normal_length then
-			hit_raft = undefined
-
-
-		length_multiplier = if obj_type == #SUPPORT then 1 else 10
-		--format "length_multiplier: %\n" length_multiplier
-		/* ADD SECOND POINT */
-		if hit_raft != undefined
-			then /* SECOND POINT IS POINT OF COLLISION */
-				second_point_pos = hit_raft.pos
-
-			else /* EXTEND SECOND POINT ALONG NORMAL */
-				second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
-
-
-		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
-		if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
-		(
-			normal_length = abs ((vertex_pos.z - limit_height_to_base ) / direction.z)
-
-			second_point_pos = vertex_pos + ( normal_length * direction)
-		)
-
-
-		/* ADD 2nd POINT */
-		knots_positions[2] = second_point_pos
-	),
-
-	/** Set support knots
-	 */
-	function _setSupportLegPositions =
-	(
-		--format "\n"; print "SupportObject_v._setSupportLegPositions()"
+		--format "\n"; print "SupportObject_v._setSupportLegKnotPositions()"
+		
+		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) (direction_down)
 
 		--is_on_ground = hit_support == undefined
-		hit_support == undefined
+		--hit_support == undefined
 
 		pos = copy knots_positions[2] -- copy to avoid modifing of value in array
 
 		if hit_support == undefined then
 		(
-			/* BASE POINT */
+			/* BASE POINT - ABOVE GROUND */
 			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
 
 			knots_positions[3] = copy pos
@@ -379,36 +421,6 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
-	),
-
-	/** Set update support knots
-	 */
-	function _setSecondKnotPosition vertex_pos =
-	(
-		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
-		knots_positions = #( vertex_pos, undefined )
-
-		second_point_pos = getKnotPoint support_obj spline_1 2
-
-		distance_of_points = distance knots_positions[1] second_point_pos
-
-		direction = normalize (second_point_pos - vertex_pos)
-
-		hit_support = this._intersectRaySourceObject (vertex_pos) ( direction )
-
-		
-		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		if hit_support != undefined and distance knots_positions[1] hit_support.pos > distance_of_points then
-			hit_support = undefined
-
-			
-		/* ADD SECOND POINT */
-		knots_positions[2] =  if hit_support != undefined then hit_support.pos else second_point_pos
-
-		
-		/* KEEP SECOND POINT BELOW FIRST */
-		if knots_positions[2].z >= knots_positions[1].z then
-			knots_positions[2].z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
 	),
 
 	/** Get knots postions from existing line

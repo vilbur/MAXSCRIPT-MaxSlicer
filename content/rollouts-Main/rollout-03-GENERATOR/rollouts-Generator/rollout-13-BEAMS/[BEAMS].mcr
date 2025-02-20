@@ -58,15 +58,10 @@ tooltip:	"OPEN MENU"
   */
 macroscript	_print_generator_beams_only_ground
 category:	"_3D-Print"
-buttontext:	"Only Ground"
---tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:4|control:checkbox|offset:[ 8, -4 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated|checked:true"
+buttontext:	"With Foot"
+icon:	"across:4|control:checkbox|id:CBX_only_ground|offset:[ 8, -4 ]|tooltip:Connect only SUPPORTS with foot|checked:true"
 (
-	--on execute do
-	--(
-	--	--format "EventFired:	% \n" EventFired
-	--	SUPPORT_OPTIONS.setOptionValue (#max_distance) EventFired.val
-	--)
+
 )
 
 
@@ -76,8 +71,8 @@ icon:	"across:4|control:checkbox|offset:[ 8, -4 ]|tooltip:USE MAX DISTANCE betwe
 macroscript	_print_generator_beams_count_per_support
 category:	"_Export"
 buttontext:	"[Connections count]"
---toolTip:	"Beams Count"
-icon:	"control:dropdownlist|across:4|offset:[ 16, -4 ]|width:64|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Number of beams allowed per support"
+--buttontext:	"Max Beams"
+icon:	"control:dropdownlist|id:DL_connections_count|across:4|offset:[ 16, -4 ]|width:64|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
 (
 	format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
@@ -105,7 +100,7 @@ macroscript	_print_generator_beams_max_distance_toggle
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:5|control:checkbox|offset:[ 96, -16 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:5|control:checkbox|offset:[ 96, -12 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
 	--on execute do
 	--(
@@ -121,7 +116,7 @@ macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
 buttontext:	"[Max Distance Value]"
 --tooltip:	"Max distance between supports"
-icon:	"across:5|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|width:32|offset:[ 88, -16 ]|tooltip:Max distance in mm between supports."
+icon:	"across:5|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|filedwidth:64|offset:[ 88, -12 ]|tooltip:Max distance in mm between supports."
 (
 	on execute do
 	(
@@ -141,10 +136,9 @@ icon:	"across:5|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 9
 		--(
 			--sizes = for obj in selection collect  getSize obj
 
-			----format "distance: %\n" ((distance selection[1].pos selection[2].pos))
-
-			if EventFired.val == 1 and selection.count >= 2 then
-				EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue( distance selection[1].pos selection[2].pos )
+		/* RICKGLICK: RESET TO DISTANCE BETWEEN SELECTED SUPPORTS */ 
+		if selection.count >= 2 and EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue( distance selection[1].pos selection[2].pos )
 		--)
 		--else
 		--SUPPORT_OPTIONS.setOptionValue (#max_distance) EventFired.val
@@ -160,7 +154,7 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 --tooltip:	""
-icon:	"across:5|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 138, -16 ]|tooltip:Min Height of supports where beam is created|align:#RIGHT"
+icon:	"across:5|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 138, -12 ]|tooltip:Min Height of supports where beam is created|align:#RIGHT"
 (
 	/** Get size
 	 */

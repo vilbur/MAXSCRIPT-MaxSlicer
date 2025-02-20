@@ -121,7 +121,8 @@ icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 99
 		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
-			EventFired.val = EventFired.control.value = (SupportOptions_v()).normal_length
+			EventFired.val = EventFired.control.value = ( SUPPORT_OPTIONS.getOption #BAR_WIDTH ) * 2
+			--EventFired.val = EventFired.control.value = (SupportOptions_v()).normal_length
 		
 		--bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 		--

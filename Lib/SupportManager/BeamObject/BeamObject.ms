@@ -33,6 +33,8 @@ struct BeamObject_v
 
 		this._drawLines(points_of_lines)
 
+		this._centerPivot()
+		
 		this._lockTransforms()
 
 		bindBeamOnDeleteCallback( beam )
@@ -257,6 +259,14 @@ struct BeamObject_v
 		Dictionary #( #BOTTOM, point_bottom ) #( #TOP, point_top ) #( #VECTOR, normalize (point_bottom - point_top) ) --return
 	),
 
+	/** Center pivot
+	 */
+	function _centerPivot =
+	(
+		--format "\n"; print "BeamObject_v._centerPivot()"
+		beam.pivot = beam.center
+	),
+	
 	/** Filter edit spline objects
 	  *
 	  */

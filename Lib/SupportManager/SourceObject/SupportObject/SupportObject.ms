@@ -46,7 +46,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		--format "\n"; print "SupportObject_v.generateSupport()"
+		format "\n"; print "SupportObject_v.generateSupport()"
 		--format "support_obj: %\n" support_obj
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 	
@@ -82,13 +82,14 @@ struct SupportObject_v
 
 		
 		/* ADD FIRST POINT */
-		this.knots_positions[1] = first_knot_pos
+		knots_positions = #( first_knot_pos, undefined )
 	
 
 		/* SET RAFT PART of support */ 
 		this._setSecondKnotPosition(first_knot_pos)(direction)
-		
-		
+		--format "first_knot_pos: %\n" first_knot_pos
+		--format "HIT_RAFT: %\n" hit_raft
+
 		/* SET LEG PART of support - if raft do not hit source object */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegKnotPositions()
@@ -181,7 +182,6 @@ struct SupportObject_v
 		/* GENERATE SECOND POINT */ 
 		if first_knot_pos != unsupplied then
 			this._updateSecondKnotPosition( first_knot_pos )
-		
 
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
@@ -248,22 +248,6 @@ struct SupportObject_v
 
 	private
 
-	/** Get secon point position
-	 */
-	function _getRaftHitPosition first_knot_pos direction max_distance =
-	(
-		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
-		
-		hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
-		
-		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
-			hit_raft = undefined
-		
-		 if hit_raft != undefined then
-			hit_raft.pos --return
-	),
-	
 	/** Set knots positions of raft part of support
 	  
 	  
@@ -291,8 +275,10 @@ struct SupportObject_v
 		--
 		--	second_point_pos = first_knot_pos + ( normal_length * direction)
 		--)
+	
+		
+		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (direction)
 
-			
 		
 		/* ADD 2nd POINT */
 		knots_positions[2] = second_point_pos
@@ -323,11 +309,8 @@ struct SupportObject_v
 		--if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > distance_of_points then
 		--	hit_raft = undefined
 		--
-		--/* ADD SECOND POINT */
-		--second_point_pos =  if hit_raft != undefined then hit_raft.pos else second_point_pos
+		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (direction)
 		
-		if distance knots_positions[1] second_point_pos < SUPPORT_OPTIONS.bar_width then
-			second_point_pos = first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction ) -- make raft longer by multiplying normal length 10x
 
 
 		/* KEEP SECOND POINT BELOW FIRST */
@@ -335,8 +318,35 @@ struct SupportObject_v
 			second_point_pos.z = knots_positions[1].z -- SUPPORT_OPTIONS.bar_width
 			--second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
 			
+		/* ADD SECOND POINT */
 		knots_positions[2] = second_point_pos
 		
+	),
+
+	/** Get secon point position
+	 */
+	function _getRaftHitPosition first_knot_pos direction max_distance =
+	(
+		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
+		hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
+		
+		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
+			hit_raft = undefined
+		
+		 if hit_raft != undefined then
+			hit_raft.pos --return
+	),
+		
+	/** Check minimal normal lenght
+	 */
+	function _checkMinimalNormalLenght first_knot_pos second_point_pos direction =
+	(
+		--format "\n"; print "SupportObject_v._checkMinimalNormalLenght()"
+		if distance knots_positions[1] second_point_pos < SUPPORT_OPTIONS.bar_width * 2 then
+			second_point_pos = first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction ) -- make raft longer by multiplying normal length 10x
+
+		second_point_pos --return
 	),
 	
 	/** Check segments lenghts

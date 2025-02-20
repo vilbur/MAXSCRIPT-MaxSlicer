@@ -148,7 +148,7 @@ struct SourceObject_v
 	 */
 	function resetSupport support_node =
 	(
-		--format "\n"; print ("SourceObject_v.resetSupport( "+support_node.name+" )")
+		format "\n"; print ("SourceObject_v.resetSupport( "+support_node.name+" )")
 		--format "Normals.normals_local: %\n" Normals.normals_local
 		--format "Normals.normals_world: %\n" Normals.normals_world
 		--format "support_node.name: %\n" support_node.name

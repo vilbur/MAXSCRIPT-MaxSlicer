@@ -126,7 +126,8 @@ struct SupportManager_v
 	 */
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
 	(
-		--format "\n"; print "SupportManager_v.generateBeams()"
+		format "\n"; print "SupportManager_v.generateBeams()"
+		format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
@@ -151,21 +152,22 @@ struct SupportManager_v
 		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
 		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
 
-		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2] then
-			#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
-
-		else
-		(
-			supports = for support in supports where isTallEnough support collect support
-
-			case sort_mode of
-			(
-				(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports use_only_selected_supports:use_only_selected_supports max_distance:max_distance max_connections:max_connections
-				(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
-				--default:
-			)
-
-		)
+		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
+					then /* CONNECT 2 SUPPORTS */ 
+						#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+			
+					else /* CONNECT MORE 3 ANDM MORE SUPPORTS */ 
+					(
+						supports = for support in supports where isTallEnough support collect support
+			
+						case sort_mode of
+						(
+							(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports use_only_selected_supports:use_only_selected_supports max_distance:max_distance max_connections:max_connections
+							(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
+							--default:
+						)
+			
+					)
 
 		--format "NEW_BEAMS: %\n" new_beams
 		if new_beams.count > 0 then
@@ -330,7 +332,7 @@ struct SupportManager_v
 				
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(sync_keys)
+		--this._updateBeamsBySupports(sync_keys)
 		
 		this.updateShapes()
 	),
@@ -359,7 +361,7 @@ struct SupportManager_v
 				SourceObjects[sync_key].updateSupport(support_node)
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(sync_keys)
+		this._updateBeamsBySupports(supports_by_source.keys)
 
 
 		this.updateShapes()
@@ -380,7 +382,7 @@ struct SupportManager_v
 	
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(sync_keys)
+		--this._updateBeamsBySupports(sync_keys)
 	
 		this.updateShapes()
 	),

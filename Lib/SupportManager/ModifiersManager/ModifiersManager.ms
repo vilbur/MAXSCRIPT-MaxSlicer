@@ -39,6 +39,7 @@ struct ModifiersManager_v
 		
 		
 		_objects_exists = for obj in _objects_exists where isValidNode obj collect obj
+		--format "_objects_exists: %\n" _objects_exists
 
 		this._objects =	_objects
 
@@ -47,18 +48,18 @@ struct ModifiersManager_v
 		if _objects_exists.count == 0 then
 		(
 			select _objects
-
+		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 			--format "MODIFIERS: %\n" modifiers
 			--format "selection: %\n" ( selection as Array ) 
 			--format "selection.count: %\n" selection.count
 			--max create mode
 			max modify mode
-
+		
 			for i = modifiers.count to 1 by -1 do
 			--for i = 1 to modifiers.count do 
 			(
-				--format "mod: %\n" (modifiers[i])
+				--format "MODIFIER: %\n" (modifiers[i])
 				--addModifier _objects modifiers[i]
 				--
 				--if classOf modifiers[i] == sweep then
@@ -67,7 +68,7 @@ struct ModifiersManager_v
 				--else
 					modPanel.addModToSelection ( modifiers[i] ) --ui:on
 			)
-
+		
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepRadius (_objects[1])
 		)

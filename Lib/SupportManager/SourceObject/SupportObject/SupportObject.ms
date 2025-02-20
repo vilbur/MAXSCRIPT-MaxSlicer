@@ -23,12 +23,12 @@ struct SupportObject_v
 	is_on_ground, -- boolean
 
 
+	hit_raft,
+	hit_support,
+
 	private
 
 	spline_1 = 1, -- each support line has ony 1 spline
-
-	hit_raft,
-	hit_support,
 
 	direction_down = [0,0,-1],
 

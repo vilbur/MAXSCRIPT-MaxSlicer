@@ -113,9 +113,9 @@ struct SupportManager_v
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 			
 			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
-
+		
 			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
-
+		
 			this.updateShapes()
 		)
 
@@ -302,7 +302,7 @@ struct SupportManager_v
       * @param #ROTATION|#POSITION_Z|#POSITION_XY what_to_update
 	  * 
 	 */
-	function updateSourceObject source_objects what_to_update =
+	function updateBySourceObject source_objects what_to_update =
 	(
 		--format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
@@ -328,12 +328,22 @@ struct SupportManager_v
 				)
 		)	
 				
-		/* UPDATE ALL BEAMS OF SOURCE OBEJCTS */
-		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
+
+		/* UPDATE ALL BEAMS OF SUPPORTS */
+		this._updateBeamsBySupports(sync_keys)
 		
 		this.updateShapes()
 	),
+	
+	/** Update beams by supports
+	 */
+	function _updateBeamsBySupports support_keys =
+	(
+		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+			BeamObjects[key].updateBeam()
+	),
+	
 
 	/** Update supports
 	 */
@@ -348,33 +358,29 @@ struct SupportManager_v
 			for support_node in supports_by_source[sync_key] do
 				SourceObjects[sync_key].updateSupport(support_node)
 
-		/* UPDATE ALL BEAMS OF SELECTED SUPPORTS */
-		/* !!!!!!!!!!!!! TODO UPDATE ONLY BEAMS OF UPDATED SUPPORTS */
-		for key in BeamObjects.keys where findItem supports_by_source.keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
+		/* UPDATE ALL BEAMS OF SUPPORTS */
+		this._updateBeamsBySupports(sync_keys)
 
 
 		this.updateShapes()
 	),
-
+ 
 	/** Rebuild supports
 	 */
-	function rebuildSupports support_nodes =
+	function resetSupports support_nodes =
 	(
-		--format "\n"; print "SupportManager_v.rebuildSupports()"
+		--format "\n"; print "SupportManager_v.resetSupports()"
 		--format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 	
 		for sync_key in supports_by_source.keys do
 			for support_node in supports_by_source[sync_key] do
-				SourceObjects[sync_key].rebuildSupport(support_node)
+				SourceObjects[sync_key].resetSupport(support_node)
 	
-		/* UPDATE ALL BEAMS OF SELECTED SUPPORTS */
-		/* !!!!!!!!!!!!! TODO UPDATE ONLY BEAMS OF UPDATED SUPPORTS */
-		for key in BeamObjects.keys where findItem supports_by_source.keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
-	
+
+		/* UPDATE ALL BEAMS OF SUPPORTS */
+		this._updateBeamsBySupports(sync_keys)
 	
 		this.updateShapes()
 	),

@@ -1,9 +1,9 @@
 
 /** Rebuild supports
  */
-function rebuildSupports param: =
+function resetSupports param: =
 (
-	--format "\n"; print ".rebuildSupports()"
+	--format "\n"; print ".resetSupports()"
 		
 		_selection = for obj in selection collect obj
 
@@ -24,7 +24,7 @@ function rebuildSupports param: =
 		--	SUPPORT_MANAGER.updateSupports(selected_supports)
 		--
 		--else
-			SUPPORT_MANAGER.rebuildSupports(selected_supports)
+			SUPPORT_MANAGER.resetSupports(selected_supports)
 		
 		
 
@@ -34,7 +34,7 @@ function rebuildSupports param: =
 		--(
 		--	pauseSupportToTransformEvent()
 		--
-		--	SUPPORT_MANAGER.rebuildSupports(selected_supports)
+		--	SUPPORT_MANAGER.resetSupports(selected_supports)
 		--
 		--	resumeSupportToTransformEvent()
 		--)
@@ -43,7 +43,7 @@ function rebuildSupports param: =
 		--(
 		--	pauseSupportToTransformEvent()
 		--
-		--	SUPPORT_MANAGER.rebuildSupports(selected_rafts)
+		--	SUPPORT_MANAGER.resetSupports(selected_rafts)
 		--
 		--	resumeSupportToTransformEvent()
 		--)
@@ -101,7 +101,7 @@ icon:	"across:2|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 	
 		SUPPORT_OPTIONS.second_point_direction = EventFired.val
 		
-		rebuildSupports()
+		resetSupports()
 	)
 )
 
@@ -141,9 +141,9 @@ icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 99
 		--)
 		--
 		SUPPORT_OPTIONS.normal_length = EventFired.val
-		rebuildSupports()
+		resetSupports()
 
-		--rebuildSupports param:#NORMAL_LENGTH
+		--resetSupports param:#NORMAL_LENGTH
 	)
 )
 

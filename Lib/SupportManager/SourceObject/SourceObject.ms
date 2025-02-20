@@ -144,6 +144,40 @@ struct SourceObject_v
 		new_nodes
 	),
 
+	/** Rebuild support
+	 */
+	function resetSupport support_node =
+	(
+		--format "\n"; print ("SourceObject_v.resetSupport( "+support_node.name+" )")
+		--format "Normals.normals_local: %\n" Normals.normals_local
+		--format "support_node.name: %\n" support_node.name
+		vert = getUserPropVal support_node "INDEX"
+
+		wirecolor = VertexColors._getVertColor(vert)
+		--format "wirecolor: %\n" wirecolor
+		verts_process = #{vert}
+
+		
+		if Normals.normals_local == undefined then
+			Normals.setLocalVertexNormals(verts_process)
+		
+		if Normals.normals_world == undefined then
+			Normals.setWorldSpaceVertexNormals(verts_process)
+
+		if verts_pos == undefined then
+			verts_pos = this.getVertsPositions(#{vert})
+
+		
+		direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
+
+		SupportObject = Supports[vert]
+		
+		SupportObject.hit_raft	= undefined
+		SupportObject.hit_support	= undefined
+		
+		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction wirecolor:wirecolor
+	),
+
 	/** Convert support to raft or vice versa
 	  *
 	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
@@ -215,35 +249,6 @@ struct SourceObject_v
 		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateLegPosition()
 
-	),
-
-	/** Rebuild support
-	 */
-	function rebuildSupport support_node =
-	(
-		--format "\n"; print ("SourceObject_v.rebuildSupport( "+support_node.name+" )")
-		--format "Normals.normals_local: %\n" Normals.normals_local
-		--format "support_node.name: %\n" support_node.name
-		vert = getUserPropVal support_node "INDEX"
-
-		wirecolor = VertexColors._getVertColor(vert)
-		--format "wirecolor: %\n" wirecolor
-		verts_process = #{vert}
-
-		
-		if Normals.normals_local == undefined then
-			Normals.setLocalVertexNormals(verts_process)
-		
-		if Normals.normals_world == undefined then
-			Normals.setWorldSpaceVertexNormals(verts_process)
-
-		if verts_pos == undefined then
-			verts_pos = this.getVertsPositions(#{vert})
-
-		
-		direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
-
-		Supports[vert].generateSupport vert first_knot_pos:verts_pos[vert] direction:direction wirecolor:wirecolor
 	),
 
 	/** Get support by node

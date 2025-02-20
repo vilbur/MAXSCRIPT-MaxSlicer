@@ -53,7 +53,7 @@ function onObjectTransformTimeoutCallback sender evt =
 		)
 
 		/* Update SourceObject and its suports if necessary */ 
-		SUPPORT_MANAGER.updateSourceObject( selection as Array ) (what_to_update)
+		SUPPORT_MANAGER.updateBySourceObject( selection as Array ) (what_to_update)
 
 		removeTimeout sender
 		

@@ -38,20 +38,14 @@ struct SourceObjectNormals_v
 		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		--format "VERTS A: %\n" verts
 		--normals_local = this._getLocalVertexNormalsByModifier(Supports.keys as BitArray )
+		this._initNormalsLocalArray()
 
 
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
 			normals_local = normals_local_loaded
-			--normals_local = execute normals_local_loaded
-
-		--format "VERTS B: %\n" verts
-		
-		timer_NORMLAS = timeStamp()
-
-		--format "VERTS: %\n" verts
-
-		if not verts.isEmpty then
-			this._updateLocalVertexNormalsByModifier( verts )
+		else
+			if not verts.isEmpty then
+				this._updateLocalVertexNormalsByModifier( verts )
 		
 
 		--this._updateLocalNormals( verts )
@@ -197,6 +191,5 @@ struct SourceObjectNormals_v
 		--format "\n"; print "SourceObjectNormals.onCreate()"
 		all_verts = #{1..(getNumVerts obj.mesh)}
 
-		this._initNormalsLocalArray()
 	)
 )

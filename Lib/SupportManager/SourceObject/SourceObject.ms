@@ -150,6 +150,7 @@ struct SourceObject_v
 	(
 		--format "\n"; print ("SourceObject_v.resetSupport( "+support_node.name+" )")
 		--format "Normals.normals_local: %\n" Normals.normals_local
+		--format "Normals.normals_world: %\n" Normals.normals_world
 		--format "support_node.name: %\n" support_node.name
 		vert = getUserPropVal support_node "INDEX"
 
@@ -164,11 +165,15 @@ struct SourceObject_v
 		if Normals.normals_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts_process)
 
+		--format "normals_local[vert]: %\n" Normals.normals_local[vert]
+		--format "normals_world[vert]: %\n" Normals.normals_world[vert]
+		
 		if verts_pos == undefined then
 			verts_pos = this.getVertsPositions(#{vert})
 
 		
 		direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
+		--format "direction: %\n" direction
 
 		SupportObject = Supports[vert]
 		

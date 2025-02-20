@@ -166,7 +166,7 @@ struct SupportObject_v
 
 	/** Update supports position
 	 */
-	function updateSupport first_knot_pos: update_direction:false =
+	function updateSupport first_knot_pos: update_direction:false update_normal_lenght:false =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
@@ -259,11 +259,7 @@ struct SupportObject_v
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
 			hit_raft = undefined
-
-		--/* KEEP SECOND POINT BELOW FIRST */
-		--if second_point_pos.z >= knots_positions[1].z then
-		--	second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
-			
+		
 		 if hit_raft != undefined then
 			hit_raft.pos --return
 	),
@@ -288,13 +284,13 @@ struct SupportObject_v
 			first_knot_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
 
 
-		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
-		if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
-		(
-			normal_length = abs ((first_knot_pos.z - limit_height_to_base ) / direction.z)
-		
-			second_point_pos = first_knot_pos + ( normal_length * direction)
-		)
+		--/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
+		--if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
+		--(
+		--	normal_length = abs ((first_knot_pos.z - limit_height_to_base ) / direction.z)
+		--
+		--	second_point_pos = first_knot_pos + ( normal_length * direction)
+		--)
 
 			
 		
@@ -302,7 +298,10 @@ struct SupportObject_v
 		knots_positions[2] = second_point_pos
 	),
 
-	/** Set update support knots
+	/** Update 2nd knot of support
+	  * 
+	  * Check if 2nd knot hits source object
+	  * 
 	 */
 	function _updateSecondKnotPosition first_knot_pos =
 	(
@@ -326,12 +325,16 @@ struct SupportObject_v
 		--
 		--/* ADD SECOND POINT */
 		--second_point_pos =  if hit_raft != undefined then hit_raft.pos else second_point_pos
-		--	
-		--/* KEEP SECOND POINT BELOW FIRST */
-		--if second_point_pos.z >= knots_positions[1].z then
-		--	second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
-		--	
+		
+		if distance knots_positions[1] second_point_pos < SUPPORT_OPTIONS.bar_width then
+			second_point_pos = first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction ) -- make raft longer by multiplying normal length 10x
 
+
+		/* KEEP SECOND POINT BELOW FIRST */
+		if second_point_pos.z >= knots_positions[1].z then
+			second_point_pos.z = knots_positions[1].z -- SUPPORT_OPTIONS.bar_width
+			--second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
+			
 		knots_positions[2] = second_point_pos
 		
 	),

@@ -14,7 +14,7 @@ global SPIN_CHAMFER_BAR_LAST_VALUE
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T"
-icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]"
+icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]|tooltip:GEENERATE SUPPORTS"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0

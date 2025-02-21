@@ -1,6 +1,12 @@
 --DEV
 --filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
+/*------------------------------------------------------------------------------
+	
+	BEMAS BUTTON
+	
+--------------------------------------------------------------------------------*/
+
 /*
 
   IF SELECTED 1 support, then beam is generated to closest support
@@ -12,8 +18,8 @@
 macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"B E A M S"
-tooltip:	"Connect closest supports"
-icon:	"across:4|offset:[ -6, 2 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nCTRL: Connect only selected supports"
+tooltip:	"CONNECT CLOSEST SUPPORTS\n\nCTRL: USE ONLY SELECTED SUPPORTS."
+icon:	"across:4|offset:[ -6, 2 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nIMPORTANT - IF 2 SUPPORTS SELECTED THEN\n FORCE CONNECT WITHOUT MAX DISTANCE"
 (
 	on execute do
 		undo "Generate Beams" on
@@ -52,45 +58,11 @@ tooltip:	"OPEN MENU"
 		)
 )
 
+/*------------------------------------------------------------------------------
 
-/** USE MAX DISTANCE CHECKBOX
-  *
-  */
-macroscript	_print_generator_beams_only_ground
-category:	"_3D-Print"
-buttontext:	"With Foot"
-icon:	"across:4|control:checkbox|id:CBX_only_ground|offset:[ 8, -4 ]|tooltip:Connect only SUPPORTS with foot|checked:true"
-(
+	OPTIONS
 
-)
-
-
-/**
-  *
- */
-macroscript	_print_generator_beams_count_per_support
-category:	"_Export"
-buttontext:	"[Connections count]"
---buttontext:	"Max Beams"
-icon:	"control:dropdownlist|id:DL_connections_count|across:4|offset:[ 16, -4 ]|width:64|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
-(
-	format "EventFired	= % \n" EventFired
-	--SUPPORT_MANAGER.updateModifiers ( EventFired )
-)
-
-/**
-  *
- */
-macroscript	_print_generator_beams_count
-category:	"_Export"
-buttontext:	"[Beams Count]"
---toolTip:	"Beams Count"
-icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 28, -2 ]|tooltip:Number of bars on beam"
-(
-	--format "EventFired	= % \n" EventFired
-	on execute do
-	SUPPORT_MANAGER.updateModifiers ( EventFired )
-)
+--------------------------------------------------------------------------------*/
 
 
 /** USE MAX DISTANCE CHECKBOX
@@ -100,7 +72,7 @@ macroscript	_print_generator_beams_max_distance_toggle
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:5|control:checkbox|offset:[ 96, -12 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:4|control:checkbox|offset:[ 12, 0 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
 	--on execute do
 	--(
@@ -116,7 +88,7 @@ macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
 buttontext:	"[Max Distance Value]"
 --tooltip:	"Max distance between supports"
-icon:	"across:5|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|filedwidth:64|offset:[ 88, -12 ]|tooltip:Max distance in mm between supports."
+icon:	"across:4|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|filedwidth:64|offset:[ -24, 0 ]|tooltip:Max distance between supports where beams can be created\n\nRMB: Get distance of 2 selected supports"
 (
 	on execute do
 	(
@@ -154,7 +126,7 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 --tooltip:	""
-icon:	"across:5|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 138, -12 ]|tooltip:Min Height of supports where beam is created|align:#RIGHT"
+icon:	"across:4|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 0, 0 ]|tooltip:Min Height of supports where beam is created|align:#RIGHT"
 (
 	/** Get size
 	 */
@@ -176,6 +148,45 @@ icon:	"across:5|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offse
 		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
 	--else
 	--	print "Spinner test #entered"
+)
+
+/** USE MAX DISTANCE CHECKBOX
+  *
+  */
+macroscript	_print_generator_beams_only_ground
+category:	"_3D-Print"
+buttontext:	"With Foot"
+icon:	"across:4|control:checkbox|id:CBX_only_ground|offset:[ 100, -10 ]|tooltip:Connect only SUPPORTS with foot|checked:true"
+(
+
+)
+
+
+/**
+  *
+ */
+macroscript	_print_generator_beams_count_per_support
+category:	"_Export"
+buttontext:	"[Connections count]"
+--buttontext:	"Max Beams"
+icon:	"control:dropdownlist|id:DL_connections_count|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
+(
+	format "EventFired	= % \n" EventFired
+	--SUPPORT_MANAGER.updateModifiers ( EventFired )
+)
+
+/**
+  *
+ */
+macroscript	_print_generator_beams_count
+category:	"_Export"
+buttontext:	"[Beams Count]"
+--toolTip:	"Beams Count"
+icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 102, -10 ]|tooltip:Number of bars on beam"
+(
+	--format "EventFired	= % \n" EventFired
+	on execute do
+	SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 
@@ -207,7 +218,7 @@ icon:	"across:5|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offse
 --category:	"_Export"
 --buttontext:	"[Connect]"
 --toolTip:	"Where support is connected to beam"
---icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, -4 ]"
+--icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, -12 ]"
 --(
 --	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 --

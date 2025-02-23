@@ -30,7 +30,7 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 
-	direction_down = [0,0,-1],
+	--direction_down = [0,0,-1],
 
 
 	public
@@ -38,15 +38,13 @@ struct SupportObject_v
 
 	/** Generate support
 	  * 
-	  * 
-	  * 
-	  * @param point3 first_knot_pos	top position of support
-	  * @param point3 direction	vector of direction from 1st to 2nd point
-	  * @param color  wirecolor	of support object
+	  * @param point3	first_knot_pos	top position of support
+	  * @param #DOWN|point3	direction	vector of direction from 1st to 2nd point
+	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:[0,0,-1] wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
+	function generateSupport vertex_index first_knot_pos: direction:#DOWN wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		--format "support_obj: %\n" support_obj
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 	
@@ -54,7 +52,7 @@ struct SupportObject_v
 		 */
 		function _setName vertex_index =
 		(
-			--format "\n"; print "SupportRaftBaseObject._getName()"
+			--format "\n"; print "SupportObject_v._getName()"
 			if source_obj != undefined then
 			(
 				support_name = substituteString source_obj.name "-source" ""
@@ -67,6 +65,8 @@ struct SupportObject_v
 				support_obj.name = support_name --return
 			)
 		)
+		
+		direction_vector = if direction == #DOWN then [0,0,-1] else direction
 			
 		
 		/* CREATE NEW OBJECT */ 
@@ -78,7 +78,7 @@ struct SupportObject_v
 			
 			
 		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
-		if direction.z > -0.25 then direction.z = -0.25
+		if direction_vector.z > -0.25 then direction_vector.z = -0.25
 
 		
 		/* ADD FIRST POINT */
@@ -86,7 +86,7 @@ struct SupportObject_v
 	
 
 		/* SET RAFT PART of support */ 
-		this._setSecondKnotPosition(first_knot_pos)(direction)
+		this._setSecondKnotPosition(first_knot_pos)(direction_vector)
 		--format "first_knot_pos: %\n" first_knot_pos
 		--format "HIT_RAFT: %\n" hit_raft
 
@@ -166,23 +166,41 @@ struct SupportObject_v
 	),
 
 	/** Update supports position
+	  * 
+	  * first_knot_pos: update_first
+	  * 
+	  * 
+	  * 
 	 */
-	function updateSupport first_knot_pos: update_direction:false update_normal_lenght:false =
+	function updateSupport first_knot_pos: update_knot_2:false update_leg:false =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "update_direction: %\n" update_direction
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
+		--format "update_knot_2: %\n" update_knot_2
 
 		direction = getUserPropVal support_obj "DIRECTION"
 
-		/* ADD FIRST POINT */
-		knots_positions = #( first_knot_pos, undefined )
+		if direction == #DOWN then
+			direction = [0,0,-1]
 		
+		--knots_positions[1] = getKnotPoint support_obj spline_1 1
 		
-		/* GENERATE SECOND POINT */ 
-		if first_knot_pos != unsupplied then
-			this._updateSecondKnotPosition( first_knot_pos )
+		/* ADD POINTS */
+		knots_positions[1] = first_knot_pos
+		knots_positions[2] = support_obj.pos
 
+		/* GET 1st knot POSITION FROM LINE */ 
+		if classOf first_knot_pos != point3 then
+			knots_positions[1] = getKnotPoint support_obj spline_1 1
+
+		
+		/* UPDATE SECOND POINT */ 
+		if update_knot_2 then
+			this._updateSecondKnotPosition()
+		
+		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegKnotPositions()
@@ -195,17 +213,17 @@ struct SupportObject_v
 				(num_knots < knots_positions.count): this._addKnots()
 				(num_knots > knots_positions.count): this._removeKnots()
 			)
-
-
+		
+		
 		this._updateLine()
-
+		
 		this._isOnGround()
 		
 		this._setMaterialsToLineSegments()
-
+		
 		this._setPivotToSecondPoint()
 		
-
+		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
@@ -262,7 +280,7 @@ struct SupportObject_v
 		
 		
 		/* ADD SECOND POINT */
-		second_point_pos = if ( hit_raft_pos = this._getRaftHitPosition first_knot_pos direction SUPPORT_OPTIONS.normal_length ) != undefined then 
+		second_point_pos = if ( hit_raft_pos = this._getRaftHitPosition direction SUPPORT_OPTIONS.normal_length ) != undefined then 
 			hit_raft_pos
 		else
 			first_knot_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
@@ -284,38 +302,39 @@ struct SupportObject_v
 		knots_positions[2] = second_point_pos
 	),
 
-	/** Update 2nd knot of support
+	/** Get and UPDATE 2nd knot of support
 	  * 
 	  * Check if 2nd knot hits source object
 	  * 
 	 */
-	function _updateSecondKnotPosition first_knot_pos =
+	function _updateSecondKnotPosition =
 	(
 		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		--format "knots_positions: %\n" knots_positions
+		first_point_pos  = knots_positions[1]
+		second_point_pos = knots_positions[2]
 
-		second_point_pos = getKnotPoint support_obj spline_1 2
+		distance_of_points = distance first_point_pos second_point_pos
 
-		distance_of_points = distance knots_positions[1] second_point_pos
-
-		direction = normalize (second_point_pos - first_knot_pos)
+		direction = normalize (second_point_pos - first_point_pos)
 
 		
-		if ( hit_raft_pos = this._getRaftHitPosition first_knot_pos direction distance_of_points ) != undefined then 
+		if ( hit_raft_pos = this._getRaftHitPosition direction distance_of_points ) != undefined then 
 			second_point_pos = hit_raft_pos
 		
-		--hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
+		--hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( direction )
 		--
 		--/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		--if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > distance_of_points then
+		--if hit_raft != undefined and distance first_point_pos hit_raft.pos > distance_of_points then
 		--	hit_raft = undefined
 		--
-		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (direction)
+		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (direction)
 		
 
 
 		/* KEEP SECOND POINT BELOW FIRST */
-		if second_point_pos.z >= knots_positions[1].z then
-			second_point_pos.z = knots_positions[1].z -- SUPPORT_OPTIONS.bar_width
+		if second_point_pos.z >= first_point_pos.z then
+			second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width
 			--second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
 			
 		/* ADD SECOND POINT */
@@ -325,10 +344,10 @@ struct SupportObject_v
 
 	/** Get secon point position
 	 */
-	function _getRaftHitPosition first_knot_pos direction max_distance =
+	function _getRaftHitPosition direction max_distance =
 	(
 		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
-		hit_raft = this._intersectRaySourceObject (first_knot_pos) ( direction )
+		hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( direction )
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
@@ -411,9 +430,10 @@ struct SupportObject_v
 	function _setSupportLegKnotPositions =
 	(
 		--format "\n"; print "SupportObject_v._setSupportLegKnotPositions()"
+		--format "knots_positions: %\n" knots_positions
 		
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
-		hit_support = this._intersectRaySourceObject (knots_positions[2]) (direction_down)
+		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
 
 		--is_on_ground = hit_support == undefined
 		--hit_support == undefined
@@ -547,7 +567,7 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			TEST COLLISION WITH OBJECT on straight down direction
 		--------------------------------------------------------------------------------*/
-		this.hit_support = this._intersectRaySourceObject pos direction_down
+		this.hit_support = this._intersectRaySourceObject pos [0,0,-1]
 
 		this.is_on_ground = hit_support == undefined
 
@@ -642,7 +662,7 @@ struct SupportObject_v
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "SupportRaftBaseObject._alignPivotToSeconPoint()"
+		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 		support_obj.pivot = knots_positions[2]
 	),
 
@@ -650,8 +670,10 @@ struct SupportObject_v
 	 */
 	function _intersectRaySourceObject pos direction =
 	(
-		--format "\n"; print "SupportRaftBaseObject.testCollision()"
+		--format "\n"; print "SupportObject_v._intersectRaySourceObject()"
 		--format "pos: %\n" pos
+		--format "direction: %\n" direction
+		
 		/** Modify pos
 		 */
 		function modifyPos _pos axis val =
@@ -726,7 +748,7 @@ struct SupportObject_v
 	  */
 	function _shiftWirecolor wirecolor i =
 	(
-		--format "\n"; print "SupportRaftBaseObject.shiftWirecolor()"
+		--format "\n"; print "SupportObject_v.shiftWirecolor()"
 		--format "wirecolor:	% \n" wirecolor
 		wirecolor_shifted = copy wirecolor
 

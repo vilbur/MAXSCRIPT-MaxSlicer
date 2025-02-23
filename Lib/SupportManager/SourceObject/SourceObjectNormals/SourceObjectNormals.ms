@@ -66,7 +66,7 @@ struct SourceObjectNormals_v
 		if normals_world == undefined then
 			normals_world = deepCopy normals_local
 
-		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		for vert in verts where normals_world[vert] != undefined  do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
 	
 	/** Is vertex normal pointing DOWN or SIDE but not UP
@@ -85,12 +85,12 @@ struct SourceObjectNormals_v
 	 */
 	function saveNormalsToUserProps =
 	(
-		--format "\n"; print "SourceObjectNormals_v.saveNormalsRoUserProps()"
+		--format "\n"; print "SourceObjectNorwmals_v.saveNormalsRoUserProps()"
 		setUserPropVal obj "normals_local"	normals_local
 	),
 	
 	private
-
+	
 	/** Get local vertex normals by modifier
 	 */
 	function _updateLocalVertexNormalsByModifier verts =

@@ -219,14 +219,29 @@ struct SourceObject_v
 
 
 	/** Update all supports of source objects
+	  * 
+	  * 
+	  * 
+	  * 
 	 */
-	function updateSupports =
+	function updateSupports update_knot_1:true update_knot_2:true update_leg:true =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
+		--if update_direction then
+		--format "Supports.keys: %\n" Supports.keys
+			--Normals.setWorldSpaceVertexNormals (Supports.keys as BitArray )
 
+		
 		for index in Supports.keys where not Supports[index].isRaft() do
-			Supports[index].updateSupport first_knot_pos:( verts_pos[index]) update_direction:true
+		(
+		 
+			if update_knot_1 then
+				first_knot_pos = verts_pos[index]
+			
+			--Supports[index].updateSupport first_knot_pos:( verts_pos[index]) update_direction:true direction:direction 
+			Supports[index].updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 update_leg:update_leg 
+		)
 	),
 
 	/** Update single support
@@ -357,7 +372,7 @@ struct SourceObject_v
 	function _getNormalOrDownDirection vert =
 	(
 		--format "\n"; print "SourceObject_v._getNormalOrDownDirection()"
-		if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1]
+		if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else #DOWN
 	),
 	
 	/** Get verts by colors

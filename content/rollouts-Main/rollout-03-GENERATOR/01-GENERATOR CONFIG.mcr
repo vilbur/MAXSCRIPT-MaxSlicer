@@ -51,36 +51,22 @@ function resetSupports param: =
 )
 
 
-/*
-*/
-macroscript	_print_support_generator_live_update
-category:	"_3D-Print"
-buttontext:	"LIVE UPDATE"
-tooltip:	"Live update supports on their transfrom"
-icon:	"control:#checkbutton|across:1|offset:[0, 6]|height:32|width:96|tooltip:"
-(
-	on execute do
-		--undo "Generate Rafts" on
-		(
-			SUPPORT_OPTIONS.live_update_supports = EventFired.val
-		)
-)
 
-/*
-*/
-macroscript	_print_support_generator_update
-category:	"_3D-Print"
-buttontext:	"LIVE UPDATE"
-tooltip:	"Update selected supports"
-icon:	"control:#checkbutton"
-(
-	on execute do
-		--undo "Generate Rafts" on
-		(
-			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
-			print "update"
-		)
-)
+--/*
+--*/
+--macroscript	_print_support_generator_update
+--category:	"_3D-Print"
+--buttontext:	"LIVE UPDATE"
+--tooltip:	"Update selected supports"
+--icon:	"control:#checkbutton"
+--(
+--	on execute do
+--		--undo "Generate Rafts" on
+--		(
+--			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
+--			print "update"
+--		)
+--)
 
 /**  Export format
   *
@@ -89,7 +75,7 @@ macroscript	_print_generator_normal_mode
 category:	"_Export"
 buttontext:	"Second Point Direction"
 toolTip:	"Where support is connected to beam"
-icon:	"across:2|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
+icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
 (
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
@@ -111,7 +97,7 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
+icon:	"across:3|control:spinner|offset:[ 8, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
@@ -148,6 +134,21 @@ icon:	"across:2|control:spinner|offset:[ -64, 16 ]|fieldwidth:24|range:[ 0.1, 99
 	)
 )
 
+/*
+*/
+macroscript	_print_support_generator_live_update
+category:	"_3D-Print"
+buttontext:	"LIVE UPDATE"
+tooltip:	"Live update supports on their transfrom"
+icon:	"across:3|control:#checkbutton|offset:[ 8, 6 ]|height:32|width:96|tooltip:"
+(
+	on execute do
+		--undo "Generate Rafts" on
+		(
+			SUPPORT_OPTIONS.live_update_supports = EventFired.val
+		)
+)
+--
 --/**
 --  *
 --  */

@@ -52,8 +52,9 @@ function onObjectTransformTimeoutCallback sender evt =
 				what_to_update = #POSITION_Z  -- Z POSITION  CHANGED
 		)
 
-		/* Update SourceObject and its suports if necessary */ 
-		SUPPORT_MANAGER.updateBySourceObject( selection as Array ) (what_to_update)
+		/* Update SourceObject and its suports if necessary */
+		if what_to_update != #POSITION_XY then
+			SUPPORT_MANAGER.updateBySourceObject( selection as Array ) (what_to_update)
 
 		removeTimeout sender
 		
@@ -67,7 +68,7 @@ function onObjectTransformTimeoutCallback sender evt =
 function startObjectTransformTimeout =
 (
 	--format "\n"; print "onSourceObjectTransform.ms.startObjectTransformTimeout()"
-	--delay_ms = 3000
+	--delay_ms = 3000X
 	delay_ms = 1000
 	--delay_ms = 100
 

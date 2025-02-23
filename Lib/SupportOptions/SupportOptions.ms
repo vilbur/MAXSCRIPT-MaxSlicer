@@ -31,7 +31,7 @@ struct SupportOptions_v
 
 
 	/* SUPPORT MODIFIERS */
-	bar_width 	= 1.5, -- default width is 1.5mm
+	bar_width 	= 1.4, -- default width is 1.5mm
 
 	base_height	= 1.0,
 	base_width	= 10.0,

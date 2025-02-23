@@ -143,7 +143,7 @@ icon:	"across:4|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offse
 			EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
 		)
 		else
-			SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
+			SUPPORT_MANAGER.updateModifiers (EventFired)
 
 		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
 	--else

@@ -310,42 +310,33 @@ struct SupportManager_v
 		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
-
+		--format "SYNC_KEYS: %\n" SYNC_KEYS
 		
-		/* UPDATE SUPPORTS */
+		/* UPDATE SUPPORTS - for each SourceObject */
 		for sync_key in sync_keys do
 		(
 			SourceObject = SourceObjects[sync_key]
 			
 			SourceObject.removeDeletedNodes()
-			
+			--format "SOURCEOBJECT.SUPPORTS.KEYS: %\n" SourceObject.Supports.keys
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports()
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_knot_2:false update_leg:true 
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 		)	
 				
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		--this._updateBeamsBySupports(sync_keys)
+		this._updateBeamsBySupports(sync_keys)
 		
 		this.updateShapes()
 	),
-	
-	/** Update beams by supports
-	 */
-	function _updateBeamsBySupports support_keys =
-	(
-		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
-		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
-	),
-	
+
 
 	/** Update supports
 	 */
@@ -382,7 +373,7 @@ struct SupportManager_v
 	
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		--this._updateBeamsBySupports(sync_keys)
+		this._updateBeamsBySupports(supports_by_source.keys)
 	
 		this.updateShapes()
 	),
@@ -818,7 +809,16 @@ struct SupportManager_v
 
 		supports_by_source --return
 	),
-
+	
+	/** Update beams by supports
+	 */
+	function _updateBeamsBySupports support_keys =
+	(
+		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+			BeamObjects[key].updateBeam()
+	),
+	
 	/*------------------------------------------------------------------------------
 	
 		LOAD OBJECTS FROM SCENE
@@ -874,6 +874,7 @@ struct SupportManager_v
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
 				--format "IS_ON_GROUND: %\n" IS_ON_GROUND
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
+				if SourceObjects[sync_key] != undefined then 
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
 					

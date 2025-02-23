@@ -34,7 +34,7 @@ macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.5 ]|width:64|offset:[ 16, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ 16, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(

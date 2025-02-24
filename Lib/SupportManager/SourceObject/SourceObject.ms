@@ -135,7 +135,7 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 		bindSupportToTransformEvent( this.getSupportNodes() )
 		
-		bindSourceObjectTransformEvent ( obj )
+		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
 		
 		
 		

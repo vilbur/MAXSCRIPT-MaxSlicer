@@ -1,15 +1,12 @@
 
-global SOURCE_OBJECTS_BINDED = #()
-global SOURCE_OBJECT_TRANSFORM -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
+global SOURCE_OBJECT_TRANSFORM = undefined  -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
 
-
--- Call the function to print the state of the mouse buttons
 
 /** Execute callback on timeout
  */
-function onObjectTransformTimeoutCallback sender evt =
+function onSourceObjectTransformTimeoutCallback sender evt =
 (
-	format "\n"; print "onSourceObjectTransform.ms.onObjectTransformTimeoutCallback()"
+	--format "\n"; print "onSourceObjectTransform.ms.onSourceObjectTransformTimeoutCallback()"
 
 	/* Round position or rotation of object to 3 deciamls
 	 *
@@ -22,110 +19,154 @@ function onObjectTransformTimeoutCallback sender evt =
 	fn removeTimeout sender =
 	(
 		--format "\n"; print "onSourceObjectTransform.ms.removeTimeout()"
-		SOURCE_OBJECT_TRANSFORM = undefined
-
+		
 		sender.enabled = false
 		-- for sanity and cleanup
-		dotNet.removeEventHandler sender "Elapsed" onObjectTransformTimeoutCallback
+		dotNet.removeEventHandler sender "Elapsed" onSourceObjectTransformTimeoutCallback
+		
+		SOURCE_OBJECT_TRANSFORM.delay_timer = undefined
 	)
 	
 	--format "LMB STATE: %\n" mouse.buttonStates[1]
-	
-	/* IF LMB IS NOT PRESSED */ 
-	if not mouse.buttonStates[1] then
+
+	/* UPDATE IF LMB IS NOT PRESSED */ 
+	if selection.count > 0 and not mouse.buttonStates[1] then
 	(
-		obj = SOURCE_OBJECT_TRANSFORM[#OBJECT]
-	
-		saved_rotation = SOURCE_OBJECT_TRANSFORM[#ROTATION]
-	
+		source_objects = for obj in selection where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
+
+		obj = source_objects[1]
+		
+		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
+
+		saved_rotation = transform_data[#ROTATION]
+		
 		current_rotation = quatToEuler2 obj.rotation.controller.value
-	
-		--format "saved_rotation: %\n" saved_rotation
-		--format "current_rotation: %\n" current_rotation
-		--format "TEST: %\n" (current_rotation==saved_rotation)
 		
 		
-		if selection.count > 0 then
-		(
-			checkMouseButtonStates()
-			
-			/* UPDATE ROTATION */ 
-			what_to_update = #ROTATION
-			
-			/* OR POSITION - IF CHANGED */ 
-			if current_rotation == saved_rotation then
-			(
-				format "SOURCE_OBJECT_TRANSFORM[#POS_Z]: %\n" (roundFloat SOURCE_OBJECT_TRANSFORM[#POS_Z])
-				format "obj.position.z: %\n" (roundFloat obj.position.z)
+		/* UPDATE ROTATION */ 
+		what_to_update = #ROTATION
+		
+		/* OR UPDATE POSITION - IF CHANGED */ 
+		if current_rotation == saved_rotation then
+			what_to_update = ( if roundFloat transform_data[#POS_Z] == roundFloat obj.position.z then #POSITION_XY else #POSITION_Z )
+		
+		
+		/* Update SourceObject and its suports if necessary */
+		if what_to_update != #POSITION_XY then
+			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
+		
+		for obj in source_objects do 
+			SOURCE_OBJECT_TRANSFORM._setTransformData(obj)
 				
-				if roundFloat SOURCE_OBJECT_TRANSFORM[#POS_Z] == roundFloat obj.position.z then
-					what_to_update = #POSITION_XY  -- XY POSITION  CHANGED
-				
-				else
-					what_to_update = #POSITION_Z  -- Z POSITION  CHANGED
-			)
-	
-			/* Update SourceObject and its suports if necessary */
-			if what_to_update != #POSITION_XY then
-				SUPPORT_MANAGER.updateBySourceObject( selection as Array ) (what_to_update)
-	
-			removeTimeout sender
-			
-		)
-		else if selection.count == 0 then
-			removeTimeout sender
+		--SOURCE_OBJECT_TRANSFORM.resetSavedTransforms(source_objects)
 		
+		removeTimeout sender
 	)
 )
 
-/** Start timeout
+
+/** Source object transform
  */
-function startObjectTransformTimeout =
+struct SourceObjectTransform_v
 (
-	--format "\n"; print "onSourceObjectTransform.ms.startObjectTransformTimeout()"
-	--delay_ms = 3000
-	--delay_ms = 2000
-	--delay_ms = 1000
-	--delay_ms = 500
-	delay_ms = 100
+	/* construct */
+	/* required */
+	/* properties */
+	delay_ms = 1000,
+	
+	binded_objects = #(),
 
-	delay_timer = dotNetObject "Windows.Forms.Timer"
-
-	delay_timer.Interval = delay_ms
-
-	dotNet.addEventHandler delay_timer "Tick" onObjectTransformTimeoutCallback
-
-	delay_timer.enabled = true
-
-)
-
-
-/** Bind source object transform event
- */
-function bindSourceObjectTransformEvent source_obj =
-(
-	--format "\n"; print "onSourceObjectTransform.ms.bindSourceObjectTransformEvent()"
-	SOURCE_OBJECTS_BINDED = for obj in SOURCE_OBJECTS_BINDED where isValidNode obj collect obj
-
-	/* GET OBJECT BIND TO EVENT */ 
-	if classOf source_obj == Array then
-		join SOURCE_OBJECTS_BINDED source_obj
-
-	else
-		append SOURCE_OBJECTS_BINDED source_obj
-
-
-	deleteAllChangeHandlers id:#onSourceObjectTransform
+	transform_data = Dictionary #STRING,
+	
+	delay_timer,
+	
+	/* private */
+	/* dependency */
+	/* reference */
+	/* inhered */
 
 	
-	
-	when transform SOURCE_OBJECTS_BINDED changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
+	/** Bind source object transform event
+	 */
+	function bindSourceObjectTransformEvent source_obj =
 	(
-		if SOURCE_OBJECT_TRANSFORM == undefined then
-		(
-			SOURCE_OBJECT_TRANSFORM = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+		--format "\n"; print "onSourceObjectTransform.ms.bindSourceObjectTransformEvent()"
+		format "\n"; print "SourceObjectTransform_v.bindSourceObjectTransformEvent()"
+		format "source_obj: %\n" source_obj
+		
+		this._setBindedObjects(source_obj)
 
-			startObjectTransformTimeout()
+		deleteAllChangeHandlers id:#onSourceObjectTransform
+		
+		/* BIND ALL NODES TO EVENT */ 
+		when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
+		(
+			for obj in binded_objects where transform_data[this._getPointer obj] == undefined do 
+				this._setTransformData(obj)
+			
+			if this.delay_timer == undefined then 
+				this._startObjectTransformTimeout()
 		)
+	),
+
+	/** Start timeout
+	 */
+	function _startObjectTransformTimeout =
+	(
+		format "\n"; print "SourceObjectTransform_v._startObjectTransformTimeout()"
+		--format "\n"; print "onSourceObjectTransform.ms.startObjectTransformTimeout()"
+		delay_timer = dotNetObject "Windows.Forms.Timer"
+	
+		delay_timer.Interval = delay_ms
+	
+		dotNet.addEventHandler delay_timer "Tick" onSourceObjectTransformTimeoutCallback
+	
+		delay_timer.enabled = true
+	),
+	
+	/** Set binded objects
+	 */
+	function _setBindedObjects source_obj =
+	(
+		--format "\n"; print "SourceObjectTransform_v.setBindedObjects()"
+		binded_objects = for obj in binded_objects where isValidNode obj collect obj
+	
+		/* GET OBJECT BIND TO EVENT */ 
+		if classOf source_obj == Array then
+			join binded_objects source_obj
+	
+		else
+			append binded_objects source_obj
+	),
+	
+	/** Set binded object
+	 */
+	function _setTransformData obj =
+	(
+		format "\n"; print "SourceObjectTransform_v._setTransformData()"
+		format "obj: %\n" obj
+		--binded_objects[getHandleByAnim obj] = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+		transform_data[this._getPointer obj] = Dictionary #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+	),
+	
+	private
+	
+	/** Get pointer
+	 */
+	function _getPointer obj =
+	(
+		(getHandleByAnim obj) as string --return
+	),
+
+	/**
+	 */
+	on create do
+	(
+		--format "\n"; print "SourceObjectTransform.onCreate()"
 	)
 )
+
+
+SOURCE_OBJECT_TRANSFORM = SourceObjectTransform_v()
+
+

@@ -840,21 +840,13 @@ struct SupportManager_v
 			--format "obj_in_scene: %\n" obj_in_scene
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
-			--SourceObject.initObjectsFromScene()
-
 			supports = SourceObject.getSupportNodes()
 
-			/* BIND TO EVENTS */
-
-			--bindSupportToTransformEvent( supports )
-
-			--bindBeamOnDeleteCallback( supports )
-
 			SourceObjects[sync_key] = SourceObject
-
 		)
 
-		bindSourceObjectTransformEvent ( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
+		/* BIND TO EVENTS */
+		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 
 	),
 
@@ -994,7 +986,7 @@ struct SupportManager_v
 		(
 			SourceObjects[sync_key] = SourceObject_v(source_obj) (sync_key)
 
-			bindSourceObjectTransformEvent (source_obj)
+			SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent (source_obj)
 		)
 
 		--SourceObject = SourceObjects[sync_key]

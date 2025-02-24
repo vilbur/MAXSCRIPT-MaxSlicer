@@ -177,8 +177,9 @@ struct SupportObject_v
 		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "update_direction: %\n" update_direction
 		--format "SUPPORT: %\n" support_obj.name
-		--format "first_knot_pos: %\n" first_knot_pos
-		--format "update_knot_2: %\n" update_knot_2
+		format "first_knot_pos: %\n" first_knot_pos
+		format "update_knot_2: %\n" update_knot_2
+		format "update_leg: %\n" update_leg
 
 		direction = getUserPropVal support_obj "DIRECTION"
 

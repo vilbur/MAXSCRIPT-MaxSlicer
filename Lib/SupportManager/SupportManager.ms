@@ -308,7 +308,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		--format "\n"; print "SupportManager_v.updateSourceObject()"
+		format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
@@ -344,7 +344,7 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes =
 	(
-		--format "\n"; print "SupportManager_v.updateSupports()"
+		format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)

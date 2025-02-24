@@ -174,18 +174,19 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:false update_leg:false =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "update_direction: %\n" update_direction
 		--format "SUPPORT: %\n" support_obj.name
-		format "first_knot_pos: %\n" first_knot_pos
-		format "update_knot_2: %\n" update_knot_2
-		format "update_leg: %\n" update_leg
+		--format "first_knot_pos: %\n" first_knot_pos
+		--format "update_knot_2: %\n" update_knot_2
+		--format "update_leg: %\n" update_leg
 
 		direction = getUserPropVal support_obj "DIRECTION"
-
-		if direction == #DOWN then
-			direction = [0,0,-1]
+		--format "DIRECTION: %\n" direction
 		
+			--direction = if direction == #DOWN then [0,0,-1] else direction_prop
+		
+		--format "DIRECTION: %\n" direction
 		--knots_positions[1] = getKnotPoint support_obj spline_1 1
 		
 		/* ADD POINTS */
@@ -198,8 +199,8 @@ struct SupportObject_v
 
 		
 		/* UPDATE SECOND POINT */ 
-		if update_knot_2 then
-			this._updateSecondKnotPosition()
+		if update_knot_2 or direction == #DOWN then
+			this._updateSecondKnotPosition keep_direction_down:( direction == #DOWN )
 		
 		
 		/* GENERATE LEG FOR SUPPORT */ 
@@ -308,12 +309,28 @@ struct SupportObject_v
 	  * Check if 2nd knot hits source object
 	  * 
 	 */
-	function _updateSecondKnotPosition =
+	function _updateSecondKnotPosition keep_direction_down:false =
 	(
 		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
-		--format "knots_positions: %\n" knots_positions
+		--format "keep_direction_down: %\n" keep_direction_down
+		
+		/** Get zposition down
+		 */
+		function getZpositionDown =
+		(
+			--format "\n"; print "SupportObject_v.getZpositionDown()"
+			
+			second_point_pos = copy knots_positions[1]
+			
+			second_point_pos.z -= distance knots_positions[1] knots_positions[2]
+			
+			second_point_pos --return
+		)
+		
 		first_point_pos  = knots_positions[1]
-		second_point_pos = knots_positions[2]
+		--second_point_pos = knots_positions[2]
+		
+		second_point_pos = if not keep_direction_down then knots_positions[2] else getZpositionDown()
 
 		distance_of_points = distance first_point_pos second_point_pos
 
@@ -331,8 +348,6 @@ struct SupportObject_v
 		--
 		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (direction)
 		
-
-
 		/* KEEP SECOND POINT BELOW FIRST */
 		if second_point_pos.z >= first_point_pos.z then
 			second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width

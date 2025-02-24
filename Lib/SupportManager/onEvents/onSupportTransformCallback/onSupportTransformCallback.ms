@@ -7,6 +7,7 @@ global SUPPORTS_TRANSFORM_CHANGED = #()
 function onSupportTransformTimeoutCallback sender evt =
 (
 	--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
+	--format "SOURCE_OBJECT_TRANSFORM.delay_timer: %\n" SOURCE_OBJECT_TRANSFORM.delay_timer
 
 	/** Remove timeout
 	 */
@@ -27,15 +28,17 @@ function onSupportTransformTimeoutCallback sender evt =
 	--	removeTimeout sender
 	--)
 
-
-	if selection.count > 0 then
+	if SOURCE_OBJECT_TRANSFORM.delay_timer == undefined then
 	(
-		SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
-
-		removeTimeout sender
+		if selection.count > 0 then
+		(
+			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
+	
+			removeTimeout sender
+		)
+		else if selection.count == 0 then
+			removeTimeout sender
 	)
-	else if selection.count == 0 then
-		removeTimeout sender
 )
 
 /** Start timeout
@@ -102,15 +105,15 @@ function bindSupportToTransformEvent supports =
 
 /** Pause events
  */
-function pauseSupportToTransformEvent =
+function pauseSupportTransformEvent =
 (
-	--format "\n"; print "onSupportTransformCallback.ms.pauseSupportToTransformEvent()"
+	format "\n"; print "onSupportTransformCallback.ms.pauseSupportTransformEvent()"
 	deleteAllChangeHandlers id:#updateSupportsEvent
 )
 /** Resume events
  */
-function resumeSupportToTransformEvent =
+function resumeSupportTransformEvent =
 (
-	--format "\n"; print "onSupportTransformCallback.ms.resumeSupportToTransformEvent()"
+	format "\n"; print "onSupportTransformCallback.ms.resumeSupportTransformEvent()"
 	bindSupportToTransformEvent #()
 )

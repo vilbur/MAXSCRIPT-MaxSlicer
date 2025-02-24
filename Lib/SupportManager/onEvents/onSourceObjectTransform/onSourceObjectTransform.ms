@@ -18,16 +18,13 @@ function onSourceObjectTransform sender evt =
 	 */
 	fn removeTimeout sender =
 	(
-		--format "\n"; print "onSourceObjectTransform.ms.removeTimeout()"
-		
 		sender.enabled = false
-		-- for sanity and cleanup
+
 		dotNet.removeEventHandler sender "Elapsed" onSourceObjectTransform
 		
 		SOURCE_OBJECT_TRANSFORM.delay_timer = undefined
 	)
 	
-	--format "LMB STATE: %\n" mouse.buttonStates[1]
 
 	/* UPDATE IF LMB IS NOT PRESSED */ 
 	if selection.count > 0 and not mouse.buttonStates[1] then
@@ -38,18 +35,17 @@ function onSourceObjectTransform sender evt =
 		
 		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
 
-		saved_rotation = transform_data[#ROTATION]
+		rotation_chaged = transform_data[#ROTATION] != quatToEuler2 obj.rotation.controller.value
 		
-		current_rotation = quatToEuler2 obj.rotation.controller.value
+		pos_z_changed	 = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z
 		
 		
-		/* UPDATE ROTATION */ 
-		what_to_update = #ROTATION
-		
-		/* OR UPDATE POSITION - IF CHANGED */ 
-		if current_rotation == saved_rotation then
-			what_to_update = ( if roundFloat transform_data[#POS_Z] == roundFloat obj.position.z then #POSITION_XY else #POSITION_Z )
-		
+		what_to_update = case of
+		(
+			(not rotation_chaged and not pos_z_changed ):	#POSITION_XY
+			(pos_z_changed):	#POSITION_Z
+			default:	#ROTATION
+		)
 		
 		/* Update SourceObject and its suports if necessary */
 		if what_to_update != #POSITION_XY then
@@ -58,8 +54,9 @@ function onSourceObjectTransform sender evt =
 		for obj in source_objects do 
 			SOURCE_OBJECT_TRANSFORM._setTransformData(obj)
 				
-		--SOURCE_OBJECT_TRANSFORM.resetSavedTransforms(source_objects)
 		
 		removeTimeout sender
+		
+		resumeSupportTransformEvent()
 	)
 )

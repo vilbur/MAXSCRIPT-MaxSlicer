@@ -71,6 +71,26 @@ struct BeamGenerator_v
 		format "max_distance:    %\n" max_distance
 		format "max_connections: %\n" max_connections
 
+		/** Support has not max connections
+		 */
+		function supportHasMaxConnections support max_connections =
+		(
+			----format "\n"; print "BeamGenerator_v.supportHasMaxConnections()"
+			--format "\n"
+			--format "max_connections: %\n" max_connections
+			--format "support: %\n" support
+			--format "BEAMS: %\n" ((SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count)
+			--format "OBJECTS: %\n" (SUPPORT_MANAGER.getObjectsByType support type:#BEAM)
+			----format "TEST: %\n" (classOf max_connections == integer and max_connections)
+			--format "HAS MAX CONNECTIONS: %\n" ((SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count >= max_connections)
+			--
+			if classOf max_connections == integer and max_connections > 0 then
+				(SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count >= max_connections
+			 
+			 else
+				false
+		)
+		
 		procesed_supports = #()
 		new_beams = #()
 
@@ -85,7 +105,7 @@ struct BeamGenerator_v
 
 		/* USE ALL SUPPORTS OF SOURCE OBJECT OR ONLY SELECTED */
 		supports_to_connect = if not use_only_selected_supports then SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT else supports
-		format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
+		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
 
 		/* DO NOT USE SUPPORTS WHICH HAS MAX BEAMS COUNT ALREADY */
 		this._filterSupportsByCountOfBeams (max_connections) (&supports_to_connect)
@@ -94,41 +114,48 @@ struct BeamGenerator_v
 		this._filterOnlyGroundedSupports(only_ground)(&supports_to_connect)
 
 		--format "supports_to_connect.count: %\n" supports_to_connect.count
-		format "MAX_DISTANCE: %\n" max_distance
-
-		format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
+		--format "MAX_DISTANCE:        %\n" max_distance
+		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
+		
+		
+		--supports = this._sortSupportsByDistance(supports) (max_distance)
+		supports = (this._sortSupportsByDistance(supports) (9999999999999))[1]
 
 		for support in supports where findItem procesed_supports support == 0 do
 		(
-			local closest_support
-
-			min_distance = 9999999
-
-			/* COMPARE DISTANCES OF SUPPORTS  */
-			for support_other in supports_to_connect \
-				where support_other != support \ -- avoid compare same support
-				and ( dist = distance support support_other ) < min_distance \	 -- TEST MIN DISTANCE BETWEEN SUPPORTS
-				and dist <= max_distance \                                       -- TEST MAX DISTANCE BETWEEN SUPPORTS
-				and not this.beamExists support support_other \ -- TEST IF BEAM EXISTS ALLERADY
-			do
+			--format "\n\n------------------ %" support.name
+			
+			if not supportHasMaxConnections support max_connections then
 			(
-				min_distance = dist
-
-				closest_support = support_other
-				--format "CLOSEST_SUPPORT: %\n" closest_support
-
-				if findItem supports support_other > 0 then
-					appendIfUnique procesed_supports support
-			)
-
-			if closest_support != undefined then
-			(
-				if (new_beam = this.generateBeam support closest_support) != undefined then
+				local closest_support = undefined 
+	
+				min_distance = 9999999
+	
+				/* GET CLOSESTS SUPPORT - BY COMPARE DISTANCES OF SUPPORTS  */
+				for support_other in supports_to_connect \
+					where support_other != support \                                  -- avoid compare same support
+					and not this.beamExists support support_other \                   -- TEST IF BEAM EXISTS ALLERADY
+					and not supportHasMaxConnections support_other max_connections \                                  -- 
+					and ( dist = distance support support_other ) < min_distance \	 -- TEST MIN DISTANCE BETWEEN SUPPORTS
+					and dist <= max_distance \                                       -- TEST MAX DISTANCE BETWEEN SUPPORTS
+				do
+				(
+					min_distance = dist
+	
+					closest_support = support_other
+					--format "CLOSEST_SUPPORT: %\n" closest_support
+	
+					if findItem supports support_other > 0 then
+						appendIfUnique procesed_supports support
+				)
+				--format "CLOSEST_SUPPORT: %\n" CLOSEST_SUPPORT
+				/* IF CLOSESTS SUPPORT FOUND */ 
+				if closest_support != undefined and (new_beam = this.generateBeam support closest_support) != undefined then
 					append new_beams new_beam
-
-				if classOf max_connections == integer and max_connections > 0 and (SUPPORT_MANAGER.getObjectsByType closest_support type:#BEAM).count >= max_connections then
-					deleteItem supports_to_connect ( findItem supports_to_connect closest_support )
+				
 			)
+			else
+				appendIfUnique procesed_supports support
 		)
 
 		new_beams --return
@@ -260,7 +287,14 @@ struct BeamGenerator_v
 	 */
 	function _filterSupportsByCountOfBeams max_connections &supports =
 	(
-		--format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
+		format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
+		format "max_connections: %\n" max_connections
+		for support in supports do
+		(
+			beams_of_supports = SUPPORT_MANAGER.getObjectsByType support type:#BEAM
+			format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports
+			format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports.count
+		)
 
 		if classOf max_connections == integer and max_connections > 0 then
 			supports = for support in supports where (SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count < max_connections collect support
@@ -276,7 +310,7 @@ struct BeamGenerator_v
 
 		if only_ground then
 			--supports = for support in supports where support.min.z as integer == 0 collect support
-			supports = for support in supports where support.min.z <= 0 collect support
+			supports = for support in supports where (support.min.z as integer ) <= 0 collect support
 			--for support in supports do format "support.min.z as integer: %\n" (support.min.z as integer)
 
 		supports --return

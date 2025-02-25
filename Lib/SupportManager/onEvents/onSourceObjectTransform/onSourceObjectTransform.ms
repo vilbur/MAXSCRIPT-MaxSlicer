@@ -29,6 +29,7 @@ function onSourceObjectTransform sender evt =
 	/* UPDATE IF LMB IS NOT PRESSED */ 
 	if selection.count > 0 and not mouse.buttonStates[1] then
 	(
+		format "\n"; print "onSourceObjectTransform.ms.onSourceObjectTransform()"
 		source_objects = for obj in selection where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
 
 		obj = source_objects[1]

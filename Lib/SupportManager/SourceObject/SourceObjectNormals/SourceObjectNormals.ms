@@ -35,7 +35,7 @@ struct SourceObjectNormals_v
 	 */
 	function setLocalVertexNormals verts =
 	(
-		format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		--format "VERTS A: %\n" verts
 		--normals_local = this._getLocalVertexNormalsByModifier(Supports.keys as BitArray )
 		this._initNormalsLocalArray()
@@ -45,8 +45,8 @@ struct SourceObjectNormals_v
 			normals_local = normals_local_loaded
 		
 		else
-			if not verts.isEmpty then
-				this._updateLocalVertexNormalsByModifier( verts )
+			--if not verts.isEmpty then
+			this._updateLocalVertexNormalsByModifier( all_verts )
 		
 
 		--this._updateLocalNormals( verts )
@@ -61,13 +61,19 @@ struct SourceObjectNormals_v
 		format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
 		format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
+		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
 		if normals_world == undefined then
 			normals_world = deepCopy normals_local
 
-		for vert in verts where normals_world[vert] != undefined  do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
+			
+		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		
+		for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
+		
 	),
 	
 	/** Is vertex normal pointing DOWN or SIDE but not UP

@@ -74,7 +74,7 @@ struct SourceObject_v
 
 		Normals.setWorldSpaceVertexNormals(verts_process)
 		
-		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
+		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
 		--format "VERTS_PROCESS: %\n" verts_process
 		
@@ -199,8 +199,7 @@ struct SourceObject_v
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_support	= undefined
 		
-		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction wirecolor:wirecolor
-	),
+ 	),
 
 	/** Convert support to raft or vice versa
 	  *
@@ -246,7 +245,7 @@ struct SourceObject_v
 	function updateSupports support_nodes: update_knot_1:true direction:undefined update_leg:true =
 	(
 		format "\n"; print "SourceObject_v.updateSupports()"
-		--format "support_nodes: %\n" support_nodes
+		format "support_nodes: %\n" support_nodes
 		format "direction: %\n" direction
 
 		--format "Supports.keys: %\n" Supports.keys
@@ -259,7 +258,7 @@ struct SourceObject_v
 		
 		if direction != #DOWN then
 		(
-			format "Normals.normals_local: %\n" Normals.normals_local
+			--format "Normals.normals_local: %\n" Normals.normals_local
 			if Normals.normals_local == undefined then
 				--format "SupportsToUpdate.keys as BitArray: %\n" (SupportsToUpdate.keys as BitArray)
 				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
@@ -277,6 +276,7 @@ struct SourceObject_v
 			----direction_saved = SupportsToUpdate[index].getDirection()
 			direction_saved = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
 			format "DIRECTION_SAVED: %\n" direction_saved
+			
 			/* UPDATE SECOND POINT */ 
 			--if direction != undefined and direction != SupportsToUpdate[index].getDirection() then
 			if direction != undefined and direction != direction_saved then
@@ -287,7 +287,7 @@ struct SourceObject_v
 			)
 			
 			
-			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos update_leg:update_leg direction:direction vector:vector
+			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos direction:direction vector:vector update_leg:update_leg
 		)
 		
 		free SupportsToUpdate

@@ -32,6 +32,7 @@ function onSupportTransformTimeoutCallback sender evt =
 	(
 		if selection.count > 0 then
 		(
+			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
 			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
 	
 			removeTimeout sender

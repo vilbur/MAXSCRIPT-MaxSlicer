@@ -128,8 +128,8 @@ struct SupportManager_v
 	 */
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
 	(
-		format "\n"; print "SupportManager_v.generateBeams()"
-		format "SORT_MODE: %\n" sort_mode
+		--format "\n"; print "SupportManager_v.generateBeams()"
+		--format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
@@ -158,7 +158,7 @@ struct SupportManager_v
 					then /* CONNECT 2 SUPPORTS */ 
 						#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
 			
-					else /* CONNECT MORE 3 ANDM MORE SUPPORTS */ 
+					else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
 					(
 						supports = for support in supports where isTallEnough support collect support
 			
@@ -344,7 +344,7 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes direction:undefined =
 	(
-		--format "\n"; print "SupportManager_v.updateSupports()"
+		format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
 		--format "support_nodes: %\n" support_nodes
 
@@ -360,7 +360,6 @@ struct SupportManager_v
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(supports_by_source.keys)
-
 
 		this.updateShapes()
 	),
@@ -486,13 +485,16 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		--format "\n"; print "SupportManager_v.updateShapes()"
+		format "\n"; print "SupportManager_v.updateShapes()"
 
-		with redraw off
-			for _shape in shapes_to_update do
-				updateShape _shape
-
-		redrawViews()
+		if shapes_to_update.count > 0 then
+		(
+			with redraw off
+				for _shape in shapes_to_update do
+					updateShape _shape
+	
+			redrawViews()
+		)
 
 		shapes_to_update = #()
 	),
@@ -519,8 +521,12 @@ struct SupportManager_v
 		)
 
 		/* IF SUPPORT DELETED */
-		else if (support_key = this.isType #SUPPORT obj) != false or (support_key = this.isType #RAFT obj) != false then
+		else if (support_key = this.isType #SUPPORT obj) != false or (raft_key = this.isType #RAFT obj) != false then
 		(
+			format "SUPPORT DELETED\n"
+			if support_key == false then
+				support_key = raft_key
+			format "support_key: %\n" support_key
 			sync_key = this._getSyncKey obj
 		    index    = getUserPropVal obj "INDEX"
 
@@ -531,7 +537,7 @@ struct SupportManager_v
 			RemoveDictValue SupportObjects support_key
 
 			/*  DELETE BEAMS */
-			for beam_key in BeamObjects.keys where matchPattern support_key pattern:("*"+beam_key+"*") do
+			for beam_key in BeamObjects.keys where matchPattern beam_key pattern:("*"+support_key+"*") do
 				delete BeamObjects[beam_key].beam
 		)
 
@@ -602,8 +608,8 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
-		format "hierarchy: %\n" hierarchy
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		--format "hierarchy: %\n" hierarchy
 		--format "_objects: %\n" _objects
 		--format "type: %\n" type
 		--/** Is type support
@@ -712,13 +718,13 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
-			format "GET BY SUPPORTS\n"
+			--format "GET BY SUPPORTS\n"
 			--format "HIERARCHY: %\n" HIERARCHY
 
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			objects_by_type = deepCopy supports_and_rafts
+			--objects_by_type = deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then
@@ -893,6 +899,8 @@ struct SupportManager_v
 			SourceObjectData.value.setVertsPosBySupports()
 
 		bindSupportToTransformEvent( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
+		
+		bindBeamOnDeleteCallback( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
 	),
 
 	/** Load beam objects from scene

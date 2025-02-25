@@ -15,7 +15,7 @@ function bindBeamOnDeleteCallback objs =
 	else
 		append ON_DELETED_OBJECTS objs
 
-
+	--format "ON_DELETED_OBJECTS: %\n" ON_DELETED_OBJECTS
 	deleteAllChangeHandlers id:#onDeletedSupportOrBeamEvent
 
 	when ON_DELETED_OBJECTS deleted id:#onDeletedSupportOrBeamEvent obj do

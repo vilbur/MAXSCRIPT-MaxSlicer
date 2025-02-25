@@ -44,29 +44,9 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		--format "\n"; print "SupportObject_v.generateSupport()"
-		--format "support_obj: %\n" support_obj
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
-	
-		/** Set nide name
-		 */
-		function _setName vertex_index =
-		(
-			--format "\n"; print "SupportObject_v._getName()"
-			if source_obj != undefined then
-			(
-				support_name = substituteString source_obj.name "-source" ""
-		
-				if not matchPattern support_name pattern:("*-support*") then
-					support_name += "-support"
-				--support_name + "-support-" + vertex_index as string -- + "-" + index as string
-				support_name += "-"+ vertex_index as string
-		
-				support_obj.name = support_name --return
-			)
-		)
-		
-		--direction_vector = if direction == #DOWN then [0,0,-1] else direction
+		format "\n"; print "SupportObject_v.generateSupport()"
+		format "direction: %\n" direction
+		format "vector: %\n" vector
 			
 		
 		/* CREATE NEW OBJECT */ 
@@ -98,7 +78,7 @@ struct SupportObject_v
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
 		
-		_setName(vertex_index)
+		this._setName(vertex_index)
 		
 		this._isOnGround()
 
@@ -173,11 +153,13 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_leg:false direction: vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		format "first_knot_pos: %\n" first_knot_pos
-		format "update_leg: %\n" update_leg
-		format "direction: %\n" direction
-		format "vector: %\n" vector
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "updateSupport: %\n" (support_obj.name)
+		
+		--format "first_knot_pos: %\n" first_knot_pos
+		--format "update_leg: %\n" update_leg
+		--format "direction: %\n" direction
+		--format "vector: %\n" vector
 
 		/* GET 1st knot POSITION FROM LINE */ 
 		if classOf first_knot_pos != point3 then
@@ -191,12 +173,12 @@ struct SupportObject_v
 		
 		if vector != undefined and direction != undefined then 
 			this._updateSecondKnotPosition direction:direction vector:vector
-
+		
 		
 		/* GENERATE LEG FOR SUPPORT */ 
-		if obj_type == #SUPPORT and hit_raft == undefined then
+		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
-
+		
 			
 		this._setRightCountOfKnotsToSpline()
 		
@@ -209,7 +191,7 @@ struct SupportObject_v
 		this._setPivotToSecondPoint()
 		
 		this._alignPivotToSeconPoint()
-
+		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
@@ -271,7 +253,6 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
-		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
 
 		length_multiplier = if obj_type == #SUPPORT then 1 else 10
 		
@@ -283,6 +264,8 @@ struct SupportObject_v
 			first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
 
 
+		--limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
+		
 		--/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
 		--if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
 		--(
@@ -307,15 +290,15 @@ struct SupportObject_v
 	--function _updateSecondKnotPosition keep_direction_down:false =
 	function _updateSecondKnotPosition direction: vector:undefined =
 	(
-		format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
-		format "direction: %\n" direction
-		format "vector: %\n" vector
+		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		--format "direction: %\n" direction
+		--format "vector: %\n" vector
 		
 		/** Get zposition down
 		 */
 		function getZpositionDown =
 		(
-			format "\n"; print "SupportObject_v.getZpositionDown()"
+			--format "\n"; print "SupportObject_v.getZpositionDown()"
 			
 			second_point_pos = copy knots_positions[1]
 			
@@ -328,12 +311,40 @@ struct SupportObject_v
 		 */
 		function getPositionByVector vector =
 		(
-			format "\n"; print "SupportObject_v.getPositionByVector()"
+			--format "\n"; print "SupportObject_v.getPositionByVector()"
 			knots_positions[1] + ( (distance knots_positions[1] knots_positions[2]) * vector ) -- make raft longer by multiplying normal length 10x
 		)
 		
 		
-		--direction = getUserPropVal support_obj "DIRECTION" --return
+		
+		/** Keep second point bellow first
+		 */
+		function keepSecondPointBellowFirst first_point_pos second_point_pos =
+		(
+			--format "\n"; print "SupportObject_v.keepSecondPointBellowFirst()"
+			if second_point_pos.z >= first_point_pos.z then
+				second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width
+			
+			second_point_pos --return		
+		)
+		
+		/** Keep second point above ground
+		 */
+		function keepSecondPointAboveGround first_point_pos second_point_pos vector =
+		(
+			--format "\n"; print "SupportObject_v.keepSecondPointAboveGround()"
+			limit_height_to_base = SUPPORT_OPTIONS.base_height + 0.5 -- z pozition preserved for base points
+			
+			/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
+			if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
+			(
+				normal_length = abs ((first_point_pos.z - limit_height_to_base ) / vector.z)
+			
+				second_point_pos = first_point_pos + ( normal_length * vector)
+			)		
+			
+			second_point_pos --return
+		)
 		
 		first_point_pos  = knots_positions[1]
 		
@@ -349,24 +360,22 @@ struct SupportObject_v
 		
 		distance_of_points = distance first_point_pos second_point_pos
 
-		vector = normalize (second_point_pos - first_point_pos)
+		
+		/* KEEP SECOND POINT BELOW FIRST */
+		second_point_pos = keepSecondPointBellowFirst first_point_pos second_point_pos
+
+		/* KEEP SECOND POINT ABOVE GROUND */
+		second_point_pos = keepSecondPointAboveGround first_point_pos second_point_pos vector
 
 		
+		vector = normalize (second_point_pos - first_point_pos)
+
 		if ( hit_raft_pos = this._getRaftHitPosition vector distance_of_points ) != undefined then 
 			second_point_pos = hit_raft_pos
 		
-		--hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( vector )
-		--
-		--/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		--if hit_raft != undefined and distance first_point_pos hit_raft.pos > distance_of_points then
-		--	hit_raft = undefined
-		--
 		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (vector)
 		
-		/* KEEP SECOND POINT BELOW FIRST */
-		if second_point_pos.z >= first_point_pos.z then
-			second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width
-			
+
 		/* ADD SECOND POINT */
 		knots_positions[2] = second_point_pos
 	),
@@ -661,7 +670,7 @@ struct SupportObject_v
 	 */
 	function _alignPivotToSeconPoint =
 	(
-		format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
+		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 
 		--dir = normalize (support_obj.pos - knots_positions[1])
 		dir = normalize (knots_positions[1] - support_obj.pos)
@@ -704,7 +713,7 @@ struct SupportObject_v
 	 */
 	function _setPivotToSecondPoint =
 	(
-		format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
+		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 		support_obj.pivot = knots_positions[2]
 	),
 
@@ -768,6 +777,23 @@ struct SupportObject_v
 		HELPERS
 
 	--------------------------------------------------------------------------------*/
+	/** Set nide name
+	 */
+	function _setName vertex_index =
+	(
+		--format "\n"; print "SupportObject_v._getName()"
+		if source_obj != undefined then
+		(
+			support_name = substituteString source_obj.name "-source" ""
+	
+			if not matchPattern support_name pattern:("*-support*") then
+				support_name += "-support"
+			--support_name + "-support-" + vertex_index as string -- + "-" + index as string
+			support_name += "-"+ vertex_index as string
+	
+			support_obj.name = support_name --return
+		)
+	),
 	
 	/** Is on ground
 	 */

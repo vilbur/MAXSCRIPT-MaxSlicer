@@ -33,7 +33,7 @@ function onSupportTransformTimeoutCallback sender evt =
 		if selection.count > 0 then
 		(
 			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
-			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
+			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )  update_knot_2:false
 	
 			removeTimeout sender
 		)
@@ -97,7 +97,7 @@ function bindSupportToTransformEvent supports =
 			--print "!!!!!!!!! FIRED UPDATE"
 			--format "Update Supports: %\n" support.name
 
-			SUPPORT_MANAGER.updateSupports #( support )
+			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:false
 		)
 
 	)

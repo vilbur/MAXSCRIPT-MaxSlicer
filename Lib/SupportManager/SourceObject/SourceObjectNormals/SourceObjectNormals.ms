@@ -58,8 +58,8 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
-		format "verts: %\n" verts
+		--format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
+		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
 		
 		obj_pos	= obj.pos
@@ -68,12 +68,9 @@ struct SourceObjectNormals_v
 		if normals_world == undefined then
 			normals_world = deepCopy normals_local
 
-		for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
+		--for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
 			
 		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
-		
-		for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
-		
 	),
 	
 	/** Is vertex normal pointing DOWN or SIDE but not UP

@@ -308,7 +308,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		format "\n"; print "SupportManager_v.updateSourceObject()"
+		--format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
@@ -342,9 +342,9 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes direction:undefined =
+	function updateSupports support_nodes update_knot_2:true direction:undefined  =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
 		--format "support_nodes: %\n" support_nodes
 
@@ -355,7 +355,7 @@ struct SupportManager_v
 		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
 		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] direction:direction
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
 				
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
@@ -485,7 +485,7 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		format "\n"; print "SupportManager_v.updateShapes()"
+		--format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
 		(

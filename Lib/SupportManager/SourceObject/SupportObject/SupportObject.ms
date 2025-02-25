@@ -90,18 +90,8 @@ struct SupportObject_v
 
 		this._alignPivotToSeconPoint()
 
-	
 		SUPPORT_MANAGER.addSupportObjects (this)
 
-	
-		--/* SET USER DATA TO SUPPORT OBJECT */ 	
-		--support_key = (getHandleByAnim support_obj) as string
-		--
-		--setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
-		--
-		--setUserPropVal support_obj "DIRECTION" direction --asString:true
-		
-		
 		/* RETURN */ 
 		this
 	),
@@ -151,37 +141,43 @@ struct SupportObject_v
 	  * 
 	  * 
 	 */
-	function updateSupport first_knot_pos: update_leg:false direction: vector:undefined =
+	function updateSupport first_knot_pos: update_knot_2:true update_leg:false direction: vector:undefined =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
-		format "updateSupport: %\n" (support_obj.name)
+		--format "updateSupport: %\n" (support_obj.name)
 		
 		--format "first_knot_pos: %\n" first_knot_pos
-		--format "update_leg: %\n" update_leg
+		--format "update_knot_2: %\n" update_knot_2
 		--format "direction: %\n" direction
 		--format "vector: %\n" vector
 
 		/* GET 1st knot POSITION FROM LINE */ 
 		if classOf first_knot_pos != point3 then
-			knots_positions[1] = getKnotPoint support_obj spline_1 1
+			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
 		
+
 		/* ADD POINTS */
-		knots_positions[1] = first_knot_pos
-		knots_positions[2] = support_obj.pos
+		knots_positions = #( first_knot_pos, support_obj.pos )
+		
+		--knots_positions[1] = first_knot_pos
+		--knots_positions[2] = support_obj.pos
 
 		
-		if vector != undefined and direction != undefined then 
+		--if vector != undefined and direction != undefined then
+		
+		if update_knot_2 then
 			this._updateSecondKnotPosition direction:direction vector:vector
-		
-		
+
+
 		/* GENERATE LEG FOR SUPPORT */ 
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
 		
-			
-		this._setRightCountOfKnotsToSpline()
 		
+		--format "KNOTS_POSITIONS: %\n" KNOTS_POSITIONS
+		this._setRightCountOfKnotsToSpline()
+
 		this._updateLine()
 		
 		this._isOnGround()
@@ -192,6 +188,7 @@ struct SupportObject_v
 		
 		this._alignPivotToSeconPoint()
 		
+
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
@@ -264,16 +261,11 @@ struct SupportObject_v
 			first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
 
 
-		--limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
-		
-		--/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
-		--if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
-		--(
-		--	normal_length = abs ((first_knot_pos.z - limit_height_to_base ) / direction.z)
-		--
-		--	second_point_pos = first_knot_pos + ( normal_length * direction)
-		--)
-	
+		/* KEEP SECOND POINT BELOW FIRST */
+		--second_point_pos = this._keepSecondPointBellowFirst first_knot_pos second_point_pos
+
+		/* KEEP SECOND POINT ABOVE GROUND */
+		--second_point_pos = this._keepSecondPointAboveGround first_knot_pos second_point_pos vector
 		
 		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (direction)
 
@@ -316,37 +308,7 @@ struct SupportObject_v
 		)
 		
 		
-		
-		/** Keep second point bellow first
-		 */
-		function keepSecondPointBellowFirst first_point_pos second_point_pos =
-		(
-			--format "\n"; print "SupportObject_v.keepSecondPointBellowFirst()"
-			if second_point_pos.z >= first_point_pos.z then
-				second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width
-			
-			second_point_pos --return		
-		)
-		
-		/** Keep second point above ground
-		 */
-		function keepSecondPointAboveGround first_point_pos second_point_pos vector =
-		(
-			--format "\n"; print "SupportObject_v.keepSecondPointAboveGround()"
-			limit_height_to_base = SUPPORT_OPTIONS.base_height + 0.5 -- z pozition preserved for base points
-			
-			/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
-			if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
-			(
-				normal_length = abs ((first_point_pos.z - limit_height_to_base ) / vector.z)
-			
-				second_point_pos = first_point_pos + ( normal_length * vector)
-			)		
-			
-			second_point_pos --return
-		)
-		
-		first_point_pos  = knots_positions[1]
+		first_knot_pos  = knots_positions[1]
 		
 		second_point_pos = if vector != undefined then
 								case direction of
@@ -356,24 +318,23 @@ struct SupportObject_v
 								)
 							else
 								knots_positions[2]
-		
-		
-		distance_of_points = distance first_point_pos second_point_pos
-
-		
+								
+								
 		/* KEEP SECOND POINT BELOW FIRST */
-		second_point_pos = keepSecondPointBellowFirst first_point_pos second_point_pos
+		second_point_pos = this._keepSecondPointBellowFirst first_knot_pos second_point_pos
 
 		/* KEEP SECOND POINT ABOVE GROUND */
-		second_point_pos = keepSecondPointAboveGround first_point_pos second_point_pos vector
+		second_point_pos = this._keepSecondPointAboveGround first_knot_pos second_point_pos vector
 
 		
-		vector = normalize (second_point_pos - first_point_pos)
+		distance_of_points = distance first_knot_pos second_point_pos
+		
+		vector = normalize (second_point_pos - first_knot_pos)
 
 		if ( hit_raft_pos = this._getRaftHitPosition vector distance_of_points ) != undefined then 
 			second_point_pos = hit_raft_pos
 		
-		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (vector)
+		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (vector)
 		
 
 		/* ADD SECOND POINT */
@@ -486,6 +447,7 @@ struct SupportObject_v
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
 
+		--format "HIT_SUPPORT: %\n" hit_support
 		--is_on_ground = hit_support == undefined
 		--hit_support == undefined
 
@@ -506,7 +468,36 @@ struct SupportObject_v
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
 	),
-
+	
+	/** Keep second point bellow first
+	 */
+	function _keepSecondPointBellowFirst first_knot_pos second_point_pos =
+	(
+		--format "\n"; print "SupportObject_v.keepSecondPointBellowFirst()"
+		if second_point_pos.z >= first_knot_pos.z then
+			second_point_pos.z = first_knot_pos.z -- SUPPORT_OPTIONS.bar_width
+		
+		second_point_pos --return		
+	),
+	
+	/** Keep second point above ground
+	 */
+	function _keepSecondPointAboveGround first_knot_pos second_point_pos vector =
+	(
+		--format "\n"; print "SupportObject_v.keepSecondPointAboveGround()"
+		limit_height_to_base = SUPPORT_OPTIONS.base_height + 0.5 -- z pozition preserved for base points
+		
+		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
+		if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
+		(
+			normal_length = abs ((first_knot_pos.z - limit_height_to_base ) / vector.z)
+		
+			second_point_pos = first_knot_pos + ( normal_length * vector)
+		)		
+		
+		second_point_pos --return
+	),
+	
 	/** Get knots postions from existing line
 	  * 
 	  * 1) SUPPORT > RAFT 

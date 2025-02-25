@@ -287,13 +287,13 @@ struct BeamGenerator_v
 	 */
 	function _filterSupportsByCountOfBeams max_connections &supports =
 	(
-		format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
-		format "max_connections: %\n" max_connections
+		--format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
+		--format "max_connections: %\n" max_connections
 		for support in supports do
 		(
 			beams_of_supports = SUPPORT_MANAGER.getObjectsByType support type:#BEAM
-			format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports
-			format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports.count
+			--format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports
+			--format "BEAMS_OF_SUPPORTS: %\n" beams_of_supports.count
 		)
 
 		if classOf max_connections == integer and max_connections > 0 then

@@ -42,7 +42,7 @@ struct SupportObject_v
 	  * @param #DOWN|point3	direction	vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:#DOWN wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
+	function generateSupport vertex_index first_knot_pos: direction:#DOWN vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
 		--format "support_obj: %\n" support_obj
@@ -66,7 +66,7 @@ struct SupportObject_v
 			)
 		)
 		
-		direction_vector = if direction == #DOWN then [0,0,-1] else direction
+		--direction_vector = if direction == #DOWN then [0,0,-1] else direction
 			
 		
 		/* CREATE NEW OBJECT */ 
@@ -78,7 +78,7 @@ struct SupportObject_v
 			
 			
 		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
-		if direction_vector.z > -0.25 then direction_vector.z = -0.25
+		if vector.z > -0.25 then vector.z = -0.25
 
 		
 		/* ADD FIRST POINT */
@@ -86,7 +86,7 @@ struct SupportObject_v
 	
 
 		/* SET RAFT PART of support */ 
-		this._setSecondKnotPosition(first_knot_pos)(direction_vector)
+		this._setSecondKnotPosition(first_knot_pos)(vector)
 		--format "first_knot_pos: %\n" first_knot_pos
 		--format "HIT_RAFT: %\n" hit_raft
 
@@ -94,7 +94,6 @@ struct SupportObject_v
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegKnotPositions()
 
-		
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
@@ -115,12 +114,12 @@ struct SupportObject_v
 		SUPPORT_MANAGER.addSupportObjects (this)
 
 	
-		/* SET USER DATA TO SUPPORT OBJECT */ 	
-		support_key = (getHandleByAnim support_obj) as string
-
-		setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
-
-		setUserPropVal support_obj "DIRECTION" direction --asString:true
+		--/* SET USER DATA TO SUPPORT OBJECT */ 	
+		--support_key = (getHandleByAnim support_obj) as string
+		--
+		--setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
+		--
+		--setUserPropVal support_obj "DIRECTION" direction --asString:true
 		
 		
 		/* RETURN */ 
@@ -172,50 +171,34 @@ struct SupportObject_v
 	  * 
 	  * 
 	 */
-	function updateSupport first_knot_pos: update_knot_2:false update_leg:false =
+	function updateSupport first_knot_pos: update_leg:false direction: vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "update_direction: %\n" update_direction
-		--format "SUPPORT: %\n" support_obj.name
-		--format "first_knot_pos: %\n" first_knot_pos
-		--format "update_knot_2: %\n" update_knot_2
-		--format "update_leg: %\n" update_leg
+		format "\n"; print "SupportObject_v.updateSupport()"
+		format "first_knot_pos: %\n" first_knot_pos
+		format "update_leg: %\n" update_leg
+		format "direction: %\n" direction
+		format "vector: %\n" vector
 
-		direction = getUserPropVal support_obj "DIRECTION"
-		--format "DIRECTION: %\n" direction
+		/* GET 1st knot POSITION FROM LINE */ 
+		if classOf first_knot_pos != point3 then
+			knots_positions[1] = getKnotPoint support_obj spline_1 1
 		
-			--direction = if direction == #DOWN then [0,0,-1] else direction_prop
-		
-		--format "DIRECTION: %\n" direction
-		--knots_positions[1] = getKnotPoint support_obj spline_1 1
 		
 		/* ADD POINTS */
 		knots_positions[1] = first_knot_pos
 		knots_positions[2] = support_obj.pos
 
-		/* GET 1st knot POSITION FROM LINE */ 
-		if classOf first_knot_pos != point3 then
-			knots_positions[1] = getKnotPoint support_obj spline_1 1
+		
+		if vector != undefined and direction != undefined then 
+			this._updateSecondKnotPosition direction:direction vector:vector
 
-		
-		/* UPDATE SECOND POINT */ 
-		if update_knot_2 or direction == #DOWN then
-			this._updateSecondKnotPosition keep_direction_down:( direction == #DOWN )
-		
 		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportLegKnotPositions()
+
 			
-			
-		/* SET CORECT NUMBER OF KNOTS ON OBJECT */ 
-		if (num_knots = numKnots support_obj spline_1) != knots_positions.count then
-			case of
-			(
-				(num_knots < knots_positions.count): this._addKnots()
-				(num_knots > knots_positions.count): this._removeKnots()
-			)
-		
+		this._setRightCountOfKnotsToSpline()
 		
 		this._updateLine()
 		
@@ -225,7 +208,8 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
-		
+		this._alignPivotToSeconPoint()
+
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
@@ -266,6 +250,17 @@ struct SupportObject_v
 		getUserPropVal support_obj "RAFT_KEY" != undefined
 	),
 
+
+	--/** Get direction
+	-- */
+	--function getDirection =
+	--(
+	--	format "\n"; print "SupportObject_v.getDirection()"
+	--	format "support_obj: %\n" support_obj
+	--	format "TEST: %\n" (getUserPropVal support_obj "DIRECTION" asString:false )
+	--	getUserPropVal support_obj "DIRECTION" --return
+	--),
+
 	private
 
 	/** Set knots positions of raft part of support
@@ -285,7 +280,7 @@ struct SupportObject_v
 		second_point_pos = if ( hit_raft_pos = this._getRaftHitPosition direction SUPPORT_OPTIONS.normal_length ) != undefined then 
 			hit_raft_pos
 		else
-			first_knot_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
+			first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
 
 
 		--/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
@@ -309,16 +304,18 @@ struct SupportObject_v
 	  * Check if 2nd knot hits source object
 	  * 
 	 */
-	function _updateSecondKnotPosition keep_direction_down:false =
+	--function _updateSecondKnotPosition keep_direction_down:false =
+	function _updateSecondKnotPosition direction: vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
-		--format "keep_direction_down: %\n" keep_direction_down
+		format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		format "direction: %\n" direction
+		format "vector: %\n" vector
 		
 		/** Get zposition down
 		 */
 		function getZpositionDown =
 		(
-			--format "\n"; print "SupportObject_v.getZpositionDown()"
+			format "\n"; print "SupportObject_v.getZpositionDown()"
 			
 			second_point_pos = copy knots_positions[1]
 			
@@ -327,35 +324,51 @@ struct SupportObject_v
 			second_point_pos --return
 		)
 		
-		first_point_pos  = knots_positions[1]
-		--second_point_pos = knots_positions[2]
+		/** Get position down
+		 */
+		function getPositionByVector vector =
+		(
+			format "\n"; print "SupportObject_v.getPositionByVector()"
+			knots_positions[1] + ( (distance knots_positions[1] knots_positions[2]) * vector ) -- make raft longer by multiplying normal length 10x
+		)
 		
-		second_point_pos = if not keep_direction_down then knots_positions[2] else getZpositionDown()
-
+		
+		--direction = getUserPropVal support_obj "DIRECTION" --return
+		
+		first_point_pos  = knots_positions[1]
+		
+		second_point_pos = if vector != undefined then
+								case direction of
+								(
+									(#DOWN):   getZpositionDown()
+									(#NORMAL): getPositionByVector(vector)
+								)
+							else
+								knots_positions[2]
+		
+		
 		distance_of_points = distance first_point_pos second_point_pos
 
-		direction = normalize (second_point_pos - first_point_pos)
+		vector = normalize (second_point_pos - first_point_pos)
 
 		
-		if ( hit_raft_pos = this._getRaftHitPosition direction distance_of_points ) != undefined then 
+		if ( hit_raft_pos = this._getRaftHitPosition vector distance_of_points ) != undefined then 
 			second_point_pos = hit_raft_pos
 		
-		--hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( direction )
+		--hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( vector )
 		--
 		--/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		--if hit_raft != undefined and distance first_point_pos hit_raft.pos > distance_of_points then
 		--	hit_raft = undefined
 		--
-		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (direction)
+		second_point_pos = this._checkMinimalNormalLenght (first_point_pos) (second_point_pos) (vector)
 		
 		/* KEEP SECOND POINT BELOW FIRST */
 		if second_point_pos.z >= first_point_pos.z then
 			second_point_pos.z = first_point_pos.z -- SUPPORT_OPTIONS.bar_width
-			--second_point_pos.z = knots_positions[1].z - SUPPORT_OPTIONS.bar_width
 			
 		/* ADD SECOND POINT */
 		knots_positions[2] = second_point_pos
-		
 	),
 
 	/** Get secon point position
@@ -440,6 +453,19 @@ struct SupportObject_v
 	),
 
 
+
+	/** SET CORECT NUMBER OF KNOTS ON OBJECT
+	 */
+	function _setRightCountOfKnotsToSpline =
+	(
+		--format "\n"; print "SupportObject_v._setRightCountOfKnotsToSpline()"
+		if (num_knots = numKnots support_obj spline_1) != knots_positions.count then
+			case of
+			(
+				(num_knots < knots_positions.count): this._addKnots()
+				(num_knots > knots_positions.count): this._removeKnots()
+			)
+	),
 
 	/** Set knots of support`s leg part
 	 */
@@ -635,7 +661,7 @@ struct SupportObject_v
 	 */
 	function _alignPivotToSeconPoint =
 	(
-		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
+		format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 
 		--dir = normalize (support_obj.pos - knots_positions[1])
 		dir = normalize (knots_positions[1] - support_obj.pos)
@@ -678,7 +704,7 @@ struct SupportObject_v
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
+		format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 		support_obj.pivot = knots_positions[2]
 	),
 

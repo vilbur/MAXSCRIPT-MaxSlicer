@@ -35,7 +35,7 @@ struct SourceObjectNormals_v
 	 */
 	function setLocalVertexNormals verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		--format "VERTS A: %\n" verts
 		--normals_local = this._getLocalVertexNormalsByModifier(Supports.keys as BitArray )
 		this._initNormalsLocalArray()
@@ -43,6 +43,7 @@ struct SourceObjectNormals_v
 
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
 			normals_local = normals_local_loaded
+		
 		else
 			if not verts.isEmpty then
 				this._updateLocalVertexNormalsByModifier( verts )
@@ -57,8 +58,8 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
-		--format "verts: %\n" verts
+		format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
+		format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform

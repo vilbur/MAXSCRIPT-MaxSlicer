@@ -44,6 +44,8 @@ struct SourceObject_v
 
 		this.removeDeletedNodes()
 
+		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then #NORMAL else #DOWN
+					
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
 		--------------------------------------------------------------------------------*/
@@ -109,23 +111,22 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
-				format "SECOND_POINT_DIRECTION: %\n" second_point_direction
-				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] wirecolor:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+				vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+
+				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction vector:vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				if SupportObject.support_obj != undefined then
 				(
-					/* LINK SUPPORT TO SOURCE OBJECT */ 
-					SupportObject.support_obj.parent = obj
-		
 					/* ADD TO ARRAYS */
 					this.Supports[vert] = SupportObject
 		
-					/* SET USER DATA TO SUPPORT */ 
-					setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-					setUserPropVal SupportObject.support_obj "INDEX"	vert
-					
+					/* LINK SUPPORT TO SOURCE OBJECT */ 
+					SupportObject.support_obj.parent = obj
+		
+					/* SET USER DATA TO SUPPORT */
+					this._saveUserPropsToSupport (SupportObject) (sync_key) (vert) (obj_type) (direction)
+
 					append new_nodes SupportObject.support_obj
 				)
 			)
@@ -142,6 +143,24 @@ struct SourceObject_v
 		/* RETURN */
 		format "new_nodes: %\n" new_nodes
 		new_nodes
+	),
+	
+	/** Save user props to pport
+	 */
+	function _saveUserPropsToSupport SupportObject sync_key vert obj_type direction =
+	(
+		--format "\n"; print "SourceObject_v.saveUserPropsToPport()"
+			setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+			setUserPropVal SupportObject.support_obj "INDEX"	vert
+			
+			
+			/* SET USER DATA TO SUPPORT OBJECT */ 	
+			support_key = (getHandleByAnim SupportObject.support_obj) as string
+	
+			setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
+	
+			setUserPropVal SupportObject.support_obj "DIRECTION" direction --asString:true
+		
 	),
 
 	/** Rebuild support
@@ -162,7 +181,7 @@ struct SourceObject_v
 		if Normals.normals_local == undefined then
 			Normals.setLocalVertexNormals(verts_process)
 		
-		if Normals.normals_world == undefined then
+		--if Normals.normals_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts_process)
 
 		--format "normals_local[vert]: %\n" Normals.normals_local[vert]
@@ -224,29 +243,59 @@ struct SourceObject_v
 	  * 
 	  * 
 	 */
-	function updateSupports update_knot_1:true update_knot_2:true update_leg:true =
+	function updateSupports support_nodes: update_knot_1:true direction:undefined update_leg:true =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		--if update_direction then
-		--format "Supports.keys: %\n" Supports.keys
-			--Normals.setWorldSpaceVertexNormals (Supports.keys as BitArray )
+		format "direction: %\n" direction
 
+		--format "Supports.keys: %\n" Supports.keys
+		--format "Supports: %\n" Supports
+
+		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
-		for index in Supports.keys where not Supports[index].isRaft() do
+		format "SupportsToUpdate: %\n" SupportsToUpdate
+		
+		
+		if direction != #DOWN then
 		(
-		 
+			format "Normals.normals_local: %\n" Normals.normals_local
+			if Normals.normals_local == undefined then
+				--format "SupportsToUpdate.keys as BitArray: %\n" (SupportsToUpdate.keys as BitArray)
+				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
+				
+			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
+		)
+		
+		--for index in Supports.keys where not Supports[index].isRaft() do
+		for index in SupportsToUpdate.keys do
+		(
+			/* UPDATE 1st POINT */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 			
-			--Supports[index].updateSupport first_knot_pos:( verts_pos[index]) update_direction:true direction:direction 
-			Supports[index].updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 update_leg:update_leg 
+			----direction_saved = SupportsToUpdate[index].getDirection()
+			direction_saved = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
+			format "DIRECTION_SAVED: %\n" direction_saved
+			/* UPDATE SECOND POINT */ 
+			--if direction != undefined and direction != SupportsToUpdate[index].getDirection() then
+			if direction != undefined and direction != direction_saved then
+			(
+				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
+				
+				vector = if direction == #DOWN then [ 0, 0, -1] else Normals.normals_world[index]
+			)
+			
+			
+			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos update_leg:update_leg direction:direction vector:vector
 		)
+		
+		free SupportsToUpdate
 	),
 
 	/** Update single support
 	 */
-	function updateSupport support_node update_direction:false =
+	function updateSupport support_node update_direction: =
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
@@ -367,14 +416,33 @@ struct SourceObject_v
 	
 	private
 
-	/** Get normal or down direction
+	/** Get supports
 	 */
-	function _getNormalOrDownDirection vert =
+	function _getSupports support_nodes: =
 	(
-		--format "\n"; print "SourceObject_v._getNormalOrDownDirection()"
-		if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else #DOWN
+		--format "\n"; print "SourceObject_v._getSupports ()"
+		
+		if support_nodes != unsupplied then
+		(
+			SupportsFiltered = Dictionary #INTEGER
+			
+			for index in Supports.keys where findItem support_nodes Supports[index].support_obj > 0 do
+				SupportsFiltered[index] = Supports[index]
+			
+			SupportsFiltered --return
+		)
+		else
+			Supports --return
 	),
-	
+	--
+	--/** Get normal or down direction
+	-- */
+	--function _getNormalOrDownDirection vert =
+	--(
+	--	--format "\n"; print "SourceObject_v._getNormalOrDownDirection()"
+	--	if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1]
+	--),
+	--
 	/** Get verts by colors
 	 */
 	function _getVertsByColors =

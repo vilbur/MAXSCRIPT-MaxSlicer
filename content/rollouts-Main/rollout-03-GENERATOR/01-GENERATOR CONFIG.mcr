@@ -12,7 +12,7 @@ function resetSupports param: =
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
 		
 
-		pauseSupportToTransformEvent()
+		pauseSupportTransformEvent()
 		
 		
 		/*------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ function resetSupports param: =
 		
 		
 
-		resumeSupportToTransformEvent()
+		resumeSupportTransformEvent()
 		
 		--if selected_supports.count > 0 then
 		--(
@@ -87,7 +87,38 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 	
 		SUPPORT_OPTIONS.second_point_direction = EventFired.val
 		
-		resetSupports()
+		
+		_selection = for obj in selection collect obj
+
+		/* GET SELECTED SUPPORTS & RAFTS */ 
+		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		
+
+		pauseSupportTransformEvent()
+		
+		
+		/*------------------------------------------------------------------------------
+			REBUILD SELECTED SUPPORTS & RAFTS
+		--------------------------------------------------------------------------------*/
+		
+		
+		--if param == #NORMAL_LENGTH then 
+		--	SUPPORT_MANAGER.updateSupports(selected_supports)
+		--
+		--else
+		
+		
+			SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
+			--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts)
+			
+			--SUPPORT_MANAGER.resetSupports(selected_supports+selected_rafts)
+
+		
+
+		resumeSupportTransformEvent()
+		
+		
 	)
 )
 
@@ -128,6 +159,7 @@ icon:	"across:3|control:spinner|offset:[ 8, 20 ]|fieldwidth:24|range:[ 0.1, 999,
 		--)
 		--
 		SUPPORT_OPTIONS.normal_length = EventFired.val
+		
 		resetSupports()
 
 		--resetSupports param:#NORMAL_LENGTH

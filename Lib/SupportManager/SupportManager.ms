@@ -327,7 +327,7 @@ struct SupportManager_v
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_knot_2:false update_leg:true 
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_leg:true 
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 		)	
@@ -342,17 +342,22 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes =
+	function updateSupports support_nodes direction:undefined =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupports()"
+		--format "direction: %\n" direction
 		--format "support_nodes: %\n" support_nodes
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
-		for sync_key in supports_by_source.keys do
-			for support_node in supports_by_source[sync_key] do
-				SourceObjects[sync_key].updateSupport(support_node)
+		--for sync_key in supports_by_source.keys do
+		--	for support_node in supports_by_source[sync_key] do
+		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
+		for sync_key in supports_by_source.keys do
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] direction:direction
+				
+				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(supports_by_source.keys)
 
@@ -866,6 +871,9 @@ struct SupportManager_v
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
+				format "index: %\n" index
+				format "sync_key: %\n" sync_key
+				
 				--format "IS_ON_GROUND: %\n" IS_ON_GROUND
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
 				if SourceObjects[sync_key] != undefined then 

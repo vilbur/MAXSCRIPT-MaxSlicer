@@ -143,6 +143,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true update_leg:false direction: vector:undefined =
 	(
+		--format "\n"
 		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "updateSupport: %\n" (support_obj.name)
 		
@@ -160,24 +161,18 @@ struct SupportObject_v
 		/* ADD POINTS */
 		knots_positions = #( first_knot_pos, support_obj.pos )
 		
-		--knots_positions[1] = first_knot_pos
-		--knots_positions[2] = support_obj.pos
-
-		
-		--if vector != undefined and direction != undefined then
 		
 		if update_knot_2 then
 			this._updateSecondKnotPosition direction:direction vector:vector
-
-
+		
+		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
 		
 		
-		--format "KNOTS_POSITIONS: %\n" KNOTS_POSITIONS
 		this._setRightCountOfKnotsToSpline()
-
+		
 		this._updateLine()
 		
 		this._isOnGround()
@@ -187,8 +182,15 @@ struct SupportObject_v
 		this._setPivotToSecondPoint()
 		
 		this._alignPivotToSeconPoint()
-		
 
+
+		test_pos = ( getKnotPoint support_obj 1 1).x
+		
+		
+		--format "SUPPORT: % KNOT POS: %\n" support_obj.name ( test_pos)
+		
+		
+		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
@@ -321,10 +323,10 @@ struct SupportObject_v
 								
 								
 		/* KEEP SECOND POINT BELOW FIRST */
-		second_point_pos = this._keepSecondPointBellowFirst first_knot_pos second_point_pos
+		--second_point_pos = this._keepSecondPointBellowFirst first_knot_pos second_point_pos
 
 		/* KEEP SECOND POINT ABOVE GROUND */
-		second_point_pos = this._keepSecondPointAboveGround first_knot_pos second_point_pos vector
+		--second_point_pos = this._keepSecondPointAboveGround first_knot_pos second_point_pos vector
 
 		
 		distance_of_points = distance first_knot_pos second_point_pos
@@ -334,7 +336,7 @@ struct SupportObject_v
 		if ( hit_raft_pos = this._getRaftHitPosition vector distance_of_points ) != undefined then 
 			second_point_pos = hit_raft_pos
 		
-		second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (vector)
+		--second_point_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_point_pos) (vector)
 		
 
 		/* ADD SECOND POINT */
@@ -679,23 +681,44 @@ struct SupportObject_v
 		tm  = support_obj.transform
 		vec = normalize vec
 		dir = normalize dir
-
+		
 		angle_vectors = acos (dot vec dir) -- get angle between
 
-		axis_of_plane_defined_by_vectors = normalize (cross dir vec)
-
-		rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
-
-		tempObjTM = Translate ( Rotate ( ScaleMatrix  tm.scale) (tm.rotation*rtm))  tm.pos
-
-		WorldAlignPivot support_obj
-
-		rot = Inverse tempObjTM.rotation
-
-		in coordsys local support_obj.rotation *= rot
-
-		support_obj.objectoffsetrot *= rot
-		support_obj.objectoffsetpos *= rot
+		
+		/**
+			PROBLEM:
+				sometimes acos() returns -nan(ind) 
+		  
+			IT CAUSES ERROR AND MAKES SUPPORT DISSAPEAR
+		  
+			WORKAROUND:
+				Check if acos() returns number
+		  
+		*/
+		
+		if ( (angle_vectors as string ) as float ) != undefined then
+		(
+			axis_of_plane_defined_by_vectors = normalize (cross dir vec)
+	
+			rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
+	
+			tempObjTM = Translate ( Rotate ( ScaleMatrix  tm.scale) (tm.rotation*rtm)) tm.pos
+			--format "tempObjTM: %\n" tempObjTM
+			WorldAlignPivot support_obj
+	
+			rot = Inverse tempObjTM.rotation
+	
+			in coordsys local support_obj.rotation *= rot
+	
+			support_obj.objectoffsetrot *= rot
+			support_obj.objectoffsetpos *= rot
+			
+		)
+		else
+		(
+			--format "\n"; format "SupportObject_v._alignPivotToSeconPoint() %" support_obj.name
+			--format " ANGLE_VECTORS: %\n" angle_vectors
+		)
 
 		--support_obj.pivot = p1
 	),

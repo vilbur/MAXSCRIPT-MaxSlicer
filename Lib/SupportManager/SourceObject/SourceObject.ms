@@ -236,10 +236,7 @@ struct SourceObject_v
 	--------------------------------------------------------------------------------*/
 
 
-	/** Update all supports of source objects
-	  * 
-	  * 
-	  * 
+	/** Update supports of source objects
 	  * 
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined update_leg:true =
@@ -273,30 +270,19 @@ struct SourceObject_v
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 			
-			----direction_saved = SupportsToUpdate[index].getDirection()
-			--direction_saved = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
-			--format "DIRECTION_SAVED: %\n" direction_saved
-			
 			/* UPDATE SECOND POINT */ 
 			--if direction != undefined and direction != SupportsToUpdate[index].getDirection() then
 			--if direction != undefined and direction != direction_saved then
 			--if direction == #NORMAL or (direction != undefined and direction != direction_saved) then
+		
 			
+			if direction != undefined then 
+				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
+			else
+				direction = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
 			
-			
-			(
-				
-				if direction != undefined then 
-					setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
-				else
-					direction = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
-
-				
-				
-				vector = if direction == #DOWN then [ 0, 0, -1] else Normals.normals_world[index]
-			)
-			
-			
+			vector = if direction == #DOWN then [ 0, 0, -1] else Normals.normals_world[index]
+	
 			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos direction:direction vector:vector update_leg:update_leg update_knot_2:update_knot_2
 		)
 		

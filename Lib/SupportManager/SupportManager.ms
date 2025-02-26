@@ -327,7 +327,7 @@ struct SupportManager_v
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_leg:true 
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false  update_knot_2:false update_leg:true 
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 		)	

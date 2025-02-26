@@ -52,6 +52,8 @@ function onSourceObjectTransform sender evt =
 		if what_to_update != #POSITION_XY then
 			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
 		
+		
+		
 		for obj in source_objects do 
 			SOURCE_OBJECT_TRANSFORM._setTransformData(obj)
 				

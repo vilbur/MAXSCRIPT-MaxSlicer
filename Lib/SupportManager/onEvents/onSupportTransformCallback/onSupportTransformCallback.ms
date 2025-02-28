@@ -33,7 +33,7 @@ function onSupportTransformTimeoutCallback sender evt =
 		if selection.count > 0 then
 		(
 			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
-			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )  update_knot_2:false
+			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:false direction:#CUSTOM
 	
 			removeTimeout sender
 		)
@@ -80,8 +80,12 @@ function bindSupportToTransformEvent supports =
 
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
-
-		--if selection.count > 2 then
+		
+		
+		
+		/*------------------------------------------------------------------------------
+			ON MULTIPLE SUPPORTS TRANSFORM
+		--------------------------------------------------------------------------------*/
 		if selection.count > 1 then
 		(
 
@@ -91,13 +95,18 @@ function bindSupportToTransformEvent supports =
 			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
 
 		)
-		/* ON SINGLE SUPPORT TRANSFORM */
+		/*------------------------------------------------------------------------------
+			ON SINGLE SUPPORT TRANSFORM
+		--------------------------------------------------------------------------------*/
 		else if support.isSelected then
 		(
 			--print "!!!!!!!!! FIRED UPDATE"
 			--format "Update Supports: %\n" support.name
 
-			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:false
+			if support.pos.z < (SUPPORT_OPTIONS.base_height * 2) then
+				support.pos.z = (SUPPORT_OPTIONS.base_height * 2)
+			
+			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:false direction:#CUSTOM
 		)
 
 	)

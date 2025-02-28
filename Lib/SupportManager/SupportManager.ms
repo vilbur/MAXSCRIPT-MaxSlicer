@@ -327,7 +327,7 @@ struct SupportManager_v
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false  update_knot_2:false update_leg:true 
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_knot_2:false 
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 		)	
@@ -342,7 +342,7 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes update_knot_2:true direction:undefined  =
+	function updateSupports support_nodes update_knot_2:true direction:undefined =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
@@ -368,7 +368,7 @@ struct SupportManager_v
 	 */
 	function resetSupports support_nodes =
 	(
-		--format "\n"; print "SupportManager_v.resetSupports()"
+		format "\n"; print "SupportManager_v.resetSupports()"
 		--format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)

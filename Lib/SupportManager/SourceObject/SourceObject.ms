@@ -111,9 +111,9 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
-				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction vector:vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
+				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				if SupportObject.support_obj != undefined then
@@ -191,7 +191,7 @@ struct SourceObject_v
 			verts_pos = this.getVertsPositions(#{vert})
 
 		
-		direction = this._getNormalOrDownDirection(vert) -- direction NORMAL|DOWN
+		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 		--format "direction: %\n" direction
 
 		SupportObject = Supports[vert]
@@ -199,6 +199,7 @@ struct SourceObject_v
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_support	= undefined
 		
+		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wiredir_vectorcolor
  	),
 
 	/** Convert support to raft or vice versa
@@ -239,9 +240,10 @@ struct SourceObject_v
 	/** Update supports of source objects
 	  * 
 	 */
-	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined updated_by_source_object:false =
+	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
+		--format "direction: %\n" direction
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
@@ -255,18 +257,26 @@ struct SourceObject_v
 			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
 		)
 		
+		direction_param     = copy direction
+		update_knot_2_param = copy direction
+		
 		/*------------------------------------------------------------------------------
 			UPDATE EACH SUPPORT
 		--------------------------------------------------------------------------------*/
 		for index in SupportsToUpdate.keys do
 		(
+			direction = direction_param
+			direction = update_knot_2_param
+			
 			/* LAOD CURRENT DIRECTION */ 
 			current_direction = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
 		
-			/* SAVE CURRENT DIRECTION */ 
-			if direction != undefined then 
-				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
-
+			/* SAVE CURRENT DIRECTION */
+			
+			--if direction != undefined then 
+				--setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
+				
+				
 			/* UPDATE 1st POINT */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
@@ -280,17 +290,20 @@ struct SourceObject_v
 			)
 			
 			/* GET VECTOR  */ 
-			case direction of
+			dir_vector = case direction of
 			(
-				(#DOWN):   vector = [ 0, 0, -1 ]
-				(#NORMAL): vector = Normals.normals_world[index]
-				(#CUSTOM): direction = undefined
-				default: undefined
+				(#DOWN):   [ 0, 0, -1 ]
+				(#NORMAL): Normals.normals_world[index]
 			)
+			/* SAVE CURRENT DIRECTION */ 
+			if not ( direction == #CUSTOM and current_direction == #DOWN and SupportsToUpdate[index].isVectorPointingDown() ) then 
+				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
 			
+			if direction == #CUSTOM then
+				direction = undefined
 
 			/* UPDATE SUPPORT */ 
-			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:direction vector:vector
+			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:direction dir_vector:dir_vector
 		)
 		
 		free SupportsToUpdate

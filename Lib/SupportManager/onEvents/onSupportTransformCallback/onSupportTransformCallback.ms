@@ -33,9 +33,12 @@ function onSupportTransformTimeoutCallback sender evt =
 		if selection.count > 0 then
 		(
 			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
-			SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:false direction:#CUSTOM
-	
-			removeTimeout sender
+			if not mouse.buttonStates[1] then
+			(
+				SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:false direction:#CUSTOM
+		
+				removeTimeout sender
+			)
 		)
 		else if selection.count == 0 then
 			removeTimeout sender
@@ -48,8 +51,8 @@ function startSupportTransformTimeout =
 (
 	--format "\n"; print "onSupportTransformCallback.ms.startSupportTransformTimeout()"
 	--delay_ms = 3000
-	delay_ms = 1000
-	--delay_ms = 100
+	--delay_ms = 1000
+	delay_ms = 100
 
 	delay_timer = dotNetObject "Windows.Forms.Timer"
 

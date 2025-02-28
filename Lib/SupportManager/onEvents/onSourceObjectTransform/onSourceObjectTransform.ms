@@ -63,3 +63,8 @@ function onSourceObjectTransform sender evt =
 		resumeSupportTransformEvent()
 	)
 )
+
+
+fn roundFloat val = ( local mult = 10.0 ^ 3; (floor ((val * mult) + 0.5)) / mult )
+
+roundFloat 0.123456789

@@ -1,3 +1,4 @@
+
 /** Generate support or raft
  */
 function generateSupportsOrRafts obj_type: =
@@ -48,11 +49,11 @@ function generateSupportsOrRafts obj_type: =
 		if  obj_type == #SUPPORT and selected_supports.count > 0 \
 		or obj_type == #RAFT    and selected_rafts.count    > 0 then
 		(
-			pauseSupportToTransformEvent()
+			pauseSupportTransformEvent()
 		
 			SUPPORT_MANAGER.resetSupports(selected_supports) obj_type:obj_type
 		
-			resumeSupportToTransformEvent()
+			resumeSupportTransformEvent()
 		)
 		--
 		--if obj_type == #RAFT and selected_rafts.count > 0 then

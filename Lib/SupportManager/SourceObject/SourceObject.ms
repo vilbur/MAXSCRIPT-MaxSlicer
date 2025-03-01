@@ -24,9 +24,9 @@ struct SourceObject_v
 	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
 	--direction_down = [0,0,-1],
-	/* dependency */
 
-	VertexColors,	--"./../../VertexColors/VertexColors.ms"
+	/* dependency */
+	VertexColors,	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 	Normals,	--"./SourceObjectNormals/SourceObjectNormals.ms"
 
 	/* reference */
@@ -36,8 +36,8 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		format "\n"; print "SourceObject_v.generateSupports()"
-		format "obj: %\n" obj
+		--format "\n"; print "SourceObject_v.generateSupports()"
+		--format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
 		new_nodes = #()
@@ -150,56 +150,69 @@ struct SourceObject_v
 	function _saveUserPropsToSupport SupportObject sync_key vert obj_type direction =
 	(
 		--format "\n"; print "SourceObject_v.saveUserPropsToPport()"
-			setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-			setUserPropVal SupportObject.support_obj "INDEX"	vert
-			
-			
-			/* SET USER DATA TO SUPPORT OBJECT */ 	
-			support_key = (getHandleByAnim SupportObject.support_obj) as string
-	
-			setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
-	
-			setUserPropVal SupportObject.support_obj "DIRECTION" direction --asString:true
+		setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+		setUserPropVal SupportObject.support_obj "INDEX"	vert
 		
+		
+		/* SET USER DATA TO SUPPORT OBJECT */ 	
+		support_key = (getHandleByAnim SupportObject.support_obj) as string
+
+		setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
+
+		setUserPropVal SupportObject.support_obj "DIRECTION" direction --asString:true
 	),
 
-	/** Rebuild support
+	/** Reset supports
 	 */
-	function resetSupport support_node =
+	function resetSupports support_nodes =
 	(
-		format "\n"; print ("SourceObject_v.resetSupport( "+support_node.name+" )")
-		--format "Normals.normals_local: %\n" Normals.normals_local
-		--format "Normals.normals_world: %\n" Normals.normals_world
-		--format "support_node.name: %\n" support_node.name
-		vert = getUserPropVal support_node "INDEX"
-
-		wirecolor = VertexColors._getVertColor(vert)
-		--format "wirecolor: %\n" wirecolor
-		verts_process = #{vert}
-
+		format "\n"; print "SourceObject_v.resetSupports()"
+		format "support_nodes: %\n" support_nodes
 		
+
+		/* GET SUPPORTS TO RESET */ 
+		SupportsToReset = this._getSupports support_nodes:support_nodes
+		
+		verts = SupportsToReset.keys as BitArray
+				
+		--colors_by_verts = VertexColors.getVertsAndColors verts:( verts ) flat:true
+		VertexColors.getVertsAndColors verts:( verts ) 
+
 		if Normals.normals_local == undefined then
-			Normals.setLocalVertexNormals(verts_process)
+			Normals.setLocalVertexNormals(verts)
 		
 		--if Normals.normals_world == undefined then
-			Normals.setWorldSpaceVertexNormals(verts_process)
+			Normals.setWorldSpaceVertexNormals(verts)
 
-		--format "normals_local[vert]: %\n" Normals.normals_local[vert]
-		--format "normals_world[vert]: %\n" Normals.normals_world[vert]
+		this.getVertsPositions(verts)
+		--format "verts_pos: %\n" verts_pos
 		
-		if verts_pos == undefined then
-			verts_pos = this.getVertsPositions(#{vert})
-
+		--format "colors_by_verts: %\n" colors_by_verts
+		
+		for vert in SupportsToReset.keys do 
+			this.resetSupport SupportsToReset[vert] vert
+	),
+	
+	/** Re-generate support using (same) support node
+	 */
+	function resetSupport SupportObject vert =
+	(
+		format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
+		
+		format "SupportObject: %\n" SupportObject
+		format "vert: %\n" vert
+		
+		--format "wirecolor: %\n" wirecolor
 		
 		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
-		--format "direction: %\n" direction
 
-		SupportObject = Supports[vert]
-		
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_support	= undefined
 		
-		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wiredir_vectorcolor
+		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(vert)
+		
+		/* REBUILD SUPPORT */ 
+		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wirecolor
  	),
 
 	/** Convert support to raft or vice versa
@@ -384,7 +397,11 @@ struct SourceObject_v
 		/* TODO: DELETE BEAMS ? */
 	),
 	
-	/** Set verts positions
+	/** Get verts positions
+	  * 
+	  * NOTEICE: undefined item is returned if vert is not in verts param
+	  * 
+	  * @return array of verts positions where index of item is vert index
 	 */
 	function getVertsPositions verts =
 	(
@@ -395,29 +412,27 @@ struct SourceObject_v
 		--format "all_verts: %\n" all_verts
 		--format "all_verts.numberSet: %\n" all_verts.numberSet
 		--format "verts.numberSet: %\n" verts.numberSet
-		timer__getVertsPositions = timeStamp()
 
 		if verts_pos == undefined then
-			this.verts_pos = all_verts as Array
+		(
+			this.verts_pos = #()
+			
+			this.verts_pos[all_verts.count] = undefined
+		)
+		
+		verts_array = verts as Array
 
 		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
 		--format "verts_process_pos: %\n" verts_process_pos
 
 		for i = 1 to verts_process_pos.count do
 		(
-			vert = (verts  as Array )[i]
-			--format "vert: %\n" vert
+			vert = verts_array[i]
 
 			verts_pos[vert] = verts_process_pos[i]
 		)
 
-		--format "getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
-
 		verts_pos --return
-
-		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-
-		--verts_pos --return
 	),
 	
 	/** Remove deleted nodes
@@ -448,15 +463,7 @@ struct SourceObject_v
 		else
 			deepCopy Supports --return
 	),
-	--
-	--/** Get normal or down direction
-	-- */
-	--function _getNormalOrDownDirection vert =
-	--(
-	--	--format "\n"; print "SourceObject_v._getNormalOrDownDirection()"
-	--	if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1]
-	--),
-	--
+	
 	/** Get verts by colors
 	 */
 	function _getVertsByColors =

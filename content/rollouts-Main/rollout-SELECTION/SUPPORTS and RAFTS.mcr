@@ -24,8 +24,7 @@ function selectSupportsByBeamsCount count =
 macroscript	maxtoprint_select_verts_by_supports
 category:	"maxtoprint"
 buttontext:	"SUPPORT ↔ VERT"
-toolTip:	"Select verts of source object which belongs to selected supports"
-icon:	"across:4"
+icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 (
 
 	/** Select supports by vert
@@ -82,7 +81,9 @@ icon:	"across:4"
 
 			verts_hidden = polyop.getHiddenVerts obj
 
-			polyop.setHiddenVerts obj (verts_hidden - indexes )
+			polyop.unHideAllVerts obj
+
+			polyop.setHiddenVerts obj ( verts_hidden - indexes )
 
 			obj.SetSelection #VERTEX indexes
 

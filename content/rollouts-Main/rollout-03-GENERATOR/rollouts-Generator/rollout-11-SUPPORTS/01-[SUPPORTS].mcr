@@ -71,7 +71,7 @@ macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|width:90|offset:[ 8, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|scale:1|width:90|offset:[ 8, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(

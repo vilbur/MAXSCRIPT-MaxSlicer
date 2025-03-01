@@ -24,7 +24,7 @@
 - **Live update** of supports when position of model is changed  
 - Manage visibility and selection of print helpers
 
-- Use vertex colors for placing supports
+- Vertex colors are used for placing supports
 
 
 

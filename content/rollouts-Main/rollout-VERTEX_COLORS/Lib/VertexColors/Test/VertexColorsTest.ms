@@ -114,7 +114,7 @@ function selectVerts obj verts =
 	CREATE TEST OBJECTS
 	
 --------------------------------------------------------------------------------*/
---global obj
+global obj
 
 obj = if selection.count != 0 then selection[1] else
 (
@@ -169,11 +169,15 @@ VertexColors = VertexColors_v(obj)
 
 
 /* GET ALL VERTS SORTED BY COLORS */
-timer_get_all_colors = timeStamp()
-all_verts_by_colors = VertexColors.getVertsAndColors()
-format "get_all_colors: % ms\n" (( timeStamp()) - timer_get_all_colors)
+--all_verts_by_colors = VertexColors.getVertsAndColors()
 
-for color_data in all_verts_by_colors do format "COLOR: %	VERTS: %\n" color_data.key color_data.value
+/* print result */ 
+--for color_data in all_verts_by_colors do format "COLOR: %	VERTS: %\n" color_data.key color_data.value
+
+/* GET COLORS OF ALL VERTS SORTED BY VERT */
+all_verts_by_colors_flat = VertexColors.getVertsAndColors flat:true
+format "all_verts_by_colors_flat: %\n" all_verts_by_colors_flat
+
 
 ----/* GET ALL VERTS SORTED BY COLORS OF SELECTED VERTS */
 --verts_by_selected_colors = VertexColors.getVertsAndColors verts:vertex_sel

@@ -9,7 +9,7 @@ struct ModifiersManager_v
 
 	/* required */
 	_objects,
-	--_objects_exists,
+	--objects_exists,
 
 
 	/* properties */
@@ -24,29 +24,28 @@ struct ModifiersManager_v
 	/** Add modifiers
 	  *
 	  */
-	function addModifiers _objects obj_type:#SUPPORT _objects_exists:#() =
+	function addModifiers _objects obj_type:#SUPPORT objects_exists:#() =
 	(
-		--format "\n-----------------------------------------\n"
-		--format "\n"; print "ModifiersManager_v.addModifiers()"
-		--format "_objects: %\n" _objects
-		--format "_objects_exists: %\n" _objects_exists
+		format "\n-----------------------------------------\n"
+		format "\n"; print "ModifiersManager_v.addModifiers()"
+		format "_objects: %\n" _objects
+		format "objects_exists: %\n" objects_exists
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
+		
+		this._objects =	_objects
 
 		if SupportModifiers[#DEFAULT] == undefined then
 			SupportModifiers[#DEFAULT] = SupportModifiers_v()
 
-		--format "SupportModifiers: %\n" SupportModifiers[#DEFAULT]
 		
+		--objects_exists = for obj in objects_exists where isValidNode obj collect obj
+
 		
-		_objects_exists = for obj in _objects_exists where isValidNode obj collect obj
-		--format "_objects_exists: %\n" _objects_exists
+		--support_with_modifiers	= (this._getSupportsWithModfiers(objects_exists))[1]
 
-		this._objects =	_objects
-
-		--support_with_modifiers	= (this._getSupportsWithModfiers(_objects_exists))[1]
-
-		if _objects_exists.count == 0 then
+		if objects_exists.count == 0 then
 		(
+			format "ADD NEW MODIFIERS\n"
 			select _objects
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
@@ -73,7 +72,7 @@ struct ModifiersManager_v
 			this._setSweepRadius (_objects[1])
 		)
 		else
-			this._copyModifiers _objects_exists[1] ((this._getSupportsWithModfiers(_objects_exists))[1].modifiers)
+			this._copyModifiers objects_exists[1] _objects ((this._getSupportsWithModfiers(objects_exists))[1].modifiers)
 	),
 
 	/** Sweep radius must be set when modifier is added to object
@@ -97,37 +96,33 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key =
 	(
-		--format "\n"; print "ModifiersManager_v.updateModifier()"
-		--format "_objects: %\n" _objects
-		--format "prop_key: %\n" prop_key
+		format "\n"; print "ModifiersManager_v.updateModifier()"
+		format "_objects: %\n" _objects
+		format "prop_key: %\n" prop_key
 
-		mods = #()
+		modifiers = #()
 
 		mod_name = if prop_key == #RAFT_WIDTH then #BAR_WIDTH else prop_key
-
+		format "mod_name: %\n" mod_name
+		
 		for obj in _objects where obj.modifiers[mod_name] != undefined do
-			appendIfUnique mods obj.modifiers[mod_name]
+			appendIfUnique modifiers obj.modifiers[mod_name]
+		format "modifiers: %\n" modifiers
 
-		--format "mods.count: %\n" mods.count
 
-		if mods.count > 0 then
+		if modifiers.count > 0 then
 		(
 			val = SUPPORT_OPTIONS.getOption prop_key
 
-			classof_mod = classOf mods[1]
+			classof_mod = classOf modifiers[1]
 
-			for _mod in mods do
+			for _mod in modifiers do
 				case classof_mod of
 				(
 					(sweep):	_mod[#Cylinder_Section].radius	= val
 
-					--(Chamfer or Face_Extrude ):	_mod.amount	= val
 					(Chamfer ):	_mod.amount	= val
 					(Face_Extrude ):	_mod.amount	= val
-
-
-					--#EXTEND_END:	_mod.amount	= SUPPORT_OPTIONS.extend_end
-					--#EXTEND_TOP:	_mod.amount	= SUPPORT_OPTIONS.extend_top
 
 					default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" prop_key -- this should never happen
 				)
@@ -176,32 +171,18 @@ struct ModifiersManager_v
 
 	/** Copy modifiers
 	 */
-	function _copyModifiers support_exists modifiers =
+	function _copyModifiers obj_source objects_target modifiers =
 	(
-		--format "\n"; print "SupportModifiers_v._copyModifiers()"
-
-		/* DIRTY CODE - TIME RPOEASSURE */
-		--support_with_modifiers	= (this._getSupportsWithModfiers(_objects_exists))[1]
-		--_objects_no_modifiers	= this._getSupportsWithoutModfiers()
-
-		--modifiers_of__objects	= support_with_modifiers.modifiers
+		format "\n"; print "SupportModifiers_v._copyModifiers()"
+		format "obj_source: %\n" obj_source
+		format "objects_target: %\n" objects_target
+		format "modifiers: %\n" modifiers
 
 		max create mode
-		--
-		--for obj in _objects do
-		--	for _mod in modifiers do
-		--		addModifierWithLocalData support_no_modifiers modifiers_of__objects[i] support_with_modifiers modifiers_of__objects[i] -- instance the modifier
 
-
-		for obj in this._objects do
+		for obj_target in objects_target do
 			for i = modifiers.count to 1 by -1 do
-				addModifierWithLocalData obj modifiers[i] support_exists modifiers[i] -- instance the modifier
-
-		--for i = modifiers_of__objects.count to 1 by -1 do
-		--	try(
-		--			addModifier _objects_no_modifiers modifiers_of__objects[i]
-		--	)catch()
-
+				addModifierWithLocalData obj_target modifiers[i] obj_source modifiers[i] -- instance the modifier
 	),
 
 	/** Modifiers exists

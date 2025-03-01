@@ -45,10 +45,6 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
 		format "\n"; print "SupportObject_v.generateSupport()"
-		format "support_obj: %\n" support_obj
-		
-		if support_obj != undefined then
-			format "numSplines : %\n" (numSplines support_obj)
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 			
@@ -57,9 +53,10 @@ struct SupportObject_v
 		if support_obj == undefined then
 			support_obj = SplineShape wirecolor:wirecolor
 
-		else /* RESET SPLINE */ 
+		else /* USE OLD OBEJCT - RESET SPLINE */ 
 			deleteSpline support_obj spline_1
-			
+		
+		
 			
 		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
 		if dir_vector.z > -0.25 then dir_vector.z = -0.25

@@ -1,9 +1,5 @@
 filein( getFilenamePath(getSourceFileName()) + "/MeshVertToColorVertexConvertor/MeshVertToColorVertexConvertor.ms" )	--"./MeshVertToColorVertexConvertor/MeshVertToColorVertexConvertor.ms"
 
---global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#ORANGE, color 225 60 0 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
-
-
-
 
 global VERTEX_COLORS_CACHE = Dictionary #string
 
@@ -36,7 +32,7 @@ struct VertexColors_v
 	/* properties */
 	obj_mesh = obj.baseobject.mesh,
 
-	verts_by_colors	=  Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
+	verts_by_colors	= Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
 	/* private */
 	/* dependency */
 
@@ -72,24 +68,32 @@ struct VertexColors_v
 
 	/** Get verts and their colors
 	  *
-	  * @return Dictionary KEY: color as string VALUE: BitArray of verts
+	  * @return Dictionary
+	  * 
+	  * 		1) If flat:false -> return KEY: color as string	VALUE: BitArray of vert indexes
+	  * 		2) If flat:false -> return KEY: vert index	VALUE: color as string
+	  * 
 	  */
 	function getVertsAndColors verts:#{} exclude:#() flat:false =
 	(
-		--format "\n"; print "VertexColors_v.getVertsByColor()"
-		--format "verts: %\n" verts
+		format "\n"; print "VertexColors_v.getVertsByColor()"
+		format "verts: %\n" verts
+		--format "flat: %\n" flat
 		--format "verts.numberSet: %\n" verts.numberSet
 		if verts.numberSet == 0 then
 			verts = #{1..(getNumVerts obj_mesh)}
 
 		this._setVertsByColors (verts) exclude:exclude
-		--format "verts_by_colors: %\n" verts_by_colors
+		format "verts_by_colors: %\n" verts_by_colors
 
 		if flat then
 		(
-			colored_verts = #{}
+			colored_verts = Dictionary #INTEGER
 
-			for vertex_color in verts_by_colors.keys where findItem exclude ( vertex_color as string ) do colored_verts +=  vertex_colors[vertex_color]
+			for vertex_color in verts_by_colors.keys where findItem exclude ( vertex_color as string ) == 0 do
+				--format "vertex_color: %\n" vertex_color
+				for vert in verts_by_colors[vertex_color as string ] do 
+					colored_verts[vert] = vertex_color
 
 			colored_verts --return
 		)

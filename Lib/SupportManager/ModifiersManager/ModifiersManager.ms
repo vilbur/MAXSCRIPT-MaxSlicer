@@ -94,12 +94,14 @@ struct ModifiersManager_v
 
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */
-	function updateModifier _objects prop_key =
+	function updateModifier _objects prop_key val: =
 	(
 		--format "\n"; print "ModifiersManager_v.updateModifier()"
 		--format "_objects: %\n" _objects
 		--format "prop_key: %\n" prop_key
 
+
+		
 		modifiers = #()
 
 		mod_name = if prop_key == #RAFT_WIDTH then #BAR_WIDTH else prop_key
@@ -109,8 +111,10 @@ struct ModifiersManager_v
 		
 		current_panel = getCommandPanelTaskMode()
 		
+		
 		if this._objects.count > 0 then
 		(
+			
 			max create mode
 			
 			/* GET INSATNCES OF MODIFIER */ 
@@ -124,17 +128,22 @@ struct ModifiersManager_v
 			for_replace = deleteItem this._objects 1
 			--format "FOR_REPLACE: %\n" for_replace
 			
+			/* GET SOURCE MODIFIER */ 
 			source_mod = source_obj.modifiers[mod_name]
 			--format "SOURCE_MOD: %\n" source_mod
+			mod_name_cache = source_mod.name
 			
 			index_source	= modPanel.getModifierIndex source_obj source_mod
 			
 			InstanceMgr.MakeModifiersUnique source_obj source_mod #individual -- {#prompt|#individual|#group}
 			
+			/* GET UNIQUE MODIFIER */ 
 			source_mod = source_obj.modifiers[index_source]
 			
-			source_mod.name = ( toUpper (mod_name as string )) 
+			source_mod.name = mod_name_cache
 			
+			
+			/* REINSTANCE MODIIFER */ 
 			for i = 1 to for_replace.count do
 			(
 				target_obj	= for_replace[i]
@@ -147,7 +156,10 @@ struct ModifiersManager_v
 			)
 			
 			
-			val = SUPPORT_OPTIONS.getOption prop_key
+			/* UPDATE MODIFIER VALUE */ 
+			if val == unsupplied then
+				val = SUPPORT_OPTIONS.getOption prop_key
+			
 			
 			case (classOf source_mod) of
 			(

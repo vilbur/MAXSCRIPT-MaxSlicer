@@ -1,8 +1,13 @@
 # MaxSlicer
 
-### Set of 3D print tools for 3Ds Max  
+## Set of 3D print tools for 3Ds Max  
 
 
+`MaxSlicer does not contain any plugins`
+
+`Scene could be opened and modified in 3Ds Max winthout MaxSlicer installed`
+
+## EXAMPLES:
 
 | SUPPORTS      | SLICER |
 | ----------- | ----------- |

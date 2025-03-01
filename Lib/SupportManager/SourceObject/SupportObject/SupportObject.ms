@@ -20,7 +20,7 @@ struct SupportObject_v
 
 	knots_positions = Array (2),
 
-	is_on_ground, -- boolean
+	is_on_ground = true,
 
 
 	hit_raft,
@@ -199,22 +199,43 @@ struct SupportObject_v
 		
 		--if this.is_on_ground then
 		if this.is_on_ground != undefined and this.is_on_ground then
-		(
-			ground_knot	= numKnots support_obj spline_1
-			base_knot	= ground_knot - 1
-	
-			ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-			base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
-	
-	
-			ground_knot_pos.z	= 0
-			base_knot_pos.z	= SUPPORT_OPTIONS.base_height
-	
-	
-			setKnotPoint support_obj spline_1 ground_knot	ground_knot_pos
-			setKnotPoint support_obj spline_1 base_knot	base_knot_pos
-	
+        (
+            ground_knot	= numKnots support_obj spline_1
+            base_knot	= ground_knot - 1
+
+            base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+            ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+
+			base_height = base_knot_pos.z - ground_knot_pos.z
+
+            base_knot_pos.z   = base_height
+            ground_knot_pos.z = 0
+
+
+            setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+            setKnotPoint support_obj spline_1 base_knot	  base_knot_pos
+
 			--updateShape support_obj
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
+	),
+	
+	/** Update base height
+	 */
+	function updateBaseHeight =
+	(
+		--format "\n"; print "SupportObject_v.updateBaseHeight()"
+		--format "support_obj: %\n" support_obj.name
+		if this.is_on_ground != undefined and this.is_on_ground then
+		(
+			ground_knot = numKnots support_obj spline_1
+			base_knot   = ground_knot - 1
+			
+			base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
+			base_knot_pos.z = SUPPORT_OPTIONS.base_height
+			
+			setKnotPoint support_obj spline_1 base_knot base_knot_pos
+			
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 	),
@@ -226,7 +247,6 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v.isRaft()"
 		getUserPropVal support_obj "RAFT_KEY" != undefined
 	),
-
 
 	--/** Get direction
 	-- */
@@ -628,7 +648,7 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		this.hit_support = this._intersectRaySourceObject pos [0,0,-1]
 
-		this.is_on_ground = hit_support == undefined
+		it_support == undefined
 
 		/* IF SUPPORT IS GOING TO GROUND */
 		if is_on_ground then
@@ -832,7 +852,7 @@ struct SupportObject_v
 		--is_on_ground = hit_raft == undefined and hit_support == undefined
 		new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
 		
-		if is_on_ground == undefined or is_on_ground != new_value then
+		if is_on_ground != new_value then
 		(
 			is_on_ground = new_value
 			

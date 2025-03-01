@@ -370,6 +370,24 @@ struct SupportManager_v
 		this.updateShapes()
 	),
  
+	/** Update base height
+	 */
+	function updateBaseHeight =
+	(
+		--format "\n"; print "SupportManager_v.updateBaseHeight()"
+		support_nodes = this._getObjectsForUpdate #SUPPORT
+		--format "support_nodes: %\n" support_nodes.count
+
+		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
+
+		for sync_key in supports_by_source.keys do
+			SourceObjects[sync_key].updateBaseHeight(support_nodes)
+		
+		this.updateShapes()
+
+		MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getOption #CHAMFER_BASE )
+	),
+
 	/** Rebuild supports
 	 */
 	function resetSupports support_nodes =
@@ -445,10 +463,6 @@ struct SupportManager_v
 		 */
 		function splitString _string = substring _string ((findString _string "_")+1) -1 --return
 
-        /* GET OBJECTS TO PROCESS */ 		
-		_objects = ( if selection.count > 0 then selection else objects ) as Array
-		--format "_OBJECTS: %\n" _objects
-
 		/* GET OBJECT TYPE BY ROLLOUT NAME  */
 		obj_type = splitString (EventFired.Roll.name)
 		
@@ -459,16 +473,9 @@ struct SupportManager_v
 		obj_type = ( trimRight obj_type "Ss" ) as name
 		--format "OBJ_TYPE: %\n" obj_type
 		--format "PROP_KEY: %\n" prop_key
-
-		/* GET SOURCE OBJECTS */
-		source_objects = this.getSourceObjects ( _objects ) get_nodes:true
-		--format "SOURCE_OBJECTS: %\n" source_objects
 		
-		/* GET OBJECTS BY TYPE */
-		objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
-		--objects_by_type = this.getObjectsByType ( _objects ) type:obj_type
-		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
-		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		objects_by_type = this._getObjectsForUpdate obj_type
+
 
 		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 		
@@ -477,8 +484,6 @@ struct SupportManager_v
 		/* UPDATE MODIFIER */ 
 		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )( prop_key as name )
 	),
-
-
 
 	/** Update shape add
 	 */
@@ -608,7 +613,31 @@ struct SupportManager_v
 			false --return
 	),
 
+	/** Get objects of give object type
+	  * 
+      * 1) IF NOTHING SELECTED:     	Get all objects of type from SCENE
+      * 2) IF SOURCE SELECTED:    		Get all objects of type from SOURCE OBJECT
+      * 3) IF SOME OBEJCTS SELECTED:	Get all objects of type from SELECTION
+	 */
+	function _getObjectsForUpdate obj_type =
+	(
+		--format "\n"; print "SupportManager_v.getObejctsForUpdate()"
+        /* GET OBJECTS TO PROCESS */ 		
+		_objects = ( if selection.count > 0 then selection else objects ) as Array
+		--format "_OBJECTS: %\n" _objects
 
+		/* GET SOURCE OBJECTS */
+		source_objects = this.getSourceObjects ( _objects ) get_nodes:true
+		--format "SOURCE_OBJECTS: %\n" source_objects
+		
+		/* GET OBJECTS BY TYPE */
+		objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
+		--objects_by_type = this.getObjectsByType ( _objects ) type:obj_type
+		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
+		objects_by_type --return
+	),
+	
 	/** get objects by type
 	  *
 	  * @param name type of object: #SOURCE|#SUPPORT|#BEAM|#RAFT|#DRAIN|#PIN
@@ -776,7 +805,7 @@ struct SupportManager_v
 			for source_object in source_objects collect source_object.obj --return
 		
 		else
-			source_object --return
+			source_objects --return
 	),
 	
 	/** Get supports and rafts

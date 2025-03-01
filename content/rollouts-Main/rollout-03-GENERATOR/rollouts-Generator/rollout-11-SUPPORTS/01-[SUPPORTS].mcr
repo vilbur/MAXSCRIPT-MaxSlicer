@@ -158,11 +158,15 @@ macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
 buttontext:	"HEIGHT"
 tooltip:	"Height of support base"
-icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 0.1, 999, 1 ]|width:72|offset:[ 52, -16 ]"
+icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ 52, -16 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		--SUPPORT_MANAGER.updateModifiers ( EventFired )
+	(
+		SUPPORT_OPTIONS.base_height = EventFired.val
+		
+		SUPPORT_MANAGER.updateBaseHeight()
+	)
 )
 
 /** EXTRUDE TOP

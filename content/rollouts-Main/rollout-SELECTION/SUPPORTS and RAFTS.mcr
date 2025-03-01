@@ -56,8 +56,9 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 	function selectVertsBySupports =
 	(
 		format "\n"; print ".selectVertsBySupports()"
-		_objects = selection as Array
 
+		_objects = selection as Array
+		
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 
 		format "source_objects: %\n" source_objects
@@ -76,8 +77,6 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 			format "indexes: %\n" indexes
 
 			obj = SourceObject.obj.baseobject
-
-			max modify mode
 
 			verts_hidden = polyop.getHiddenVerts obj
 
@@ -102,6 +101,7 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 	on execute do
 	(
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
+		max modify mode
 
 		if subObjectLevel == 0 then
 			selectVertsBySupports()

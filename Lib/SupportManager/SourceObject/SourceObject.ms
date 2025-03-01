@@ -125,7 +125,7 @@ struct SourceObject_v
 					SupportObject.support_obj.parent = obj
 		
 					/* SET USER DATA TO SUPPORT */
-					this._saveUserPropsToSupport (SupportObject) (sync_key) (vert) (obj_type) (direction)
+					this._saveUserPropsToSupport (SupportObject) (vert) (direction)
 
 					append new_nodes SupportObject.support_obj
 				)
@@ -145,19 +145,21 @@ struct SourceObject_v
 		new_nodes
 	),
 	
-	/** Save user props to pport
+	/** SET USER DATA TO SUPPORT OBJECT
 	 */
-	function _saveUserPropsToSupport SupportObject sync_key vert obj_type direction =
+	function _saveUserPropsToSupport SupportObject vert direction =
 	(
-		--format "\n"; print "SourceObject_v.saveUserPropsToPport()"
-		setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+		support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
+		support_key_val  = (getHandleByAnim SupportObject.support_obj) as string
+		
+		
+		setUserPropVal SupportObject.support_obj "SYNC_KEY"	SupportObject.sync_key
+		
+		setUserPropVal SupportObject.support_obj support_key_prop support_key
+		
 		setUserPropVal SupportObject.support_obj "INDEX"	vert
 		
-		
-		/* SET USER DATA TO SUPPORT OBJECT */ 	
-		support_key = (getHandleByAnim SupportObject.support_obj) as string
-
-		setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
+		setUserPropVal SupportObject.support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
 
 		setUserPropVal SupportObject.support_obj "DIRECTION" direction --asString:true
 	),
@@ -333,6 +335,20 @@ struct SourceObject_v
 		Supports[index].updateSupport first_knot_pos:verts_pos[index] update_direction:update_direction
 	),
 
+	/** Update base height
+	 */
+	function updateBaseHeight support_nodes =
+	(
+		--format "\n"; print "SourceObject_v.updateBaseHeight()"
+		
+		SupportsToUpdate = this._getSupports support_nodes:support_nodes
+		
+		for key in SupportsToUpdate.keys where SupportsToUpdate[key].is_on_ground do
+			SupportsToUpdate[key].updateBaseHeight()
+			
+		free SupportsToUpdate
+	),
+
 	/** Update supports height
 	 */
 	function updateSupportsHeight =
@@ -355,7 +371,6 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v._getSupportByNode()"
 		index = getUserPropVal support_node "INDEX"
-
 
 		Supports[index] --return
 	),
@@ -445,7 +460,11 @@ struct SourceObject_v
 	
 	private
 
-	/** Get supports
+	/** Get Supports 
+	  * 
+	  * @param Array support_nodes return only Supports from this array
+	  * 
+	  * @return Dictionary if support_nodes:unsupplied then return all supports
 	 */
 	function _getSupports support_nodes: =
 	(
@@ -455,6 +474,7 @@ struct SourceObject_v
 		(
 			SupportsFiltered = Dictionary #INTEGER
 			
+			/* LOOP SUPPORTS OF SOURCE OBJECTS AND GET ONLY SUPPORTS IN support_nodes ARRAY */ 
 			for index in Supports.keys where findItem support_nodes Supports[index].support_obj > 0 do
 				SupportsFiltered[index] = Supports[index]
 			

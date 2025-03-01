@@ -34,19 +34,19 @@ struct SupportModifiers_v
 		--append mods_support ( this._extrudeSetup	(Face_Extrude	name:"EXTEND TOP")	(OPTIONS.getOption #EXTEND_TOP ))
 
 		
-		mods_support[7]	= this._sweepSetup	(sweep	name:"BAR WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
+		mods_support[7]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
 		mods_support[6]	= this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE )
-		mods_support[5]	= this._extrudeSetup	(Face_Extrude	name:"BASE WIDTH")	(OPTIONS.getOption #BASE_WIDTH )
+		mods_support[5]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getOption #BASE_WIDTH )
 		mods_support[4]	= this._chamferSetup	(Chamfer	name:"chamfer base")	(OPTIONS.getOption #CHAMFER_BASE )
 		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getOption #TOP_WIDTH )	selection_option:#ALL  materialoption:#DIFFERENT
 		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select top")	(OPTIONS.getMatId  #TOP )
-		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND TOP")	(OPTIONS.getOption #EXTEND_TOP )
+		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getOption #EXTEND_TOP )
 
 		/* RAFT MODIFIERS */
-		mods_raft[4]	= this._sweepSetup	(sweep	name:"BAR WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
+		mods_raft[4]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
 		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getOption #TOP_WIDTH )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
 		mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select ends")	(OPTIONS.getMatId  #MIDDLE )	invert_sel:true
-		mods_raft[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND END")	(OPTIONS.getOption #EXTEND_END )
+		mods_raft[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_END")	(OPTIONS.getOption #EXTEND_END )
 	),
 
 	/** SWEEP Modifier

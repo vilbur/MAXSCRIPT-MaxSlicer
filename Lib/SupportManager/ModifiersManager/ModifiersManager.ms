@@ -96,37 +96,41 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key =
 	(
-		format "\n"; print "ModifiersManager_v.updateModifier()"
-		format "_objects: %\n" _objects
-		format "prop_key: %\n" prop_key
+		--format "\n"; print "ModifiersManager_v.updateModifier()"
+		--format "_objects: %\n" _objects
+		--format "prop_key: %\n" prop_key
 
 		modifiers = #()
 
 		mod_name = if prop_key == #RAFT_WIDTH then #BAR_WIDTH else prop_key
-		format "mod_name: %\n" mod_name
-		
-		this._objects =	for obj in _objects where obj.modifiers[mod_name] != undefined collect obj
 
+		/* CHECK IF OBJECTS HAS MODIFIER */ 
+		this._objects =	for obj in _objects where obj.modifiers[mod_name] != undefined collect obj
 		
+		current_panel = getCommandPanelTaskMode()
 		
-		if _objects.count > 1 then
+		if this._objects.count > 0 then
 		(
+			max create mode
+			
 			/* GET INSATNCES OF MODIFIER */ 
-			for obj in _objects do
+			for obj in this._objects do
 				appendIfUnique modifiers obj.modifiers[mod_name]
 
-			source_obj	= _objects[1]
-			format "SOURCE_OBJ: %\n" source_obj.name
+			source_obj	= this._objects[1]
+			--format "SOURCE_OBJ: %\n" source_obj.name
 		
-			format "\n"
-			for_replace = deleteItem _objects 1
-			--format "for_replace: %\n" for_replace
+			--format "\n"
+			for_replace = deleteItem this._objects 1
+			--format "FOR_REPLACE: %\n" for_replace
+			
 			source_mod = source_obj.modifiers[mod_name]
+			--format "SOURCE_MOD: %\n" source_mod
 			
 			index_source	= modPanel.getModifierIndex source_obj source_mod
-
+			
 			InstanceMgr.MakeModifiersUnique source_obj source_mod #individual -- {#prompt|#individual|#group}
-
+			
 			source_mod = source_obj.modifiers[index_source]
 			
 			source_mod.name = ( toUpper (mod_name as string )) 
@@ -137,7 +141,6 @@ struct ModifiersManager_v
 				target_mod	= target_obj.modifiers[mod_name]
 				index_target	= modPanel.getModifierIndex target_obj target_mod
 				
-
 				addModifierWithLocalData target_obj source_mod source_obj source_mod before:index_target
 				
 				deleteModifier target_obj index_target
@@ -145,17 +148,18 @@ struct ModifiersManager_v
 			
 			
 			val = SUPPORT_OPTIONS.getOption prop_key
-		
+			
 			case (classOf source_mod) of
 			(
 				(sweep):	source_mod[#Cylinder_Section].radius	= val
-	
+			
 				(Chamfer ):	source_mod.amount	= val
 				(Face_Extrude ):	source_mod.amount	= val
-	
+			
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" prop_key -- this should never happen
 			)
 			
+			setCommandPanelTaskMode mode:current_panel
 		)
 			
 			

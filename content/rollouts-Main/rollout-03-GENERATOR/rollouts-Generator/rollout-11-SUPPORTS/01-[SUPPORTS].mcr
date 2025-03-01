@@ -162,7 +162,7 @@ icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 0.1, 9
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers ( EventFired )
+		--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /** EXTRUDE TOP

@@ -14,8 +14,6 @@ struct SupportModifiers_v
 	/* reference */
 	/* inhered */
 
-
-
 	/** Init modifiers
 	 */
 	function _initModifiers =
@@ -25,15 +23,6 @@ struct SupportModifiers_v
 		OPTIONS = SUPPORT_OPTIONS
 
 		/* SUPPORT MODIFIERS */
-		--append mods_support ( this._sweepSetup	(sweep	name:"BAR WIDTH")	(OPTIONS.getOption #BAR_WIDTH ))
-		--append mods_support ( this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE ))
-		--append mods_support ( this._extrudeSetup	(Face_Extrude	name:"BASE WIDTH")	(OPTIONS.getOption #BASE_WIDTH ))
-		--append mods_support ( this._chamferSetup	(Chamfer	name:"chamfer base")	(OPTIONS.getOption #CHAMFER_BASE ))
-		--append mods_support ( this._chamferSetup	(Chamfer	name:"CHAMFER BAR")	(OPTIONS.getOption #TOP_WIDTH )	selection_option:#ALL  materialoption:#DIFFERENT)
-		--append mods_support ( this._volSelectSetup	(Vol__Select	name:"select top")	(OPTIONS.getMatId  #TOP ))
-		--append mods_support ( this._extrudeSetup	(Face_Extrude	name:"EXTEND TOP")	(OPTIONS.getOption #EXTEND_TOP ))
-
-		
 		mods_support[7]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	(OPTIONS.getOption #BAR_WIDTH )
 		mods_support[6]	= this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE )
 		mods_support[5]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getOption #BASE_WIDTH )
@@ -91,14 +80,14 @@ struct SupportModifiers_v
 		sweep_mod --return
 	),
 
-	/** Add edit spline
-	  *
-	  */
-	function _addEditSpline =
-	(
-		format "\n"; print "SupportModifiers_v._addEditSpline()"
-		modPanel.addModToSelection (Edit_Spline ())
-	),
+	--/** Add edit spline
+	--  *
+	--  */
+	--function _addEditSpline =
+	--(
+	--	format "\n"; print "SupportModifiers_v._addEditSpline()"
+	--	modPanel.addModToSelection (Edit_Spline ())
+	--),
 
 	/** Add SELECT modifier
 	  *
@@ -172,7 +161,7 @@ struct SupportModifiers_v
 	 */
 	on create do
 	(
-		format "\n"; print "SupportModifiers_v.onCreate()"
+		--format "\n"; print "SupportModifiers_v.onCreate()"
 		this._initModifiers()
 	)
 )

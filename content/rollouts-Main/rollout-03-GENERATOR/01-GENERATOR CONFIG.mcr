@@ -18,38 +18,10 @@ function resetSupports param: =
 		/*------------------------------------------------------------------------------
 			REBUILD SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
-		
-		
-		--if param == #NORMAL_LENGTH then 
-		--	SUPPORT_MANAGER.updateSupports(selected_supports)
-		--
-		--else
-			SUPPORT_MANAGER.resetSupports(selected_supports)
-		
-		
+		SUPPORT_MANAGER.resetSupports(selected_supports)
 
 		resumeSupportTransformEvent()
-		
-		--if selected_supports.count > 0 then
-		--(
-		--	pauseSupportToTransformEvent()
-		--
-		--	SUPPORT_MANAGER.resetSupports(selected_supports)
-		--
-		--	resumeSupportToTransformEvent()
-		--)
-		--
-		--if selected_rafts.count > 0 then
-		--(
-		--	pauseSupportToTransformEvent()
-		--
-		--	SUPPORT_MANAGER.resetSupports(selected_rafts)
-		--
-		--	resumeSupportToTransformEvent()
-		--)
-		
 )
-
 
 
 --/*

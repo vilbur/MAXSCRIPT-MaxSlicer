@@ -306,10 +306,11 @@ struct SupportManager_v
 	--------------------------------------------------------------------------------*/
 
 
-	/** Update supports of given source object
-	  * 
+	/** Update all supports and rafts of given source
+	  *  
+	  *  This update is fired when source object is transformed
+	  *  
       * @param #ROTATION|#POSITION_Z|#POSITION_XY what_to_update
-	  * 
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
@@ -437,16 +438,22 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		format "\n"; print "SupportManager_v.updateModifiers()"
+		--format "\n"; print "SupportManager_v.updateModifiers()"
 		--format "EventFired: %\n" EventFired
 		
+		/** Get string after underscore E.G.: "ROLLOUT_supports" >>> "supports"
+		 */
+		function splitString _string = substring _string ((findString _string "_")+1) -1 --return
+
+        /* GET OBJECTS TO PROCESS */ 		
 		_objects = ( if selection.count > 0 then selection else objects ) as Array
-		--format "_SELECTION: %\n" _objects
+		--format "_OBJECTS: %\n" _objects
 
 		/* GET OBJECT TYPE BY ROLLOUT NAME  */
-		obj_type = substring EventFired.Roll.name    ((findString EventFired.Roll.name "_")+1) -1
+		obj_type = splitString (EventFired.Roll.name)
+		
 		/* GET PROPERTY KEY BY CONTROL NAME */
-		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
+		prop_key = splitString (EventFired.control.name)
 
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
 		obj_type = ( trimRight obj_type "Ss" ) as name
@@ -454,18 +461,19 @@ struct SupportManager_v
 		--format "PROP_KEY: %\n" prop_key
 
 		/* GET SOURCE OBJECTS */
-		source_objects = this.getSourceObjects ( _objects )
+		source_objects = this.getSourceObjects ( _objects ) get_nodes:true
 		--format "SOURCE_OBJECTS: %\n" source_objects
 		
 		/* GET OBJECTS BY TYPE */
-		objects_by_type = this.getObjectsByType ( _objects ) type:obj_type
+		objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
+		--objects_by_type = this.getObjectsByType ( _objects ) type:obj_type
 		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
 		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
 
 		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
-
+		
 		SUPPORT_OPTIONS.init()
-
+		
 		/* UPDATE MODIFIER */ 
 		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )( prop_key as name )
 	),
@@ -608,16 +616,7 @@ struct SupportManager_v
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
 		--format "\n"; print "SupportManager_v.getObjectsByType()"
-		--format "hierarchy: %\n" hierarchy
-		--format "_objects: %\n" _objects
-		--format "type: %\n" type
-		--/** Is type support
-		-- */
-		--function isTypeSupport type =
-		--(
-		--	--format "\n"; print "SupportManager_v.isTypeSupport()"
-		--	type == #SUPPORT or type == #RAFT
-		--)
+		
         objects_by_type = #()
 
         source_keys = #()
@@ -765,13 +764,19 @@ struct SupportManager_v
 
 	/** Get source object
 	 */
-	function getSourceObjects _objects =
+	function getSourceObjects _objects get_nodes:false =
 	(
 		--format "\n"; print "SupportManager_v.getSourceObjects()"
 		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
 		--format "sync_keys: %\n" sync_keys
 		
-		for sync_key in sync_keys collect SourceObjects[sync_key]
+		source_objects = for sync_key in sync_keys collect SourceObjects[sync_key]
+		
+		if get_nodes then
+			for source_object in source_objects collect source_object.obj --return
+		
+		else
+			source_object --return
 	),
 	
 	/** Get supports and rafts
@@ -876,8 +881,8 @@ struct SupportManager_v
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
-				format "index: %\n" index
-				format "sync_key: %\n" sync_key
+				--format "index: %\n" index
+				--format "sync_key: %\n" sync_key
 				
 				--format "IS_ON_GROUND: %\n" IS_ON_GROUND
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"

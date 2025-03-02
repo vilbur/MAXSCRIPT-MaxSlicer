@@ -74,8 +74,8 @@ struct BeamObject_v
 	function _lockTransforms =
 	(
 		--format "\n"; print "BeamObject_v._lockTransforms()"
-		--lock_keys = #( #MOVE_X,	#MOVE_Y,	#MOVE_Z,	#ROTATE_X,	#ROTATE_Y,	#ROTATE_Z,	#SCALE_X,	#SCALE_Y,	#SCALE_Z )
-		--lock_states = #( 1,	1,	0,	1,	1,	1,	1,	1,	0 ) as BitArray
+		--lock_keys   = #( #MOVE_X,	#MOVE_Y,	#MOVE_Z,	#ROTATE_X,	#ROTATE_Y,	#ROTATE_Z,	#SCALE_X,	#SCALE_Y,	#SCALE_Z )
+		--lock_states = #( 1,	1,	0,	1,	1,	1,	1,	1,	0        ) as BitArray
 
 		setTransformLockFlags beam #{1..2,4..8}
 	),
@@ -128,18 +128,12 @@ struct BeamObject_v
 
 		beams_created = #()
 
-		--if ( support_A == undefined or support_B == undefined ) or  distance support_A.pos support_B.pos > SUPPORT_OPTIONS.max_distance  then
-		--	return beams_created
 
 		point_data_A = this._getSegmentEndPoints(support_A)
 		point_data_B = this._getSegmentEndPoints(support_B)
 
-		--height_A = distance point_data_A[#BOTTOM] point_data_A[#TOP]
-		--height_B = distance point_data_B[#BOTTOM] point_data_B[#TOP]
-		--
-		--if height_A < SUPPORT_OPTIONS.min_height and height_B < SUPPORT_OPTIONS.min_height then
-		--	return beams_created
-
+		vectors = #( point_data_A[#VECTOR], point_data_B[#VECTOR] )
+		
 		/* BEAM 1 */
 		bottom_A  	= point_data_A[#BOTTOM]
 		top_A	= point_data_A[#TOP]
@@ -148,53 +142,56 @@ struct BeamObject_v
 		bottom_B  	= point_data_B[#BOTTOM]
 		top_B	= point_data_B[#TOP]
 
-		/* GET BOTTOM POS WHICH IS UPPER */
-		bottom_A.z = bottom_B.z = if bottom_A.z > bottom_B.z then bottom_A.z else bottom_B.z
+		/* COMPARE BOTTOM POSTIONS - GET HIGHER ONE */
+		bottom_A.z = bottom_B.z = if ( bottom_A.z > bottom_B.z ) then bottom_A.z else bottom_B.z
 
-		/* GET TOP POS WHICH IS LOWER */
-		top_A.z = top_B.z = if top_A.z > top_B.z then top_B.z else top_A.z
+		/* COMPARE TOP POSTIONS - GET LOWER ONE */
+		top_A.z = top_B.z = if ( top_A.z > top_B.z ) then top_B.z else top_A.z
+		
+		points_on_supports = #( #( bottom_A ), #( bottom_B ) )
+		
 
+		/* SPLIT BEAMS */ 
 		dist = distance bottom_A top_A
 
-		segments_count = ceil (dist / SUPPORT_OPTIONS.max_height)
+		segments_count = ceil (dist / SUPPORT_OPTIONS.beams_split)
 
 		segment_height = dist / segments_count
 
-		points_of_supports = #( #( bottom_A ), #( bottom_B ) )
-
-		vectors = #( point_data_A[#VECTOR], point_data_B[#VECTOR] )
-
+		
+		/* GET POINTS ON SUPPORTS */ 
 		for support = 1 to 2 do
 		(
-			pos = points_of_supports[support][1]
-
+			pos = points_on_supports[support][1]
+			
+			/* DIVIDE SUPPORT */
 			for segment = 1 to segments_count do
 			(
+				/* GET POSITIONS OF BEAMS */ 
 				pos = getPosOnLine pos vectors[support] segment_height
 
-				append points_of_supports[support] pos
+				append points_on_supports[support] pos
 			)
 		)
---format "SUPPORT_OPTIONS.beams_count: %\n" SUPPORT_OPTIONS.beams_count
-		pos_count = points_of_supports[1].count
 
-		--points_of_beams = Array (SUPPORT_OPTIONS.beams_count)
-		points_of_beams = #()
+		/* GET POINTS OF BEAMS */ 
 
-		for i = 1 to SUPPORT_OPTIONS.beams_count do
-			append points_of_beams (deepCopy points_of_supports[i])
-
+		points_of_beams = deepCopy points_on_supports
+		
+		
 		for support = 1 to SUPPORT_OPTIONS.beams_count do
 		(
-			for pos = 1 to pos_count do
+			for pos = 1 to points_on_supports[1].count do
 			(
+				/* GET ZIG ZAG PATTERN */
+				
 				even_pos = ( mod pos 2 ) == 0
 
 				points_of_beams[support][pos] =	if (support == 1 and even_pos) or (support == 2 and even_pos)
 					then
-						points_of_supports[if support == 1 then 2 else 1][pos]
+						points_on_supports[if support == 1 then 2 else 1][pos]
 					else
-						points_of_supports[support][pos]
+						points_on_supports[support][pos]
 
 			)
 		)

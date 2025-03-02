@@ -37,19 +37,19 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
 	format "SOURCE_OBJECTS: %\n" source_objects
 	
+	/* TSEST IF SOURCE OBJECT IS SELECTED */ 
+	--select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect obj.name ) ) as string == ( sort (for obj in source_objects collect obj.name ) ) as string
+	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
+	--format "select_by_source_objects: %\n" select_by_source_objects
 	
-	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect obj.name ) ) as string == ( sort (for obj in source_objects collect obj.name) ) as string
-	format "select_by_source_objects: %\n" select_by_source_objects
 	/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
 	if selection.count == 0 then
 		objs_input = source_objects
-	format "OBJS_INPUT: %\n" objs_input
+	--format "OBJS_INPUT: %\n" objs_input
 		
 	/* GET OBJECTS BY TYPE */ 	
 	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
 	
-	--source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
- 
 	/* GET ALL OBEJCTS OF GIVEN TYPE - WORKS LIKE NOTHING SELECTED, IF SELECTION EXISTS BUT OBJECTS ARE NOT IN SUPPORT SYSTEM */ 
 	if source_objects.count == 0 and objs_by_type.count == 0 then
 		objs_by_type = SUPPORT_MANAGER.getObjectsByType objects_by_visibility type:type hierarchy:select_more
@@ -62,7 +62,8 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	format "TEST: %\n" (select_more and selection.count > 0 and not select_by_source_objects )
 
 	/* SELECT MORE - If shift key presssed*/
-	if select_more and selection.count > 0 and not select_by_source_objects then
+	--if select_more and selection.count > 0 and not select_by_source_objects then
+	if select_mode and select_more and selection.count > 0 then
 		objs_by_type += objs_input
 
 	format "OBJS_BY_TYPE: %\n" objs_by_type

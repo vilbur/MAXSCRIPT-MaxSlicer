@@ -148,6 +148,7 @@ struct SupportManager_v
 
 		supports = this.getSupportsAndRafts( selection as Array )
 		--format "SUPPORTS: %\n" supports
+		
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/

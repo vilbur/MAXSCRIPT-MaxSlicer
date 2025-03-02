@@ -144,7 +144,7 @@ tooltip:	"Generate supports WITH\WITHOUT FOOT"
 icon:	"ACROSS:3|control:checkbox|id:CBX_foot_enabled|offset:[ 102, -16 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
-	on isEnabled return selection.count > 0
+	--on isEnabled return selection.count > 0
 
 	on execute do
 		SUPPORT_OPTIONS.foot_enabled = EventFired.val

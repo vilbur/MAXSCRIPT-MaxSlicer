@@ -24,15 +24,9 @@ icon:	"across:4|offset:[ -6, 2 ]|width:96|height:32|tooltip:GENERATE BEAMS for s
 	on execute do
 		undo "Generate Beams" on
 		(
-			SUPPORT_OPTIONS.setOptionValue (#max_distance) ROLLOUT_beams.SPIN_max_distance.value
-
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-13-BEAMS\[BEAMS].mcr"
-			SUPPORT_MANAGER.generateBeams                                        \
-				use_only_selected_supports:	(not keyboard.controlPressed)	\
-				use_max_distance:	ROLLOUT_beams.CBX_max_distance.state	\
-				max_distance:	SUPPORT_OPTIONS.max_distance	\
-				only_ground:	ROLLOUT_beams.CBX_only_ground.state	\
-				max_connections:	ROLLOUT_beams.DL_connections_count.selection 
+			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.controlPressed)
+			
+			SUPPORT_MANAGER.generateBeams()
 		)
 )
 
@@ -75,6 +69,8 @@ buttontext:	"Max Distance"
 icon:	"across:4|control:checkbox|offset:[ 12, 0 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
 	--on execute do
+		--SUPPORT_MANAGER.BeamGenerator.use_max_distance	= EventFired.val
+
 	--(
 	--	--format "EventFired:	% \n" EventFired
 	--	SUPPORT_OPTIONS.setOptionValue (#max_distance) EventFired.val
@@ -169,9 +165,9 @@ macroscript	_print_generator_beams_count_per_support
 category:	"_Export"
 buttontext:	"[Connections count]"
 --buttontext:	"Max Beams"
-icon:	"control:dropdownlist|id:DL_connections_count|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
+icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
 (
-	format "EventFired	= % \n" EventFired
+	--format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
@@ -185,8 +181,8 @@ buttontext:	"[Beams Count]"
 icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 102, -10 ]|tooltip:Number of bars on beam"
 (
 	--format "EventFired	= % \n" EventFired
-	on execute do
-	SUPPORT_MANAGER.updateModifiers ( EventFired )
+	--on execute do
+	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 

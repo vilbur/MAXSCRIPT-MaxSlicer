@@ -11,6 +11,7 @@ global DIALOG_content
 global DIALOG_slicer_slider
 global ROLLOUT_generator
 global ROLLOUT_slicer
+global ROLLOUT_beams
 
 /* STRUCT GLOBALS - before import SupportManager */
 global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER
@@ -77,7 +78,7 @@ try(
 	/*------------------------------------------------------------------------------
 		INIT GLOBAL CLASSES when ui exists
 	--------------------------------------------------------------------------------*/
-	SUPPORT_OPTIONS = SupportOptions_v #(ROLLOUT_generator, ROLLOUT_supports)
+	SUPPORT_OPTIONS = SupportOptions_v #(ROLLOUT_generator, ROLLOUT_supports, ROLLOUT_beams)
 
 	SUPPORT_OPTIONS.getValuesFromUi()
 

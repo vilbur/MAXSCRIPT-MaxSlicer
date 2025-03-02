@@ -5,6 +5,12 @@ struct BeamGenerator_v
 	/* construct */
 	/* required */
 	/* properties */
+	--use_max_distance	= true,
+	--max_distance	= 999999,
+	--only_ground	= true,
+	--max_connections	= 2,
+	
+	use_only_selected_supports	= true,
 	/* private */
 	/* dependency */
 	/* reference */
@@ -65,7 +71,7 @@ struct BeamGenerator_v
 
 	/** Generate beams to closest supports
 	 */
-	function generateBeamsToClosestSupports _objects max_distance: use_only_selected_supports:false max_connections: only_ground:true =
+	function generateBeamsToClosestSupports _objects only_ground:true =
 	(
 		--format "\n"; print ".generateBeamsToClosestSupports()"
 		--format "_objects: %\n" _objects.count
@@ -74,10 +80,11 @@ struct BeamGenerator_v
 
 		/** Support has not max connections
 		 */
-		function supportHasMaxConnections support max_connections =
+		function supportHasMaxConnections support =
 		(
 			--format "\n\n"; print "BeamGenerator_v.supportHasMaxConnections()"
 			--format "support: %\n" support
+			max_connections = SUPPORT_OPTIONS.max_connections 
 
 			if classOf max_connections == integer and max_connections > 0 then
 			(
@@ -92,9 +99,13 @@ struct BeamGenerator_v
 				false
 		)
 		
-		procesed_supports = #()
 		new_beams = #()
+		procesed_supports = #()
 
+		
+		max_distance    = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance else 999999999999999
+		
+		
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		--format "SOURCE_OBJECTS: %\n" source_objects
 
@@ -109,10 +120,10 @@ struct BeamGenerator_v
 		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
 
 		/* DO NOT USE SUPPORTS WHICH HAS MAX BEAMS COUNT ALREADY */
-		this._filterSupportsByCountOfBeams (max_connections) (&supports_to_connect)
+		this._filterSupportsByCountOfBeams (&supports_to_connect)
 
 		/* USE ONLY SUPPORTS TOUCHING GROUND - dont use rafts and supports without foot */
-		this._filterOnlyGroundedSupports(only_ground)(&supports_to_connect)
+		this._filterOnlyGroundedSupports(&supports_to_connect)
 
 		--format "supports_to_connect.count: %\n" supports_to_connect.count
 		--format "MAX_DISTANCE:        %\n" max_distance
@@ -127,7 +138,7 @@ struct BeamGenerator_v
 		(
 			--format "\n\n------------------ %" support.name
 			
-			if not supportHasMaxConnections support max_connections then
+			if not supportHasMaxConnections support then
 			(
 				local closest_support = undefined 
 	
@@ -136,8 +147,8 @@ struct BeamGenerator_v
 				/* GET CLOSESTS SUPPORT - BY COMPARE DISTANCES OF SUPPORTS  */
 				for support_other in supports_to_connect \
 					where support_other != support \                                  -- avoid compare same support
-					and not this.beamExists support support_other \                   -- TEST IF BEAM EXISTS ALLERADY
-					and not supportHasMaxConnections support_other max_connections \                                  -- 
+					and not this.beamExists support support_other  \                   -- TEST IF BEAM EXISTS ALLERADY
+					and not supportHasMaxConnections support_other \                                  -- 
 					and ( dist = distance support support_other ) < min_distance \	 -- TEST MIN DISTANCE BETWEEN SUPPORTS
 					and dist <= max_distance \                                       -- TEST MAX DISTANCE BETWEEN SUPPORTS
 				do
@@ -287,7 +298,7 @@ struct BeamGenerator_v
 
 	/** Filter supports by count of beams
 	 */
-	function _filterSupportsByCountOfBeams max_connections &supports =
+	function _filterSupportsByCountOfBeams &supports =
 	(
 		--format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
 		--format "max_connections: %\n" max_connections
@@ -306,11 +317,11 @@ struct BeamGenerator_v
 
 	/** Filter supports with foot
 	 */
-	function _filterOnlyGroundedSupports only_ground &supports =
+	function _filterOnlyGroundedSupports &supports =
 	(
 		--format "\n"; print "BeamGenerator_v._filterSupportsByCountOfBeams()"
 
-		if only_ground then
+		if SUPPORT_OPTIONS.only_ground then
 			--supports = for support in supports where support.min.z as integer == 0 collect support
 			supports = for support in supports where (support.min.z as integer ) <= 0 collect support
 			--for support in supports do format "support.min.z as integer: %\n" (support.min.z as integer)

@@ -131,7 +131,7 @@ struct SupportManager_v
 
 	/** GENERATE BEAMS
 	 */
-	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
+	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
 		--format "SORT_MODE: %\n" sort_mode
@@ -141,44 +141,33 @@ struct SupportManager_v
 
 		/** if support height is greater then min height option
 		 */
-		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
-
-		--/* GET ONLY SUPPORTS FROM OBJECTS */
-		--supports = for obj in selection as Array where this.isType #SUPPORT obj != false collect obj
-
-		_selection = selection as Array
-
-		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
-		--format "selected_supports: %\n" selected_supports
-		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		--format "selected_rafts: %\n" selected_rafts
-		supports = selected_supports + selected_rafts
+		--function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
 
-		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
-		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
+		SUPPORT_OPTIONS.getValuesFromUi()
 
+		supports = this.getSupportsAndRafts( selection as Array )
+		--format "SUPPORTS: %\n" supports
+		/*
+		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
+		*/
 		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
-					then /* CONNECT 2 SUPPORTS */ 
+					
+					then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */ 
 						#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
 			
 					else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
-					(
-						--supports = for support in supports where isTallEnough support collect support
-			
 						case sort_mode of
 						(
-							(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports use_only_selected_supports:use_only_selected_supports max_distance:max_distance max_connections:max_connections
-							(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
-							--default:
+							(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports)
+							(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
+							----default:
 						)
-					)
-
-		--format "NEW_BEAMS: %\n" new_beams
+		
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()
-
+		
 			select new_beams
 		)
 	),
@@ -642,8 +631,8 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
-		format "type: %\n" type
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		--format "type: %\n" type
 		
         objects_by_type = #()
 
@@ -724,7 +713,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if source_keys.count > 0 then
 		(
-			format "GET BY SOURCE OBJECT\n"
+			--format "GET BY SOURCE OBJECT\n"
 			raft_test = type == #RAFT
 			
 			/* GET BEAMS OF SOURCE OBJECT */
@@ -744,7 +733,7 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
-			format "GET BY SUPPORTS\n"
+			--format "GET BY SUPPORTS\n"
 			--format "HIERARCHY: %\n" HIERARCHY
 
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
@@ -812,9 +801,9 @@ struct SupportManager_v
 	function getSupportsAndRafts _objects =
 	(
 		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
-		
-		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-		rafts	 = SUPPORT_MANAGER.getObjectsByType _objects type:#RAFTS
+		supports = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+
+		rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
 
 		supports + rafts --return
 	),

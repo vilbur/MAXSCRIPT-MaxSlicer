@@ -52,7 +52,8 @@ struct SupportOptions_v
 	use_max_distance	= true,
 	only_ground	= true,
 	max_distance	= 20,	-- max distance between supports
-	max_connections	= 2,
+	max_connections	= 2,	-- max number of beams connected to single support
+	beams_count	= 2,	-- count of lines of beam
 	
 	min_height	= 10,	-- generate beams only if support is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
@@ -75,7 +76,7 @@ struct SupportOptions_v
 
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION, #MAX_CONNECTIONS ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION, #MAX_CONNECTIONS, #BEAMS_COUNT ),
 
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 

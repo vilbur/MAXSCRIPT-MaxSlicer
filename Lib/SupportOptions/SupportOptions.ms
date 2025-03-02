@@ -49,8 +49,11 @@ struct SupportOptions_v
 
 
 	/* BEAMS OPTIONS */
-	beams_count = 2,
+	use_max_distance	= true,
+	only_ground	= true,
 	max_distance	= 20,	-- max distance between supports
+	max_connections	= 2,
+	
 	min_height	= 10,	-- generate beams only if support is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
 
@@ -72,7 +75,7 @@ struct SupportOptions_v
 
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION, #MAX_CONNECTIONS ),
 
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 
@@ -83,16 +86,30 @@ struct SupportOptions_v
 	function getValuesFromUi =
 	(
 		format "\n"; print "SupportOptions_v.getValuesFromUi()"
-		/** Reg ex replace
-		 */
-		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
 
+		/** get property key from control id E.G.: "SPIN_prop_key" >>> "prop_key"
+		  * 
+		  * @return string|undefined 
+		 */
+		function getPropertyKeyFromControlId ctrl_name =
+		(
+			--format "\n"; print "SupportOptions_v.ifcontrolIdIsOptionProperty()"
+			function regExReplace _string search = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) ""
+			
+			control_type_to_fetch_values = "SPIN|CBX|RB|DL"
+
+			regExReplace ctrl_name ("^("+control_type_to_fetch_values+")_")
+		)
 
 		if classOf rollouts != Array then
 			rollouts = #(rollouts)
 
 		/*------------------------------------------------------------------------------
-			HOT FIX - EXPORT SIZE VALUE SHOULD BE CONNECTED TO VilTools3
+		  
+			HOT FIX !!!!!!!!!
+			EXPORT SIZE VALUE SHOULD BE CONNECTED TO VilTools3
+			
+			
 		--------------------------------------------------------------------------------*/
 		export_size = if ROLLOUT_export == undefined then
 		(
@@ -106,9 +123,6 @@ struct SupportOptions_v
 		else
 		  ROLLOUT_export.SPIN_export_size.value
 
-		/*--------------------------------------------------------------------------------*/
-
-		control_type_to_fetch_values = "SPIN|CBX|RB"
 
 		/** 
 		  *
@@ -118,18 +132,21 @@ struct SupportOptions_v
 		for _rollout in rollouts do
 		(
 			if _rollout != undefined then 
-				for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-					this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
+				for ctrl in _rollout.controls where (prop_key = getPropertyKeyFromControlId ctrl.name ) != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+				(
+					control_value = case classOf ctrl of
+					(
+						ComboBoxControl: ctrl.selection -- dropdownlist
+						CheckBoxControl: ctrl.state
+						RadioCOntrol:    ctrl.state
+						default:         ctrl.value
+					)
+	
+					this.setOptionValue (prop_key) (control_value)
+				)
 			else
 				format "SupportOptions_v.getValuesFromUi() - _rollout IS UNDEFINED" 
-			
 		)
-		
-		--for _rollout in rollouts do
-		--	for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-		--		this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
-
-		--------this.init()
 	),
 
 	/** Init

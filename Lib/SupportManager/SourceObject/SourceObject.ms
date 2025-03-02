@@ -155,7 +155,7 @@ struct SourceObject_v
 		
 		setUserPropVal SupportObject.support_obj "SYNC_KEY"	SupportObject.sync_key
 		
-		setUserPropVal SupportObject.support_obj support_key_prop support_key
+		setUserPropVal SupportObject.support_obj support_key_prop support_key_val
 		
 		setUserPropVal SupportObject.support_obj "INDEX"	vert
 		

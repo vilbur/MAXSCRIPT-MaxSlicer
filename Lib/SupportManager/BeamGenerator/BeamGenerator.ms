@@ -67,27 +67,28 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsToClosestSupports _objects max_distance: use_only_selected_supports:false max_connections: only_ground:true =
 	(
-		format "\n"; print ".generateBeamsToClosestSupports()"
-		format "max_distance:    %\n" max_distance
-		format "max_connections: %\n" max_connections
+		--format "\n"; print ".generateBeamsToClosestSupports()"
+		--format "_objects: %\n" _objects.count
+		--format "max_distance:    %\n" max_distance
+		--format "max_connections: %\n" max_connections
 
 		/** Support has not max connections
 		 */
 		function supportHasMaxConnections support max_connections =
 		(
-			----format "\n"; print "BeamGenerator_v.supportHasMaxConnections()"
-			--format "\n"
-			--format "max_connections: %\n" max_connections
+			--format "\n\n"; print "BeamGenerator_v.supportHasMaxConnections()"
 			--format "support: %\n" support
-			--format "BEAMS: %\n" ((SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count)
-			--format "OBJECTS: %\n" (SUPPORT_MANAGER.getObjectsByType support type:#BEAM)
-			----format "TEST: %\n" (classOf max_connections == integer and max_connections)
-			--format "HAS MAX CONNECTIONS: %\n" ((SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count >= max_connections)
-			--
+
 			if classOf max_connections == integer and max_connections > 0 then
-				(SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count >= max_connections
-			 
-			 else
+			(
+				beams_of_support = SUPPORT_MANAGER.getObjectsByType support type:#BEAM
+				--format "beams_of_support: %\n" beams_of_support
+				
+				--connections = (SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count
+				--format "connections: %\n" beams_of_support.count
+				beams_of_support.count >= max_connections
+			)
+			else
 				false
 		)
 		
@@ -95,14 +96,14 @@ struct BeamGenerator_v
 		new_beams = #()
 
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
-		--format "source_objects: %\n" source_objects
+		--format "SOURCE_OBJECTS: %\n" source_objects
 
 		objects_support = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
-
+		--format "objects_support: %\n" objects_support
 		objects_rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
 
 		supports = objects_support + objects_rafts
-
+		--format "SUPPORTS: %\n" supports
 		/* USE ALL SUPPORTS OF SOURCE OBJECT OR ONLY SELECTED */
 		supports_to_connect = if not use_only_selected_supports then SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT else supports
 		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
@@ -118,8 +119,9 @@ struct BeamGenerator_v
 		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
 		
 		
-		--supports = this._sortSupportsByDistance(supports) (max_distance)
-		supports = (this._sortSupportsByDistance(supports) (9999999999999))[1]
+		supports = (this._sortSupportsByDistance(supports) (max_distance))[1]
+		--supports = deepCopy supports_to_connect
+		--supports = (this._sortSupportsByDistance(supports) (9999999999999))[1]
 
 		for support in supports where findItem procesed_supports support == 0 do
 		(

@@ -92,7 +92,7 @@ struct SupportManager_v
 		GENERATE
 	--------------------------------------------------------------------------------*/
 	
-	/** Generate points
+	/** GENERATE SUPPORTS
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
@@ -129,11 +129,11 @@ struct SupportManager_v
 		new_nodes --return
 	),
 
-	/** Generate beams
+	/** GENERATE BEAMS
 	 */
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
 	(
-		--format "\n"; print "SupportManager_v.generateBeams()"
+		format "\n"; print "SupportManager_v.generateBeams()"
 		--format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
@@ -154,7 +154,6 @@ struct SupportManager_v
 		--format "selected_rafts: %\n" selected_rafts
 		supports = selected_supports + selected_rafts
 
-		--format "supports: %\n" supports
 
 		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
 		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
@@ -165,7 +164,7 @@ struct SupportManager_v
 			
 					else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
 					(
-						supports = for support in supports where isTallEnough support collect support
+						--supports = for support in supports where isTallEnough support collect support
 			
 						case sort_mode of
 						(
@@ -173,7 +172,6 @@ struct SupportManager_v
 							(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
 							--default:
 						)
-			
 					)
 
 		--format "NEW_BEAMS: %\n" new_beams
@@ -185,7 +183,7 @@ struct SupportManager_v
 		)
 	),
 
-	/** Generate drain holes
+	/** GENERATE DRAIN HOLES
 
 	  TODO: move this method to its own file DrainGenerator.ms
 
@@ -644,7 +642,8 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "type: %\n" type
 		
         objects_by_type = #()
 
@@ -725,7 +724,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if source_keys.count > 0 then
 		(
-			--format "GET BY SOURCE OBJECT\n"
+			format "GET BY SOURCE OBJECT\n"
 			raft_test = type == #RAFT
 			
 			/* GET BEAMS OF SOURCE OBJECT */
@@ -745,13 +744,13 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
-			--format "GET BY SUPPORTS\n"
+			format "GET BY SUPPORTS\n"
 			--format "HIERARCHY: %\n" HIERARCHY
 
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			objects_by_type = deepCopy supports_and_rafts
+			--objects_by_type =  deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then

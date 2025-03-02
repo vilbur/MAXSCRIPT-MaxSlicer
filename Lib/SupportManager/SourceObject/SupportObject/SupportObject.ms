@@ -404,35 +404,35 @@ struct SupportObject_v
 		second_knot_pos --return
 	),
 	
-	/** Check segments lenghts
-	 */
-	function _checkSegmentsLenghts vertex_index =
-	(
-		--format "\n"; print "SupportObject_v._checkSegmentsLenghts()"
-
-		result = true
-
-		if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #TOP_WIDTH  then
-		(
-			format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
-
-			result = false
-		)
-		else if knots_positions.count > 2 then
-			for i = knots_positions.count to 2 by -1 do
-			(
-				if ( dist = distance knots_positions[i] knots_positions[i - 1] ) < SUPPORT_OPTIONS.getOption #BAR_WIDTH then
-				(
-					format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
-
-					deleteItem knots_positions (i - 1)
-
-					--result = false
-				)
-			)
-
-		result --return
-	),
+	--/** Check segments lenghts
+	-- */
+	--function _checkSegmentsLenghts vertex_index =
+	--(
+	--	--format "\n"; print "SupportObject_v._checkSegmentsLenghts()"
+	--
+	--	result = true
+	--
+	--	if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #TOP_WIDTH  then
+	--	(
+	--		format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
+	--
+	--		result = false
+	--	)
+	--	else if knots_positions.count > 2 then
+	--		for i = knots_positions.count to 2 by -1 do
+	--		(
+	--			if ( dist = distance knots_positions[i] knots_positions[i - 1] ) < SUPPORT_OPTIONS.getOption #BAR_WIDTH then
+	--			(
+	--				format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
+	--
+	--				deleteItem knots_positions (i - 1)
+	--
+	--				--result = false
+	--			)
+	--		)
+	--
+	--	result --return
+	--),
 
 	/** Add knots
 	 */

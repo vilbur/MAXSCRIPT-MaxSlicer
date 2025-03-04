@@ -44,7 +44,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 			
@@ -168,7 +168,6 @@ struct SupportObject_v
 			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
 		
 		
-		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
@@ -194,26 +193,78 @@ struct SupportObject_v
 	 */
 	function updateLegPosition =
 	(
-		--format "\n"; print "SupportObject_v.updateHeight()"
+		format "\n"; print "SupportObject_v.updateHeight()"
 		--format "is_on_ground: %\n" this.is_on_ground
-		
+
 		--if this.is_on_ground then
 		if this.is_on_ground != undefined and this.is_on_ground then
         (
-            ground_knot	= numKnots support_obj spline_1
-            base_knot	= ground_knot - 1
+			
+			
+			
+			
+			num_of_knots    = numKnots    support_obj spline_1
+			num_of_segments = numSegments support_obj spline_1
 
-            base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+            ground_knot	= num_of_knots
+            base_knot	= num_of_knots - 1
+
+            leg_top_knot_pos	= getKnotPoint support_obj spline_1 (base_knot - 1)
+
+			
+            base_knot_pos	 = getKnotPoint support_obj spline_1 base_knot
             ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+			format "leg_top_knot_pos.z: %\n" leg_top_knot_pos.z
 
-			base_height = base_knot_pos.z - ground_knot_pos.z
+			format "base_knot_pos.z: %\n" base_knot_pos.z
+			format "PRE BASE: %\n" (getKnotPoint support_obj spline_1 (base_knot - 1)).z
+			
+			/* ADD FOOT */ 
+			if getMaterialID support_obj spline_1 num_of_segments == 3 then
+			(
+				format "ADD FOOT\n"
+				
+				base_knot = num_of_knots
+				
+				addKnot support_obj spline_1 #corner #line ground_knot_pos
 
-            base_knot_pos.z   = base_height
-            ground_knot_pos.z = 0
-
-
-            setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
-            setKnotPoint support_obj spline_1 base_knot	  base_knot_pos
+				setMaterialID support_obj spline_1 ( num_of_segments + 1 ) 4
+				 
+		ground_knot	= num_of_knots + 1
+		
+		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+		
+		
+				base_knot_pos.z   = SUPPORT_OPTIONS.base_height
+				ground_knot_pos.z = 0
+		
+				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+			)
+			
+			/* REMOVE FOOT */ 
+			else if base_knot_pos.z + ( SUPPORT_OPTIONS.base_height * 2 ) >= (getKnotPoint support_obj spline_1 (base_knot - 1)).z then
+			(
+				format "REMOVE FOOT\n"
+				ground_knot_pos.z = 0
+	
+				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+				
+				deleteKnot support_obj spline_1 base_knot
+			)
+			
+			else /* UPDATE SUPPORT */ 
+			(
+				format "UPDATE SUPPORT\n"
+				base_height = base_knot_pos.z - ground_knot_pos.z
+	
+				base_knot_pos.z   = base_height
+				ground_knot_pos.z = 0
+	
+				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+			)
 
 			--updateShape support_obj
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -319,7 +370,7 @@ struct SupportObject_v
 	--function _updateSecondKnotPosition keep_direction_down:false =
 	function _updateSecondKnotPosition direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		
@@ -478,7 +529,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLegKnotPositions =
 	(
-		--format "\n"; print "SupportObject_v._setSupportLegKnotPositions()"
+		format "\n"; print "SupportObject_v._setSupportLegKnotPositions()"
 		--format "knots_positions: %\n" knots_positions
 		
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
@@ -487,7 +538,7 @@ struct SupportObject_v
 		--format "HIT_SUPPORT: %\n" hit_support
 		--is_on_ground = hit_support == undefined
 		--hit_support == undefined
-
+		format "knots_positions[2].z: %\n" knots_positions[2].z
 		pos = copy knots_positions[2] -- copy to avoid modifing of value in array
 
 		if hit_support == undefined then

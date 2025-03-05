@@ -78,7 +78,7 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
-		
+				
 		this._setName(vertex_index)
 		
 		this._isOnGround()
@@ -171,8 +171,9 @@ struct SupportObject_v
 		/* GENERATE LEG FOR SUPPORT */ 
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
-		
-		
+			
+		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+
 		this._setRightCountOfKnotsToSpline()
 		
 		this._updateLine()
@@ -184,6 +185,9 @@ struct SupportObject_v
 		this._setPivotToSecondPoint()
 		
 		this._alignPivotToSeconPoint()
+
+		if numKnots support_obj spline_1 > 2 then
+			setUserPropVal support_obj "NORMAL_LENGTH" ( distance knots_positions[1] knots_positions[2] )
 
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -277,16 +281,12 @@ struct SupportObject_v
         (
 			chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
-			--format "SUPPORT_OPTIONS.base_height: %\n" SUPPORT_OPTIONS.base_height
-			--format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
-			--format "SUPPORT_OPTIONS.getOption #TOP_WIDTH: %\n" (SUPPORT_OPTIONS.getOption #TOP_WIDTH)
-			--minimal_support_height = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.bar_width 
-			--minimal_support_height = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.getOption #TOP_WIDTH 
-			minimal_support_height = SUPPORT_OPTIONS.base_height + ( chamfer_val * 2) + 0.1
-			minimal_leg_pos_z = SUPPORT_OPTIONS.base_height + ( chamfer_val + 0.1 )
-			--minimal_support_height = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) )
-			--minimal_support_height = SUPPORT_OPTIONS.base_height
-			--format "minimal_support_height: %\n" minimal_support_height
+			
+			minimal_leg_pos_z      = SUPPORT_OPTIONS.base_height + chamfer_val + 0.1
+			minimal_support_height = minimal_leg_pos_z + chamfer_val
+
+
+
 			num_of_knots    = numKnots    support_obj spline_1
 			num_of_segments = numSegments support_obj spline_1
 			format "num_of_knots: %\n" num_of_knots
@@ -301,9 +301,12 @@ struct SupportObject_v
 			
             ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
             base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+
+		base_height	= getUserPropVal support_obj "BASE_HEIGHT"
+			format "BASE_HEIGHT: %\n" base_height
 			
 			--base_height = base_knot_pos.z - ground_knot_pos.z
-			base_height = SUPPORT_OPTIONS.base_height
+			--base_height = SUPPORT_OPTIONS.base_height
 			
 			format "HAS_FOOT: %\n" has_foot
 			--format "UPDATE SUPPORT\n"
@@ -311,7 +314,11 @@ struct SupportObject_v
 			format "\nVERTICAL_KNOTS: %\n" vertical_knots
 			
 			
-			/* IF HAS FOOT */
+			/*------------------------------------------------------------------------------
+			
+				IF HAS FOOT
+			
+			--------------------------------------------------------------------------------*/
 			if has_foot then
 			(
 				format "----------- HAS FOOT -----------\n"
@@ -327,7 +334,7 @@ struct SupportObject_v
 				(
 					format "SHIFT LEG KNOT %\n" leg_knot
 					
-					/* UPDATE LEG POINT */ 
+					--/* UPDATE LEG POINT */ 
 					if getZposition leg_knot < minimal_support_height then
 						--setZposition leg_knot (base_height + 0.1)
 						setZposition leg_knot minimal_leg_pos_z
@@ -346,7 +353,14 @@ struct SupportObject_v
 				
 				setLastPointToGround()
 			)
-			else /* IF HAS NOT FOOT */
+			
+			/*------------------------------------------------------------------------------
+			
+				IF HAS NOT FOOT
+			
+			--------------------------------------------------------------------------------*/
+			
+			else 
 			(
 				format "----------- HAS NOT FOOT -----------\n"
 			
@@ -354,14 +368,14 @@ struct SupportObject_v
 				foot_space_exists = if vertical_knots.count == 0 then ground_knot_pos.z >= minimal_support_height else getZposition vertical_knots[vertical_knots.count] >= minimal_support_height
 				format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 
-			
+				/*------------------------------------------------------------------------------
+					ADD FOOT
+				--------------------------------------------------------------------------------*/
 				if foot_space_exists then
 				(
 					format "ADD FOOT\n"
 					
-					base_knot_pos = copy ground_knot_pos
-					
-					base_knot_pos.z  = base_height
+
 					ground_knot_pos.z = 0 
 
 					format "vertical_knots.count: %\n" vertical_knots.count
@@ -374,8 +388,15 @@ struct SupportObject_v
 						setZposition vertical_knots[1] base_height
 
 					)
-					else /* ADD BASE POINT */ 
+					
+					else /* ADD BASE POINT */
+					(
+						base_knot_pos = copy ground_knot_pos
+						
+						base_knot_pos.z  = base_height
+						
 						addKnot support_obj spline_1 #corner #line base_knot_pos
+					)
 					
 					/* ADD GROUND POINT */ 
 					addKnot support_obj spline_1 #corner #line ground_knot_pos
@@ -384,21 +405,50 @@ struct SupportObject_v
 
 					this._setMaterialsToLineSegments()
 				)
-				else /* IF NO FOOT AND NO SPACE FOR FOOR */ 
+				/*------------------------------------------------------------------------------
+					IF NO FOOT AND NO SPACE FOR FOOR
+				--------------------------------------------------------------------------------*/
+				else
 				(
 					/* DELETE ALL VERTICAL POINTS BELOW BASE BUT NOT FIRST POINT  */ 
 					if vertical_knots.count >= 2 then
-						for index = 2 to vertical_knots.count where ( knot = vertical_knots[index] ) != 1 and getZposition knot < base_height do 
+					(
+						for index = 2 to vertical_knots.count where ( knot = vertical_knots[index] ) != 1 and getZposition knot < chamfer_val do 
 						(
 							format "DELETE: %\n" (vertical_knots[index])
 	
 							deleteKnot support_obj spline_1 knot
 						)
-					
-					setLastPointToGround()
+
+						setLastPointToGround()
+					)
+					/*------------------------------------------------------------------------------
+						UPDATE GROUND POINT WITHOUT FOOT
+					--------------------------------------------------------------------------------*/
+					else if num_of_knots == 2 then 
+					(
+						format "UPDATE GROUND POINT\n"
+
+						
+						first_knot_pos  = getKnotPoint support_obj spline_1 1
+						second_knot_pos = getKnotPoint support_obj spline_1 2
+						
+						height_pos_1 = first_knot_pos.z
+						
+						line_vector = normalize ( first_knot_pos - second_knot_pos )
+						format "line_vector: %\n" line_vector
+			
+						angle_vectors = acos (dot [0,0,-1] line_vector) -- get angle between
+						format "angle_vectors: %\n" angle_vectors
+						line_length = height_pos_1 / cos angle_vectors
+						format "line_length: %\n" line_length
+						
+						second_knot_pos = first_knot_pos + ( line_length * line_vector )
+						
+						setKnotPoint support_obj spline_1 2 second_knot_pos
+
+					)
 				)
-					
-	
 			)
 			
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -421,6 +471,8 @@ struct SupportObject_v
 			
 			setKnotPoint support_obj spline_1 base_knot base_knot_pos
 			
+			setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 	),
@@ -491,7 +543,8 @@ struct SupportObject_v
 		
 		second_knot_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_knot_pos) (direction)
 
-		
+		setUserPropVal support_obj "NORMAL_LENGTH" ( distance first_knot_pos second_knot_pos )
+
 		/* ADD 2nd POINT */
 		knots_positions[2] = second_knot_pos
 	),
@@ -504,7 +557,7 @@ struct SupportObject_v
 	--function _updateSecondKnotPosition keep_direction_down:false =
 	function _updateSecondKnotPosition direction: dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		
@@ -558,6 +611,7 @@ struct SupportObject_v
 		
 		--second_knot_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_knot_pos) (dir_vector)
 		
+		setUserPropVal support_obj "NORMAL_LENGTH" ( distance first_knot_pos second_knot_pos )
 
 		/* ADD SECOND POINT */
 		knots_positions[2] = second_knot_pos
@@ -665,7 +719,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setSupportLegKnotPositions()"
 		--format "knots_positions: %\n" knots_positions
-		
+
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
 

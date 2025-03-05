@@ -8,7 +8,7 @@ function toggleSupportFoot state =
 
 	_objects = selection as Array
 
-	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT hierarchy:true
 
 	for mod_name in #( #SELECT_BASE, #BASE_WIDTH, #CHAMFER_BASE ) do
 		for obj in supports where obj.modifiers[mod_name] != undefined do
@@ -30,7 +30,7 @@ tooltip:	""
 --icon:	"offset:[0,10]"
 (
 	on execute do
-		toggleSupportFoot true
+		SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
 )
 
 /** SUPPORT FOOT
@@ -42,7 +42,7 @@ tooltip:	""
 icon:	""
 (
 	on execute do
-		toggleSupportFoot false
+		SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
 )
 
 /**

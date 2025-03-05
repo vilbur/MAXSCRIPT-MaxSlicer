@@ -8,23 +8,19 @@
 function selectHideUnhideSupports type: state: select_mode:keyboard.controlPressed select_more:keyboard.shiftPressed =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
-	format "\n"; print "selectHideUnhideSupports()"
-	format "type:  %\n" type
-	format "state: %\n" state
-	format "SELECT_MODE: %\n" select_mode
-	format "select_more: %\n" select_more
-	format "\n"
+	--format "\n"; print "selectHideUnhideSupports()"
+	--format "type:  %\n" type
+	--format "state: %\n" state
+	--format "SELECT_MODE: %\n" select_mode
+	--format "select_more: %\n" select_more
+	--format "\n"
 
-	--fn arraysAreSame arr1 arr2 = with PrintAllElements on arr1 as string == arr2 as string
 	
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
 		LayerManager.closeDialog()
 
-		
-	--select_by_source_objects = selection.count == 0
 
-	
 	objects_by_visibility	= if select_mode then
 			  for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
 		  else
@@ -35,18 +31,14 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 
 	/* GET INPUT SOURCE OBJECTS */ 
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
-	format "SOURCE_OBJECTS: %\n" source_objects
 	
 	/* TSEST IF SOURCE OBJECT IS SELECTED */ 
-	--select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect obj.name ) ) as string == ( sort (for obj in source_objects collect obj.name ) ) as string
 	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
-	--format "select_by_source_objects: %\n" select_by_source_objects
 	
 	/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
 	if selection.count == 0 then
 		objs_input = source_objects
-	--format "OBJS_INPUT: %\n" objs_input
-		
+	
 	/* GET OBJECTS BY TYPE */ 	
 	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
 	
@@ -56,17 +48,14 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	
 
 	/* SELECT|DESELECT SOURCE OBJECT */
-	--if type == #SOURCE then
-	--	objs_by_type = source_objects
-	--format "TEST: %\n" (select_more and selection.count > 0)
-	format "TEST: %\n" (select_more and selection.count > 0 and not select_by_source_objects )
+	--------if type == #SOURCE then
+	--------	objs_by_type = source_objects
 
 	/* SELECT MORE - If shift key presssed*/
-	--if select_more and selection.count > 0 and not select_by_source_objects then
 	if select_mode and select_more and selection.count > 0 then
 		objs_by_type += objs_input
 
-	format "OBJS_BY_TYPE: %\n" objs_by_type
+	--format "OBJS_BY_TYPE: %\n" objs_by_type
 		
 	with redraw off
 	(

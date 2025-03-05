@@ -199,28 +199,35 @@ struct SupportObject_v
 		--if this.is_on_ground then
 		if this.is_on_ground != undefined and this.is_on_ground then
         (
-			
-			
-			
-			
 			num_of_knots    = numKnots    support_obj spline_1
 			num_of_segments = numSegments support_obj spline_1
-
+			format "num_of_knots: %\n" num_of_knots
+			
             ground_knot	= num_of_knots
             base_knot	= num_of_knots - 1
+            pre_base_knot	= num_of_knots - 2
 
-            leg_top_knot_pos	= getKnotPoint support_obj spline_1 (base_knot - 1)
 
 			
-            base_knot_pos	 = getKnotPoint support_obj spline_1 base_knot
             ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-			format "leg_top_knot_pos.z: %\n" leg_top_knot_pos.z
+            base_knot_pos	 = getKnotPoint support_obj spline_1 base_knot
+			
+		
+			if num_of_knots >= 3 then
+	            pre_base_knot_pos = getKnotPoint support_obj spline_1 pre_base_knot
+			--format "leg_top_knot_pos.z: %\n" leg_top_knot_pos.z
 
 			format "base_knot_pos.z: %\n" base_knot_pos.z
-			format "PRE BASE: %\n" (getKnotPoint support_obj spline_1 (base_knot - 1)).z
+			
+			
+			space_for_foot_exists = if pre_base_knot_pos != undefined then base_knot_pos.z + ( SUPPORT_OPTIONS.base_height * 2 ) < pre_base_knot_pos.z else false
+			
+			
+			format "space_for_foot_exists: %\n" space_for_foot_exists
+			format "MAT TEST: %\n" (getMaterialID support_obj spline_1 num_of_segments)
 			
 			/* ADD FOOT */ 
-			if getMaterialID support_obj spline_1 num_of_segments == 3 then
+			if space_for_foot_exists and getMaterialID support_obj spline_1 num_of_segments == 3 then
 			(
 				format "ADD FOOT\n"
 				
@@ -236,7 +243,7 @@ struct SupportObject_v
 		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
 		
 		
-				base_knot_pos.z   = SUPPORT_OPTIONS.base_height
+				base_knot_pos.z   = SUPPORT_OPTIONS.base_height * 2
 				ground_knot_pos.z = 0
 		
 				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
@@ -244,11 +251,14 @@ struct SupportObject_v
 			)
 			
 			/* REMOVE FOOT */ 
-			else if base_knot_pos.z + ( SUPPORT_OPTIONS.base_height * 2 ) >= (getKnotPoint support_obj spline_1 (base_knot - 1)).z then
+			else if not space_for_foot_exists and num_of_knots >= 3 then
 			(
 				format "REMOVE FOOT\n"
 				ground_knot_pos.z = 0
+				base_knot_pos.z = SUPPORT_OPTIONS.base_height * 2
 	
+	
+				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
 				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
 				
 				deleteKnot support_obj spline_1 base_knot
@@ -262,8 +272,12 @@ struct SupportObject_v
 				base_knot_pos.z   = base_height
 				ground_knot_pos.z = 0
 	
+	
 				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
-				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+				
+				if num_of_knots >= 3 then
+					setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+				
 			)
 
 			--updateShape support_obj

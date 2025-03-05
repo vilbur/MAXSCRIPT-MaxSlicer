@@ -56,7 +56,7 @@ struct SupportOptions_v
 	beams_count	= 2,	-- count of lines of beam
 	
 	min_height	= 10,	-- generate beams only if support is higher than this number=
-	beams_split	= 20,	-- beams are splited and mutliplied along support by this height 
+	beams_split	= 20,	-- height of support where beams are splited and mutliplied along support
 
 
 	/* PINS OPTIONS */

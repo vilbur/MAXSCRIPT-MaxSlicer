@@ -168,8 +168,8 @@ struct SourceObject_v
 	 */
 	function resetSupports support_nodes =
 	(
-		format "\n"; print "SourceObject_v.resetSupports()"
-		format "support_nodes: %\n" support_nodes
+		--format "\n"; print "SourceObject_v.resetSupports()"
+		--format "support_nodes: %\n" support_nodes
 		
 
 		/* GET SUPPORTS TO RESET */ 
@@ -187,9 +187,6 @@ struct SourceObject_v
 			Normals.setWorldSpaceVertexNormals(verts)
 
 		this.getVertsPositions(verts)
-		--format "verts_pos: %\n" verts_pos
-		
-		--format "colors_by_verts: %\n" colors_by_verts
 		
 		for vert in SupportsToReset.keys do 
 			this.resetSupport SupportsToReset[vert] vert
@@ -199,10 +196,9 @@ struct SourceObject_v
 	 */
 	function resetSupport SupportObject vert =
 	(
-		format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
-		
-		format "SupportObject: %\n" SupportObject
-		format "vert: %\n" vert
+		--format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
+		--format "SupportObject: %\n" SupportObject
+		--format "vert: %\n" vert
 		
 		--format "wirecolor: %\n" wirecolor
 		
@@ -255,7 +251,7 @@ struct SourceObject_v
 	/** Update supports of source objects
 	  * 
 	 */
-	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined =
+	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined what_to_update: =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "direction: %\n" direction

@@ -142,13 +142,15 @@ struct SupportManager_v
 		/** if support height is greater then min height option
 		 */
 		--function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
+		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
 
 		SUPPORT_OPTIONS.getValuesFromUi()
 
 		supports = this.getSupportsAndRafts( selection as Array )
 		--format "SUPPORTS: %\n" supports
-		
+		supports = for support in supports where isTallEnough support collect support
+
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/
@@ -336,7 +338,7 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes update_knot_2:true direction:undefined =
+	function updateSupports support_nodes update_knot_2:true direction:undefined what_to_update: =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
@@ -349,8 +351,18 @@ struct SupportManager_v
 		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
 		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
+		(
+			
+			if what_to_update == undefined then
+				SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
+			
 				
+			
+		)
+		
+		
+		
+			
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(supports_by_source.keys)
@@ -380,7 +392,7 @@ struct SupportManager_v
 	 */
 	function resetSupports support_nodes =
 	(
-		format "\n"; print "SupportManager_v.resetSupports()"
+		--format "\n"; print "SupportManager_v.resetSupports()"
 		--format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -815,6 +827,19 @@ struct SupportManager_v
 
 	/*------------------------------------------------------------------------------*/
 
+	/**
+			
+			UPDATE BEAMS by supports
+	  
+	 */
+	function _updateBeamsBySupports support_keys =
+	(
+		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		
+		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+			BeamObjects[key].updateBeam()
+	),
+	
 	/** Get supports
 	 */
 	function _getSupportNodes _objects =
@@ -845,15 +870,7 @@ struct SupportManager_v
 		supports_by_source --return
 	),
 	
-	/** Update beams by supports
-	 */
-	function _updateBeamsBySupports support_keys =
-	(
-		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
-		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
-	),
-	
+
 	/*------------------------------------------------------------------------------
 	
 		LOAD OBJECTS FROM SCENE

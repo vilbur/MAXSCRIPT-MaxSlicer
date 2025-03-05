@@ -51,6 +51,11 @@ struct BeamObject_v
 	function updateBeam =
 	(
 		--format "\n"; print "BeamObject_v.updateBeam()"
+		--format "\n"
+		--format "support_A: %\n" support_A
+		--format "support_B: %\n" support_B
+		
+		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" points_of_lines
@@ -64,6 +69,12 @@ struct BeamObject_v
 
 		--SUPPORT_MANAGER.updateShapeAdd (this.beam.baseobject)
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
+		
+		--if not isTallEnough support_A or not isTallEnough support_B then
+		if not isTallEnough beam then
+			beam.wirecolor = red
+		else if beam.wirecolor == red then
+			beam.wirecolor = this._shiftWirecolor(support_A.wirecolor) 
 	),
 
 

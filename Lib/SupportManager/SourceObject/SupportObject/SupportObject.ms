@@ -265,6 +265,8 @@ struct SupportObject_v
 			setKnotPoint support_obj spline_1 knot knot_pos
 		)
 
+		
+		
 		/** Get zposition
 		 */
 		function getZposition knot = (getKnotPoint support_obj spline_1 knot).z
@@ -273,20 +275,22 @@ struct SupportObject_v
 		--if this.is_on_ground then
 		if this.is_on_ground != undefined and this.is_on_ground then
         (
+			chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+			
 			--format "SUPPORT_OPTIONS.base_height: %\n" SUPPORT_OPTIONS.base_height
 			--format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
 			--format "SUPPORT_OPTIONS.getOption #TOP_WIDTH: %\n" (SUPPORT_OPTIONS.getOption #TOP_WIDTH)
-			--minimal_space = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.bar_width 
-			--minimal_space = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.getOption #TOP_WIDTH 
-			minimal_space = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) * 2)
-			--minimal_space = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) + 0.1 )
-			--minimal_space = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) )
-			--minimal_space = SUPPORT_OPTIONS.base_height
-			--format "minimal_space: %\n" minimal_space
+			--minimal_support_height = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.bar_width 
+			--minimal_support_height = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.getOption #TOP_WIDTH 
+			minimal_support_height = SUPPORT_OPTIONS.base_height + ( chamfer_val * 2) + 0.1
+			minimal_leg_pos_z = SUPPORT_OPTIONS.base_height + ( chamfer_val + 0.1 )
+			--minimal_support_height = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) )
+			--minimal_support_height = SUPPORT_OPTIONS.base_height
+			--format "minimal_support_height: %\n" minimal_support_height
 			num_of_knots    = numKnots    support_obj spline_1
 			num_of_segments = numSegments support_obj spline_1
 			format "num_of_knots: %\n" num_of_knots
-			format "minimal_space: %\n" minimal_space
+			format "minimal_support_height: %\n" minimal_support_height
 			
 			has_foot = getMaterialID support_obj spline_1 num_of_segments == 4
 
@@ -313,18 +317,25 @@ struct SupportObject_v
 				format "----------- HAS FOOT -----------\n"
 				leg_knot_pos = getKnotPoint support_obj spline_1 leg_knot
 				
-				foot_space_exists = leg_knot_pos.z >= minimal_space
+				--foot_space_exists = leg_knot_pos.z >= minimal_support_height
+				foot_space_exists =  if vertical_knots.count > 3 then getZposition vertical_knots[vertical_knots.count] >= minimal_support_height else leg_knot_pos.z >= minimal_support_height
+				
+				
 				format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
+			
 				if foot_space_exists then
 				(
 					format "SHIFT LEG KNOT %\n" leg_knot
 					
-					/* UPDATE LEG POINTS */ 
-					--setZposition ground_knot 0
-					setZposition base_knot   base_height
-					
-					if getZposition leg_knot < minimal_space then
-						setZposition leg_knot    minimal_space
+					/* UPDATE LEG POINT */ 
+					if getZposition leg_knot < minimal_support_height then
+						--setZposition leg_knot (base_height + 0.1)
+						setZposition leg_knot minimal_leg_pos_z
+											
+					/* UPDATE BASE POINT */ 
+					setZposition base_knot base_height
+	
+						
 				)
 				else
 				(
@@ -339,7 +350,8 @@ struct SupportObject_v
 			(
 				format "----------- HAS NOT FOOT -----------\n"
 			
-				foot_space_exists = if vertical_knots.count == 0 then ground_knot_pos.z >= minimal_space else getZposition vertical_knots[vertical_knots.count] >= minimal_space
+				
+				foot_space_exists = if vertical_knots.count == 0 then ground_knot_pos.z >= minimal_support_height else getZposition vertical_knots[vertical_knots.count] >= minimal_support_height
 				format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 
 			
@@ -353,32 +365,40 @@ struct SupportObject_v
 					ground_knot_pos.z = 0 
 
 					format "vertical_knots.count: %\n" vertical_knots.count
+					
 					if vertical_knots.count > 0 then
 					(
+						/* SHIFT BASE POINT */ 
 						format "SHIFT BASE KNOT %\n" vertical_knots[1]
 
 						setZposition vertical_knots[1] base_height
 
 					)
-					else
+					else /* ADD BASE POINT */ 
 						addKnot support_obj spline_1 #corner #line base_knot_pos
 					
+					/* ADD GROUND POINT */ 
 					addKnot support_obj spline_1 #corner #line ground_knot_pos
+					
+					setLastPointToGround()
 
 					this._setMaterialsToLineSegments()
 				)
-				else
+				else /* IF NO FOOT AND NO SPACE FOR FOOR */ 
 				(
+					/* DELETE ALL VERTICAL POINTS BELOW BASE BUT NOT FIRST POINT  */ 
 					if vertical_knots.count >= 2 then
-						for knot = 1 to vertical_knots.count - 1 do
+						for index = 2 to vertical_knots.count where ( knot = vertical_knots[index] ) != 1 and getZposition knot < base_height do 
 						(
-							format "DELETE: %\n" (vertical_knots[knot])
+							format "DELETE: %\n" (vertical_knots[index])
 	
-							deleteKnot support_obj spline_1 vertical_knots[knot]
+							deleteKnot support_obj spline_1 knot
 						)
 					
 					setLastPointToGround()
 				)
+					
+	
 			)
 			
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)

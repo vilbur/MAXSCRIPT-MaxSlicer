@@ -193,92 +193,109 @@ struct SupportObject_v
 	 */
 	function updateLegPosition =
 	(
-		format "\n"; print "SupportObject_v.updateHeight()"
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		format "\n"; print "SupportObject_v.updateLegPosition()"
 		--format "is_on_ground: %\n" this.is_on_ground
 
 		--if this.is_on_ground then
 		if this.is_on_ground != undefined and this.is_on_ground then
         (
+			--format "SUPPORT_OPTIONS.base_height: %\n" SUPPORT_OPTIONS.base_height
+			--format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
+			--format "SUPPORT_OPTIONS.getOption #TOP_WIDTH: %\n" (SUPPORT_OPTIONS.getOption #TOP_WIDTH)
+			--minimal_space = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.bar_width
+			--minimal_space = SUPPORT_OPTIONS.base_height + SUPPORT_OPTIONS.getOption #TOP_WIDTH 
+			minimal_space = SUPPORT_OPTIONS.base_height + (( SUPPORT_OPTIONS.getOption #TOP_WIDTH ) * 2)
+			--minimal_space = SUPPORT_OPTIONS.base_height
+			--format "minimal_space: %\n" minimal_space
 			num_of_knots    = numKnots    support_obj spline_1
 			num_of_segments = numSegments support_obj spline_1
-			format "num_of_knots: %\n" num_of_knots
+			--format "num_of_knots: %\n" num_of_knots
+
 			
+
             ground_knot	= num_of_knots
             base_knot	= num_of_knots - 1
-            pre_base_knot	= num_of_knots - 2
-
-
 			
             ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-            base_knot_pos	 = getKnotPoint support_obj spline_1 base_knot
+            base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
 			
-		
-			if num_of_knots >= 3 then
-	            pre_base_knot_pos = getKnotPoint support_obj spline_1 pre_base_knot
-			--format "leg_top_knot_pos.z: %\n" leg_top_knot_pos.z
+			has_foot = getMaterialID support_obj spline_1 num_of_segments == 4
+			
+			--format "UPDATE SUPPORT\n"
+			base_height = base_knot_pos.z - ground_knot_pos.z
 
-			format "base_knot_pos.z: %\n" base_knot_pos.z
+			base_knot_pos.z   = base_height
+			ground_knot_pos.z = 0
+
+			/* UPDATE SUPPORT */ 
+			setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
 			
+			if has_foot then
+				setKnotPoint support_obj spline_1 base_knot base_knot_pos
 			
-			space_for_foot_exists = if pre_base_knot_pos != undefined then base_knot_pos.z + ( SUPPORT_OPTIONS.base_height * 2 ) < pre_base_knot_pos.z else false
-			
-			
-			format "space_for_foot_exists: %\n" space_for_foot_exists
-			format "MAT TEST: %\n" (getMaterialID support_obj spline_1 num_of_segments)
-			
-			/* ADD FOOT */ 
-			if space_for_foot_exists and getMaterialID support_obj spline_1 num_of_segments == 3 then
+			--/* IF HAS FOOT */ 
+			if has_foot then
 			(
-				format "ADD FOOT\n"
+			--	format "\n"
+				support_knot     = num_of_knots - 2
+				--format "support_knot: %\n" support_knot
+				support_knot_pos = getKnotPoint support_obj spline_1 support_knot
 				
-				base_knot = num_of_knots
+				if base_knot_pos.z >= support_knot_pos.z or support_knot_pos.z < minimal_space then
+					what_to_do = #REMOVE_FOOT
 				
-				addKnot support_obj spline_1 #corner #line ground_knot_pos
-
-				setMaterialID support_obj spline_1 ( num_of_segments + 1 ) 4
-				 
-		ground_knot	= num_of_knots + 1
-		
-		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
-		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-		
-		
-				base_knot_pos.z   = SUPPORT_OPTIONS.base_height * 2
-				ground_knot_pos.z = 0
-		
-				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
-				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+			)
+			else /* IF HAS NOT FOOT */ 
+			(
+				support_knot = if num_of_knots == 2 then num_of_knots - 1 else num_of_knots - 2
+				support_knot_pos = getKnotPoint support_obj spline_1 support_knot
+			
+				if support_knot_pos.z > minimal_space then
+					what_to_do = #ADD_FOOT
 			)
 			
-			/* REMOVE FOOT */ 
-			else if not space_for_foot_exists and num_of_knots >= 3 then
+			case what_to_do of
 			(
-				format "REMOVE FOOT\n"
-				ground_knot_pos.z = 0
-				base_knot_pos.z = SUPPORT_OPTIONS.base_height * 2
-	
-	
-				setKnotPoint support_obj spline_1 base_knot   base_knot_pos
-				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
-				
-				deleteKnot support_obj spline_1 base_knot
-			)
-			
-			else /* UPDATE SUPPORT */ 
-			(
-				format "UPDATE SUPPORT\n"
-				base_height = base_knot_pos.z - ground_knot_pos.z
-	
-				base_knot_pos.z   = base_height
-				ground_knot_pos.z = 0
-	
-	
-				setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
-				
-				if num_of_knots >= 3 then
+				#REMOVE_FOOT: 
+				(
+					format "REMOVE FOOT\n"
+					ground_knot_pos.z = 0
+					base_knot_pos.z = SUPPORT_OPTIONS.base_height * 2
+					
+					
 					setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+					setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+					
+					deleteKnot support_obj spline_1 base_knot
+				)
 				
+				#ADD_FOOT:
+				(
+					format "ADD FOOT\n"
+					
+					base_knot = num_of_knots
+					
+					addKnot support_obj spline_1 #corner #line ground_knot_pos
+					
+					setMaterialID support_obj spline_1 ( num_of_segments + 1 ) 4
+					 
+					ground_knot = num_of_knots + 1
+					
+					base_knot_pos = getKnotPoint support_obj spline_1 base_knot
+					ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot
+					
+					
+					base_knot_pos.z   = SUPPORT_OPTIONS.base_height
+					ground_knot_pos.z = 0
+					
+					setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+					setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+				)
+				--default: 
 			)
+			
+			
 
 			--updateShape support_obj
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)

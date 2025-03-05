@@ -343,7 +343,7 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
 		--format "support_nodes: %\n" support_nodes
-
+		--format "what_to_update: %\n" what_to_update
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
 		--for sync_key in supports_by_source.keys do
@@ -353,7 +353,7 @@ struct SupportManager_v
 		for sync_key in supports_by_source.keys do
 		(
 			
-			if what_to_update == undefined then
+			--if what_to_update == undefined then
 				SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
 			
 				

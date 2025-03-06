@@ -201,13 +201,17 @@ struct SupportObject_v
 		format "\n"; print "SupportObject_v.updateLegPosition()"
 		--format "is_on_ground: %\n" this.is_on_ground
 
-		SupportLegUpdater = SupportLegUpdater_v (support_obj) (is_on_ground)
-
-		SupportLegUpdater.updateLeg()
-
-			
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		
+		if this.is_on_ground != undefined and this.is_on_ground then
+		(
+			SupportLegUpdater = SupportLegUpdater_v (support_obj)
+	
+			SupportLegUpdater.updateLeg()
+	
+			/* SET MATERIALS */ 
+			this._setMaterialsToLineSegments()
+				
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
 	),
 	
 	/** Update base height

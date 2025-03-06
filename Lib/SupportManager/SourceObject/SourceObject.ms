@@ -1,6 +1,6 @@
+filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportLegUpdater/SupportLegUpdater.ms" )	--"./SupportObject/SupportLegUpdater/SupportLegUpdater.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SourceObjectNormals/SourceObjectNormals.ms" )	--"./SourceObjectNormals/SourceObjectNormals.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportObject.ms" )	--"./SupportObject/SupportObject.ms"
-filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportLegUpdater/SupportLegUpdater.ms" )	--"./SupportObject/SupportLegUpdater/SupportLegUpdater.ms"
 /** Source object
  */
 struct SourceObject_v

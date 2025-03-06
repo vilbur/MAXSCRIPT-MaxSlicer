@@ -50,8 +50,20 @@ function onSourceObjectTransform sender evt =
 		
 		/* Update SourceObject and its suports if necessary */
 		if what_to_update != #POSITION_XY then
+		try(
 			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
-		
+			
+		)
+		catch
+		(
+			format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
+
+			format "FILE: %\n" (getErrorSourceFileName())
+			format "LINE: %\n" ( (getErrorSourceFileLine()) as integer )
+			
+			format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
+			
+		)
 		
 		
 		for obj in source_objects do 

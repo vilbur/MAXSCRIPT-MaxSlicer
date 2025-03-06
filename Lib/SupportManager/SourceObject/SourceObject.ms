@@ -1,6 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/SourceObjectNormals/SourceObjectNormals.ms" )	--"./SourceObjectNormals/SourceObjectNormals.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportObject.ms" )	--"./SupportObject/SupportObject.ms"
-
+filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportLegUpdater/SupportLegUpdater.ms" )	--"./SupportObject/SupportLegUpdater/SupportLegUpdater.ms"
 /** Source object
  */
 struct SourceObject_v
@@ -306,6 +306,7 @@ struct SourceObject_v
 				(#DOWN):   [ 0, 0, -1 ]
 				(#NORMAL): Normals.normals_world[index]
 			)
+			
 			/* SAVE CURRENT DIRECTION */ 
 			if not ( direction == #CUSTOM and current_direction == #DOWN and SupportsToUpdate[index].isVectorPointingDown() ) then 
 				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction

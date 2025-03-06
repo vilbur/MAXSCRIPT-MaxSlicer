@@ -144,7 +144,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 
 
 		/* GET 1st knot POSITION FROM LINE */ 
@@ -198,17 +198,18 @@ struct SupportObject_v
 	function updateLegPosition =
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		format "\n"; print "SupportObject_v.updateLegPosition()"
+		--format "\n"; print "SupportObject_v.updateLegPosition()"
 		--format "is_on_ground: %\n" this.is_on_ground
 
 		if this.is_on_ground != undefined and this.is_on_ground then
 		(
 			SupportLegUpdater = SupportLegUpdater_v (support_obj)
 	
-			SupportLegUpdater.updateLeg()
+			foot_added = SupportLegUpdater.updateLeg()
 	
-			/* SET MATERIALS */ 
-			this._setMaterialsToLineSegments()
+			/* SET MATERIALS */
+			if foot_added then
+				this._setMaterialsToLineSegments()
 				
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)

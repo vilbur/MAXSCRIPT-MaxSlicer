@@ -203,13 +203,13 @@ struct SupportObject_v
 
 		if this.is_on_ground != undefined and this.is_on_ground then
 		(
-			SupportLegUpdater = SupportLegUpdater_v (support_obj)
+			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE])
 	
-			foot_added = SupportLegUpdater.updateLeg()
+			SupportLegUpdater.updateLeg()
 	
-			/* SET MATERIALS */
-			if foot_added then
-				this._setMaterialsToLineSegments()
+			--/* SET MATERIALS */
+			--if foot_added then
+			--	this._setMaterialsToLineSegments()
 				
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)

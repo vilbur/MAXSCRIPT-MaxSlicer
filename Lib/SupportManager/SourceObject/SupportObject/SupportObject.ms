@@ -93,6 +93,7 @@ struct SupportObject_v
 
 		SUPPORT_MANAGER.addSupportObjects (this)
 
+		
 		/* RETURN */ 
 		this
 	),
@@ -172,7 +173,6 @@ struct SupportObject_v
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
 			
-		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
 
 		this._setRightCountOfKnotsToSpline()
 		
@@ -189,6 +189,7 @@ struct SupportObject_v
 		if numKnots support_obj spline_1 > 2 then
 			setUserPropVal support_obj "NORMAL_LENGTH" ( distance knots_positions[1] knots_positions[2] )
 
+		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
@@ -205,11 +206,11 @@ struct SupportObject_v
 		(
 			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE])
 	
-			SupportLegUpdater.updateLeg()
+			foot_added = SupportLegUpdater.updateLeg()
 	
-			--/* SET MATERIALS */
+			/* SET MATERIALS */
 			--if foot_added then
-			--	this._setMaterialsToLineSegments()
+				--this._setMaterialsToLineSegments()
 				
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)

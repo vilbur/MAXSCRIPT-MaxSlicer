@@ -104,10 +104,15 @@ function bindSupportToTransformEvent supports =
 		else if support.isSelected then
 		(
 			--print "!!!!!!!!! FIRED UPDATE"
-			--format "Update Supports: %\n" support.name
 
-			if support.pos.z < (SUPPORT_OPTIONS.base_height ) then
-				support.pos.z = (SUPPORT_OPTIONS.base_height )
+			--bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+			base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+			chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+
+			z_pos_limit = base_height + chamfer_val
+			
+			if support.pos.z < z_pos_limit then
+				support.pos.z = z_pos_limit
 			
 			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:false direction:#CUSTOM
 		)

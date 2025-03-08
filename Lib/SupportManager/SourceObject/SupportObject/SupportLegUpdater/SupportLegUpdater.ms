@@ -22,10 +22,19 @@ struct SupportLegUpdater_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 
+	ground_knot,
+	base_knot,
+	leg_knot,
+	
+	--bar_width,
+	
 	--minimal_support_height,
 	minimal_leg_pos_z,
 	
+	foot_just_added = false,
 	update_shape = false,
+	
+	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -49,14 +58,13 @@ struct SupportLegUpdater_v
 	 */
 	function updateLeg =
 	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
 		format "\n"; print "SupportLegUpdater_v.updateLeg()"
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		foot_just_added = false
 		
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
-		bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 			
 			
 		--minimal_leg_pos_z = SUPPORT_OPTIONS.base_height + chamfer_val
@@ -71,181 +79,32 @@ struct SupportLegUpdater_v
 		base_knot	= num_of_knots - 1
 		leg_knot    = num_of_knots - 2
 		
-		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
-		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
 
-		base_height	= getUserPropVal support_obj "BASE_HEIGHT"
+
+		base_height   = getUserPropVal support_obj "BASE_HEIGHT"
 		normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
 		
 		this._setVerticalKnots()
+		format "VERTICAL_KNOTS: %\n" vertical_knots
 
 		/*==============================================================================
 		  
 			ADD OR REMOVE FOOT
 			
 		================================================================================*/
-		
+
 		if this._footExists() then
-		(
 			/*------------------------------------------------------------------------------
 				IF HAS FOOT - TRY REMOVE FOOT
 			--------------------------------------------------------------------------------*/
-			format "\nFOOT EXISTS\n"
-			format "VERTICAL_KNOTS: %\n" vertical_knots
+			this._ifFootExists()
 
-			support_is_straight = vertical_knots.count == num_of_knots
-			
-			is_space_for_foot = true
-			
-
-			/* KEEP LEG POINT ABOVE FOOT */
-			--if support_is_straight and leg_knot < num_of_knots then
-			if not support_is_straight then
-			(
-				format "\nSUPPORT IS SKEWED\n"
-				
-				if leg_knot > 1 then
-				(
-					/* TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
-						
-						Straight support - 180° > remove 0%  of bar with
-						Straight support - 135° > remove 45% of bar with
-						Straight support - 90°  > remove 90% of bar with
-					
-					*/ 
-					leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
-					prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
-					
-					vector_raft = normalize ( prev_knot_pos - leg_point_pos )
-					vector_leg  = normalize ( base_knot_pos - leg_point_pos )
-					
-					angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
-					
-					angle_alpha -= 90
-					
-					minimal_leg_pos_z += bar_width - ( bar_width * (angle_alpha / 100) )
-				)
-
-				is_space_for_foot = this._isSpaceForFoot leg_knot_pos_z:(this._getZposition leg_knot )
-
-			)
-			else
-			(
-				format "\nSUPPORT IS STRAIGHT\n"
-
-				/* IF LEG POINT EXISTS */ 
-				if leg_knot > 1 then
-				(
-	
-					leg_point_pos_z = this._getZposition leg_knot
-					
-					if this._getZposition leg_knot < minimal_leg_pos_z then
-						this._setZposition (leg_knot) (minimal_leg_pos_z + 0.1 )
-						
-					leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
-					prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
-					
-					if distance prev_knot_pos leg_point_pos < chamfer_val  then
-						is_space_for_foot = false
-				)
-					
-				if is_space_for_foot then
-					is_space_for_foot = this._isSpaceForFoot leg_knot_pos_z:(this._getZposition leg_knot )
-			)
-			
-			
-			if not is_space_for_foot then
-			(
-				this._removeFoot()
-				
-				num_of_knots = numKnots support_obj spline_1
-
-				if support_is_straight and num_of_knots > 2 then
-					--for knot = 1 to num_of_knots - 1 do 
-					for knot = 2 to num_of_knots - 1 do 
-						deleteKnot support_obj spline_1 knot
-						
-				update_shape = true
-			)
-		)
-
-		else 
-		(
+		else
 			/*------------------------------------------------------------------------------
 				IF HAS NOT FOOT - TRY ADD FOOT
 			--------------------------------------------------------------------------------*/
-			format "\nFOOT NOT EXISTS\n"
-			/* IF SKEWED SUPPORT  */
-			if not_vertical_points then
-			(
-				point_1_pos = getKnotPoint support_obj spline_1 1
-				point_2_pos = getKnotPoint support_obj spline_1 2
-				
-				distance_of_points = distance point_1_pos point_2_pos
-				format "distance_of_points: %\n" distance_of_points
-				
-			
-				/* IF SUPPORT IS SHORTEN BY GROUND */
-				if not close_enough distance_of_points normal_length 10000 then
-				(
-					format "\nNORMAL IS NOT FULL\n"
-					
-					point_2_pos_full_length = this._extendRaftKnotToNormalLenght(point_1_pos)(point_2_pos)
-				)
-				
-				/* UPDATE 2nd POINT TO NORMAL LENGTH */ 
-				if point_2_pos_full_length != undefined and point_2_pos_full_length.z > 0 then
-				(
-					format "\nSET TO NORMAL LENGTH\n"
+			this._ifFootNotExists()
 
-					setKnotPoint support_obj spline_1 2 point_2_pos_full_length
-					
-					point_2_pos = point_2_pos_full_length
-				)
-				
-				
-				is_space_for_foot = point_2_pos.z > minimal_leg_pos_z
-				
-			)
-			else
-				is_space_for_foot = this._isSpaceForFoot()
-
-			format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
-
-			/*------------------------------------------------------------------------------
-				ADD FOOT
-			--------------------------------------------------------------------------------*/
-			if is_space_for_foot then
-			(
-				format "\nADD FOOT\n"
-				format "VERTICAL_KNOTS: %\n" vertical_knots
-				format "HAS_VERTICAL_POINTS: %\n" has_vertical_points
-				
-				/* SET FOOT TO VERTICAL SUPPORT */
-				if has_vertical_points then
-				(
-					/* UPDATE BASE POINT POSTION */ 
-					this._setZposition (vertical_knots[1]) (base_height)
-					
-					if vertical_knots.count == 2 then
-						this._addGroundPoint()
-				)
-				
-				/* ADD FOOT TO SKEWED SUPPORT */
-				else
-				(
-					this._addBasePoint()
-						
-					this._addGroundPoint()
-				)
-				
-				foot_just_added = true
-				
-				updateShape support_obj
-				
-				this._setMaterialToFoot()
-			)
-		)
 		
 		/*==============================================================================
 		  
@@ -253,8 +112,6 @@ struct SupportLegUpdater_v
 			
 		================================================================================*/
 
-		
-		
 		if not foot_just_added then
 		(
 			if update_shape then
@@ -271,8 +128,8 @@ struct SupportLegUpdater_v
 			if foot_exists and not foot_just_added then
 			(
 				format "\nUPDATE FOOT\n"
-				format "base_knot: %\n" base_knot
-				format "base_height: %\n" base_height
+				--format "base_knot: %\n" base_knot
+				--format "base_height: %\n" base_height
 		
 				/* UPDATE BASE POINT */ 
 				this._setZposition (base_knot)(base_height)
@@ -294,10 +151,13 @@ struct SupportLegUpdater_v
 					format "\nUPDATE VERTICAL SUPPORT\n"
 					
 					top_vertical_knot = this._getTopVerticalKnot()
-					format "top_vertical_knot: %\n" top_vertical_knot
+					--format "top_vertical_knot: %\n" top_vertical_knot
 					
 					is_space_for_leg = this._isSpaceForLeg( top_vertical_knot )
-					format "is_space_for_leg: %\n" is_space_for_leg
+					--format "is_space_for_leg: %\n" is_space_for_leg
+					
+					updateShape support_obj
+
 					
 					if not this._isSpaceForLeg( this._getTopVerticalKnot() ) then
 					(
@@ -314,7 +174,8 @@ struct SupportLegUpdater_v
 				else
 				(
 					format "\nUPDATE SUPPORT WITHOUT VERTICAL POINTS\n"
-					
+					updateShape support_obj
+
 					if this._isSpaceForLeg( this._getLastKnot() ) then
 						this._addGroundPoint()
 					else
@@ -329,13 +190,186 @@ struct SupportLegUpdater_v
 	
 	private
 	
+	/** IF FOOT EXISTS
+	 */
+	function _ifFootExists =
+	(
+		format "\n---------------------------------\n"
+		format "\n"; print "SupportLegUpdater_v._ifFootExists()"
+		format "\nFOOT EXISTS\n"
+
+		ground_knot_pos	= getKnotPoint support_obj spline_1 ground_knot
+		base_knot_pos	= getKnotPoint support_obj spline_1 base_knot
+		
+		support_is_straight = vertical_knots.count == num_of_knots
+		
+		is_space_for_foot = true
+		
+		/* KEEP LEG POINT ABOVE FOOT */
+		--if support_is_straight and leg_knot < num_of_knots then
+		if not support_is_straight then
+		(
+			format "\nSUPPORT IS SKEWED\n"
+			bar_width = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+
+			if leg_knot > 1 then
+			(
+				/* TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
+					
+					support - 90°  > remove 90% of bar with
+					support - 135° > remove 45% of bar with
+					support - 180° > remove 0%  of bar with
+				
+				*/ 
+				leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
+				prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
+				
+				vector_raft = normalize ( prev_knot_pos - leg_point_pos )
+				vector_leg  = normalize ( base_knot_pos - leg_point_pos )
+				
+				angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
+				
+				angle_alpha -= 90
+				
+				minimal_leg_pos_z += bar_width - ( bar_width * (angle_alpha / 100) )
+			)
+
+			is_space_for_foot = this._isSpaceForFoot leg_knot_pos_z:(this._getZposition leg_knot )
+
+		)
+		else
+		(
+			format "\nSUPPORT IS STRAIGHT\n"
+
+			/* IF LEG POINT EXISTS */ 
+			if leg_knot > 1 then
+			(
+
+				leg_point_pos_z = this._getZposition leg_knot
+				
+				if this._getZposition leg_knot < minimal_leg_pos_z then
+					this._setZposition (leg_knot) (minimal_leg_pos_z + 0.1 )
+					
+				leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
+				prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
+				
+				if distance prev_knot_pos leg_point_pos < chamfer_val  then
+					is_space_for_foot = false
+			)
+				
+			if is_space_for_foot then
+				is_space_for_foot = this._isSpaceForFoot leg_knot_pos_z:(this._getZposition leg_knot )
+		)
+		
+		
+		if not is_space_for_foot then
+		(
+			this._removeFoot()
+			
+			num_of_knots = numKnots support_obj spline_1
+
+			if support_is_straight and num_of_knots > 2 then
+				--for knot = 1 to num_of_knots - 1 do 
+				for knot = 2 to num_of_knots - 1 do 
+					deleteKnot support_obj spline_1 knot
+					
+			update_shape = true
+		)
+	),
+	
+	/** IF FOOT NOT EXISTS
+	 */
+	function _ifFootNotExists =
+	(
+		format "\n---------------------------------\n"
+		format "\n"; print "SupportLegUpdater_v._ifFootNotExists()"
+
+		format "\nFOOT NOT EXISTS\n"
+		/* IF SKEWED SUPPORT  */
+		if not_vertical_points then
+		(
+			point_1_pos = getKnotPoint support_obj spline_1 1
+			point_2_pos = getKnotPoint support_obj spline_1 2
+			
+			distance_of_points = distance point_1_pos point_2_pos
+			--format "distance_of_points: %\n" distance_of_points
+			
+		
+			/* IF SUPPORT IS SHORTEN BY GROUND */
+			if not close_enough distance_of_points normal_length 10000 then
+			(
+				format "\nNORMAL IS NOT FULL\n"
+				
+				point_2_pos_full_length = this._extendRaftKnotToNormalLenght(point_1_pos)(point_2_pos)
+			)
+			
+			/* UPDATE 2nd POINT TO NORMAL LENGTH */ 
+			if point_2_pos_full_length != undefined and point_2_pos_full_length.z > 0 then
+			(
+				format "\nSET TO NORMAL LENGTH\n"
+
+				setKnotPoint support_obj spline_1 2 point_2_pos_full_length
+				
+				point_2_pos = point_2_pos_full_length
+			)
+			
+			
+			is_space_for_foot = point_2_pos.z > minimal_leg_pos_z
+			
+		)
+		else
+			is_space_for_foot = this._isSpaceForFoot()
+
+		format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
+
+		/*------------------------------------------------------------------------------
+			ADD FOOT
+		--------------------------------------------------------------------------------*/
+		if is_space_for_foot then
+		(
+			format "\nADD FOOT\n"
+			format "VERTICAL_KNOTS: %\n" vertical_knots
+			format "HAS_VERTICAL_POINTS: %\n" has_vertical_points
+			
+			/* SET FOOT TO VERTICAL SUPPORT */
+			if has_vertical_points then
+			(
+				/* UPDATE BASE POINT POSTION */ 
+				this._setZposition (vertical_knots[1]) (base_height)
+				
+				if vertical_knots.count == 2 then
+					this._addGroundPoint()
+			)
+			
+			/* ADD FOOT TO SKEWED SUPPORT */
+			else
+			(
+				this._addBasePoint()
+					
+				this._addGroundPoint()
+			)
+			
+			foot_just_added = true
+			
+			updateShape support_obj
+			
+			this._setMaterialToFoot()
+		)
+	),
+
+	
+
+	/*------------------------------------------------------------------------------
+		HELPERS
+	--------------------------------------------------------------------------------*/
+	
 	/** Test if foot exist - lat foot line segment has mat ID 4
 	 */
 	function _footExists =
 	(
-		format "\n"; print "SupportLegUpdater_v._footExists()"
+		--format "\n"; print "SupportLegUpdater_v._footExists()"
 		num_of_segments = numSegments support_obj spline_1
-		format "num_of_segments: %\n" num_of_segments
+		--format "num_of_segments: %\n" num_of_segments
 		getMaterialID support_obj spline_1 num_of_segments == 4
 	),
 	

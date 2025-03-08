@@ -59,7 +59,9 @@ struct SupportLegUpdater_v
 		bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 			
 			
-		minimal_leg_pos_z      = SUPPORT_OPTIONS.base_height + chamfer_val
+		--minimal_leg_pos_z = SUPPORT_OPTIONS.base_height + chamfer_val
+		minimal_leg_pos_z = SUPPORT_OPTIONS.base_height + chamfer_val
+		--minimal_leg_pos_z *= 2
 		--minimal_support_height = minimal_leg_pos_z + chamfer_val
 
 		num_of_knots    = numKnots support_obj spline_1
@@ -95,30 +97,55 @@ struct SupportLegUpdater_v
 			
 			is_space_for_foot = true
 			
+
 			/* KEEP LEG POINT ABOVE FOOT */
 			--if support_is_straight and leg_knot < num_of_knots then
 			if not support_is_straight then
 			(
 				format "\nSUPPORT IS SKEWED\n"
 				
+				if leg_knot > 1 then
+				(
+					/* TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
+						
+						Straight support - 180° > remove 0%  of bar with
+						Straight support - 135° > remove 45% of bar with
+						Straight support - 90°  > remove 90% of bar with
+					
+					*/ 
+					leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
+					prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
+					
+					vector_raft = normalize ( prev_knot_pos - leg_point_pos )
+					vector_leg  = normalize ( base_knot_pos - leg_point_pos )
+					
+					angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
+					
+					angle_alpha -= 90
+					
+					minimal_leg_pos_z += bar_width - ( bar_width * (angle_alpha / 100) )
+				)
+
 				is_space_for_foot = this._isSpaceForFoot leg_knot_pos_z:(this._getZposition leg_knot )
+
 			)
 			else
 			(
 				format "\nSUPPORT IS STRAIGHT\n"
 
+				/* IF LEG POINT EXISTS */ 
 				if leg_knot > 1 then
 				(
+	
 					leg_point_pos_z = this._getZposition leg_knot
-					
 					
 					if this._getZposition leg_knot < minimal_leg_pos_z then
 						this._setZposition (leg_knot) (minimal_leg_pos_z + 0.1 )
 						
-					leg_point_pos_z =  getKnotPoint support_obj spline_1 leg_knot
-					prev_knot_pos_z =  getKnotPoint support_obj spline_1 (leg_knot - 1)
+					leg_point_pos =  getKnotPoint support_obj spline_1 leg_knot
+					prev_knot_pos =  getKnotPoint support_obj spline_1 (leg_knot - 1)
 					
-					if distance prev_knot_pos_z leg_point_pos_z < chamfer_val  then
+					if distance prev_knot_pos leg_point_pos < chamfer_val  then
 						is_space_for_foot = false
 				)
 					

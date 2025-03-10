@@ -106,10 +106,11 @@ function bindSupportToTransformEvent supports =
 			--print "!!!!!!!!! FIRED UPDATE"
 
 			--bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-			base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-			chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
-
-			z_pos_limit = base_height + chamfer_val
+			--base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+			--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+			--
+			--z_pos_limit = base_height + chamfer_val
+			z_pos_limit = 0
 			
 			if support.pos.z < z_pos_limit then
 				support.pos.z = z_pos_limit

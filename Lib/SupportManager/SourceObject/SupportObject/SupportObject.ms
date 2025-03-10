@@ -145,8 +145,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-
+		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "obj_type: %\n" obj_type
 
 		/* GET 1st knot POSITION FROM LINE */ 
 		if classOf first_knot_pos != point3 then
@@ -168,10 +168,12 @@ struct SupportObject_v
 		if update_knot_2 and dir_vector != undefined then
 			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
 		
-		
+		--format "hit_raft: %\n" hit_raft
 		/* GENERATE LEG FOR SUPPORT */ 
 		if ( obj_type == #SUPPORT and hit_raft == undefined )  then
 			this._setSupportLegKnotPositions()
+		
+		--else
 			
 
 		this._setRightCountOfKnotsToSpline()
@@ -182,6 +184,13 @@ struct SupportObject_v
 		
 		this._setMaterialsToLineSegments()
 		
+
+		
+		this.updateLegPosition()
+
+		
+		
+		
 		this._setPivotToSecondPoint()
 		
 		this._alignPivotToSeconPoint()
@@ -189,9 +198,11 @@ struct SupportObject_v
 		if numKnots support_obj spline_1 > 2 then
 			setUserPropVal support_obj "NORMAL_LENGTH" ( distance knots_positions[1] knots_positions[2] )
 
-		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+		--setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
 
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		--updateShape support_obj
+
+		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
 	/** Update leg position

@@ -145,7 +145,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "obj_type: %\n" obj_type
 
 		/* GET 1st knot POSITION FROM LINE */ 
@@ -213,7 +213,7 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v.updateLegPosition()"
 		--format "is_on_ground: %\n" this.is_on_ground
 
-		if this.is_on_ground != undefined and this.is_on_ground then
+		--if this.is_on_ground != undefined and this.is_on_ground then
 		(
 			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE])
 	
@@ -222,7 +222,8 @@ struct SupportObject_v
 			/* SET MATERIALS */
 			--if foot_added then
 				--this._setMaterialsToLineSegments()
-				
+			this._setPivotToSecondPoint()
+
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 	),
@@ -774,7 +775,7 @@ struct SupportObject_v
 	function _setPivotToSecondPoint =
 	(
 		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
-		support_obj.pivot = knots_positions[2]
+		support_obj.pivot = getKnotPoint support_obj spline_1 2
 	),
 
 	/** Test collision with source object

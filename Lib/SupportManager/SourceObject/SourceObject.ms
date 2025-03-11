@@ -422,7 +422,7 @@ struct SourceObject_v
 	 */
 	function getVertsPositions verts =
 	(
-		format "\n"; print "SourceObject_v.getVertsPositions()"
+		--format "\n"; print "SourceObject_v.getVertsPositions()"
 		--format "obj: %\n" obj
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts

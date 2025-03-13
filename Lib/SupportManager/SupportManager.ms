@@ -535,10 +535,10 @@ struct SupportManager_v
 		/* IF SUPPORT DELETED */
 		else if (support_key = this.isType #SUPPORT obj) != false or (raft_key = this.isType #RAFT obj) != false then
 		(
-			format "SUPPORT DELETED\n"
+			--format "SUPPORT DELETED\n"
 			if support_key == false then
 				support_key = raft_key
-			format "support_key: %\n" support_key
+			--format "support_key: %\n" support_key
 			sync_key = this._getSyncKey obj
 		    index    = getUserPropVal obj "INDEX"
 
@@ -752,7 +752,7 @@ struct SupportManager_v
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			--objects_by_type =  deepCopy supports_and_rafts
+			objects_by_type =  deepCopy supports_and_rafts
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then

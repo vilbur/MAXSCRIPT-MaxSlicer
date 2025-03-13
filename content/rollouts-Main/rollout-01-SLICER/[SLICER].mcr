@@ -42,7 +42,7 @@ icon:	""
 		_selection = if selection.count == 0 then selection else geometry
 
 		--for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_BY_PRINT_LAYER ) do
-		for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM ) do
+		for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SLICE_EDIT_VERTS ) do
 		(
 
 			/*  */

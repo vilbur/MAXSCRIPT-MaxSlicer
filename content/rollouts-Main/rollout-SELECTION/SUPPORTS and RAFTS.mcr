@@ -155,28 +155,69 @@ toolTip:	"Select supports which are NOT on ground"
 	)
 )
 
+
+
 /**
  *
  */
-macroscript	maxtoprint_select_by_direction
+macroscript	maxtoprint_select_by_direction_down
 category:	"maxtoprint"
 buttontext:	"BY DIRECTION"
-toolTip:	"Select only supports with normal DOWN"
---icon:	"across:2"
-(
+toolTip:	"Direction DOWN"
+icon:	"tooltip:SELECT SUPPORTS AND RAFTS BY DIRECTION.\nUse current selection, or all visible objects"
 
+(
 	on execute do
 	(
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
+	
+        visible_objects = for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
+                           
+		/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
+		objs_input = if selection.count > 0 then selection as Array else visible_objects
+			
+		
+		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( objs_input)
 
-		--supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
-		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
+		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" == #DOWN collect support
 
-		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" == [0,0,-1] collect support
-
-		select filtered
+		if filtered.count == 0 then
+			messageBox "Supports or rafts with direction #DOWN does not exists" --title:"Title"  beep:false
+		else
+			select filtered
 	)
 )
+
+
+/**
+ *
+ */
+macroscript	maxtoprint_select_by_direction_not_down
+category:	"maxtoprint"
+buttontext:	"BY DIRECTION"
+toolTip:	"Direction NORMAL & CUSTOM"
+(
+	on execute do
+	(
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
+	
+        visible_objects = for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
+                           
+		/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
+		objs_input = if selection.count > 0 then selection as Array else visible_objects
+			
+		
+		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( objs_input)
+
+		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" != #DOWN collect support
+
+		if filtered.count == 0 then
+			messageBox "Supports or rafts with direction #DOWN does not exists" --title:"Title"  beep:false
+		else
+			select filtered
+	)
+)
+
 
 /**
  *

@@ -2,65 +2,7 @@ filein( getFilenamePath(getSourceFileName()) + "/createSlicerDialog.ms" )	--"./c
 
 filein( getFilenamePath(getSourceFileName()) + "/SlicerCallbacks.ms" )	--"./SlicerCallbacks.ms"
 
-
-
-
-
-/*
-
-	TODO: MOVE CALLBACK TO FILE
-
-*/
-/** Wait when modifier stack will be ready
- */
-function waitOnModifiyStackIsReady_SLICER =
-(
-	--print "Start: waitOnModifiyStackIsReady_SLICER()"
-	callbacks.addScript #modPanelObjPostChange "onModifyStackReady_SLICER()" id:#onModifyStackReady_SLICER
-)
-
-/**
- */
-function waitOnModifiyStackIsReadyKill_SLICER =
-(
-	--print "Kill: waitOnModifiyStackIsReady_SLICER()"
-	try(callbacks.removeScripts #modPanelObjPostChange id:#onModifyStackReady_SLICER)catch()
-)
-
-/** Call callback when mod panel is fully loaded
- */
-function onModifyStackReady_SLICER =
-(
-	--format "\n"; print "Callback: onModifyStackReady_SLICER WAIT"
-	max modify mode
-
-	if (_modifier = modPanel.getCurrentObject()) != undefined then -- current object is undefined than Modify panel is fully loaded
-	(
-		--format "\n"; print "Callback: onModifyStackReady_SLICER READY"
-		waitOnModifiyStackIsReadyKill_SLICER()
-
-		obj	= selection[1]
-
-		local edit_poly_mod
-
-		/* ACTIVATE FIRST EDIT POLY MODIFIER IN STACK FROM TOP */
-		for _mod in obj.modifiers while edit_poly_mod != Edit_Poly where (edit_poly_mod = classOf _mod) == Edit_Poly do
-			modPanel.setCurrentObject _mod node:obj
-
-		if edit_poly_mod != Edit_Poly then
-			modPanel.setCurrentObject obj.baseObject --node:obj
-
-
-		if classOf ( _mod = modPanel.getCurrentObject() ) == Editable_Poly then
-			_mod.showcage = off
-
-		showEndResult  = true
-	)
-)
-
-
-
-
+filein( getFilenamePath(getSourceFileName()) + "/onModifyStackReady_SLICER.ms" )	--"./onModifyStackReady_SLICER.ms"
 
 
 
@@ -93,6 +35,9 @@ struct SlicerSystem_v
 	/* dependency */
 	/* reference */
 	/* inhered */
+
+
+
 
 	/** Set slice plane modifier
 	  *
@@ -213,26 +158,35 @@ struct SlicerSystem_v
 		)
 	),
 
-	/** Delete modifiers
-	 */
-	function deleteModifiers =
-	(
-		--format "\n"; print "SlicerSystem_v.deleteModifiers()"
-		for key in slice_modifiers.keys do
-		(
-			slice_modifier = slice_modifiers[key]
-
-			/* GET OBJECTS WITH MODIFIER INS */
-			if (objects_with_modifier = refs.dependentNodes slice_modifiers[key]).count > 0 then
-				for obj in objects_with_modifier do
-				deleteModifier obj slice_modifiers[key]
-		)
-
-		for obj in objects \
-			where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
-			or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT_VERTS]) != undefined  do
-				deleteModifier obj (if poly_select_mod != undefined then poly_select_mod else edit_poly_mod )
-	),
+	--/** Delete modifiers
+	-- */
+	--function deleteModifiers =
+	--(
+	--	format "\n"; print "SlicerSystem_v.deleteModifiers()"
+	--	for key in slice_modifiers.keys do
+	--	(
+	--		slice_modifier = slice_modifiers[key]
+	--
+	--		/* GET OBJECTS WITH MODIFIER INS */
+	--		if (objects_with_modifier = refs.dependentNodes slice_modifiers[key]).count > 0 then
+	--			for obj in objects_with_modifier do
+	--			deleteModifier obj slice_modifiers[key]
+	--	)
+	--
+	--	for obj in objects \
+	--		where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
+	--		or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT_VERTS]) != undefined do
+	--		(
+	--			format "obj.name: %\n" obj.name
+	--			format "poly_select_mod: %\n" poly_select_mod
+	--			format "edit_poly_mod: %\n" edit_poly_mod
+	--			if poly_select_mod != undefined then
+	--				deleteModifier obj poly_select_mod
+	--			
+	--			if edit_poly_mod != undefined then
+	--				deleteModifier obj edit_poly_mod				
+	--		)
+	--),
 
 	/** Toggle slice_modifiers
 	 */

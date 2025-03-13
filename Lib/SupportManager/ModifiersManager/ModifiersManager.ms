@@ -96,9 +96,9 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key val: =
 	(
-		--format "\n"; print "ModifiersManager_v.updateModifier()"
-		--format "_objects: %\n" _objects
-		--format "prop_key: %\n" prop_key
+		format "\n"; print "ModifiersManager_v.updateModifier()"
+		format "_objects: %\n" _objects
+		format "prop_key: %\n" prop_key
 
 
 		

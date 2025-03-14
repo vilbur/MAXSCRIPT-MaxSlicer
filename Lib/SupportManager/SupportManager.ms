@@ -344,6 +344,7 @@ struct SupportManager_v
 		--format "direction: %\n" direction
 		--format "support_nodes: %\n" support_nodes
 		--format "what_to_update: %\n" what_to_update
+		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
 		--for sync_key in supports_by_source.keys do
@@ -351,17 +352,7 @@ struct SupportManager_v
 		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
 		for sync_key in supports_by_source.keys do
-		(
-			
-			--if what_to_update == undefined then
-				SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
-			
-				
-			
-		)
-		
-		
-		
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
 			
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
@@ -809,6 +800,16 @@ struct SupportManager_v
 			source_objects --return
 	),
 	
+	/** Get support objects
+	 */
+	function getSupportObjects _objects =
+	(
+		--format "\n"; print "SupportManager_v.getSupportObjects()"
+		supports = this.getSupportsAndRafts _objects
+		--format "supports: %\n" supports
+		for SupportObject in SupportObjects where index = findItem supports SupportObject.value.support_obj > 0 collect SupportObject.value
+	),
+	
 	/** Get supports and rafts
 	 */
 	function getSupportsAndRafts _objects =
@@ -915,7 +916,10 @@ struct SupportManager_v
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
+				has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
+				
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
+				
 				--format "index: %\n" index
 				--format "sync_key: %\n" sync_key
 				

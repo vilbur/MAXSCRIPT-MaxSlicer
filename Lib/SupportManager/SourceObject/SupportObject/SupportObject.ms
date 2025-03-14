@@ -21,11 +21,15 @@ struct SupportObject_v
 	knots_positions = Array (2),
 
 	is_on_ground = true,
+	has_foot = true,
 
 
 	hit_raft,
 	hit_support,
-
+	
+	/* dependency */
+	SupportLegUpdater,
+	
 	private
 
 	spline_1 = 1, -- each support line has ony 1 spline
@@ -215,7 +219,7 @@ struct SupportObject_v
 
 		--if this.is_on_ground != undefined and this.is_on_ground then
 		(
-			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE])
+			this._setSupportLegUpdater()
 	
 			foot_added = SupportLegUpdater.updateLeg()
 	
@@ -289,6 +293,8 @@ struct SupportObject_v
 	
 	private
 
+	
+	
 	/** Set knots positions of raft part of support
 	  
 	  
@@ -890,14 +896,21 @@ struct SupportObject_v
 		wirecolor_shifted --return
 	),
 
+	/** Set support leg updater
+	 */
+	function _setSupportLegUpdater =
+	(
+		--format "\n"; print "SupportLegUpdater_v._setSupportLegUpdater()"
+		if support_obj != undefined then 
+			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE])
+	),
+
 	/**
 	 */
 	on create do
 	(
 		--format "\n"; print "SupportObject.onCreate()"
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS		
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
+		this._setSupportLegUpdater()
 	)
 
 )

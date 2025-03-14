@@ -163,6 +163,8 @@ struct SourceObject_v
 		
 		setUserPropVal support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
 
+		setUserPropVal support_obj "HAS_FOOT"	SupportObject.has_foot
+		
 		setUserPropVal support_obj "DIRECTION" direction --asString:true
 		
 		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height

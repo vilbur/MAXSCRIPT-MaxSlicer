@@ -17,7 +17,9 @@ function generateSupportsOrRafts obj_type: =
 	--format "SOURCE_OBJECTS: %\n" source_objects
 		
 	/*------------------------------------------------------------------------------
+	  
 		GENERATE NEW OBJECTS by source object
+		
 	------------------------------------------------------------------------------*/
 	if source_objects.count > 0 then
 		new_nodes = SUPPORT_MANAGER.generateSupports source_objects[1] obj_type:obj_type
@@ -30,7 +32,9 @@ function generateSupportsOrRafts obj_type: =
 		
 		
 		/*------------------------------------------------------------------------------
+		  
 			CONVERT SELECTED SUPPORTS & RAFTS
+			
 		--------------------------------------------------------------------------------*/
 	
 		/* SUPPORTS TO RAFTS */
@@ -43,7 +47,9 @@ function generateSupportsOrRafts obj_type: =
 		
 		
 		/*------------------------------------------------------------------------------
+		  
 			REBUILD SELECTED SUPPORTS & RAFTS
+			
 		--------------------------------------------------------------------------------*/
 		
 		if  obj_type == #SUPPORT and selected_supports.count > 0 \
@@ -55,20 +61,7 @@ function generateSupportsOrRafts obj_type: =
 		
 			resumeSupportTransformEvent()
 		)
-		--
-		--if obj_type == #RAFT and selected_rafts.count > 0 then
-		--(
-		--	pauseSupportToTransformEvent()
-		--
-		--	SUPPORT_MANAGER.resetSupports(selected_rafts) obj_type:obj_type
-		--
-		--	resumeSupportToTransformEvent()
-		--)
-		--
-		
 	)
-
-	
 	
 	/* SELECT RESULT */ 
 	select (if new_nodes != undefined and new_nodes.count > 0 then new_nodes else _selection)

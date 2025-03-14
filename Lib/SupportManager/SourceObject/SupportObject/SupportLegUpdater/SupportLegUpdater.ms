@@ -93,8 +93,8 @@ struct SupportLegUpdater_v
 			
 		================================================================================*/
 
-		if this._footExists() and this._mustBeFootRemoved() then
-			this._removeFoot()
+		if this.footExists() and this._mustBeFootRemoved() then
+			this.removeFoot()
 		
 		else if not foot_exists and this._canBeFootAdded() then
 			this._addFoot()
@@ -108,7 +108,7 @@ struct SupportLegUpdater_v
 
 		--updateShape support_obj
 		
-		if this._footExists() then
+		if this.footExists() then
 			this._updateLegWithFoot()
 		
 		else
@@ -122,7 +122,7 @@ struct SupportLegUpdater_v
 	),
 	
 	
-	private
+	--private
 	
 	/** Set minimal leg pos
 	 */
@@ -398,9 +398,9 @@ struct SupportLegUpdater_v
 	
 	/** Test if foot exist - lat foot line segment has mat ID 4
 	 */
-	function _footExists =
+	function footExists =
 	(
-		--format "\n"; print "SupportLegUpdater_v._footExists()"
+		--format "\n"; print "SupportLegUpdater_v.footExists()"
 		num_of_segments = numSegments support_obj spline_1
 		--format "num_of_segments: %\n" num_of_segments
 		foot_exists = getMaterialID support_obj spline_1 num_of_segments == 4
@@ -410,9 +410,9 @@ struct SupportLegUpdater_v
 
 	/** Remove foot by deleting last knot of spline
 	 */
-	function _removeFoot =
+	function removeFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._removeFoot()"
+		format "\n"; print "SupportLegUpdater_v.removeFoot()"
 		--format "\nREMOVE FOOT\n"
 		--format "direction_is_down: %\n" direction_is_down
 
@@ -749,6 +749,7 @@ struct SupportLegUpdater_v
 
 		num_of_knots --return
 	),
+
 
 	/**
 	 */

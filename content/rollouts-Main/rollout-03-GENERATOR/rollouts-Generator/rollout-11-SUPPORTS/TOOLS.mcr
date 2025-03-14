@@ -30,7 +30,22 @@ tooltip:	""
 --icon:	"offset:[0,10]"
 (
 	on execute do
-		SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
+	(
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\TOOLS.mcr"
+		--SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
+		_objects = selection as Array
+
+		SupportObjects = SUPPORT_MANAGER.getSupportObjects (_objects)
+		format "SupportObjects: %\n" SupportObjects
+		for SupportObject in SupportObjects do
+		(
+			if SupportObject.SupportLegUpdater.footExists() then
+				SupportObject.SupportLegUpdater.removeFoot()
+			
+			updateShape SupportObject.support_obj
+
+		)
+	)
 )
 
 /** SUPPORT FOOT
@@ -41,8 +56,8 @@ buttontext:	"FOOT Toggle"
 tooltip:	""
 icon:	""
 (
-	on execute do
-		SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
+	--on execute do
+		--SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
 )
 
 /**

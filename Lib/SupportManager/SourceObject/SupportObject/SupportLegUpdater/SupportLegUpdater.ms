@@ -86,6 +86,7 @@ struct SupportLegUpdater_v
 		base_height   = getUserPropVal support_obj "BASE_HEIGHT"
 		normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
 		
+		has_foot = getUserPropVal support_obj "HAS_FOOT"
 
 		/*==============================================================================
 		  
@@ -93,11 +94,11 @@ struct SupportLegUpdater_v
 			
 		================================================================================*/
 
-		if this.footExists() and this._mustBeFootRemoved() then
+		if has_foot and this.footExists() and this._mustBeFootRemoved() then
 			this.removeFoot()
 		
-		else if not foot_exists and this._canBeFootAdded() then
-			this._addFoot()
+		else if not has_foot and not foot_exists and this._canBeFootAdded() then
+			this.addFoot()
 			
 
 		/*==============================================================================
@@ -109,10 +110,10 @@ struct SupportLegUpdater_v
 		--updateShape support_obj
 		
 		if this.footExists() then
-			this._updateLegWithFoot()
+			this.updateLegWithFoot()
 		
 		else
-			this._updateLegWithoutFoot()
+			this.updateLegWithoutFoot()
 			
 		updateShape support_obj
 
@@ -142,24 +143,7 @@ struct SupportLegUpdater_v
 		
 		if direction_is_normal then
 		(
-			bar_width = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-		
-			--angle_point = 2
-		
-			first_knot_pos  = getKnotPoint support_obj spline_1 1
-			second_knot_pos = getKnotPoint support_obj spline_1 2
-			--bottom_point_pos =  getKnotPoint support_obj spline_1 (angle_point + 1)
-
-			vector_raft = normalize ( first_knot_pos    - second_knot_pos )
-			--vector_leg  = normalize ( bottom_point_pos - second_knot_pos )
-			vector_leg = [ 0, 0, -1 ]
-			
-			angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
-			
-			--format "angle_alpha: %\n" angle_alpha
-			angle_alpha -= 90
-			
-			add_by_angle = bar_width - ( bar_width * (angle_alpha / 100) )
+			add_by_angle = this.getNimalLenghtByAngle()
 			
 			minimal_leg_pos = add_by_angle + chamfer_val --+ 0.1
 			
@@ -169,6 +153,35 @@ struct SupportLegUpdater_v
 		
 		
 		--format "MINIMAL_LEG_POS_Z: %\n" minimal_foot_pos
+	),
+	
+	/** Get nimal lenght by angle
+	 */
+	function getNimalLenghtByAngle first_knot_pos: second_knot_pos: =
+	(
+		--format "\n"; print "SupportLegUpdater_v.getNimalLenghtByAngle()"
+		
+		bar_width = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+	
+		--angle_point = 2
+	
+		if first_knot_pos == unsupplied then 
+			first_knot_pos  = getKnotPoint support_obj spline_1 1
+		
+		if second_knot_pos == unsupplied then 
+			second_knot_pos = getKnotPoint support_obj spline_1 2
+
+		vector_raft = normalize ( first_knot_pos    - second_knot_pos )
+		--vector_leg  = normalize ( bottom_point_pos - second_knot_pos )
+		vector_leg = [ 0, 0, -1 ]
+		
+		angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
+		
+		--format "angle_alpha: %\n" angle_alpha
+		angle_alpha -= 90
+		
+		bar_width - ( bar_width * (angle_alpha / 100) )
+		
 	),
 	
 	/** CHECK IF SPACE FOR FOOT EXISTS
@@ -260,9 +273,9 @@ struct SupportLegUpdater_v
 
 	/** ADfootOOT
 	*/
-	function _addFoot =
+	function addFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._addFoot()"
+		--format "\n"; print "SupportLegUpdater_v.addFoot()"
 		--format "\nADD FOOT\n"
 		--format "num_of_knots: %\n" num_of_knots
 		--format "direction_is_down: %\n" direction_is_down
@@ -288,18 +301,19 @@ struct SupportLegUpdater_v
 			
 			this._addGroundPoint()
 		)
-				
-		
-		--updateShape support_obj
+
+		setUserPropVal support_obj "HAS_FOOT" true
+
+	 --updateShape support_obj
 		
 		this._setMaterialToFoot()
 	),
 
 	/** UPfootE LEWHEN FOOT EXISTS
 	 */
-	function _updateLegWithFoot =
+	function updateLegWithFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._updateLegWithFoot()"
+		--format "\n"; print "SupportLegUpdater_v.updateLegWithFoot()"
 		
 		if direction_is_down then
 		(
@@ -344,9 +358,9 @@ struct SupportLegUpdater_v
 	
 	/** UPDATE LEG WITHOUT FOOT
 	 */
-	function _updateLegWithoutFoot =
+	function updateLegWithoutFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._updateLegWithoutFoot()"
+		--format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
 		--format "\nUPDATE FOOT NOT EXISTS\n"
 		
 		/* UPDATE DOWN DIRCTION */
@@ -429,8 +443,9 @@ struct SupportLegUpdater_v
 				deleteKnot support_obj spline_1 knot
 				
 		--this._getNumOfKnots()
+		setUserPropVal support_obj "HAS_FOOT" false
 
-		--this._updateLegWithoutFoot()
+		--this.updateLegWithoutFoot()
 		--update_shape = true
 	),
 	
@@ -687,15 +702,16 @@ struct SupportLegUpdater_v
 		--format "\n"; print "SupportLegUpdater_v._getZpositionByNormal()"
 		--format "GET FOOT SPACE\n"
 		
-		first_knot_pos  = getKnotPoint support_obj spline_1 1
-		second_knot_pos = getKnotPoint support_obj spline_1 2
-		
-		line_vector = normalize ( second_knot_pos - first_knot_pos )
+		--first_knot_pos  = getKnotPoint support_obj spline_1 1
+		--second_knot_pos = getKnotPoint support_obj spline_1 2
+		--
+		--line_vector = normalize ( second_knot_pos - first_knot_pos )
+		--
+		--angle_alpha = acos (dot [0,0,-1] line_vector) -- get angle between
+		--angle_beta  = 90 - angle_alpha
 
-		angle_alpha = acos (dot [0,0,-1] line_vector) -- get angle between
-		angle_beta  = 90 - angle_alpha
-
-		line_length = normal_length * sin angle_beta
+		--line_length = normal_length * sin angle_beta
+		line_length = this.getNimalLenghtByAngle()
 
 		first_knot_pos.z - line_length
 	),

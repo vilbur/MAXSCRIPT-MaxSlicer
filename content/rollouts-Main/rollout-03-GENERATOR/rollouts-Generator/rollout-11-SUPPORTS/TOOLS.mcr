@@ -4,22 +4,49 @@
 function toggleSupportFoot state =
 (
 	--format "\n"; print ".toggleSupportFoot()"
-	mods = #()
-
+	--mods = #()
+	--
+	--_objects = selection as Array
+	--
+	--supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT hierarchy:true
+	--
+	--for mod_name in #( #SELECT_BASE, #BASE_WIDTH, #CHAMFER_BASE ) do
+	--	for obj in supports where obj.modifiers[mod_name] != undefined do
+	--		appendIfUnique mods obj.modifiers[mod_name]
 	_objects = selection as Array
 
-	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT hierarchy:true
+		SupportObjects = SUPPORT_MANAGER.getSupportObjects (_objects)
+		format "SupportObjects: %\n" SupportObjects
 
-	for mod_name in #( #SELECT_BASE, #BASE_WIDTH, #CHAMFER_BASE ) do
-		for obj in supports where obj.modifiers[mod_name] != undefined do
-			appendIfUnique mods obj.modifiers[mod_name]
-
+		
 	with redraw off
-		for _mod in mods do
-			_mod.enabled = state
+		for SupportObject in SupportObjects do
+		(
+			
+			if state and not SupportObject.SupportLegUpdater.footExists() then
+			(
+				SupportObject.SupportLegUpdater.addFoot()
+				
+				SupportObject.SupportLegUpdater.updateLegWithFoot()
+			)
+			
+			if not state and SupportObject.SupportLegUpdater.footExists() then
+			(
+				SupportObject.SupportLegUpdater.removeFoot()
+				
+				SupportObject.SupportLegUpdater.updateLegWithoutFoot()
+			)
+			
+			updateShape SupportObject.support_obj
+
+		)
+	
+		--for _mod in mods do
+			--_mod.enabled = state
 
 	redrawViews()
 )
+
 
 /** SUPPORT FOOT
  */
@@ -30,22 +57,8 @@ tooltip:	""
 --icon:	"offset:[0,10]"
 (
 	on execute do
-	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\TOOLS.mcr"
-		--SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
-		_objects = selection as Array
+		toggleSupportFoot(true)
 
-		SupportObjects = SUPPORT_MANAGER.getSupportObjects (_objects)
-		format "SupportObjects: %\n" SupportObjects
-		for SupportObject in SupportObjects do
-		(
-			if SupportObject.SupportLegUpdater.footExists() then
-				SupportObject.SupportLegUpdater.removeFoot()
-			
-			updateShape SupportObject.support_obj
-
-		)
-	)
 )
 
 /** SUPPORT FOOT
@@ -56,8 +69,8 @@ buttontext:	"FOOT Toggle"
 tooltip:	""
 icon:	""
 (
-	--on execute do
-		--SUPPORT_MANAGER.updateSupports what_to_update:#FOOT
+	on execute do
+		toggleSupportFoot(false)
 )
 
 /**

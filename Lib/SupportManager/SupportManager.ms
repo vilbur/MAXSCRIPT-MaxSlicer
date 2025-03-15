@@ -916,7 +916,7 @@ struct SupportManager_v
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
-				has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
+				--has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
 				
 				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
 				

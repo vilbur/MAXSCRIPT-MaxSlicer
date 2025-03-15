@@ -97,7 +97,8 @@ struct SupportObject_v
 
 		SUPPORT_MANAGER.addSupportObjects (this)
 
-		
+		setUserPropVal support_obj "NORMAL_LENGTH" ( distance knots_positions[1] knots_positions[2]  )
+
 		/* RETURN */ 
 		this
 	),
@@ -343,8 +344,6 @@ struct SupportObject_v
 		
 		--second_knot_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_knot_pos) (direction)
 
-		setUserPropVal support_obj "NORMAL_LENGTH" (this._getNormalLenght())
-
 		/* ADD 2nd POINT */
 		knots_positions[2] = second_knot_pos
 	),
@@ -412,7 +411,7 @@ struct SupportObject_v
 		--second_knot_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_knot_pos) (dir_vector)
 		
 		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance first_knot_pos second_knot_pos )
-		setUserPropVal support_obj "NORMAL_LENGTH" ( this._getNormalLenght() )
+		setUserPropVal support_obj "NORMAL_LENGTH" ( distance first_knot_pos second_knot_pos )
 
 		/* ADD SECOND POINT */
 		knots_positions[2] = second_knot_pos

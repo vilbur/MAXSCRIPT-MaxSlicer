@@ -12,6 +12,7 @@ struct SupportLegUpdater_v
 	/* properties */
 	base_height,
 	normal_length,
+	has_foot = false,
 	
 	vertical_knots = #(),
 	
@@ -88,6 +89,9 @@ struct SupportLegUpdater_v
 		
 		has_foot = getUserPropVal support_obj "HAS_FOOT"
 
+		
+		--if has_foot == undefined then 
+			--has_foot = true
 		/*==============================================================================
 		  
 			ADD OR REMOVE FOOT
@@ -115,14 +119,45 @@ struct SupportLegUpdater_v
 		else
 			this.updateLegWithoutFoot()
 			
-		updateShape support_obj
+		--updateShape support_obj
 
 		this._setPivotToSecondPoint()
 
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
-	
+	/** Update leg height
+	 */
+	function updateLegHeight =
+	(
+		--format "\n"; print "SupportLegUpdater_v.updateLegHeight()"
+		--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+		
+		--base_height   = getUserPropVal support_obj "BASE_HEIGHT"
+		--normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
+		--
+		--has_foot = getUserPropVal support_obj "HAS_FOOT"
+		--
+		this._getNumOfKnots()
+		--
+		--this._setVerticalKnots()
+		--
+		--this._setMinimalLegPos()
+		--
+		--this.updateLegWithFoot()
+		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot 
+		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
+
+		base_knot_pos.z   = base_knot_pos.z - ground_knot_pos.z
+		ground_knot_pos.z = 0 
+		
+		setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+		setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+
+		
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		
+	),
 	--private
 	
 	/** Set minimal leg pos
@@ -314,6 +349,7 @@ struct SupportLegUpdater_v
 	function updateLegWithFoot =
 	(
 		--format "\n"; print "SupportLegUpdater_v.updateLegWithFoot()"
+		has_foot = true
 		
 		if direction_is_down then
 		(
@@ -362,6 +398,7 @@ struct SupportLegUpdater_v
 	(
 		--format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
 		--format "\nUPDATE FOOT NOT EXISTS\n"
+		has_foot = false
 		
 		/* UPDATE DOWN DIRCTION */
 		if direction_is_down then
@@ -414,12 +451,18 @@ struct SupportLegUpdater_v
 	 */
 	function footExists =
 	(
-		--format "\n"; print "SupportLegUpdater_v.footExists()"
-		num_of_segments = numSegments support_obj spline_1
-		--format "num_of_segments: %\n" num_of_segments
-		foot_exists = getMaterialID support_obj spline_1 num_of_segments == 4
-		--format "FOOT_EXISTS: %\n" foot_exists
-		foot_exists --returnw
+		format "\n"; print "SupportLegUpdater_v.footExists()"
+		if ( num_of_segments = numSegments support_obj spline_1 ) != undefined then
+		(
+			--format "num_of_segments: %\n" num_of_segments
+			foot_exists = getMaterialID support_obj spline_1 num_of_segments == 4
+			--format "FOOT_EXISTS: %\n" foot_exists
+			foot_exists --return
+			
+		)
+		else
+		false --return
+		
 	),
 
 	/** Remove foot by deleting last knot of spline
@@ -736,6 +779,7 @@ struct SupportLegUpdater_v
 	function _setPivotToSecondPoint =
 	(
 		--format "\n"; print "SupportLegUpdater_v._setPivotToSecondPoint()"
+		--support_obj.pivot = getKnotPoint support_obj spline_1 2
 		support_obj.pivot = getKnotPoint support_obj spline_1 2
 	),
 	

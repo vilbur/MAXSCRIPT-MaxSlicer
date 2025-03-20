@@ -1,13 +1,13 @@
-clearListener(); print("Cleared in:\n"+getSourceFileName())
-
-filein( getFilenamePath(getSourceFileName()) + "/../../SourceObject/SupportObject/SupportObject.ms" )	--"./../../SourceObject/SupportObject/SupportObject.ms"
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
+--
+--filein( getFilenamePath(getSourceFileName()) + "/../../SourceObject/SupportObject/SupportObject.ms" )	--"./../../SourceObject/SupportObject/SupportObject.ms"
 
 /** Prepare object
  */
 	
-function prepareObject =
+function createTestObjectPackman radius:50 =
 (
-	--format "\n"; print ".prepareObject()"
+	--format "\n"; print ".createTestObjectPackman()"
 	/** Set verts colors
 	 */
 	function setVertsColors obj =
@@ -33,14 +33,14 @@ function prepareObject =
 		--channelInfo.Update ()
 	)
 	
-	delete objects
+	--delete $PackMan
 	
 	segments = 10
 	seg_angle = (360 / segments) as integer
 	
-	radius = 100
+	--radius = 100
 	
-	obj = Cylinder radius:radius height:50 sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] ) isSelected:on
+	obj = Cylinder name:"PackMan" radius:radius height:(radius/2) sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] ) isSelected:on
 	
 	addModifier obj ( meshsmooth sepBySmGroups:true )
 	

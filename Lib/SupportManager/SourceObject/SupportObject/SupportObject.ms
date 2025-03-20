@@ -431,6 +431,8 @@ struct SupportObject_v
 		 if hit_raft != undefined then
 			hit_raft.pos --return
 	),
+	
+	
 		
 	--/** Check minimal normal lenght
 	-- */
@@ -523,10 +525,6 @@ struct SupportObject_v
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
 
-		--format "HIT_SUPPORT: %\n" hit_support
-		--is_on_ground = hit_support == undefined
-		--hit_support == undefined
-		--format "knots_positions[2].z: %\n" knots_positions[2].z
 		pos = copy knots_positions[2] -- copy to avoid modifing of value in array
 
 		if hit_support == undefined then
@@ -543,6 +541,9 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
+		
+		/* UPDATE HAS FOOT PROPERTY */ 
+		this.SupportLegUpdater.has_foot = knots_positions.count > 3
 	),
 	
 	/** Keep second point bellow first
@@ -729,7 +730,7 @@ struct SupportObject_v
 
 		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
 		--if is_on_ground != undefined and is_on_ground then
-		if is_on_ground then
+		if SupportLegUpdater.has_foot then
 			setMaterialID support_obj spline_1 num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	),
 
@@ -887,16 +888,31 @@ struct SupportObject_v
 	 */
 	function _isOnGround =
 	(
-		--format "\n"; print "SupportObject_v.isOnGround()"
-		--is_on_ground = hit_raft == undefined and hit_support == undefined
-		new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
+		format "\n"; print "SupportObject_v.isOnGround()"
+		format "SupportLegUpdater: %\n" SupportLegUpdater
+		----is_on_ground = hit_raft == undefined and hit_support == undefined
+		--new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
+		--
+		--
+		--if is_on_ground != new_value then
+		--(
+		--	is_on_ground = new_value
+		--	
+		--	setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
+		--)
+		--
 		
-		if is_on_ground != new_value then
+		--has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined and SupportLegUpdater.footExists()
+		has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined and SupportLegUpdater.has_foot
+		--has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined 
+		
+		if has_foot != has_foot_updated then
 		(
-			is_on_ground = new_value
+			has_foot = has_foot_updated
 			
-			setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
-		)
+			setUserPropVal support_obj "IS_ON_GROUND" has_foot
+		)		
+		
 	),
 		
 	/** Shift wirecolor sligtly

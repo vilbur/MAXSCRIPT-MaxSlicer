@@ -6,11 +6,11 @@ global MODIFIERS_MANAGER
 global SUPPORT_OPTIONS	
 global SUPPORT_MANAGER	
 
-filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportManager.ms" )	--"./../SupportManager.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/helpers/createTestObject.ms" )	--"./helpers/createTestObject.ms"
+filein( getFilenamePath(getSourceFileName()) + "/helpers/createTestObjectPackMan.ms" )	--"./helpers/createTestObjectPackMan.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms" )	--"./../../../content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms"
 

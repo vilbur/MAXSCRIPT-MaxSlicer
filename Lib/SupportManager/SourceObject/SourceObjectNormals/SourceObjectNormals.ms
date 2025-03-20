@@ -80,7 +80,7 @@ struct SourceObjectNormals_v
 		--format "\n"; format "SourceObject_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
 		
 		if not (is_normal_valid = normals_world[vert].z <= 0 ) then
-			format "\n--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL:% IS NOT POINTING DOWN\n" vert normals_world[vert]
+			format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
 		
 		is_normal_valid --return
 	),

@@ -1,6 +1,6 @@
 
 
-filein( getFilenamePath(getSourceFileName()) + "/onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms"
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms" )	--"./onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
 
@@ -120,11 +120,13 @@ struct SupportManager_v
 			/* BIND EVENTS */ 
 			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 		
-			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
+			bindOnObjectDeletedCallback( SourceObject.getSupportNodes() )
 		
 			/* UPDATE SHAPES OF SUPPORTS */ 
 			this.updateShapes()
 		)
+		
+		bindOnObjectDeletedCallback( source_obj )
 
 		new_nodes --return
 	),
@@ -511,16 +513,16 @@ struct SupportManager_v
 	function onObjectDeleted obj =
 	(
 		--format "\n"; print "SupportManager_v.onObjectDeleted()"
-		--format "obj: %\n" obj
 
 		/* IF SOURCE OBJECT */
 		if (sync_key = this.isSourceObject obj) != false then
 		(
-			RemoveDictValue SourceObjects sync_key
-
-			/*  DELETE SUPPORTS */
+			/*  DELETE SUPPORTS & RAFT NODES */
 			for support_key in SourceObjects[sync_key].Supports.keys do
 				delete SourceObjects[sync_key].Supports[support_key].support_obj
+
+			/* REMOVE SOURCE OBJECT FROM MANAGER */ 
+			RemoveDictValue SourceObjects sync_key
 		)
 
 		/* IF SUPPORT DELETED */
@@ -916,9 +918,9 @@ struct SupportManager_v
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
-				--has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
+				has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
 				
-				is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
+				--is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
 				
 				--format "index: %\n" index
 				--format "sync_key: %\n" sync_key
@@ -929,7 +931,7 @@ struct SupportManager_v
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
 					
-					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type is_on_ground:is_on_ground
+					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type has_foot:has_foot
 
 					SupportObjects[SupportObject.support_key] = SupportObject
 					
@@ -943,7 +945,7 @@ struct SupportManager_v
 
 		bindSupportToTransformEvent( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
 		
-		bindBeamOnDeleteCallback( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
+		bindOnObjectDeletedCallback( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
 	),
 
 	/** Load beam objects from scene
@@ -981,7 +983,7 @@ struct SupportManager_v
 
 		)
 
-		bindBeamOnDeleteCallback( for key in BeamObjects.keys collect BeamObjects[key].beam )
+		bindOnObjectDeletedCallback( for key in BeamObjects.keys collect BeamObjects[key].beam )
 	),
 
 

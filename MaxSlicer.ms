@@ -24,9 +24,9 @@ global DIALOG_island_manager
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
 
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"

@@ -79,7 +79,7 @@ struct SupportObject_v
 		this._setMinimalFootPos (direction) 
 
 
-		/* SET LEG PART of support - if raft do not hit source object */ 
+		/* SET LEG AND FOOT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setLegAndFootKnotPositions()
 
@@ -200,7 +200,7 @@ struct SupportObject_v
 		)
 		
 		/* GENERATE LEG FOR SUPPORT */ 
-		--if allow_update_leg then
+		if allow_update_leg then
 			this._setLegAndFootKnotPositions()
 		
 			
@@ -209,10 +209,7 @@ struct SupportObject_v
 		
 		this._updateLine()
 		
-		--this._isOnGround()
-		
 		this._setMaterialsToLineSegments()
-		
 		
 		this._setPivotToSecondPoint()
 		
@@ -283,16 +280,7 @@ struct SupportObject_v
 		getUserPropVal support_obj "RAFT_KEY" != undefined
 	),
 
-	--/** Get direction
-	-- */
-	--function getDirection =
-	--(
-	--	--format "\n"; print "SupportObject_v.getDirection()"
-	--	--format "support_obj: %\n" support_obj
-	--	--format "TEST: %\n" (getUserPropVal support_obj "DIRECTION" asString:false )
-	--	getUserPropVal support_obj "DIRECTION" --return
-	--),
-
+	
 	/** Is vector pointing down
 	 */
 	function isVectorPointingDown =
@@ -433,49 +421,6 @@ struct SupportObject_v
 			hit_raft.pos --return
 		 )
 	),
-	
-	
-		
-	--/** Check minimal normal lenght
-	-- */
-	--function _checkMinimalNormalLenght first_knot_pos second_knot_pos direction =
-	--(
-	--	--format "\n"; print "SupportObject_v._checkMinimalNormalLenght()"
-	--	if distance knots_positions[1] second_knot_pos < SUPPORT_OPTIONS.bar_width * 2 then
-	--		second_knot_pos = first_knot_pos + ( SUPPORT_OPTIONS.normal_length * direction ) -- make raft longer by multiplying normal length 10x
-	--
-	--	second_knot_pos --return
-	--),
-	
-	--/** Check segments lenghts
-	-- */
-	--function _checkSegmentsLenghts vertex_index =
-	--(
-	--	--format "\n"; print "SupportObject_v._checkSegmentsLenghts()"
-	--
-	--	result = true
-	--
-	--	if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #TOP_WIDTH  then
-	--	(
-	--		--format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
-	--
-	--		result = false
-	--	)
-	--	else if knots_positions.count > 2 then
-	--		for i = knots_positions.count to 2 by -1 do
-	--		(
-	--			if ( dist = distance knots_positions[i] knots_positions[i - 1] ) < SUPPORT_OPTIONS.getOption #BAR_WIDTH then
-	--			(
-	--				--format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
-	--
-	--				deleteItem knots_positions (i - 1)
-	--
-	--				--result = false
-	--			)
-	--		)
-	--
-	--	result --return
-	--),
 
 	/** Add knots
 	 */
@@ -966,37 +911,7 @@ struct SupportObject_v
 		)
 	),
 	
-	--/** Is on ground
-	-- */
-	--function _isOnGround =
-	--(
-	--	--format "\n"; print "SupportObject_v.isOnGround()"
-	--	--format "SupportLegUpdater: %\n" SupportLegUpdater
-	--	----is_on_ground = hit_raft == undefined and hit_support == undefined
-	--	--new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
-	--	--
-	--	--
-	--	--if is_on_ground != new_value then
-	--	--(
-	--	--	is_on_ground = new_value
-	--	--	
-	--	--	setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
-	--	--)
-	--	--
-	--	
-	--	--has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined and SupportLegUpdater.footExists()
-	--	--has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined and SupportLegUpdater.foot_exists
-	--	has_foot_updated = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined 
-	--	
-	--	if foot_exists != has_foot_updated then
-	--		foot_exists = has_foot_updated
-	--	--(
-	--	--	
-	--	--	setUserPropVal support_obj "IS_ON_GROUND" foot_exists
-	--	--)		
-	--	
-	--),
-		
+
 	/** Shift wirecolor sligtly
 	  * Each level of points has different wirecolor for better selection
 	  */

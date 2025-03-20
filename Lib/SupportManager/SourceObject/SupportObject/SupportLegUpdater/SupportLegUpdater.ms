@@ -25,7 +25,6 @@ struct SupportLegUpdater_v
 	
 	--private
 
-
 	num_of_knots,
 	
 	ground_knot,
@@ -35,19 +34,12 @@ struct SupportLegUpdater_v
 	--bar_width,
 	chamfer_val,
 	
-	--minimal_support_height,
 	minimal_foot_pos_z, -- minimal z position of leg knot where foot can be created, value is varied by angle of support
-	--minimal_foot_pos_z,
 	
 	is_space_for_foot = true,
-	foot_just_added = false,
-	update_shape = false,
-	
 	
 	/* static */
 	spline_1 = 1, -- each support line has ony 1 spline
-	
-	--min_height_offset = 0.1, 
 	
 	/* dependency */
 	/* reference */
@@ -74,24 +66,17 @@ struct SupportLegUpdater_v
 		--format "\n=======================================================================\n"
 		--formats "\n"; print "SupportLegUpdater_v.updateLeg()"
 
-		foot_just_added = false
-		
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
 		this._getNumOfKnots()
 		
 		this._setVerticalKnots()
 		
-		--this._setMinimalFootPos()
-
 		base_height   = getUserPropVal support_obj "BASE_HEIGHT"
 		normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
 		
 		foot_enabled = getUserPropVal support_obj "FOOT_ENABLED"
 
-		--format "FOOT_ENABLED: %\n" foot_enabled
-		--if foot_enabled == undefined then 
-			--foot_enabled = true
 		/*==============================================================================
 		  
 			ADD OR REMOVE FOOT
@@ -111,16 +96,12 @@ struct SupportLegUpdater_v
 			
 		================================================================================*/
 
-		--updateShape support_obj
-		
 		if foot_exists = this.footExists() then
 			this.updateLegWithFoot()
 		
 		else
 			this.updateLegWithoutFoot()
 			
-		--updateShape support_obj
-
 		this._setPivotToSecondPoint()
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -128,97 +109,41 @@ struct SupportLegUpdater_v
 		foot_exists --return
 	),
 	
-	/** Update leg height
-	 */
-	function updateLegHeight =
-	(
-		--formats "\n"; print "SupportLegUpdater_v.updateLegHeight()"
-		--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
-		
-		--base_height   = getUserPropVal support_obj "BASE_HEIGHT"
-		--normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
-		--
-		--foot_enabled = getUserPropVal support_obj "HAS_FOOT"
-		--
-		this._getNumOfKnots()
-		--
-		--this._setVerticalKnots()
-		--
-		--this._setMinimalFootPos()
-		--
-		--this.updateLegWithFoot()
-		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot 
-		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
-
-		base_knot_pos.z   = base_knot_pos.z - ground_knot_pos.z
-		ground_knot_pos.z = 0 
-		
-		setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
-		setKnotPoint support_obj spline_1 base_knot   base_knot_pos
-
-		
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		
-	),
---	--private
-	
-	--/** Set minimal foot pos
+	--/** Update leg height
 	-- */
-	--function _setMinimalFootPos =
+	--function updateLegHeight =
 	--(
-	--	--format "\n"; print "SupportLegUpdater_v._setMinimalFootPos()"
-	--	--format "leg_knot: %\n" leg_knot
-	--	minimal_foot_pos_z = SUPPORT_OPTIONS.base_height + chamfer_val + min_height_offset
+	--	--formats "\n"; print "SupportLegUpdater_v.updateLegHeight()"
+	--	--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 	--	
-	--	/* TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
-	--		
-	--		support - 90°  > remove 90% of bar with
-	--		support - 135° > remove 45% of bar with
-	--		support - 180° > remove 0%  of bar with
+	--	--base_height   = getUserPropVal support_obj "BASE_HEIGHT"
+	--	--normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
+	--	--
+	--	--foot_enabled = getUserPropVal support_obj "HAS_FOOT"
+	--	--
+	--	this._getNumOfKnots()
+	--	--
+	--	--this._setVerticalKnots()
+	--	--
+	--	--this._setMinimalFootPos()
+	--	--
+	--	--this.updateLegWithFoot()
+	--	ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot 
+	--	base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
+	--
+	--	base_knot_pos.z   = base_knot_pos.z - ground_knot_pos.z
+	--	ground_knot_pos.z = 0 
 	--	
-	--	*/ 
+	--	setKnotPoint support_obj spline_1 ground_knot ground_knot_pos
+	--	setKnotPoint support_obj spline_1 base_knot   base_knot_pos
+	--
 	--	
-	--	if direction_is_normal then
-	--	(
-	--		add_by_angle = this.getNimalLenghtByAngle()
-	--		
-	--		minimal_foot_pos_z = add_by_angle + chamfer_val --+ 0.1
-	--		
-	--		minimal_foot_pos_z += add_by_angle
-	--	)
+	--	SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	--	
-	--	
-	--	
-	--	--format "MINIMAL_LEG_POS_Z: %\n" minimal_foot_pos_z
 	--),
-	--
-	--/** Get nimal lenght by angle
-	-- */
-	--function getNimalLenghtByAngle first_knot_pos: second_knot_pos: =
-	--(
-	--	--format "\n"; print "SupportLegUpdater_v.getNimalLenghtByAngle()"
-	--	
-	--	bar_width = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-	--
-	--	--angle_point = 2
-	--
-	--	if first_knot_pos == unsupplied then 
-	--		first_knot_pos  = getKnotPoint support_obj spline_1 1
-	--	
-	--	if second_knot_pos == unsupplied then 
-	--		second_knot_pos = getKnotPoint support_obj spline_1 2
-	--
-	--	vector_raft = normalize ( first_knot_pos    - second_knot_pos )
-	--
-	--	vector_leg = [ 0, 0, -1 ]
-	--	
-	--	angle_alpha = acos (dot vector_raft vector_leg) -- get angle between
-	--	
-	--	angle_alpha -= 90
-	--	
-	--	bar_width - ( bar_width * (angle_alpha / 100) )
-	--),
-	
+
+	private
+
 	/** CHECK IF SPACE FOR FOOT EXISTS
 	 */
 	function _mustBeFootRemoved =
@@ -245,13 +170,9 @@ struct SupportLegUpdater_v
 		else
 		(
 			--format "\nSUPPORT DIRECTION IS NORMAL\n"
-			--format "minimal_foot_pos_z: %\n" minimal_foot_pos_z
-			--format "leg_knot: %\n" leg_knot
-			--format "KNOT Z: %\n" (this._getZposition leg_knot)
 			must_be_removed = this._getZposition leg_knot <= minimal_foot_pos_z
 
 			is_space_for_foot = not must_be_removed 
-			
 		)
 		
 		not is_space_for_foot --return
@@ -263,17 +184,12 @@ struct SupportLegUpdater_v
 	(
 		--format "\n---------------------------------\n"
 		--format "\n"; print "SupportLegUpdater_v._canBeFootAdded()"
-		--format "\nFOOT NOT EXISTS\n"
 		
 		/* IF NORMAL DIRCTION SUPPORT  */
 		if direction_is_normal then
 		(
-			--format "num_of_knots: %\n" num_of_knots
-			--format "normal_length: %\n" normal_length
-			--format "this._getDistanceOfKnots 1 2: %\n" (this._getDistanceOfKnots 1 2)
 			point_2_pos = getKnotPoint support_obj spline_1 2
 			
-			--format "point_2_pos: %\n" point_2_pos
 			if num_of_knots == 2 then
 			(
 				/* IF SUPPORT IS SHORTEN BY GROUND */
@@ -303,7 +219,6 @@ struct SupportLegUpdater_v
 		else
 			is_space_for_foot = this._getZposition 1 > minimal_foot_pos_z + chamfer_val
 
-		--format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
 		is_space_for_foot --return
 	),
 
@@ -312,11 +227,6 @@ struct SupportLegUpdater_v
 	function addFoot =
 	(
 		--format "\n"; print "SupportLegUpdater_v.addFoot()"
-		--format "\nADD FOOT\n"
-		--format "num_of_knots: %\n" num_of_knots
-		--format "direction_is_down: %\n" direction_is_down
-		--format "VERTICAL_KNOTS: %\n" vertical_knots
-		--format "HAS_VERTICAL_POINTS: %\n" has_vertical_points
 
 		/* ADD FOOT TO DOWN DIRCTION */
 		if direction_is_down then
@@ -338,9 +248,6 @@ struct SupportLegUpdater_v
 			this._addGroundPoint()
 		)
 
-		--setUserPropVal support_obj "HAS_FOOT" true
-
-	 --updateShape support_obj
 		
 		this._setMaterialToFoot()
 	),
@@ -350,25 +257,16 @@ struct SupportLegUpdater_v
 	function removeFoot =
 	(
 		--formats "\n"; print "SupportLegUpdater_v.removeFoot()"
-		--format "\nREMOVE FOOT\n"
-		--format "direction_is_down: %\n" direction_is_down
 
 		/* DELETE GROUND POINT */ 
 		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)
 		
-		--updateShape support_obj
-
 		this._getNumOfKnots()
 		
 		/*  */
 		if direction_is_down and num_of_knots > 2 then
 			for knot = 2 to num_of_knots - 1 do 
 				deleteKnot support_obj spline_1 knot
-				
-		--this._getNumOfKnots()
-
-		--this.updateLegWithoutFoot()
-		--update_shape = true
 	),
 	
 	/** UPfootE LEWHEN FOOT EXISTS
@@ -644,47 +542,7 @@ struct SupportLegUpdater_v
 		
 		setKnotPoint support_obj spline_1 2 second_knot_pos
 	),
-	
-	/** Delete vertical points bellow minimal space
-	 */
-	function _deleteVerticalPointsBellowMinimalSpace minimal_z_pos =
-	(
-		--format "\n"; print "SupportLegUpdater_v._deleteVerticalPointsBellowMinimalSpace()"
-		--format "minimal_z_pos: %\n" minimal_z_pos
-		
 
-		--for index = 1 to vertical_knots.count - 1 where ( knot = vertical_knots[index] ) != 1 and this._getZposition knot < minimal_z_pos do 
-			--deleteKnot support_obj spline_1 knot
-			
-		for index = 2 to vertical_knots.count - 1 do 
-		(
-			knot = vertical_knots[index]
-			
-			knot_pos_z = this._getZposition knot
-			
-			--format "TEST: %\n" (knot_pos_z < minimal_z_pos)
-			
-			if knot_pos_z < minimal_z_pos then
-				deleteKnot support_obj spline_1 knot
-		)
-		
-	),
-	
-	/** Remove vertical segments
-	 */
-	function _removeVerticalSegments =
-	(
-		--format "\n"; print "SupportLegUpdater_v._removeVerticalSegments()"
-		--format "VERTICAL_KNOTS: %\n" vertical_knots
-		--format "NUM KNOTS: %\n" (numKnots support_obj spline_1)
-		--format "\n"; print "SupportLegUpdater_v. REMOVE_VERTICAL_SEGMENTS ()"
-		
-		for index = 1 to vertical_knots.count - 1 do 
-			deleteKnot support_obj spline_1 vertical_knots[index]
-			
-		this._getNumOfKnots()
-	),
-	
 	/** Add base point
 	  */
 	function _addBasePoint =
@@ -731,28 +589,6 @@ struct SupportLegUpdater_v
 		vertical_knots[vertical_knots.count]
 	),
 	
-	--/** Get zposition by normal
-	-- */
-	--function _getZpositionByNormal normal_length =
-	--(
-	--	--format "\n"; print "SupportLegUpdater_v._getZpositionByNormal()"
-	--	--format "GET FOOT SPACE\n"
-	--	
-	--	--first_knot_pos  = getKnotPoint support_obj spline_1 1
-	--	--second_knot_pos = getKnotPoint support_obj spline_1 2
-	--	--
-	--	--line_vector = normalize ( second_knot_pos - first_knot_pos )
-	--	--
-	--	--angle_alpha = acos (dot [0,0,-1] line_vector) -- get angle between
-	--	--angle_beta  = 90 - angle_alpha
-	--
-	--	--line_length = normal_length * sin angle_beta
-	--	line_length = this.getNimalLenghtByAngle()
-	--
-	--	first_knot_pos.z - line_length
-	--),
-	--	
-		
 	/**  set material to foot
 	 */
 	function _setMaterialToFoot =

@@ -18,7 +18,7 @@ delete objects
 /* PREPARE SCENE */ 
 --obj = createTestObjectPackman()
 obj = createTestObjectPackman pos_z:50
---obj = createTestObjectPackman pos_z:5
+--obj = createTestObjectPackman pos_z:15
 
 
 select obj
@@ -53,11 +53,11 @@ SUPPORT_OPTIONS.normal_length	= 10
 
 select_verts	= #{}
 --select_verts = #{ 22 }
-select_verts = #{ 29 } -- bottom vertex
+--select_verts = #{ 29 } -- bottom vertex
 --select_verts = #{ 40 }
 
 if select_verts.numberSet > 0 then
-obj.EditablePoly.SetSelection #Vertex select_verts
+	obj.EditablePoly.SetSelection #Vertex select_verts
 
 
 

@@ -72,7 +72,7 @@ struct SupportLegUpdater_v
 	function updateLeg =
 	(
 		--format "\n=======================================================================\n"
-		--format "\n"; print "SupportLegUpdater_v.updateLeg()"
+		--formats "\n"; print "SupportLegUpdater_v.updateLeg()"
 
 		foot_just_added = false
 		
@@ -132,7 +132,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegHeight =
 	(
-		format "\n"; print "SupportLegUpdater_v.updateLegHeight()"
+		--formats "\n"; print "SupportLegUpdater_v.updateLegHeight()"
 		--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 		
 		--base_height   = getUserPropVal support_obj "BASE_HEIGHT"
@@ -349,7 +349,7 @@ struct SupportLegUpdater_v
 	 */
 	function removeFoot =
 	(
-		format "\n"; print "SupportLegUpdater_v.removeFoot()"
+		--formats "\n"; print "SupportLegUpdater_v.removeFoot()"
 		--format "\nREMOVE FOOT\n"
 		--format "direction_is_down: %\n" direction_is_down
 
@@ -614,7 +614,7 @@ struct SupportLegUpdater_v
 	 */
 	function _extendSecondPointToNormalLenght =
 	(
-		format "\n"; print "SupportLegUpdater_v._extendSecondPointToNormalLenght()"
+		--formats "\n"; print "SupportLegUpdater_v._extendSecondPointToNormalLenght()"
 		
 		point_1_pos = getKnotPoint support_obj spline_1 1
 		point_2_pos = getKnotPoint support_obj spline_1 2

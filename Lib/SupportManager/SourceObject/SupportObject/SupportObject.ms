@@ -49,8 +49,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n"
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 			
@@ -156,8 +156,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		format "first_knot_pos: %\n" first_knot_pos
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "first_knot_pos: %\n" first_knot_pos
 		--format "dir_vector: %\n" dir_vector
 
 		/* GET 1st knot POSITION FROM LINE */ 
@@ -166,16 +166,17 @@ struct SupportObject_v
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
 		
-
 		/* ADD POINTS */
 		knots_positions = #( first_knot_pos, support_obj.pos )
-		
+
 		
 		/* 	UPDATE KNOT 2  */ 
 		if update_knot_2 and dir_vector != undefined then
 			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
 		
-		--this._setMinimalFootPos (direction) 
+		/* UPDATE MINIMAL FOOT Z POSITION */ 
+		if minimal_foot_pos_z == undefined then 
+			this._setMinimalFootPos (direction) 
 		
 		allow_update_leg = obj_type == #SUPPORT and hit_raft == undefined
 		
@@ -186,7 +187,6 @@ struct SupportObject_v
 
 			minimal_length = this.getNimalLenghtByAngle first_knot_pos:knots_positions[1] second_knot_pos:knots_positions[2]
 
-			--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
 			minimal_length += SUPPORT_OPTIONS.getOption #BAR_WIDTH
 
@@ -200,7 +200,7 @@ struct SupportObject_v
 		)
 		
 		/* GENERATE LEG FOR SUPPORT */ 
-		if allow_update_leg then
+		--if allow_update_leg then
 			this._setLegAndFootKnotPositions()
 		
 			
@@ -211,9 +211,8 @@ struct SupportObject_v
 		
 		--this._isOnGround()
 		
-		--this._setMaterialsToLineSegments()
+		this._setMaterialsToLineSegments()
 		
-		this.updateLeg()
 		
 		this._setPivotToSecondPoint()
 		
@@ -222,18 +221,23 @@ struct SupportObject_v
 		if numKnots support_obj spline_1 > 2 then
 			setUserPropVal support_obj "NORMAL_LENGTH" ( this._getNormalLenght() )
 
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
 	/** Update leg position
 	 */
 	function updateLeg =
 	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--format "\n"; print "SupportObject_v.updateLeg()"
 
 		--if this.is_on_ground != undefined and this.is_on_ground then
 		(
-			--this._setSupportLegUpdater()
+			if minimal_foot_pos_z == undefined then
+			(
+				direction = getUserPropVal support_obj "DIRECTION"
+	
+				this._setMinimalFootPos (direction) 
+			)
 	
 			SupportLegUpdater.minimal_foot_pos_z = minimal_foot_pos_z
 	
@@ -283,9 +287,9 @@ struct SupportObject_v
 	-- */
 	--function getDirection =
 	--(
-	--	format "\n"; print "SupportObject_v.getDirection()"
-	--	format "support_obj: %\n" support_obj
-	--	format "TEST: %\n" (getUserPropVal support_obj "DIRECTION" asString:false )
+	--	--format "\n"; print "SupportObject_v.getDirection()"
+	--	--format "support_obj: %\n" support_obj
+	--	--format "TEST: %\n" (getUserPropVal support_obj "DIRECTION" asString:false )
 	--	getUserPropVal support_obj "DIRECTION" --return
 	--),
 
@@ -350,7 +354,7 @@ struct SupportObject_v
 	--function _updateSecondKnotPosition keep_direction_down:false =
 	function _updateSecondKnotPosition direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
+		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		
@@ -453,7 +457,7 @@ struct SupportObject_v
 	--
 	--	if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #TOP_WIDTH  then
 	--	(
-	--		format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
+	--		--format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
 	--
 	--		result = false
 	--	)
@@ -462,7 +466,7 @@ struct SupportObject_v
 	--		(
 	--			if ( dist = distance knots_positions[i] knots_positions[i - 1] ) < SUPPORT_OPTIONS.getOption #BAR_WIDTH then
 	--			(
-	--				format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
+	--				--format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
 	--
 	--				deleteItem knots_positions (i - 1)
 	--
@@ -522,7 +526,7 @@ struct SupportObject_v
 		 */
 		function addFoot =
 		(
-			format "\n"; print "SupportObject_v.addFoot()"
+			--format "\n"; print "SupportObject_v.addFoot()"
 			pos = copy knots_positions[2]
 			/* BASE POINT - ABOVE GROUND */
 			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
@@ -538,31 +542,30 @@ struct SupportObject_v
 			--setMaterialID support_obj spline_1 ( numSegments support_obj spline_1) SUPPORT_OPTIONS.mat_ids[#BASE]
 		)
 		
-		--/** Set leg to ground without foot
-		-- */
-		--function setLegToGroundWithoutFoot =
-		--(
-		--	format "\n"; print "SupportObject_v.setLegToGroundWithoutFoot()"
-		--	--pos = copy knots_positions[2]
-		--
-		--	--pos.z = 0
-		--	
-		--	--knots_positions[3] = pos
-		--	knots_positions[2].z = 0
-		--)
+		/** Set leg to ground without foot
+		 */
+		function setLegToGroundWithoutFoot =
+		(
+			--format "\n"; print "SupportObject_v.setLegToGroundWithoutFoot()"
+			knots_positions[2].z = 0
+
+			foot_exists = false
+		)
 		
-		format "\n"; print "SupportObject_v._setLegAndFootKnotPositions()"
+		--format "\n"; print "SupportObject_v._setLegAndFootKnotPositions()"
 
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
+		--format "HIT_SUPPORT: %\n" HIT_SUPPORT
 		--pos = copy knots_positions[2] -- copy to avoid modifing of value in array
+		foot_exists = hit_support == undefined
 
 		if hit_support == undefined then
 		(
 			if this.foot_enabled and knots_positions[2].z > minimal_foot_pos_z then
 				addFoot()
 			else
-				knots_positions[2].z = 0
+				setLegToGroundWithoutFoot()
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos
@@ -744,8 +747,8 @@ struct SupportObject_v
 	 */
 	function _setMaterialsToLineSegments =
 	(
-		format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
-		format "SupportLegUpdater.foot_exists: %\n" SupportLegUpdater.foot_exists
+		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+		--format "SupportLegUpdater.foot_exists: %\n" SupportLegUpdater.foot_exists
 		num_of_segments = numSegments support_obj ( numSplines support_obj)
 	
 		for segment_i = 1 to num_of_segments do
@@ -907,21 +910,18 @@ struct SupportObject_v
 	
 	/** Get nimal lenght by angle
 	 */
-	function getNimalLenghtByAngle first_knot_pos: second_knot_pos: =
+	function getNimalLenghtByAngle first_knot_pos:undefined second_knot_pos:undefined =
 	(
 		--format "\n"; print "SupportLegUpdater_v.getNimalLenghtByAngle()"
-		
 		bar_width = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 	
-		--angle_point = 2
-	
-		if first_knot_pos == unsupplied then 
+		if first_knot_pos == undefined then 
 			first_knot_pos  = getKnotPoint support_obj spline_1 1
 		
-		if second_knot_pos == unsupplied then 
+		if second_knot_pos == undefined then 
 			second_knot_pos = getKnotPoint support_obj spline_1 2
 
-		vector_raft = normalize ( first_knot_pos    - second_knot_pos )
+		vector_raft = normalize ( first_knot_pos - second_knot_pos )
 
 		vector_leg = [ 0, 0, -1 ]
 		
@@ -970,8 +970,8 @@ struct SupportObject_v
 	-- */
 	--function _isOnGround =
 	--(
-	--	format "\n"; print "SupportObject_v.isOnGround()"
-	--	format "SupportLegUpdater: %\n" SupportLegUpdater
+	--	--format "\n"; print "SupportObject_v.isOnGround()"
+	--	--format "SupportLegUpdater: %\n" SupportLegUpdater
 	--	----is_on_ground = hit_raft == undefined and hit_support == undefined
 	--	--new_value = obj_type == #SUPPORT and hit_raft == undefined and hit_support == undefined
 	--	--

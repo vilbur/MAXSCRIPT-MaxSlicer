@@ -149,19 +149,20 @@ struct SupportObject_v
 
 	/** Update supports position
 	  * 
-	  * first_knot_pos: update_first
-	  * 
-	  * 
+	  *    UPDATE KNOT 2 IF:
+	  *    • If source object ROTATED and support direction is #DOWN
+	  *    • If Support was transformed
 	  * 
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "first_knot_pos: %\n" first_knot_pos.x
+		format "\n"; print "SupportObject_v.updateSupport()"
+		format "first_knot_pos: %\n" first_knot_pos
 		--format "dir_vector: %\n" dir_vector
 
 		/* GET 1st knot POSITION FROM LINE */ 
-		if first_knot_pos == unsupplied then
+		--if first_knot_pos == unsupplied then
+		if classOf first_knot_pos != point3 then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
 		
@@ -170,53 +171,36 @@ struct SupportObject_v
 		knots_positions = #( first_knot_pos, support_obj.pos )
 		
 		
-		/* 	UPDATE KNOT 2
-		
-			• If source object ROTATED and support direction is #DOWN
-		
-			• If Support was transformed
-		
-		*/ 
+		/* 	UPDATE KNOT 2  */ 
 		if update_knot_2 and dir_vector != undefined then
 			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
 		
 		--this._setMinimalFootPos (direction) 
 		
+		allow_update_leg = obj_type == #SUPPORT and hit_raft == undefined
 		
-		update_leg = obj_type == #SUPPORT and hit_raft == undefined
-		
-		--updateShape support_obj
 
-		
-		--format "hit_raft: %\n" hit_raft
 		if first_knot_pos != unsupplied and ( numKnots support_obj spline_1 ) > 2  then
 		(
 			current_length = distance knots_positions[1] knots_positions[2]
 
 			minimal_length = this.getNimalLenghtByAngle first_knot_pos:knots_positions[1] second_knot_pos:knots_positions[2]
 
-			chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
-
+			--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
 			minimal_length += SUPPORT_OPTIONS.getOption #BAR_WIDTH
-			--format "\n"
-			--normal_length  = getUserPropVal support_obj "normal_length" + bar_width
-			--format "current_length: %\n" current_length
-			--format "minimal_length: %\n" (minimal_length)
-			--format "minimal_length: %\n" (minimal_length + bar_width )
 
 			if current_length < minimal_length then
 			(
 				--format "SHORT\n"\"\"
 				knots_positions[2] = first_knot_pos + ( minimal_length * ( normalize ( knots_positions[2] - knots_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
 
-				update_leg = true
+				allow_update_leg = true
 			)
-			
 		)
 		
 		/* GENERATE LEG FOR SUPPORT */ 
-		if update_leg then
+		if allow_update_leg then
 			this._setLegAndFootKnotPositions()
 		
 			
@@ -229,7 +213,7 @@ struct SupportObject_v
 		
 		--this._setMaterialsToLineSegments()
 		
-		this.updateLegPosition()
+		this.updateLeg()
 		
 		this._setPivotToSecondPoint()
 		
@@ -243,11 +227,9 @@ struct SupportObject_v
 
 	/** Update leg position
 	 */
-	function updateLegPosition =
+	function updateLeg =
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--format "\n"; print "SupportObject_v.updateLegPosition()"
-		--format "is_on_ground: %\n" this.is_on_ground
 
 		--if this.is_on_ground != undefined and this.is_on_ground then
 		(
@@ -255,11 +237,12 @@ struct SupportObject_v
 	
 			SupportLegUpdater.minimal_foot_pos_z = minimal_foot_pos_z
 	
-			foot_added = SupportLegUpdater.updateLeg()
+			foot_exists = SupportLegUpdater.updateLeg()
 	
 			/* SET MATERIALS */
-			--if foot_added then
-				--this._setMaterialsToLineSegments()
+			if foot_exists then
+				this._setMaterialsToLineSegments()
+				
 			this._setPivotToSecondPoint()
 
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -432,13 +415,13 @@ struct SupportObject_v
 	 */
 	function _getRaftHitPosition direction max_distance =
 	(
-		format "\n"; print "SupportObject_v._getRaftHitPosition()"
+		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
 		hit_raft = this._intersectRaySourceObject (knots_positions[1]) ( direction )
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit_raft != undefined and distance knots_positions[1] hit_raft.pos > max_distance then
 			hit_raft = undefined
-		format "FOOT_EXISTS: %\n" foot_exists
+		----format "FOOT_EXISTS: %\n" foot_exists
 		 if hit_raft != undefined then
 		 (
 			SupportLegUpdater.foot_exists = false
@@ -555,25 +538,23 @@ struct SupportObject_v
 			--setMaterialID support_obj spline_1 ( numSegments support_obj spline_1) SUPPORT_OPTIONS.mat_ids[#BASE]
 		)
 		
-		/** Set leg to ground without foot
-		 */
-		function setLegToGroundWithoutFoot =
-		(
-			--format "\n"; print "SupportObject_v.setLegToGroundWithoutFoot()"
-			pos = copy knots_positions[2]
-
-			pos.z = 0
-			
-			knots_positions[3] = pos
-		)
+		--/** Set leg to ground without foot
+		-- */
+		--function setLegToGroundWithoutFoot =
+		--(
+		--	format "\n"; print "SupportObject_v.setLegToGroundWithoutFoot()"
+		--	--pos = copy knots_positions[2]
+		--
+		--	--pos.z = 0
+		--	
+		--	--knots_positions[3] = pos
+		--	knots_positions[2].z = 0
+		--)
 		
 		format "\n"; print "SupportObject_v._setLegAndFootKnotPositions()"
-		--format "knots_positions: %\n" knots_positions
-		format "SupportLegUpdater: %\n" SupportLegUpdater
+
 		/* TEST IF HIT SOURCE OBJECT ON THE WAY TO GROUND */ 
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) ([0,0,-1])
-		format "MINIMAL_FOOT_POS: %\n" minimal_foot_pos_z
-		format "knots_positions[2].z: %\n" knots_positions[2].z
 		--pos = copy knots_positions[2] -- copy to avoid modifing of value in array
 
 		if hit_support == undefined then
@@ -581,7 +562,7 @@ struct SupportObject_v
 			if this.foot_enabled and knots_positions[2].z > minimal_foot_pos_z then
 				addFoot()
 			else
-				setLegToGroundWithoutFoot()
+				knots_positions[2].z = 0
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
 			knots_positions[3] = hit_support.pos

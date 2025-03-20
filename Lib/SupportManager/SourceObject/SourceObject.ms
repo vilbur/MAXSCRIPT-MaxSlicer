@@ -369,7 +369,7 @@ struct SourceObject_v
 		for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 			--Supports[key].SupportLegUpdater.updateLegHeight()
 			--Supports[key].SupportLegUpdater.updateLegWithFoot()
-			Supports[key].updateLegPosition()
+			Supports[key].updateLeg()
 
 	),
 

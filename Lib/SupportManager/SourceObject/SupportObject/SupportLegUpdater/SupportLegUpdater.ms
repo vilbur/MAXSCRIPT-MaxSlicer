@@ -72,7 +72,6 @@ struct SupportLegUpdater_v
 	function updateLeg =
 	(
 		--format "\n=======================================================================\n"
-
 		--format "\n"; print "SupportLegUpdater_v.updateLeg()"
 
 		foot_just_added = false
@@ -90,7 +89,7 @@ struct SupportLegUpdater_v
 		
 		foot_enabled = getUserPropVal support_obj "FOOT_ENABLED"
 
-		
+		--format "FOOT_ENABLED: %\n" foot_enabled
 		--if foot_enabled == undefined then 
 			--foot_enabled = true
 		/*==============================================================================
@@ -99,10 +98,10 @@ struct SupportLegUpdater_v
 			
 		================================================================================*/
 
-		if foot_enabled and this.footExists() and this._mustBeFootRemoved() then
+		if this.footExists() and foot_enabled and this._mustBeFootRemoved() then
 			this.removeFoot()
 		
-		else if not foot_enabled and not foot_exists and this._canBeFootAdded() then
+		else if foot_enabled and not foot_exists and this._canBeFootAdded() then
 			this.addFoot()
 			
 
@@ -114,7 +113,7 @@ struct SupportLegUpdater_v
 
 		--updateShape support_obj
 		
-		if this.footExists() then
+		if foot_exists = this.footExists() then
 			this.updateLegWithFoot()
 		
 		else
@@ -125,13 +124,15 @@ struct SupportLegUpdater_v
 		this._setPivotToSecondPoint()
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		
+		foot_exists --return
 	),
 	
 	/** Update leg height
 	 */
 	function updateLegHeight =
 	(
-		--format "\n"; print "SupportLegUpdater_v.updateLegHeight()"
+		format "\n"; print "SupportLegUpdater_v.updateLegHeight()"
 		--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 		
 		--base_height   = getUserPropVal support_obj "BASE_HEIGHT"
@@ -159,7 +160,7 @@ struct SupportLegUpdater_v
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		
 	),
-	--private
+--	--private
 	
 	--/** Set minimal foot pos
 	-- */
@@ -261,7 +262,7 @@ struct SupportLegUpdater_v
 	function _canBeFootAdded =
 	(
 		--format "\n---------------------------------\n"
-		format "\n"; print "SupportLegUpdater_v._canBeFootAdded()"
+		--format "\n"; print "SupportLegUpdater_v._canBeFootAdded()"
 		--format "\nFOOT NOT EXISTS\n"
 		
 		/* IF NORMAL DIRCTION SUPPORT  */
@@ -302,7 +303,7 @@ struct SupportLegUpdater_v
 		else
 			is_space_for_foot = this._getZposition 1 > minimal_foot_pos_z + chamfer_val
 
-		format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
+		--format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
 		is_space_for_foot --return
 	),
 
@@ -344,6 +345,32 @@ struct SupportLegUpdater_v
 		this._setMaterialToFoot()
 	),
 
+	/** Remove foot by deleting last knot of spline
+	 */
+	function removeFoot =
+	(
+		format "\n"; print "SupportLegUpdater_v.removeFoot()"
+		--format "\nREMOVE FOOT\n"
+		--format "direction_is_down: %\n" direction_is_down
+
+		/* DELETE GROUND POINT */ 
+		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)
+		
+		--updateShape support_obj
+
+		this._getNumOfKnots()
+		
+		/*  */
+		if direction_is_down and num_of_knots > 2 then
+			for knot = 2 to num_of_knots - 1 do 
+				deleteKnot support_obj spline_1 knot
+				
+		--this._getNumOfKnots()
+
+		--this.updateLegWithoutFoot()
+		--update_shape = true
+	),
+	
 	/** UPfootE LEWHEN FOOT EXISTS
 	 */
 	function updateLegWithFoot =
@@ -449,40 +476,15 @@ struct SupportLegUpdater_v
 	 */
 	function footExists =
 	(
+		--format "\n"; print "SupportLegUpdater_v.footExists()"
 
 		num_of_segments = numSegments support_obj spline_1
 		--format "num_of_segments: %\n" num_of_segments
-		foot_exists = getMaterialID support_obj spline_1 num_of_segments == 4
+		this.foot_exists = getMaterialID support_obj spline_1 num_of_segments == 4
 		--format "FOOT_EXISTS: %\n" foot_exists
-		foot_exists --return
+		this.foot_exists --return
 	),
 
-	/** Remove foot by deleting last knot of spline
-	 */
-	function removeFoot =
-	(
-		format "\n"; print "SupportLegUpdater_v.removeFoot()"
-		--format "\nREMOVE FOOT\n"
-		--format "direction_is_down: %\n" direction_is_down
-
-		/* DELETE GROUND POINT */ 
-		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)
-		
-		--updateShape support_obj
-
-		this._getNumOfKnots()
-		
-		/*  */
-		if direction_is_down and num_of_knots > 2 then
-			for knot = 2 to num_of_knots - 1 do 
-				deleteKnot support_obj spline_1 knot
-				
-		--this._getNumOfKnots()
-
-		--this.updateLegWithoutFoot()
-		--update_shape = true
-	),
-	
 	/** Is space for leg
 	 */
 	function _isSpaceForFoot knot =

@@ -17,8 +17,8 @@ filein( getFilenamePath(getSourceFileName()) + "/../Lib/generateSupportsOrRafts.
 delete objects
 /* PREPARE SCENE */ 
 --obj = createTestObjectPackman()
---obj = createTestObjectPackman pos_z:100
-obj = createTestObjectPackman pos_z:5
+obj = createTestObjectPackman pos_z:50
+--obj = createTestObjectPackman pos_z:5
 
 
 select obj
@@ -51,9 +51,13 @@ SUPPORT_OPTIONS.normal_length	= 10
 --
 --
 
+select_verts	= #{}
+--select_verts = #{ 22 }
+select_verts = #{ 29 } -- bottom vertex
+--select_verts = #{ 40 }
 
---obj.EditablePoly.SetSelection #Vertex #{ 22 }
-obj.EditablePoly.SetSelection #Vertex #{ 40 }
+if select_verts.numberSet > 0 then
+obj.EditablePoly.SetSelection #Vertex select_verts
 
 
 

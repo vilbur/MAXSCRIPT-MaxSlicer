@@ -12,17 +12,20 @@ filein( getFilenamePath(getSourceFileName()) + "/../SupportManager.ms" )	--"./..
 
 filein( getFilenamePath(getSourceFileName()) + "/helpers/createTestObjectPackMan.ms" )	--"./helpers/createTestObjectPackMan.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms" )	--"./../../../content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/Lib/generateSupportsOrRafts.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../Lib/generateSupportsOrRafts.ms" )	--"./../Lib/generateSupportsOrRafts.ms"
 
+delete objects
 /* PREPARE SCENE */ 
-obj = prepareObject()
+--obj = createTestObjectPackman()
+--obj = createTestObjectPackman pos_z:100
+obj = createTestObjectPackman pos_z:5
 
 
 select obj
 
 /*------------------------------------------------------------------------------
 	RUN TESTS
---------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
 
 
 /* MOCKUP DEPENDENCY */ 
@@ -33,7 +36,7 @@ SUPPORT_MANAGER	= SupportManager_v()
 --format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
 /* SET SUPPORT OPTIONS */ 
 SUPPORT_OPTIONS.top_width	= 1
-SUPPORT_OPTIONS.bar_width	= 1.5
+SUPPORT_OPTIONS.bar_width	= 1.5s
 SUPPORT_OPTIONS.base_width	= 5
 
 SUPPORT_OPTIONS.top_width	= 0.5
@@ -42,12 +45,19 @@ SUPPORT_OPTIONS.base_width	= 10
 
 SUPPORT_OPTIONS.normal_length	= 10
 
+--
+----SUPPORT_OPTIONS.second_point_direction	= 1 -- 1:NORMAL|2:DOWN
+--SUPPORT_OPTIONS.second_point_direction	= 2 -- 1:NORMAL|2:DOWN
+--
+--
 
---SUPPORT_OPTIONS.second_point_direction	= 1 -- 1:NORMAL|2:DOWN
-SUPPORT_OPTIONS.second_point_direction	= 2 -- 1:NORMAL|2:DOWN
+
+--obj.EditablePoly.SetSelection #Vertex #{ 22 }
+obj.EditablePoly.SetSelection #Vertex #{ 40 }
 
 
 
+--
 generateSupportsOrRafts obj_type:#SUPPORT
 
 --

@@ -918,7 +918,7 @@ struct SupportManager_v
 				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
-				has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
+				--has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
 				
 				--is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
 				
@@ -931,7 +931,7 @@ struct SupportManager_v
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
 					
-					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type has_foot:has_foot
+					SupportObject = SupportObject_v source_obj:source_obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type --has_foot:has_foot
 
 					SupportObjects[SupportObject.support_key] = SupportObject
 					

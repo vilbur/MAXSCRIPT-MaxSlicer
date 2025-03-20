@@ -5,7 +5,7 @@
 /** Prepare object
  */
 	
-function createTestObjectPackman radius:50 =
+function createTestObjectPackman radius:50 pos_z: =
 (
 	--format "\n"; print ".createTestObjectPackman()"
 	/** Set verts colors
@@ -40,7 +40,18 @@ function createTestObjectPackman radius:50 =
 	
 	--radius = 100
 	
-	obj = Cylinder name:"PackMan" radius:radius height:(radius/2) sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] ) isSelected:on
+	--obj = Cylinder name:"PackMan" radius:radius height:(radius/2) sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] ) isSelected:on
+	obj = Cylinder name:"PackMan" radius:radius height:(radius/2) sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle isSelected:on
+	
+	obj.pivot = obj.center
+
+	obj.pos = [ 0, 0, 0 ]
+	 
+	obj.pos .z = radius + ( if pos_z == unsupplied then radius + 2 else pos_z )
+	 
+	Rotate obj (angleaxis 90 [1,0,0])
+	
+	Rotate obj (angleaxis -90 [0,0,1])
 	
 	addModifier obj ( meshsmooth sepBySmGroups:true )
 	

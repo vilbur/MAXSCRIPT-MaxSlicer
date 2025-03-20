@@ -163,12 +163,14 @@ struct SourceObject_v
 		
 		--setUserPropVal support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
 
-		setUserPropVal support_obj "HAS_FOOT"	SupportObject.has_foot
+		setUserPropVal support_obj "FOOT_ENABLED"	SupportObject.foot_enabled
+		setUserPropVal support_obj "FOOT_EXISTS"	SupportObject.foot_exists
 		
 		setUserPropVal support_obj "DIRECTION" direction --asString:true
 		
 		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-
+		
+		setUserPropVal support_obj "NORMAL_LENGTH" SUPPORT_OPTIONS.normal_length
 	),
 
 	/** Reset supports
@@ -364,7 +366,7 @@ struct SourceObject_v
 		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 		--for key in Supports.keys where not Supports[key].isRaft() do
-		for key in Supports.keys where not Supports[key].isRaft() and  Supports[key].has_foot do
+		for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 			--Supports[key].SupportLegUpdater.updateLegHeight()
 			--Supports[key].SupportLegUpdater.updateLegWithFoot()
 			Supports[key].updateLegPosition()

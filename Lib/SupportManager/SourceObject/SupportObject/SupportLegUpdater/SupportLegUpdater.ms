@@ -64,8 +64,8 @@ struct SupportLegUpdater_v
 	 */
 	function updateLeg =
 	(
-		--format "\n=======================================================================\n"
-		--format "\n"; print "SupportLegUpdater_v.updateLeg()"
+		format "\n=======================================================================\n"
+		format "\n"; print "SupportLegUpdater_v.updateLeg()"
 
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
@@ -97,6 +97,7 @@ struct SupportLegUpdater_v
 			UPDATE LEG - IF FOOT WAS NOT ADDED
 			
 		================================================================================*/
+		format "foot_just_added: %\n" foot_just_added
 		if not foot_just_added then
 		(
 			if foot_exists = this.footExists() then
@@ -197,7 +198,7 @@ struct SupportLegUpdater_v
 	*/
 	function addFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.addFoot()"
+		format "\n"; print "SupportLegUpdater_v.addFoot()"
 
 		/* ADD FOOT TO DOWN DIRCTION */
 		if direction_is_down then
@@ -246,7 +247,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegWithFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.updateLegWithFoot()"
+		format "\n"; print "SupportLegUpdater_v.updateLegWithFoot()"
 		--format "direction_is_down: %\n" direction_is_down
 
 		point_1_pos  = getKnotPoint support_obj spline_1 1
@@ -305,7 +306,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegWithoutFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
+		format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
 		--format "\nUPDATE FOOT NOT EXISTS\n"
 		
 		/* UPDATE DOWN DIRCTION */

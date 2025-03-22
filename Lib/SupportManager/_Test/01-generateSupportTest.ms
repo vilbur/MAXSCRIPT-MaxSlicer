@@ -52,7 +52,7 @@ select_verts	= #{}
 --select_verts = verts_colors["orange"]
 --select_verts = verts_colors["green"]
 --select_verts = verts_colors[clr_cyan]
-select_verts = verts_colors[clr_blue]
+--select_verts = verts_colors[clr_blue]
 --select_verts = #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -88,7 +88,7 @@ SUPPORT_OPTIONS.base_width	= 10
 SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
 --SUPPORT_OPTIONS.normal_length	= 0.75
 --SUPPORT_OPTIONS.normal_length	= 1.25
---SUPPORT_OPTIONS.normal_length	= 5
+SUPPORT_OPTIONS.normal_length	= 5
 --SUPPORT_OPTIONS.normal_length	= 10
 
 

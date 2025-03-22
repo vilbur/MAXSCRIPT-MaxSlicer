@@ -214,7 +214,7 @@ struct SourceObject_v
 		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
-		SupportObject.hit_support	= undefined
+		SupportObject.hit_leg	= undefined
 		
 		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(vert)
 		
@@ -262,7 +262,7 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined what_to_update: =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "direction: %\n" direction
 
 		/* GET SUPPORTS TO UPDATE */ 
@@ -359,7 +359,7 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--this.removeDeletedNodes()
 		

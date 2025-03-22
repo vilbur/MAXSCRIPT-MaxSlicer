@@ -154,13 +154,10 @@ struct SupportObject_v
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "minimal_foot_pos_z: %\n" minimal_foot_pos_z
 		----format "first_knot_pos: %\n" first_knot_pos
-		--format "direction: %\n" direction
 		--format "update_knot_2: %\n" update_knot_2
+		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
-
-
 
 
 		--/* GET 1st knot POSITION FROM LINE */ 
@@ -189,21 +186,20 @@ struct SupportObject_v
 		
 		
 
-		--/* CHECK NORMAL LENGTH  */ 
-		--if first_knot_pos != unsupplied andnum_knots> 2  then
-		--(
-		--	current_length = distance points_positions[1] points_positions[2]
-		--
-		--	
-		--	minimal_length = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2] add_chamfer:true
-		--
-		--	--format "MINIMAL_LENGTH: %\n" minimal_length
-		--	--minimal_length += SUPPORT_OPTIONS.getOption #BAR_WIDTH
-		--
-		--	/* SET MINIMAL NORMAL IF IT`S TOO SHOTRT */ 
-		--	if current_length < minimal_length then
-		--		points_positions[2] = first_knot_pos + ( (minimal_length + 0.1 ) * ( normalize ( points_positions[2] - points_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
-		--)
+		/* CHECK NORMAL LENGTH  */ 
+		if first_knot_pos != unsupplied and num_knots> 2  then
+		(
+			current_length = distance points_positions[1] points_positions[2]
+		
+			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
+			--minimal_length = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2] add_chamfer:true
+			/* FAST MINIMAL LENGTH BY WIDTH OF BAR */ 
+			minimal_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+		
+			/* SET MINIMAL NORMAL IF IT`S TOO SHOTRT */ 
+			if current_length < minimal_length then
+				points_positions[2] = first_knot_pos + ( (minimal_length + 0.1 ) * ( normalize ( points_positions[2] - points_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
+		)
 		
 		
 
@@ -223,7 +219,7 @@ struct SupportObject_v
 		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
-			this.updateLeg()
+			this.updateLeg points_positions:points_positions
 			
 		else if update_knot_2 then
 			this._updateKnotsPositionByPoints()
@@ -243,48 +239,37 @@ struct SupportObject_v
 
 	/** Update leg position
 	 */
-	function updateLeg =
+	function updateLeg points_positions: =
 	(
 		--format "\n"; print "SupportObject_v.updateLeg()"
-		--format "minimal_foot_pos_z: %\n" minimal_foot_pos_z
+		
+		/* IF ONLY LEG IS UPDATED */ 
+		if points_positions == unsupplied then 
+			this.points_positions = #( getKnotPoint support_obj spline_1 1 , support_obj.pos )
 
-		hit_leg = this._intersectRaySourceObject (points_positions[2]) ([0,0,-1])
-		--format "HIT_LEG: %\n" hit_leg
+		/* TEST IF LEG HITS SOURCE OBJECT */ 
+		hit_leg = this._intersectRaySourceObject (this.points_positions[2]) ([0,0,-1])
 		
 		/* IF LEG HIT SOURCE OBJECT */ 
 		if hit_leg != undefined then
-			points_positions[3] = hit_leg.pos --  SET HIT POSITON OF LEG 
+			this.points_positions[3] = hit_leg.pos --  SET HIT POSITON OF LEG 
 		
-		--format "KNOTS_POSITIONS: %\n" points_positions
 		this._setRightCountOfKnotsToSpline()
 		
 		this._updateKnotsPositionByPoints()
 
-		--if this.is_on_ground != undefined and this.is_on_ground then
+		
 		if hit_leg == undefined then
 		(
 			if minimal_foot_pos_z == undefined then
-			(
-				direction = getUserPropVal support_obj "DIRECTION"
-	
-				this._setMinimalFootPos (direction) 
-			)
+				this._setMinimalFootPos (getUserPropVal support_obj "DIRECTION") 
 
+				
 			SupportLegUpdater.minimal_foot_pos_z = minimal_foot_pos_z
 			
-			foot_exists = SupportLegUpdater.updateLeg()
-			
-			--hit_leg = this._intersectRaySourceObject (points_positions[2]) ([0,0,-1])
-
-			--/* SET MATERIALS */
-			--if foot_exists then
-			--	this._setMaterialsToLineSegments()
-			--	
-			--this._setPivotToSecondPoint()
-
+			foot_exists = SupportLegUpdater.updateFoot()
 		)
 
-		--this._updateKnotsPositionByPoints()
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
@@ -359,11 +344,10 @@ struct SupportObject_v
 		(
 			second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
 			
-			--second_knot_pos = first_knot_pos + ( normal_length_option * dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
-			--second_knot_pos = first_knot_pos + ( 0.1 * dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
-			
-			--if minimal_length == undefined then
-				minimal_length = this.getNimalLenghtByAngle first_knot_pos:first_knot_pos second_knot_pos:second_knot_vec add_bar:false add_chamfer:true
+			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
+			--minimal_length = this.getNimalLenghtByAngle first_knot_pos:first_knot_pos second_knot_pos:second_knot_vec add_bar:false add_chamfer:true
+			/* FAST MINIMAL LENGTH BY WIDTH OF BAR */ 
+			minimal_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
 			
 			--format "GEN_length: %\n" minimal_length
 			/* KEEP MINIMAL LENGTH OF NORMLA */ 

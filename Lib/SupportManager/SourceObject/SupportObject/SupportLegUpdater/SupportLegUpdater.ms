@@ -62,10 +62,10 @@ struct SupportLegUpdater_v
 		3) UPDATE SUPPORT WITHOUT FOOT
 			
 	 */
-	function updateLeg =
+	function updateFoot =
 	(
-		format "\n=======================================================================\n"
-		format "\n"; print "SupportLegUpdater_v.updateLeg()"
+		--format "\n=======================================================================\n"
+		--format "\n"; print "SupportLegUpdater_v.updateFoot()"
 
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
 			
@@ -97,7 +97,6 @@ struct SupportLegUpdater_v
 			UPDATE LEG - IF FOOT WAS NOT ADDED
 			
 		================================================================================*/
-		format "foot_just_added: %\n" foot_just_added
 		if not foot_just_added then
 		(
 			if foot_exists = this.footExists() then
@@ -138,15 +137,10 @@ struct SupportLegUpdater_v
 			if not this._isSpaceForTopChamfer() then
 				is_space_for_foot = false
 		)
-		/* IF NORMAL DIRCTION SUPPORT  */
+		/* IF NORMAL DIRECTION SUPPORT  */
 		else
-		(
-			--format "\nSUPPORT DIRECTION IS NORMAL\n"
-			must_be_removed = this._getZposition leg_knot <= minimal_foot_pos_z
+			is_space_for_foot = not this._getZposition leg_knot <= minimal_foot_pos_z 
 
-			is_space_for_foot = not must_be_removed 
-		)
-		
 		not is_space_for_foot --return
 	),
 	
@@ -198,7 +192,7 @@ struct SupportLegUpdater_v
 	*/
 	function addFoot =
 	(
-		format "\n"; print "SupportLegUpdater_v.addFoot()"
+		--format "\n"; print "SupportLegUpdater_v.addFoot()"
 
 		/* ADD FOOT TO DOWN DIRCTION */
 		if direction_is_down then
@@ -230,7 +224,7 @@ struct SupportLegUpdater_v
 	 */
 	function removeFoot =
 	(
-		format "\n"; print "SupportLegUpdater_v.removeFoot()"
+		--format "\n"; print "SupportLegUpdater_v.removeFoot()"
 
 		/* DELETE GROUND POINT */ 
 		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)

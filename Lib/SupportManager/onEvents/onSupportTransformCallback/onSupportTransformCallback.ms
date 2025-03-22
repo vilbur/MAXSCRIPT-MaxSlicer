@@ -35,8 +35,10 @@ function onSupportTransformTimeoutCallback sender evt =
 			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
 			if not mouse.buttonStates[1] then
 			(
-				SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:false direction:#CUSTOM
-		
+				SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:true direction:#CUSTOM
+				
+				SUPPORT_MANAGER.updateShapes() -- update all shapes at once
+
 				removeTimeout sender
 			)
 		)
@@ -71,6 +73,7 @@ function bindSupportToTransformEvent supports =
 	--format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
 	--format "SUPPORTS: %\n" SUPPORTS
 	--format "COUNT: %\n" SUPPORTS.count
+	
 	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
 
 	if classOf supports == Array then
@@ -83,13 +86,15 @@ function bindSupportToTransformEvent supports =
 
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
-		
-		
-		
+		/*------------------------------------------------------------------------------
+			SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE
+		--------------------------------------------------------------------------------*/
+		live_update_max_objects_count = 1
+
 		/*------------------------------------------------------------------------------
 			ON MULTIPLE SUPPORTS TRANSFORM
 		--------------------------------------------------------------------------------*/
-		if selection.count > 1 then
+		if selection.count > live_update_max_objects_count then
 		(
 
 			if  SUPPORTS_TRANSFORM_CHANGED.count == 0 then
@@ -115,9 +120,13 @@ function bindSupportToTransformEvent supports =
 			if support.pos.z < z_pos_limit then
 				support.pos.z = z_pos_limit
 			
-			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:false direction:#CUSTOM
+			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:true direction:#CUSTOM
+			
+			
+			--if selection.count == SUPPORT_MANAGER.shapes_to_update.count then
+			SUPPORT_MANAGER.updateShapes() -- update all shapes at once
 		)
-
+		
 	)
 )
 

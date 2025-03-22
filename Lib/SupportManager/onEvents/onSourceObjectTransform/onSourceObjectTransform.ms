@@ -1,5 +1,5 @@
 
-global SOURCE_OBJECT_TRANSFORM = undefined  -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
+------global SOURCE_OBJECT_TRANSFORM = undefined  -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
 
 
 /** Execute callback on timeout

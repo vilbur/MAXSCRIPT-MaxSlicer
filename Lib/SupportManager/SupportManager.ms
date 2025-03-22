@@ -360,7 +360,7 @@ struct SupportManager_v
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(supports_by_source.keys)
 
-		this.updateShapes()
+		--this.updateShapes()
 	),
  
 	/** Update base height
@@ -490,7 +490,7 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		--format "\n"; print "SupportManager_v.updateShapes()"
+		format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
 		(

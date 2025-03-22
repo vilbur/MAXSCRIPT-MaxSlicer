@@ -1,3 +1,9 @@
+/*
+	USE:
+		"./../../onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
+		
+*/ 
+
 
 global SOURCE_OBJECT_TRANSFORM
 
@@ -10,6 +16,7 @@ struct SourceObjectTransformEventBinder_v
 	/* properties */
 	--delay_ms = 1000,
 	delay_ms = 200,
+	--delay_ms = 20,
 	
 	binded_objects = #(),
 

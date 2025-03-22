@@ -51,6 +51,7 @@ struct SupportObject_v
 	(
 		--format "\n"
 		--format "\n"; print "SupportObject_v.generateSupport()"
+		format "first_knot_pos: %\n" first_knot_pos
 		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
@@ -504,7 +505,7 @@ struct SupportObject_v
 				(num_knots > points_positions.count): this._removeKnots()
 			)
 			
-			this._updateKnotsPositionByPoints()
+			--this._updateKnotsPositionByPoints()
 		)
 	),
 

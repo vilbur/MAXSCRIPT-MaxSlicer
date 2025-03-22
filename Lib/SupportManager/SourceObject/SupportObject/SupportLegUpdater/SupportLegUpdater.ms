@@ -300,7 +300,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegWithoutFoot =
 	(
-		format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
+		--format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
 		--format "\nUPDATE FOOT NOT EXISTS\n"
 		
 		/* UPDATE DOWN DIRCTION */

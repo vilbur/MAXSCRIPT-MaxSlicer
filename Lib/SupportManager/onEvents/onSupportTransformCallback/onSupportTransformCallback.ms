@@ -90,6 +90,8 @@ function bindSupportToTransformEvent supports =
 			SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE
 		--------------------------------------------------------------------------------*/
 		live_update_max_objects_count = 1
+		live_update_max_objects_count = 10
+		
 
 		/*------------------------------------------------------------------------------
 			ON MULTIPLE SUPPORTS TRANSFORM
@@ -120,10 +122,14 @@ function bindSupportToTransformEvent supports =
 			if support.pos.z < z_pos_limit then
 				support.pos.z = z_pos_limit
 			
+		--with redraw off
+
+			--timer_update = timeStamp()
 			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:true direction:#CUSTOM
+			--format "update: % ms\n" (( timeStamp()) - timer_update)
 			
 			
-			--if selection.count == SUPPORT_MANAGER.shapes_to_update.count then
+			if selection.count == SUPPORT_MANAGER.shapes_to_update.count then
 			SUPPORT_MANAGER.updateShapes() -- update all shapes at once
 		)
 		

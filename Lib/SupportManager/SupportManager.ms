@@ -89,7 +89,9 @@ struct SupportManager_v
 	/* inhered */
 
 	/*------------------------------------------------------------------------------
+		
 		GENERATE
+		
 	--------------------------------------------------------------------------------*/
 	
 	/** GENERATE SUPPORTS
@@ -294,7 +296,9 @@ struct SupportManager_v
 
 
 	/*------------------------------------------------------------------------------
-		UPDATE & CONVERT
+		
+		UPDATE 
+		
 	--------------------------------------------------------------------------------*/
 
 
@@ -401,49 +405,6 @@ struct SupportManager_v
 		this.updateShapes()
 	),
 
-	/** Convert SUPPORTS to RAFTS or vice versa
-	  *
-	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
-	  *
-	 */
-	function convertType support_nodes to_type:#RAFT  =
-	(
-		--format "\n"; print "SupportManager_v.convert()"
-
-		supports_by_source = this._sortObjectsBySourceObject(support_nodes)
-		--format "supports_by_source: %\n" supports_by_source
-
-		pauseSupportToTransformEvent()
-
-		with redraw off
-		
-		/* FOR EACH SOURCE OBJECT */ 
-		for sync_key in supports_by_source.keys do
-		(
-			supports_to_convert = supports_by_source[sync_key]
-			--format "supports_exists.count: %\n" supports_exists.count
-			supports_exists = SourceObjects[sync_key].getSupportNodes obj_type:to_type
-			
-			
-			/* CONVERT TYPE */
-			SourceObjects[sync_key].convertType( supports_to_convert ) obj_type:to_type
-
-			
-			/* GET EXISTING MODIFEIRS */
-			if supports_exists.count > 0 then
-				modifiers = supports_exists[1].modifiers
-			
-			
-			/* CONVERT MODIFEIRS */
-			MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) obj_type:to_type modifiers:modifiers
-		)
-
-		redrawViews()
-
-		this.updateShapes()
-
-		resumeSupportToTransformEvent()
-	),
 
 	/** Update modifiers by control value
 	 */
@@ -490,18 +451,68 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		format "\n"; print "SupportManager_v.updateShapes()"
+		--format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
 		(
-			with redraw off
+			--with redraw off
 				for _shape in shapes_to_update do
 					updateShape _shape
 	
-			redrawViews()
+			--redrawViews()
 		)
 
 		shapes_to_update = #()
+	),
+	
+	/*------------------------------------------------------------------------------
+	
+		CONVERT
+	
+	--------------------------------------------------------------------------------*/
+	
+	/** Convert SUPPORTS to RAFTS or vice versa
+	  *
+	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
+	  *
+	 */
+	function convertType support_nodes to_type:#RAFT  =
+	(
+		--format "\n"; print "SupportManager_v.convert()"
+
+		supports_by_source = this._sortObjectsBySourceObject(support_nodes)
+		--format "supports_by_source: %\n" supports_by_source
+
+		pauseSupportToTransformEvent()
+
+		with redraw off
+		
+		/* FOR EACH SOURCE OBJECT */ 
+		for sync_key in supports_by_source.keys do
+		(
+			supports_to_convert = supports_by_source[sync_key]
+			--format "supports_exists.count: %\n" supports_exists.count
+			supports_exists = SourceObjects[sync_key].getSupportNodes obj_type:to_type
+			
+			
+			/* CONVERT TYPE */
+			SourceObjects[sync_key].convertType( supports_to_convert ) obj_type:to_type
+
+			
+			/* GET EXISTING MODIFEIRS */
+			if supports_exists.count > 0 then
+				modifiers = supports_exists[1].modifiers
+			
+			
+			/* CONVERT MODIFEIRS */
+			MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) obj_type:to_type modifiers:modifiers
+		)
+
+		redrawViews()
+
+		this.updateShapes()
+
+		resumeSupportToTransformEvent()
 	),
 
 	/*------------------------------------------------------------------------------

@@ -100,7 +100,7 @@ struct SupportManager_v
 		--format "obj_type: %\n" obj_type
 		max modify mode
 
-		SUPPORT_OPTIONS.getValuesFromUi()
+		--SUPPORT_OPTIONS.getValuesFromUi()
 
 		SourceObject = this._getSourceObject(source_obj)
 

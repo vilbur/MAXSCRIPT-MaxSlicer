@@ -179,7 +179,7 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.getProp()"
 		
 	
-		function getChamferBarValue = (bar_width - top_width) / 2
+		function getChamferBarValue = (bar_width - top_width) / 2.0
 	
 		function getBaseWidthValue = if (base_width_value = (base_width - bar_width) / 2.0 ) > 0 then base_width_value else 0 -- base_width is always > 0
 		--function getBaseWidthValue = 5

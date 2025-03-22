@@ -14,19 +14,45 @@ filein( getFilenamePath(getSourceFileName()) + "/helpers/createTestObjectPackMan
 
 filein( getFilenamePath(getSourceFileName()) + "/../Lib/generateSupportsOrRafts.ms" )	--"./../Lib/generateSupportsOrRafts.ms"
 
-delete objects
-/* PREPARE SCENE */ 
---obj = createTestObjectPackman()
---obj = createTestObjectPackman pos_z:50
-obj = createTestObjectPackman pos_z:1
---obj = createTestObjectPackman pos_z:15
 
-select obj
+/*------------------------------------------------------------------------------
+	PREPARE SCENE
+--------------------------------------------------------------------------------*/
+
+/*  */ 
+verts_colors = Dictionary #string
+
+clr_blue =  ( color 30 144 255 ) as string
+clr_cyan =  ( color 0 255 255 ) as string
+
+verts_colors[ "red"	] = #{ 29 }
+verts_colors[ clr_blue	] = #{ 22 }
+verts_colors[ "green"	] = #{ 45 }
+verts_colors[ "orange"	] = #{ 40 }
+verts_colors[ "gray"	] = #{ 32 }
+verts_colors[ clr_cyan	] = #{ 30 }
+
+/* CREATE TEST OBJECT */
+obj = $PackMan
+
+--pos_z = 1
+pos_z = 10
+
+--if selection.count == 0 then
+(
+	delete objects
+	
+	obj = createTestObjectPackman pos_z:pos_z verts_colors:verts_colors
+)
 
 
+/* SELECT VERTS */ 
 select_verts	= #{}
---select_verts = #{ 22 }
---select_verts = #{ 29 } -- bottom vertex
+--select_verts = verts_colors["red"]
+--select_verts = verts_colors["orange"]
+--select_verts = verts_colors["green"]
+--select_verts = verts_colors[clr_cyan]
+select_verts = verts_colors[clr_blue]
 --select_verts = #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -35,33 +61,48 @@ if select_verts.numberSet > 0 then
 
 
 /*------------------------------------------------------------------------------
-	RUN TESTS
+	SET GENERATOR OPTIONS
 ------------------------------------------------------------------------------*/
-
-
-/* MOCKUP DEPENDENCY */ 
-MODIFIERS_MANAGER	= ModifiersManager_v()
 SUPPORT_OPTIONS	= SupportOptions_v()
-SUPPORT_MANAGER	= SupportManager_v()
---
---format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
-/* SET SUPPORT OPTIONS */ 
-SUPPORT_OPTIONS.top_width	= 1
-SUPPORT_OPTIONS.bar_width	= 1.5
-SUPPORT_OPTIONS.base_width	= 5
 
-SUPPORT_OPTIONS.top_width	= 0.5
-SUPPORT_OPTIONS.bar_width	= 1.5
+
+
+/* SET BAR WIDTH */ 
+--SUPPORT_OPTIONS.bar_width	= 1.5
+SUPPORT_OPTIONS.bar_width	= 2
+
+
+/* SET TOP WIDTH */ 
+--SUPPORT_OPTIONS.top_width	= 0.1
+--SUPPORT_OPTIONS.top_width	= 0.5
+SUPPORT_OPTIONS.top_width	= 1
+--SUPPORT_OPTIONS.top_width	= 1.5
+--SUPPORT_OPTIONS.top_width	= 2
+
+
+/* SET BASE WIDTH */ 
 SUPPORT_OPTIONS.base_width	= 10
 
-SUPPORT_OPTIONS.normal_length	= 10
+
+/* SET NORMAL LENGTH */ 
+SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
+--SUPPORT_OPTIONS.normal_length	= 0.75
+--SUPPORT_OPTIONS.normal_length	= 1.25
+--SUPPORT_OPTIONS.normal_length	= 5
+--SUPPORT_OPTIONS.normal_length	= 10
 
 
-----SUPPORT_OPTIONS.second_point_direction	= 1 -- 1:NORMAL|2:DOWN
---SUPPORT_OPTIONS.second_point_direction	= 2 -- 1:NORMAL|2:DOWN
+/* NORMLA DIRECTION */ 
+----SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
+--SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 
+/*------------------------------------------------------------------------------
+	GENERATE SUPPORTS
+--------------------------------------------------------------------------------*/
 
+MODIFIERS_MANAGER	= ModifiersManager_v()
+SUPPORT_MANAGER	= SupportManager_v()
 
 generateSupportsOrRafts obj_type:#SUPPORT
 

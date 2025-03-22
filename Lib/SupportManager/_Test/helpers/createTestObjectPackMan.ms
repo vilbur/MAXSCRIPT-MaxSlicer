@@ -5,21 +5,22 @@
 /** Prepare object
  */
 	
-function createTestObjectPackman radius:50 pos_z: =
+function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefined =
 (
 	--format "\n"; print ".createTestObjectPackman()"
 	/** Set verts colors
 	 */
-	function setVertsColors obj =
+	function setVertsColors obj verts_colors =
 	(
-		verts_colors = Dictionary #string
-		
-		
-		
-		verts_colors[ "red" as string ]	= #{ 29, 40, 45, 59 }
-		verts_colors[ "green" as string ]	= #{ 22 }
-		verts_colors[ ( color 0 255 255 ) as string  ]	= #{ 30 }
-		verts_colors[ "orange" as string ]	= #{ 40 }
+		if verts_colors == undefined then
+		(
+			verts_colors = Dictionary #string
+			
+			verts_colors[ "red" as string ]	= #{ 29, 40, 45, 59 }
+			verts_colors[ "green" as string ]	= #{ 22 }
+			verts_colors[ ( color 0 255 255 ) as string  ]	= #{ 30 }
+			verts_colors[ "orange" as string ]	= #{ 40 }
+		)
 	
 
 		/* SET VERTEX COLOR */ 
@@ -47,7 +48,7 @@ function createTestObjectPackman radius:50 pos_z: =
 
 	obj.pos = [ 0, 0, 0 ]
 	 
-	obj.pos .z = radius + ( if pos_z == unsupplied then radius + 2 else pos_z )
+	obj.pos .z = radius + ( if pos_z == undefined then radius + 2 else pos_z )
 	 
 	Rotate obj (angleaxis 90 [1,0,0])
 	
@@ -57,7 +58,7 @@ function createTestObjectPackman radius:50 pos_z: =
 	
 	convertTo obj PolyMeshObject
 	
-	setVertsColors(obj)
+	setVertsColors(obj)(verts_colors)
 	
 	obj --return
 )

@@ -262,7 +262,7 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined what_to_update: =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "direction: %\n" direction
 
 		/* GET SUPPORTS TO UPDATE */ 
@@ -359,7 +359,7 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--this.removeDeletedNodes()
 		

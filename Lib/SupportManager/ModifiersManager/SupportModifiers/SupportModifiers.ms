@@ -31,11 +31,15 @@ struct SupportModifiers_v
 		mods_support[2]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getOption #TOP_WIDTH )	--selection_option:#ALL  materialoption:#DIFFERENT
 		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getOption #EXTEND_TOP )
 
-		format "MODS_SUPPORT: %\n" mods_support
+		--format "MODS_SUPPORT: %\n" mods_support
+		
+		--format "SUPPORT_OPTIONS.top_width: %\n" SUPPORT_OPTIONS.top_width
+		--format "TOP_WIDTH: %\n" mods_support[2].amount
 		--insertItem mods_support[2] mods_support 4
 		--deleteItem mods_support 2
+		
 
-		format "MODS_SUPPORT: %\n" mods_support
+		--format "MODS_SUPPORT: %\n" mods_support
 		
 		
 		/* RAFT MODIFIERS */

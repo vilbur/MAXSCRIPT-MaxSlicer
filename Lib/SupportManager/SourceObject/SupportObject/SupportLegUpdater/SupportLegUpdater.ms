@@ -6,17 +6,21 @@ struct SupportLegUpdater_v
 	/* construct */
 	support_obj,
 
+	/* required */
 	foot_mat_id,
 	
-	/* required */
-	/* properties */
+	/* user properties */
 	base_height,
 	normal_length,
-	
 	foot_enabled = true,
-	foot_exists = true,
-	--foot_just_added = false,
+
+	/* modifier values */ 	
+	--bar_width,
+	chamfer_val,
 	
+	/* properties */
+	foot_exists = true,
+
 	vertical_knots = #(),
 	
 	direction_is_down   = false,
@@ -32,8 +36,6 @@ struct SupportLegUpdater_v
 	base_knot,
 	leg_knot,
 	
-	--bar_width,
-	chamfer_val,
 	
 	minimal_foot_pos_z, -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	
@@ -73,9 +75,8 @@ struct SupportLegUpdater_v
 		
 		this._setVerticalKnots()
 		
-		base_height   = getUserPropVal support_obj "BASE_HEIGHT"
-		normal_length = getUserPropVal support_obj "NORMAL_LENGTH"
-		foot_enabled  = getUserPropVal support_obj "FOOT_ENABLED"
+		this._getNodeUserProperties()
+
 
 		--format "foot_enabled: %\n" foot_enabled
 		foot_just_added = false
@@ -114,6 +115,15 @@ struct SupportLegUpdater_v
 	),
 
 	private
+	
+	/** Get node user properties
+	 */
+	function _getNodeUserProperties =
+	(
+		--format "\n"; print "SupportLegUpdater_v._getNodeUserProperties()"
+		for prop in #( "BASE_HEIGHT", "NORMAL_LENGTH", "FOOT_ENABLED" ) where getProperty this ( prop as name ) == undefined do
+			setProperty this prop ( getUserPropVal support_obj prop )
+	),
 
 	/** CHECK IF SPACE FOR FOOT EXISTS
 	 */

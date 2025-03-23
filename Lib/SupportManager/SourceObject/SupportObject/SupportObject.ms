@@ -155,7 +155,7 @@ struct SupportObject_v
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
-		----format "first_knot_pos: %\n" first_knot_pos
+		--format "first_knot_pos: %\n" first_knot_pos
 		--format "update_knot_2: %\n" update_knot_2
 		--format "direction: %\n" direction
 		--format "dir_vector: %\n" dir_vector
@@ -230,6 +230,13 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
+		--if ( mod_extend_top = support_obj.modifiers[#EXTEND_TOP] ) != undefined then
+		--(
+		--	--format "CENTER\n"
+		--	--mod_extend_top.extrude_center = support_obj.pivot
+		--	mod_extend_top.extrude_center = [0,0,-100000]
+		--)
+		--
 		--this._alignPivotToSeconPoint()
 		
 		--if numKnots support_obj spline_1 > 2 then
@@ -400,6 +407,15 @@ struct SupportObject_v
 		/** Get position down
 		 */
 		--function getPositionByVector dir_vector = points_positions[1] + ( (distance points_positions[1] points_positions[2]) * dir_vector ) -- make raft longer by multiplying normal length 10x
+		/** Update normal length props
+		 */
+		function updateNormalLengthProps distance_of_points =
+		(
+			--format "\n"; print "SupportObject_v.updateNormalLengthProps()"
+			this.SupportLegUpdater.normal_length = distance_of_points
+			
+			setUserPropVal support_obj "NORMAL_LENGTH" distance_of_points
+		)
 		
 		
 		if direction == #DOWN then
@@ -422,22 +438,17 @@ struct SupportObject_v
 		--second_knot_pos = this._keepSecondPointAboveGround first_knot_pos second_knot_pos dir_vector
 
 		
-		--distance_of_points = distance first_knot_pos second_knot_pos
 		distance_of_points = distance points_positions[1] points_positions[2]
-		
-		--dir_vector = normalize (second_knot_pos - first_knot_pos)
 
 		if ( hit_raft_pos = this._getRaftHitPosition dir_vector distance_of_points ) != undefined then 
 			points_positions[2] = hit_raft_pos
 			
-		--format "HIT_RAFT_POS: %\n" hit_raft_pos
+		else
+			updateNormalLengthProps(distance_of_points)
+
+
 		--second_knot_pos = this._checkMinimalNormalLenght (first_knot_pos) (second_knot_pos) (dir_vector)
 		
-		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance first_knot_pos second_knot_pos )
-		setUserPropVal support_obj "NORMAL_LENGTH" ( distance points_positions[1] points_positions[2] )
-
-		/* ADD SECOND POINT */
-		--points_positions[2] = second_knot_pos
 	),
 
 	/** Get secon point position

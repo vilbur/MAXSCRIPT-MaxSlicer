@@ -62,29 +62,33 @@ struct ModifiersManager_v
 				--addModifier _objects modifiers[i]
 				--
 				--if classOf modifiers[i] == sweep then
-				--	this._setSweepRadius (_objects[1])
+				--	this._setSweepProperties (_objects[1])
 				--	
 				--else
 					modPanel.addModToSelection ( modifiers[i] ) --ui:on
 			)
 		
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-			this._setSweepRadius (_objects[1])
+			this._setSweepProperties (_objects[1])
 		)
 		else
 			this._copyModifiers objects_exists[1] _objects ((this._getSupportsWithModfiers(objects_exists))[1].modifiers)
 	),
 
-	/** Sweep radius must be set when modifier is added to object
+	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
 	 */
-	function _setSweepRadius obj =
+	function _setSweepProperties obj =
 	(
 		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
 		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
+		interpolation_Steps = 4
+		
 		max modify mode
 
 		try(
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+			
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
 		)catch(
 			--format "****************\n"
@@ -211,7 +215,7 @@ struct ModifiersManager_v
 				addModifier _objects modifiers_add[i]
 
 		/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-		this._setSweepRadius (_objects[1])
+		this._setSweepProperties (_objects[1])
 	),
 
 

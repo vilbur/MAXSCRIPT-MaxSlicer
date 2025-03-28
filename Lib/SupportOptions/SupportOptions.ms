@@ -22,7 +22,7 @@ struct SupportOptions_v
 
 	use_nth_vertex	= 1,
 
-	live_update_supports = false,
+	lock_normal_length = true,
 
 	/* SUPPORT OBJECT OPTIONS */
 	layer_height = 0.05,

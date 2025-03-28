@@ -170,6 +170,8 @@ struct SupportModifiers_v
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
 		extrude_mod.amount	= amount
 
+		extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER
+		
 		extrude_mod --return
 	),
 

@@ -100,7 +100,7 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:3|control:spinner|offset:[ 8, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
+icon:	"ACROSS:3|control:spinner|offset:[ 12, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
@@ -138,20 +138,43 @@ icon:	"across:3|control:spinner|offset:[ 8, 20 ]|fieldwidth:24|range:[ 0.1, 999,
 	)
 )
 
+
+
 /*
-*/
-macroscript	_print_support_generator_live_update
+*/ 
+macroscript	_print_option_lock_normal
 category:	"_3D-Print"
-buttontext:	"LIVE UPDATE"
-tooltip:	"Live update supports on their transfrom"
-icon:	"across:3|control:#checkbutton|offset:[ 8, 6 ]|height:32|width:96|tooltip:"
+buttontext:	"Lock"
+tooltip:	"Lock length of support direction on move"
+icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]|checked:true"
 (
+	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
+	--on isEnabled return selection.count > 0
+
 	on execute do
-		--undo "Generate Rafts" on
-		(
-			SUPPORT_OPTIONS.live_update_supports = EventFired.val
-		)
+		SUPPORT_OPTIONS.lock_normal_length = EventFired.val
+		--SUPPORT_MANAGER.updateModifiers ( EventFired )
+
 )
+
+
+
+--/* LIVE UPDATE
+--*/
+--macroscript	_print_support_generator_live_update
+--category:	"_3D-Print"
+--buttontext:	"LIVE UPDATE"
+--tooltip:	"Live update supports on their transfrom"
+--icon:	"across:3|control:#checkbutton|offset:[ 8, 6 ]|height:32|width:96|tooltip:"
+--(
+--	on execute do
+--		--undo "Generate Rafts" on
+--		(
+--			SUPPORT_OPTIONS.live_update_supports = EventFired.val
+--		)
+--)
+
+
 --
 --/**
 --  *

@@ -37,7 +37,7 @@ struct BeamObject_v
 		
 		this._lockTransforms()
 
-		bindBeamOnDeleteCallback( beam )
+		bindOnObjectDeletedCallback( beam )
 
 		support_A.layer.addNode beam
 

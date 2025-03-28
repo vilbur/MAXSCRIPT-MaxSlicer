@@ -37,26 +37,16 @@ struct ModifiersManager_v
 		if SupportModifiers[#DEFAULT] == undefined then
 			SupportModifiers[#DEFAULT] = SupportModifiers_v()
 
-		
-		--objects_exists = for obj in objects_exists where isValidNode obj collect obj
-
-		
-		--support_with_modifiers	= (this._getSupportsWithModfiers(objects_exists))[1]
-
 		if objects_exists.count == 0 then
 		(
 			format "ADD NEW MODIFIERS\n"
 			select _objects
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
-			--format "MODIFIERS: %\n" modifiers
-			--format "selection: %\n" ( selection as Array ) 
-			--format "selection.count: %\n" selection.count
-			--max create mode
+
 			max modify mode
 		
 			for i = modifiers.count to 1 by -1 do
-			--for i = 1 to modifiers.count do 
 			(
 				--format "MODIFIER: %\n" (modifiers[i])
 				--addModifier _objects modifiers[i]
@@ -73,6 +63,9 @@ struct ModifiersManager_v
 		)
 		else
 			this._copyModifiers objects_exists[1] _objects ((this._getSupportsWithModfiers(objects_exists))[1].modifiers)
+			
+			
+		
 	),
 
 	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
@@ -100,11 +93,12 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key val: =
 	(
-		format "\n"; print "ModifiersManager_v.updateModifier()"
-		format "_objects: %\n" _objects
-		format "prop_key: %\n" prop_key
+		--format "\n"; print "ModifiersManager_v.updateModifier()"
+		--format "_objects: %\n" _objects
+		--format "prop_key: %\n" prop_key
+		fn compareArrays arr1 arr2 = with PrintAllElements on ( sort(arr1) ) as string == ( sort(arr2) ) as string
 
-
+		current_panel = getCommandPanelTaskMode()
 		
 		modifiers = #()
 
@@ -113,52 +107,88 @@ struct ModifiersManager_v
 		/* CHECK IF OBJECTS HAS MODIFIER */ 
 		this._objects =	for obj in _objects where obj.modifiers[mod_name] != undefined collect obj
 		
-		current_panel = getCommandPanelTaskMode()
-		
-		
 		if this._objects.count > 0 then
-		(
-			
-			max create mode
-			
-			/* GET INSATNCES OF MODIFIER */ 
-			for obj in this._objects do
-				appendIfUnique modifiers obj.modifiers[mod_name]
-
-			source_obj	= this._objects[1]
-			--format "SOURCE_OBJ: %\n" source_obj.name
+		(			
 		
-			--format "\n"
-			for_replace = deleteItem this._objects 1
-			--format "FOR_REPLACE: %\n" for_replace
+		
+		--max modify mode
+			--max create mode
+		
+			pointers_objs =  (for obj in _objects collect (getHandleByAnim obj) as string )
 			
-			/* GET SOURCE MODIFIER */ 
-			source_mod = source_obj.modifiers[mod_name]
-			--format "SOURCE_MOD: %\n" source_mod
-			mod_name_cache = source_mod.name
-			
-			index_source	= modPanel.getModifierIndex source_obj source_mod
-			
-			InstanceMgr.MakeModifiersUnique source_obj source_mod #individual -- {#prompt|#individual|#group}
-			
-			/* GET UNIQUE MODIFIER */ 
-			source_mod = source_obj.modifiers[index_source]
-			
-			source_mod.name = mod_name_cache
+				source_obj	= _objects[1]
+		
+				for_replace = deleteItem _objects 1
+				
+				source_mod = source_obj.modifiers[mod_name]
+				
+				source_mod_name = source_mod.name
+			--instances = sort( for obj in refs.dependentNodes(source_mod) where obj.modifiers[mod_name] == source_mod collect (getHandleByAnim obj) as string )
+			pointers_mods = ( for obj in refs.dependentNodes(source_mod) where obj.modifiers[mod_name] == source_mod collect (getHandleByAnim obj) as string )
 			
 			
-			/* REINSTANCE MODIIFER */ 
-			for i = 1 to for_replace.count do
+			--format "pointers_mods: %\n" (sort(pointers_mods))
+			--format "pointers_objs: %\n" (sort(pointers_objs))
+		
+			
+			--format "compareArrays: %\n" ( compareArrays pointers_objs pointers_mods )
+			
+			all_mods_of_instance_selected = compareArrays (pointers_objs) (pointers_mods)
+			
+			--format "all_mods_of_instance_selected: %\n" all_mods_of_instance_selected
+			
+			if not ( compareArrays (pointers_objs) (pointers_mods) ) then
 			(
-				target_obj	= for_replace[i]
-				target_mod	= target_obj.modifiers[mod_name]
-				index_target	= modPanel.getModifierIndex target_obj target_mod
+				--format "source_obj: %\n" source_obj
+				--format "source_mod: %\n" source_mod
 				
-				addModifierWithLocalData target_obj source_mod source_obj source_mod before:index_target
+				index_source	= modPanel.getModifierIndex source_obj source_mod
+				--index_source = getModifierIndex source_obj source_mod
+				--format "index_source: %\n" index_source
 				
-				deleteModifier target_obj index_target
-			)
+				/* MAKE MODIFIERS UNIQUE */ 
+				InstanceMgr.MakeModifiersUnique source_obj source_mod #individual -- {#prompt|#individual|#group}
+				
+				source_mod = source_obj.modifiers[index_source]
+
+				source_mod.name = source_mod_name
+				
+				/* REINSTANCE MODIIFER */
+				if classOf source_mod != sweep then
+				(
+					--for i = 1 to for_replace.count do
+					for target_obj in for_replace do 
+					(
+						format "\n"
+						target_obj	= for_replace[i]
+						target_mod	= target_obj.modifiers[mod_name]
+						index_target	= modPanel.getModifierIndex target_obj target_mod
 			
+						/* MAKE MODIFIERS UNIQUE */ 
+						--InstanceMgr.MakeModifiersUnique target_obj target_mod #individual -- {#prompt|#individual|#group}
+					
+						--format "TARGET_OBJ:  %\n" target_obj
+						--format "target_mod:  %\n" target_mod
+						--format "index_target: %\n" index_target
+						--format "CLASSOF TARGET_MOD: %\n" (classOf target_mod)
+						
+							try(
+							
+								addModifierWithLocalData target_obj source_mod source_obj source_mod before:index_target
+								
+								deleteModifier target_obj index_target					
+							)
+							catch
+							(
+								format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+								format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+							)
+							
+					)
+				)
+				else /* REINSTANCE SWEEP MODIIFER */
+					this._reinstanceSweepModifier source_obj for_replace source_mod
+			)
 			
 			/* UPDATE MODIFIER VALUE */ 
 			if val == unsupplied then
@@ -175,7 +205,7 @@ struct ModifiersManager_v
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" prop_key -- this should never happen
 			)
 			
-			setCommandPanelTaskMode mode:current_panel
+			--setCommandPanelTaskMode mode:current_panel
 		)
 			
 			
@@ -220,7 +250,73 @@ struct ModifiersManager_v
 
 
 	private
-
+	
+	/** Reinstance sweep modifier
+	  
+		USE CASES OF SWEEP MODIFIER ERROR:
+			1) If sweep modifier is added more then once
+			2) If sweep modifier is tried to add but modifiers above are enabled 
+	  
+		WORKAROUND:
+			1) turn of all modifiers above sweep mod
+			2) delete old sweep modifier
+			3) add new sweep modifier
+			4) reneable modifiers above
+	  
+	 */
+	function _reinstanceSweepModifier source_obj for_replace _modifier =
+	(
+		format "\n"; print "ModifiersManager_v._reinstanceSweepModifier()"
+		disbaled_mods	=  Dictionary #INTEGER -- KEY:modifier_index VALUE:#( modifiers )
+		
+		for target_obj in for_replace do 
+		(
+			format "\n\n"
+			local target_mod
+			--local index_target
+	
+			/* DISABLE MODIIERS */ 
+			for m = 1 to target_obj.modifiers.count where classOf (target_mod = target_obj.modifiers[m]) != sweep and target_mod.enabled do 
+			(
+				target_mod.enabled = false
+				--format "m: %\n" m
+				
+				if disbaled_mods[m] == undefined then disbaled_mods[m] = #(target_mod) else appendIfUnique disbaled_mods[m] target_mod
+			)
+			
+			index_target	= modPanel.getModifierIndex target_obj target_mod
+	
+			/* MAKE MODIFIERS UNIQUE */ 
+			--InstanceMgr.MakeModifiersUnique target_obj target_mod #individual -- {#prompt|#individual|#group}
+			if index_target != undefined then
+			(
+				format "target_obj: %\n" target_obj
+				format "target_mod:  %\n" target_mod
+				format "index_target: %\n" index_target
+			
+				--try(
+					/* DELETE OLD SWEEP MODIFEIR */ 
+					deleteModifier target_obj index_target					
+					
+					/* ADD INSTANCED SWEEP MODIFEIR */ 
+					addModifierWithLocalData target_obj _modifier source_obj _modifier before:(index_target - 1)
+				--
+				--)
+				--catch
+				--(
+				--	format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+				--	format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+				--)
+				
+			)
+		)
+		
+		for mod_index in disbaled_mods.keys do
+			for disbaled_mod in disbaled_mods[mod_index] do
+				disbaled_mod.enabled = true
+	),
+	
+	
 	/** Copy modifiers
 	 */
 	function _copyModifiers obj_source objects_target modifiers =

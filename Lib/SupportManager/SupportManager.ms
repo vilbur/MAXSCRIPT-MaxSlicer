@@ -1,3 +1,4 @@
+filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms" )	--"./SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms"
 
 
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms" )	--"./onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms"
@@ -6,7 +7,6 @@ filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransfor
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/generateSupportsOrRafts.ms" )	--"./Lib/generateSupportsOrRafts.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms" )	--"./SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
 

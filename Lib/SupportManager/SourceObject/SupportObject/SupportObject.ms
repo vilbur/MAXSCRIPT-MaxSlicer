@@ -229,14 +229,8 @@ struct SupportObject_v
 		--this._setMaterialsToLineSegments()
 		
 		this._setPivotToSecondPoint()
+	
 		
-		--if ( mod_extend_top = support_obj.modifiers[#EXTEND_TOP] ) != undefined then
-		--(
-		--	--format "CENTER\n"
-		--	--mod_extend_top.extrude_center = support_obj.pivot
-		--	mod_extend_top.extrude_center = [0,0,-100000]
-		--)
-		--
 		--this._alignPivotToSeconPoint()
 		
 		--if numKnots support_obj spline_1 > 2 then
@@ -407,6 +401,7 @@ struct SupportObject_v
 		/** Get position down
 		 */
 		--function getPositionByVector dir_vector = points_positions[1] + ( (distance points_positions[1] points_positions[2]) * dir_vector ) -- make raft longer by multiplying normal length 10x
+	
 		/** Update normal length props
 		 */
 		function updateNormalLengthProps distance_of_points =
@@ -440,10 +435,13 @@ struct SupportObject_v
 		
 		distance_of_points = distance points_positions[1] points_positions[2]
 
+		/* SET 2nd POINT TO HIT POSITION */ 
 		if ( hit_raft_pos = this._getRaftHitPosition dir_vector distance_of_points ) != undefined then 
 			points_positions[2] = hit_raft_pos
-			
-		else
+		
+		
+		/* DISTANCE BETWEEN POINTS 1 nad 2 STAY SAME IF ITS LOCKED */ 
+		else if not SUPPORT_OPTIONS.lock_normal_length then -- update direction length if not locked
 			updateNormalLengthProps(distance_of_points)
 
 

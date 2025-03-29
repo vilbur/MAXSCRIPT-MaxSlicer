@@ -55,10 +55,8 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 	on execute do
 	(
-		format "EventFired	= % \n" EventFired
-	
+		--format "EventFired	= % \n" EventFired
 		SUPPORT_OPTIONS.second_point_direction = EventFired.val
-		
 		
 		_selection = for obj in selection collect obj
 
@@ -69,28 +67,13 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 
 		pauseSupportTransformEvent()
 		
-		
 		/*------------------------------------------------------------------------------
 			REBUILD SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
-		
-		
-		--if param == #NORMAL_LENGTH then 
-		--	SUPPORT_MANAGER.updateSupports(selected_supports)
-		--
-		--else
-		
-		
-			SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
-			--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts)
-			
-			--SUPPORT_MANAGER.resetSupports(selected_supports+selected_rafts)
+		SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
 
 		
-
 		resumeSupportTransformEvent()
-		
-		
 	)
 )
 

@@ -263,7 +263,7 @@ struct SourceObject_v
 	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined what_to_update: =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
-		--format "direction: %\n" direction
+		--format "DIRECTION: %\n" direction
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
@@ -315,6 +315,7 @@ struct SourceObject_v
 				(#DOWN):   [ 0, 0, -1 ]
 				(#NORMAL): Normals.normals_world[index]
 			)
+			--format "DIR_VECTOR: %\n" dir_vector
 			
 			/* SAVE CURRENT DIRECTION */ 
 			if not ( direction == #CUSTOM and current_direction == #DOWN and SupportsToUpdate[index].isVectorPointingDown() ) then 
@@ -359,8 +360,8 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
-		format "supports.count: %\n" (Supports.count)
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		--format "supports.count: %\n" (Supports.count)
 		--this.removeDeletedNodes()
 
 		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )

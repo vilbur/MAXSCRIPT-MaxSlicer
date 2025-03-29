@@ -177,7 +177,7 @@ struct ModifiersManager_v
 		for bar_width in objs_by_bar_width.keys do
 		(
 			/* GET CHAMFER VALUE */ 
-			chamfer_val = SUPPORT_OPTIONS.getChamferBarValue bar_width:(bar_width as float )
+			chamfer_val = SUPPORT_OPTIONS.getChamferBarValue (bar_width)
 
 			/* UPDATE CHAMFER VALUE */ 
 			this.updateModifier objs_by_bar_width[bar_width] #TOP_WIDTH val:chamfer_val

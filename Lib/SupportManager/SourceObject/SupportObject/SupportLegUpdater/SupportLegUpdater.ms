@@ -233,7 +233,7 @@ struct SupportLegUpdater_v
 		/* NORMAL DIRECTION */
 		else
 		(
-			format "\nNORMAL DIRECTION\n"
+			--format "\nNORMAL DIRECTION\n"
 			--
 			--if num_of_knots == 2 then
 			--	this._addBasePoint()

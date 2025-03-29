@@ -188,7 +188,7 @@ struct SupportOptions_v
 			#BASE_WIDTH:	getBaseWidthValue()
 			#DRAIN_WIDTH:	drain_width	/ 2.0
 			#CHAMFER_BASE:	base_height	/ 2.0
-			#TOP_WIDTH:	this.getChamferBarValue bar_width:bar_width
+			#TOP_WIDTH:	this.getChamferBarValue (bar_width)
 
 			default: getProperty this ( prop_key as string )
 		)
@@ -200,7 +200,7 @@ struct SupportOptions_v
 
 	/** Get chamfer bar value
 	 */
-	function getChamferBarValue bar_width:bar_width =
+	function getChamferBarValue bar_width =
 	(
 		--format "\n"; print "SupportOptions_v.getChamferBarValue()"
 		

@@ -108,7 +108,7 @@ struct SupportManager_v
 
 		/* GET SUPPORTS OF SOURCE OBJECT */ 
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
-		format "SUPPORTS_EXISTS: %\n" supports_exists
+		--format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		/* GENERATE NEW SUPPORTS */ 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
@@ -374,15 +374,17 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateBaseHeight()"
 		support_nodes = this._getObjectsForUpdate #SUPPORT
 		--format "support_nodes: %\n" support_nodes.count
-
-		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
-
-		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateBaseHeight(support_nodes)
-		
-		this.updateShapes()
-
-		MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getOption #CHAMFER_BASE )
+		if support_nodes != undefined then
+		(
+			supports_by_source = this._sortObjectsBySourceObject (support_nodes)
+	
+			for sync_key in supports_by_source.keys do
+				SourceObjects[sync_key].updateBaseHeight(support_nodes)
+			
+			this.updateShapes()
+	
+			MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getOption #CHAMFER_BASE )
+		)
 	),
 
 	/** Rebuild supports
@@ -421,22 +423,31 @@ struct SupportManager_v
 		obj_type = splitString (EventFired.Roll.name)
 		
 		/* GET PROPERTY KEY BY CONTROL NAME */
-		prop_key = splitString (EventFired.control.name)
+		--prop_key = splitString (EventFired.control.name)
+		prop_key = (splitString (EventFired.control.name)) as name 
+		--format "prop_key: %\n" prop_key
 
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
 		obj_type = ( trimRight obj_type "Ss" ) as name
 		--format "OBJ_TYPE: %\n" obj_type
 		--format "PROP_KEY: %\n" prop_key
 		
+		--objects_by_type = makeUniqueArray(this._getObjectsForUpdate obj_type)
 		objects_by_type = this._getObjectsForUpdate obj_type
-
-
-		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 		
-		SUPPORT_OPTIONS.init()
-		
-		/* UPDATE MODIFIER */ 
-		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )( prop_key as name )
+		if objects_by_type != undefined then
+		(
+			SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
+			
+			SUPPORT_OPTIONS.init()
+			
+			/* UPDATE MODIFIER */
+			
+			if prop_key != #TOP_WIDTH then
+				MODIFIERS_MANAGER.updateModifier( objects_by_type )( prop_key )
+			else
+				MODIFIERS_MANAGER.udpateTopWidth( objects_by_type )
+		)
 	),
 
 	/** Update shape add
@@ -454,13 +465,8 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
-		(
-			--with redraw off
-				for _shape in shapes_to_update do
-					updateShape _shape
-	
-			--redrawViews()
-		)
+			for _shape in shapes_to_update do
+				updateShape _shape
 
 		shapes_to_update = #()
 	),
@@ -627,19 +633,20 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v.getObejctsForUpdate()"
         /* GET OBJECTS TO PROCESS */ 		
-		_objects = ( if selection.count > 0 then selection else objects ) as Array
-		--format "_OBJECTS: %\n" _objects
+		--_objects = ( if selection.count > 0 then selection else objects ) as Array -- USE ALL OBEJCTS IF NOTHING SELECTED
+		_objects = selection as Array
 
-		/* GET SOURCE OBJECTS */
-		source_objects = this.getSourceObjects ( _objects ) get_nodes:true
-		--format "SOURCE_OBJECTS: %\n" source_objects
-		
-		/* GET OBJECTS BY TYPE */
-		objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
-		--objects_by_type = this.getObjectsByType ( _objects ) type:obj_type
-		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
-		--format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
-		objects_by_type --return
+		if _objects.count > 0 then
+		(
+			/* GET SOURCE OBJECTS */
+			source_objects = this.getSourceObjects ( _objects ) get_nodes:true
+			--format "SOURCE_OBJECTS: %\n" source_objects
+			
+			/* GET OBJECTS BY TYPE */
+			objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
+	
+			objects_by_type --return
+		)
 	),
 	
 	/** get objects by type

@@ -87,9 +87,6 @@ struct ModifiersManager_v
 		)
 	),
 
-  
-
-
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */
 	function updateModifier _objects prop_key val: =
@@ -104,8 +101,6 @@ struct ModifiersManager_v
 		current_panel = GetCommandPanelTaskMode()
 		
 		max create mode
-
-		modifiers = #()
 
 		/* DEVELOPMENT:
 			
@@ -160,9 +155,35 @@ struct ModifiersManager_v
 			this.updateModifier this._objects #TOP_WIDTH
 		
 		SetCommandPanelTaskMode mode:current_panel
-			
 	),
+	
+	/** Udpate top width
+	 */
+	function udpateTopWidth _objects =
+	(
+		--format "\n"; print "ModifiersManager_v.udpateTopWidth()"
+		
+		objs_by_bar_width	= Dictionary #STRING -- KEY:"Value of BAR_WIDTH" VALUE:#( objects )
+		
+		/* SORT OBJECTS BY BAR WIDTH */ 
+		for obj in _objects do
+		(
+			sweep_radius = obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius as string
+			
+			if objs_by_bar_width[sweep_radius] == undefined then objs_by_bar_width[sweep_radius] = #(obj) else append objs_by_bar_width[sweep_radius] obj
+		)
+		
+		/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
+		for bar_width in objs_by_bar_width.keys do
+		(
+			/* GET CHAMFER VALUE */ 
+			chamfer_val = SUPPORT_OPTIONS.getChamferBarValue bar_width:(bar_width as float )
 
+			/* UPDATE CHAMFER VALUE */ 
+			this.updateModifier objs_by_bar_width[bar_width] #TOP_WIDTH val:chamfer_val
+		)
+	),
+	
 	/** Convert obj type
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =

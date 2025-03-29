@@ -167,7 +167,6 @@ struct SupportOptions_v
 	(
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
 		--format "%: %\n" prop_key val
-
 		setProperty this prop_key val
 		--this.init()
 	),
@@ -177,9 +176,7 @@ struct SupportOptions_v
 	function getOption prop_key =
 	(
 		--format "\n"; print "SupportOptions_v.getProp()"
-		
-	
-		function getChamferBarValue = (bar_width - top_width) / 2.0
+		--function getChamferBarValue = (bar_width - top_width) / 2.0
 	
 		function getBaseWidthValue = if (base_width_value = (base_width - bar_width) / 2.0 ) > 0 then base_width_value else 0 -- base_width is always > 0
 		--function getBaseWidthValue = 5
@@ -191,7 +188,7 @@ struct SupportOptions_v
 			#BASE_WIDTH:	getBaseWidthValue()
 			#DRAIN_WIDTH:	drain_width	/ 2.0
 			#CHAMFER_BASE:	base_height	/ 2.0
-			#TOP_WIDTH:	getChamferBarValue()
+			#TOP_WIDTH:	this.getChamferBarValue bar_width:bar_width
 
 			default: getProperty this ( prop_key as string )
 		)
@@ -201,6 +198,15 @@ struct SupportOptions_v
 		val --return
 	),
 
+	/** Get chamfer bar value
+	 */
+	function getChamferBarValue bar_width:bar_width =
+	(
+		--format "\n"; print "SupportOptions_v.getChamferBarValue()"
+		
+		(bar_width - top_width) / 2.0
+	),
+	
 	/** Get mat id
 	 */
 	function getMatId mat_key =

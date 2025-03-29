@@ -104,7 +104,7 @@ macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
 buttontext:	"TOP"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 0.5 ]|width:64|offset:[ 8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|width:64|offset:[ 8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -123,6 +123,7 @@ icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0, 3, 0.5 ]|width
 		)
 	
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
+		--SUPPORT_MANAGER.udpateTopWidth ( EventFired )
 	)
 )
 

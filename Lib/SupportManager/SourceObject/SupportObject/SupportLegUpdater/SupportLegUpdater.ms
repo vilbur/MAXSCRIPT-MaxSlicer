@@ -3,10 +3,11 @@
  */
 struct SupportLegUpdater_v
 (
-	/* construct */
-	support_obj,
+	/* CONSTRUCT */
+	SupportObject, -- parent class
+	support_obj = SupportObject.support_obj,
 
-	/* required */
+	/* REQUIRED */
 	foot_mat_id,
 	
 	/* user properties */
@@ -18,7 +19,7 @@ struct SupportLegUpdater_v
 	--bar_width,
 	chamfer_val,
 	
-	/* properties */
+	/* PROPERTIES */
 	foot_exists = true,
 
 	vertical_knots = #(),
@@ -37,12 +38,17 @@ struct SupportLegUpdater_v
 	leg_knot,
 	
 	
-	min_leg_pos,  -- minimal z position of leg knot WHERE LEG WITHOUT FOOT CAN BE CREATED
-	min_foot_pos, -- minimal z position of leg knot WHERE FOOT CAN BE CREATED	 -- NOTICE:value is varied by angle of support
+	--min_leg_pos  = SupportObject.min_leg_pos,  -- minimal z position of leg knot WHERE LEG WITHOUT FOOT CAN BE CREATED
+	--min_foot_pos = SupportObject.min_foot_pos, -- minimal z position of leg knot WHERE FOOT CAN BE CREATED	 -- NOTICE:value is varied by angle of support
+	--min_length   = SupportObject.min_length,
+	--min_leg_pos,
+	--min_foot_pos,
+	--min_length,
+	
 	
 	is_space_for_foot = true,
 	
-	/* static */
+	/* STATIC */
 	spline_1 = 1, -- each support line has ony 1 spline
 	
 	/* dependency */
@@ -68,7 +74,7 @@ struct SupportLegUpdater_v
 	function updateFoot =
 	(
 		--format "\n=======================================================================\n"
-		--format "\n"; print "SupportLegUpdater_v.updateFoot()"
+		format "\n"; print "SupportLegUpdater_v.updateFoot()"
 		--format "foot_exists: %\n" foot_exists
 
 
@@ -132,7 +138,10 @@ struct SupportLegUpdater_v
 	function _mustBeFootRemoved =
 	(
 		--format "\n---------------------------------\n"
-		--format "\n"; print "SupportLegUpdater_v._mustBeFootRemoved()"
+		format "\n"; print "SupportLegUpdater_v._mustBeFootRemoved()"
+		format "min_foot_pos: %\n" min_foot_pos
+		format "SupportObject.min_foot_pos: %\n" SupportObject.min_foot_pos
+		
 		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot
 		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
 		
@@ -141,7 +150,7 @@ struct SupportLegUpdater_v
 		(
 			/* KEEP LEG KNOT ABOVE BASE KNOT */ 
 			if this._getZposition leg_knot < min_foot_pos then
-				this._setKnotToZposition (leg_knot) (min_foot_pos )
+				this._setKnotToZposition (leg_knot) (SupportObject.min_foot_pos)
 			
 			/* CHECK SPACE ABOVE 2nd KNOT */ 
 			if not this._isSpaceForTopChamfer() then
@@ -149,7 +158,8 @@ struct SupportLegUpdater_v
 		)
 		/* IF NORMAL DIRECTION SUPPORT  */
 		else
-			is_space_for_foot = not this._getZposition leg_knot <= min_foot_pos 
+			--is_space_for_foot = not this._getZposition leg_knot <= min_foot_pos 
+			is_space_for_foot = not this._getZposition leg_knot <= SupportObject.min_foot_pos 
 
 		not is_space_for_foot --return
 	),
@@ -193,11 +203,11 @@ struct SupportLegUpdater_v
 				)
 			)
 
-			is_space_for_foot = point_2_pos.z > min_foot_pos
+			is_space_for_foot = point_2_pos.z > SupportObject.min_foot_pos
 			
 		)
 		else
-			is_space_for_foot = this._getZposition 1 > min_foot_pos + chamfer_val
+			is_space_for_foot = this._getZposition 1 > SupportObject.min_foot_pos + chamfer_val
 		
 		--format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
 		is_space_for_foot --return
@@ -207,7 +217,7 @@ struct SupportLegUpdater_v
 	*/
 	function addFoot =
 	(
-		format "\n"; print "SupportLegUpdater_v.addFoot()"
+		--format "\n"; print "SupportLegUpdater_v.addFoot()"
 
 		/* DOWN DIRECTION */
 		if direction_is_down then
@@ -217,8 +227,8 @@ struct SupportLegUpdater_v
 				
 			this._addGroundPoint()
 
-			if this._getZposition leg_knot < min_foot_pos then
-				this._setZposition (leg_knot) (min_foot_pos)
+			if this._getZposition leg_knot < SupportObject.min_foot_pos then
+				this._setZposition (leg_knot) (SupportObject.min_foot_pos)
 			
 		)
 		/* NORMAL DIRECTION */
@@ -279,7 +289,7 @@ struct SupportLegUpdater_v
 			
 
 			
-			space_for_normal    = point_1_pos.z - min_foot_pos
+			space_for_normal    = point_1_pos.z - SupportObject.min_foot_pos
 			is_space_for_normal = space_for_normal > normal_length --+ min_height_offset 
 			--format "space_for_normal: %\n" space_for_normal
 			
@@ -297,7 +307,7 @@ struct SupportLegUpdater_v
 			(
 				--format "UPDATE LEG KNOT\n"
 
-				this._setKnotToZposition (2) (min_foot_pos)
+				this._setKnotToZposition (2) (SupportObject.min_foot_pos)
 			)
 		)
 		
@@ -327,25 +337,39 @@ struct SupportLegUpdater_v
 		)
 		else /* UPDATE NORMAL DIRECTION */
 		(
-			format "\nUPDATE NORMAL DIRECTION\n"
+			--format "\nUPDATE NORMAL DIRECTION\n"
 			
 			/* UPDATE SUPPORT WITH LEG */ 
 			if num_of_knots > 2 then
 			(
-				/* IF SPACE FOR LEG EXISTS */
-				if this._getZposition leg_knot > min_leg_pos then
-					this._alignKnotToPreviousKnot(ground_knot)(0)
-					
+				
 				/* IF NOT SPACE FOR LEG */ 
-				else
+				if this._getZposition leg_knot < SupportObject.min_leg_pos then
+				(
+					--second_knot_pos = this._getSecondPointPosOnNormal()
+					--
+					--first_knot_pos  = getKnotPoint support_obj spline_1 1
+					--
+					--distance_of_points = distance first_knot_pos second_knot_pos
+					--
+					--format "DISTANCE:   %\n" ( distance_of_points )
+					--format "MIN_LENGTH: %\n" MIN_LENGTH
+					--format "TEST: %\n" ( distance_of_points > MIN_LENGTH )
+					
 					this._shortenNormalAndKeepLeg()
+					
+					
+				)
+				/* IF SPACE FOR LEG EXISTS */
+				else
+					this._alignKnotToPreviousKnot(ground_knot)(0)
 			)
 			
 			/* UPDATE SUPPORT WITHOUT LEG */ 
 			else
 			(
 				--format "\nWITHOUT LEG\n"
-				is_space_for_leg = this._getZposition ground_knot > min_leg_pos
+				is_space_for_leg = this._getZposition ground_knot > SupportObject.min_leg_pos
 				--format "IS_SPACE_FOR_LEG: %\n" is_space_for_leg
 
 				/* ADD 3rd KNOT */ 
@@ -387,7 +411,7 @@ struct SupportLegUpdater_v
 		--format "min_foot_pos: %\n" min_foot_pos
 		--format "is_space_for_leg: %\n" (this._getZposition knot > min_foot_pos)
 
-		this._getZposition knot > min_foot_pos
+		this._getZposition knot > SupportObject.min_foot_pos
 	),
 
 	/** Isfootace r top chamfer
@@ -553,39 +577,61 @@ struct SupportLegUpdater_v
 		setKnotPoint support_obj spline_1 2 second_knot_pos
 	),
 	
-	/** Shorten normal and keep leg
+	/** Get second point position above ground using angle of support
 	 */
-	function _shortenNormalAndKeepLeg =
+	function _getSecondPointPosOnNormal =
 	(
-		format "\n"; print "SupportLegUpdater_v._shortenNormalAndKeepLeg()"
-		
+		--format "\n"; print "SupportLegUpdater_v._getSecondPointPosOnNormal()"
 		first_knot_pos  = getKnotPoint support_obj spline_1 1
 		second_knot_pos = getKnotPoint support_obj spline_1 2
 		
-		format "distance: %\n" (distance first_knot_pos second_knot_pos )
-		
-		--triangle_height = first_knot_pos.z - 0.1
-		triangle_height = first_knot_pos.z - min_leg_pos
+		triangle_height = first_knot_pos.z - 0.1
+		triangle_height = first_knot_pos.z - SupportObject.min_leg_pos
 		
 		line_vector = normalize ( first_knot_pos - second_knot_pos )
-
+		
 		angle_angle = acos (dot [0,0,-1] line_vector) -- get angle between
 		
 		line_length = triangle_height / cos angle_angle
 		
-		second_knot_pos = first_knot_pos + ( line_length * line_vector )
+		first_knot_pos + ( line_length * line_vector )
+	),
+
+	/** Make raft part shorter if there is no space for leg
+	 */
+	function _shortenNormalAndKeepLeg =
+	(
+		--format "\n"; print "SupportLegUpdater_v._shortenNormalAndKeepLeg()"
 		
+		/** Get second point position above ground using angle of support
+		 */
+		function getSecondPointPosition =
+		(
+			--format "\n"; print "SupportLegUpdater_v.getSecondPointPosition()"
+			first_knot_pos  = getKnotPoint support_obj spline_1 1
+			second_knot_pos = getKnotPoint support_obj spline_1 2
+			
+			triangle_height = first_knot_pos.z - 0.1
+			triangle_height = first_knot_pos.z - SupportObject.min_leg_pos
+			
+			line_vector = normalize ( first_knot_pos - second_knot_pos )
+			
+			angle_angle = acos (dot [0,0,-1] line_vector) -- get angle between
+			
+			line_length = triangle_height / cos angle_angle
+			
+			first_knot_pos + ( line_length * line_vector )
+		)
+		
+		second_knot_pos = getSecondPointPosition()
 		
 		setKnotPoint support_obj spline_1 2 second_knot_pos
 		
-		second_knot_pos.z = 0
-		
-		setKnotPoint support_obj spline_1 3 second_knot_pos
-		
-		--first_knot_pos + ( line_length * line_vector ) -- return
-		--format "SECOND_KNOT_POS: %\n" second_knot_pos
-		--setKnotPoint support_obj spline_1 2 second_knot_pos
-		
+		this._alignKnotToPreviousKnot(ground_knot)(0)
+
+		--second_knot_pos.z = 0
+		--
+		--setKnotPoint support_obj spline_1 3 second_knot_pos
 	),
 
 	/** Add base point
@@ -600,7 +646,7 @@ struct SupportLegUpdater_v
 	  */
 	function _addGroundPoint =
 	(
-		format "\n"; print "SupportLegUpdater_v._addGroundPoint()"
+		--format "\n"; print "SupportLegUpdater_v._addGroundPoint()"
 		this._addPoint (0)
 	),
 	

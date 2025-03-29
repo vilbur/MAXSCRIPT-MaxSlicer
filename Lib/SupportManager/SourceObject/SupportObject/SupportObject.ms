@@ -30,14 +30,14 @@ struct SupportObject_v
 	/* dependency */
 	SupportLegUpdater,
 	
+	min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
+	min_foot_pos, -- minimal z position of leg knot where foot can be created, value is varied by angle of support
+	min_length, -- cache value
+	
 	private
 
 	spline_1 = 1, -- each support line has ony 1 spline
-	minimal_length, -- cache value
 
-	min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
-	min_foot_pos, -- minimal z position of leg knot where foot can be created, value is varied by angle of support
-	
 	public
 
 
@@ -154,7 +154,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		----format "first_knot_pos: %\n" first_knot_pos
 		--format "update_knot_2: %\n" update_knot_2
 		--format "direction: %\n" direction
@@ -175,7 +175,8 @@ struct SupportObject_v
 		if dir_vector == undefined then 
 			dir_vector = normalize ( points_positions[2] - points_positions[1] )
 		
-		
+		format "DIR_VECTOR: %\n" dir_vector
+
 		/* 	UPDATE KNOT 2  */ 
 		if update_knot_2 then
 			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
@@ -193,14 +194,14 @@ struct SupportObject_v
 			current_length = distance points_positions[1] points_positions[2]
 		
 			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
-			minimal_length = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2] add_chamfer:true
+			min_length = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2] add_chamfer:true
 		
 			/* FAST MINIMAL LENGTH BY WIDTH OF BAR */ 
-			--minimal_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+			--min_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
 		
 			/* SET MINIMAL NORMAL IF IT`S TOO SHOTRT */ 
-			if current_length < minimal_length then
-				points_positions[2] = first_knot_pos + ( (minimal_length + 0.1 ) * ( normalize ( points_positions[2] - points_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
+			if current_length < min_length then
+				points_positions[2] = first_knot_pos + ( (min_length + 0.1 ) * ( normalize ( points_positions[2] - points_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
 		)
 		
 		
@@ -244,8 +245,9 @@ struct SupportObject_v
 	 */
 	function updateLeg points_positions: =
 	(
-		--format "\n"; print "SupportObject_v.updateLeg()"
-		--format "num_of_segments: %\n" ( numSegments support_obj 1)
+		format "\n"; print "SupportObject_v.updateLeg()"
+		format "min_foot_pos: %\n" this.min_foot_pos
+		
 
 		/* IF ONLY LEG IS UPDATED */ 
 		if points_positions == unsupplied then 
@@ -254,6 +256,7 @@ struct SupportObject_v
 		/* TEST IF LEG HITS SOURCE OBJECT */ 
 		hit_leg = this._intersectRaySourceObject (this.points_positions[2]) ([0,0,-1])
 		--format "hit_leg: %\n" hit_leg
+		
 		/* IF LEG HIT SOURCE OBJECT */ 
 		if hit_leg != undefined then
 			this.points_positions[3] = hit_leg.pos --  SET HIT POSITON OF LEG 
@@ -266,10 +269,7 @@ struct SupportObject_v
 		if hit_leg == undefined then
 		(
 			--if min_foot_pos == undefined then
-				SupportLegUpdater.min_foot_pos = this._setMinimalFootPos ( getUserPropVal support_obj "DIRECTION") 
-		
-			--updateShape support_obj
-			SupportLegUpdater.min_leg_pos = min_leg_pos
+			this._setMinimalFootPos ( getUserPropVal support_obj "DIRECTION") 
 			
 			foot_exists = SupportLegUpdater.updateFoot()
 		)
@@ -348,13 +348,13 @@ struct SupportObject_v
 			second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
 			
 			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
-			--minimal_length = this.getNimalLenghtByAngle first_knot_pos:first_knot_pos second_knot_pos:second_knot_vec add_bar:false add_chamfer:true
+			--min_length = this.getNimalLenghtByAngle first_knot_pos:first_knot_pos second_knot_pos:second_knot_vec add_bar:false add_chamfer:true
 			/* FAST MINIMAL LENGTH BY WIDTH OF BAR */ 
-			minimal_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+			min_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
 			
-			--format "GEN_length: %\n" minimal_length
+			--format "GEN_length: %\n" min_length
 			/* KEEP MINIMAL LENGTH OF NORMLA */ 
-			normal_length = if normal_length_option < minimal_length then minimal_length else normal_length_option
+			normal_length = if normal_length_option < min_length then min_length else normal_length_option
 			
 			first_knot_pos + ( normal_length * dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x -- add 0.1mm just for sure
 		)
@@ -792,8 +792,8 @@ struct SupportObject_v
 	 */
 	function _setMinimalFootPos direction =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setMinimalFootPos()"
-		--format "direction: %\n" direction
+		format "\n"; print "SupportObject_v._setMinimalFootPos()"
+		format "direction: %\n" direction
 		--format "leg_knot: %\n" leg_knot
 	
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
@@ -821,7 +821,7 @@ struct SupportObject_v
 		else /* UPDATE DOWN DIRCTION */
 			min_foot_pos += chamfer_val
 
-	
+		format "min_foot_pos: %\n" this.min_foot_pos
 		--format "MINIMAL_LEG_POS_Z: %\n" min_foot_pos
 	),
 	
@@ -948,7 +948,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportLegUpdater_v._setSupportLegUpdater()"
 		if support_obj != undefined then 
-			SupportLegUpdater = SupportLegUpdater_v (support_obj) foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE]) foot_enabled:foot_enabled
+			SupportLegUpdater = SupportLegUpdater_v SupportObject:this foot_mat_id:(SUPPORT_OPTIONS.mat_ids[#BASE]) foot_enabled:foot_enabled
 	),
 
 	/**

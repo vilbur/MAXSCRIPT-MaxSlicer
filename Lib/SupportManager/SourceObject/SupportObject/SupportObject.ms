@@ -30,6 +30,7 @@ struct SupportObject_v
 	/* dependency */
 	SupportLegUpdater,
 	
+	dir_vector,
 	min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
 	min_foot_pos, -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	min_length, -- cache value
@@ -47,11 +48,12 @@ struct SupportObject_v
 	  * @param #DOWN|point3	direction	dir_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector: wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
+	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
 		--format "\n"
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		format "first_knot_pos: %\n" first_knot_pos
+		this.dir_vector = dir_vector
+		
 		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
@@ -60,10 +62,12 @@ struct SupportObject_v
 		else /* USE OLD OBEJCT - RESET SPLINE */ 
 			deleteSpline support_obj spline_1
 		
+		
+		
 		this._setSupportLegUpdater()
 			
 		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
-		if dir_vector.z > -0.25 then dir_vector.z = -0.25
+		if dir_vector.z > -0.25 then this.dir_vector.z = -0.25
 
 		
 		/* ADD FIRST POINT */
@@ -71,10 +75,10 @@ struct SupportObject_v
 	
 
 		/* SET RAFT PART of support */ 
-		this._setSecondKnotPosition(first_knot_pos)(dir_vector)
+		this._setSecondKnotPosition(first_knot_pos) --(dir_vector)
 		
 		
-		this._setMinimalFootPos (direction) 
+		this._setMinLimints (direction) 
 
 
 		/* SET LEG AND FOOT */ 
@@ -147,18 +151,23 @@ struct SupportObject_v
 
 	/** Update supports position
 	  * 
-	  *    UPDATE KNOT 2 IF:
+	  * 	first_knot_pos: undefined	-- GET POS FROM LINE,	WHEN SOURCE OBJECT HAS BEEN ROTATED
+	  * 	first_knot_pos: Point3	-- GET POS FROM SOURCE OBJECT,	WHEN SUPPORT ITSELF HAS BEEN MOVED, to keep support sticked on source object
+	  * 
+	  * 
+	  *	UPDATE KNOT 2 IF:
 	  *    • If source object ROTATED and support direction is #DOWN
 	  *    • If Support was transformed
 	  * 
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		----format "first_knot_pos: %\n" first_knot_pos
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "first_knot_pos: %\n" first_knot_pos
 		--format "update_knot_2: %\n" update_knot_2
 		--format "direction: %\n" direction
-		--format "dir_vector: %\n" dir_vector
+		--format "DIR_VECTOR: %\n" dir_vector
+		--format "this.dir_vector: %\n" this.dir_vector
 
 
 		--/* GET 1st knot POSITION FROM LINE */ 
@@ -173,18 +182,18 @@ struct SupportObject_v
 
 		/* GET VECTOR OF RAFT */ 
 		if dir_vector == undefined then 
-			dir_vector = normalize ( points_positions[2] - points_positions[1] )
+			this.dir_vector = normalize ( points_positions[2] - points_positions[1] )
 		
-		format "DIR_VECTOR: %\n" dir_vector
+		--format "DIR_VECTOR: %\n" dir_vector
 
 		/* 	UPDATE KNOT 2  */ 
 		if update_knot_2 then
-			this._updateSecondKnotPosition direction:direction dir_vector:dir_vector
+			this._updateSecondKnotPosition direction:direction --dir_vector:dir_vector
 		
 		
 		/* UPDATE MINIMAL FOOT Z POSITION */ 
 		if min_foot_pos == undefined then 
-			this._setMinimalFootPos (direction) 
+			this._setMinLimints (direction) 
 		
 		
 
@@ -205,21 +214,6 @@ struct SupportObject_v
 		)
 		
 		
-
-		
-		/* UPDATE LEG IF SUPPORT TYPE AND NOT HIT */
-		--force_update_leg = obj_type == #SUPPORT and hit_raft == undefined and hit_leg == undefined
-		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
-
-
-
-		--this._setRightCountOfKnotsToSpline()
-		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
-		--format "num_knots: %\n" ( numKnots support_obj spline_1 )
-		
-
-		--updateShape support_obj
-		
 		/* GENERATE LEG FOR SUPPORT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this.updateLeg points_positions:points_positions
@@ -229,10 +223,7 @@ struct SupportObject_v
 
 		
 		--this._setMaterialsToLineSegments()
-		
 		this._setPivotToSecondPoint()
-	
-		
 		--this._alignPivotToSeconPoint()
 		
 		--if numKnots support_obj spline_1 > 2 then
@@ -245,14 +236,15 @@ struct SupportObject_v
 	 */
 	function updateLeg points_positions: =
 	(
-		format "\n"; print "SupportObject_v.updateLeg()"
-		format "min_foot_pos: %\n" this.min_foot_pos
+		--format "\n"; print "SupportObject_v.updateLeg()"
+		--format "min_foot_pos: %\n" this.min_foot_pos
 		
 
 		/* IF ONLY LEG IS UPDATED */ 
 		if points_positions == unsupplied then 
 			this.points_positions = #( getKnotPoint support_obj spline_1 1 , support_obj.pos )
 
+			
 		/* TEST IF LEG HITS SOURCE OBJECT */ 
 		hit_leg = this._intersectRaySourceObject (this.points_positions[2]) ([0,0,-1])
 		--format "hit_leg: %\n" hit_leg
@@ -269,7 +261,7 @@ struct SupportObject_v
 		if hit_leg == undefined then
 		(
 			--if min_foot_pos == undefined then
-			this._setMinimalFootPos ( getUserPropVal support_obj "DIRECTION") 
+			this._setMinLimints ( getUserPropVal support_obj "DIRECTION") 
 			
 			foot_exists = SupportLegUpdater.updateFoot()
 		)
@@ -332,7 +324,7 @@ struct SupportObject_v
 	/** ADD SECOND POINT of raft or support
 	  
 	 */
-	function _setSecondKnotPosition first_knot_pos dir_vector =
+	function _setSecondKnotPosition first_knot_pos /*dir_vector*/ =
 	(
 		--format "\n"; print "SupportObject_v._setSecondKnotPosition()"
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
@@ -380,7 +372,7 @@ struct SupportObject_v
 	  * 
 	 */
 	--function _updateSecondKnotPosition keep_direction_down:false =
-	function _updateSecondKnotPosition direction: dir_vector:undefined =
+	function _updateSecondKnotPosition direction: /*dir_vector:undefined*/ =
 	(
 		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
 		--format "DIRECTION: %\n" direction
@@ -790,10 +782,10 @@ struct SupportObject_v
 	
 	/** Set minimal foot pos
 	 */
-	function _setMinimalFootPos direction =
+	function _setMinLimints direction =
 	(
-		format "\n"; print "SupportObject_v._setMinimalFootPos()"
-		format "direction: %\n" direction
+		--format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "direction: %\n" direction
 		--format "leg_knot: %\n" leg_knot
 	
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
@@ -821,7 +813,7 @@ struct SupportObject_v
 		else /* UPDATE DOWN DIRCTION */
 			min_foot_pos += chamfer_val
 
-		format "min_foot_pos: %\n" this.min_foot_pos
+		--format "min_foot_pos: %\n" this.min_foot_pos
 		--format "MINIMAL_LEG_POS_Z: %\n" min_foot_pos
 	),
 	

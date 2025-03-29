@@ -87,10 +87,16 @@ function bindSupportToTransformEvent supports =
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
 		/*------------------------------------------------------------------------------
+		  
+		  
+		  
 			SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE
+			
+			
+			
 		--------------------------------------------------------------------------------*/
 		live_update_max_objects_count = 1
-		live_update_max_objects_count = 10
+		--live_update_max_objects_count = 10
 		
 
 		/*------------------------------------------------------------------------------

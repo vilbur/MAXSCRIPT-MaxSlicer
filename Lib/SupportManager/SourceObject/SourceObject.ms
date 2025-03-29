@@ -293,7 +293,7 @@ struct SourceObject_v
 				--setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
 				
 				
-			/* UPDATE 1st POINT */ 
+			/* UPDATE 1st POINT - if support has been moved on its own */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 			

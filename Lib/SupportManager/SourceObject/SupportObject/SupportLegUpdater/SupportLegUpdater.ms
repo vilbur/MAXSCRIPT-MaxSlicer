@@ -74,7 +74,7 @@ struct SupportLegUpdater_v
 	function updateFoot =
 	(
 		--format "\n=======================================================================\n"
-		format "\n"; print "SupportLegUpdater_v.updateFoot()"
+		--format "\n"; print "SupportLegUpdater_v.updateFoot()"
 		--format "foot_exists: %\n" foot_exists
 
 
@@ -138,9 +138,8 @@ struct SupportLegUpdater_v
 	function _mustBeFootRemoved =
 	(
 		--format "\n---------------------------------\n"
-		format "\n"; print "SupportLegUpdater_v._mustBeFootRemoved()"
-		format "min_foot_pos: %\n" min_foot_pos
-		format "SupportObject.min_foot_pos: %\n" SupportObject.min_foot_pos
+		--format "\n"; print "SupportLegUpdater_v._mustBeFootRemoved()"
+		min_foot_pos = SupportObject.min_foot_pos
 		
 		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot
 		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
@@ -150,7 +149,7 @@ struct SupportLegUpdater_v
 		(
 			/* KEEP LEG KNOT ABOVE BASE KNOT */ 
 			if this._getZposition leg_knot < min_foot_pos then
-				this._setKnotToZposition (leg_knot) (SupportObject.min_foot_pos)
+				this._setKnotToZposition (leg_knot) (min_foot_pos)
 			
 			/* CHECK SPACE ABOVE 2nd KNOT */ 
 			if not this._isSpaceForTopChamfer() then
@@ -159,7 +158,7 @@ struct SupportLegUpdater_v
 		/* IF NORMAL DIRECTION SUPPORT  */
 		else
 			--is_space_for_foot = not this._getZposition leg_knot <= min_foot_pos 
-			is_space_for_foot = not this._getZposition leg_knot <= SupportObject.min_foot_pos 
+			is_space_for_foot = not this._getZposition leg_knot <= min_foot_pos 
 
 		not is_space_for_foot --return
 	),

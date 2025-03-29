@@ -277,22 +277,18 @@ struct SourceObject_v
 			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
 		)
 		
-		direction_param     = copy direction
-		update_knot_2_param = copy direction
 		
 		/*------------------------------------------------------------------------------
 			UPDATE EACH SUPPORT
 		--------------------------------------------------------------------------------*/
 		for index in SupportsToUpdate.keys do
 		(
-			direction = direction_param
-			direction = update_knot_2_param
+			Support = SupportsToUpdate[index]
 			
 			/* LAOD CURRENT DIRECTION */ 
-			current_direction = getUserPropVal SupportsToUpdate[index].support_obj "DIRECTION"
+			current_direction = getUserPropVal Support.support_obj "DIRECTION"
 		
 			/* SAVE CURRENT DIRECTION */
-			
 			--if direction != undefined then 
 				--setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
 				
@@ -300,6 +296,7 @@ struct SourceObject_v
 			/* UPDATE 1st POINT */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
+			
 			
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined and current_direction == #DOWN then
@@ -318,14 +315,12 @@ struct SourceObject_v
 			--format "DIR_VECTOR: %\n" dir_vector
 			
 			/* SAVE CURRENT DIRECTION */ 
-			if not ( direction == #CUSTOM and current_direction == #DOWN and SupportsToUpdate[index].isVectorPointingDown() ) then 
-				setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
+			if not ( direction == #CUSTOM and current_direction == #DOWN and Support.isVectorPointingDown() ) then 
+				setUserPropVal Support.support_obj "DIRECTION" direction
 			
-			if direction == #CUSTOM then
-				direction = undefined
 
 			/* UPDATE SUPPORT */ 
-			SupportsToUpdate[index].updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:direction dir_vector:dir_vector
+			Support.updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
 		)
 		
 		free SupportsToUpdate

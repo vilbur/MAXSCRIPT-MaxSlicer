@@ -22,8 +22,7 @@ struct SupportObject_v
 
 	--is_on_ground= true,
 	foot_enabled = true,
-	foot_exists = false,
-
+	foot_exists  = false,
 
 	hit_raft,
 	hit_leg,
@@ -36,7 +35,8 @@ struct SupportObject_v
 	spline_1 = 1, -- each support line has ony 1 spline
 	minimal_length, -- cache value
 	--direction_down = [0,0,-1],
-	minimal_foot_pos_z,
+	min_foot_pos_z,
+	min_leg_pos,
 
 	public
 
@@ -182,7 +182,7 @@ struct SupportObject_v
 		
 		
 		/* UPDATE MINIMAL FOOT Z POSITION */ 
-		if minimal_foot_pos_z == undefined then 
+		if min_foot_pos_z == undefined then 
 			this._setMinimalFootPos (direction) 
 		
 		
@@ -194,6 +194,7 @@ struct SupportObject_v
 		
 			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
 			--minimal_length = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2] add_chamfer:true
+		
 			/* FAST MINIMAL LENGTH BY WIDTH OF BAR */ 
 			minimal_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
 		
@@ -243,8 +244,9 @@ struct SupportObject_v
 	 */
 	function updateLeg points_positions: =
 	(
-		--format "\n"; print "SupportObject_v.updateLeg()"
-		
+		format "\n"; print "SupportObject_v.updateLeg()"
+		format "num_of_segments: %\n" ( numSegments support_obj 1)
+
 		/* IF ONLY LEG IS UPDATED */ 
 		if points_positions == unsupplied then 
 			this.points_positions = #( getKnotPoint support_obj spline_1 1 , support_obj.pos )
@@ -256,18 +258,18 @@ struct SupportObject_v
 		if hit_leg != undefined then
 			this.points_positions[3] = hit_leg.pos --  SET HIT POSITON OF LEG 
 		
-		this._setRightCountOfKnotsToSpline()
+		--this._setRightCountOfKnotsToSpline()
 		
 		this._updateKnotsPositionByPoints()
 
 		
 		if hit_leg == undefined then
 		(
-			if minimal_foot_pos_z == undefined then
-				this._setMinimalFootPos (getUserPropVal support_obj "DIRECTION") 
-
-				
-			SupportLegUpdater.minimal_foot_pos_z = minimal_foot_pos_z
+			--if min_foot_pos_z == undefined then
+				SupportLegUpdater.min_foot_pos_z = this._setMinimalFootPos ( getUserPropVal support_obj "DIRECTION") 
+		
+			--updateShape support_obj
+			SupportLegUpdater.min_leg_pos = min_leg_pos
 			
 			foot_exists = SupportLegUpdater.updateFoot()
 		)
@@ -306,7 +308,6 @@ struct SupportObject_v
 		getUserPropVal support_obj "RAFT_KEY" != undefined
 	),
 
-	
 	/** Is vector pointing down
 	 */
 	function isVectorPointingDown =
@@ -499,8 +500,6 @@ struct SupportObject_v
 			deleteKnot support_obj spline_1 knot_i
 	),
 
-
-
 	/** SET CORECT NUMBER OF KNOTS ON OBJECT
 	 */
 	function _setRightCountOfKnotsToSpline =
@@ -513,7 +512,7 @@ struct SupportObject_v
 				(num_knots < points_positions.count): this._addKnots()
 				(num_knots > points_positions.count): this._removeKnots()
 			)
-			
+			--updateShape support_obj
 			--this._updateKnotsPositionByPoints()
 		)
 	),
@@ -563,7 +562,7 @@ struct SupportObject_v
 
 		if hit_leg == undefined then
 		(
-			if this.foot_enabled and points_positions[2].z > minimal_foot_pos_z then
+			if this.foot_enabled and points_positions[2].z > min_foot_pos_z then
 				addFoot()
 			else
 				setLegToGroundWithoutFoot()
@@ -799,7 +798,7 @@ struct SupportObject_v
 		base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
 		height_offset = 0.1
 		
-		minimal_foot_pos_z = base_height + chamfer_val + height_offset
+		min_foot_pos_z = base_height + chamfer_val + height_offset
 		
 		/* TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
 			
@@ -812,11 +811,11 @@ struct SupportObject_v
 		(
 			add_by_angle = this.getNimalLenghtByAngle first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
 			
-			minimal_leg_pos = add_by_angle + chamfer_val --+ 0.1
+			min_leg_pos = add_by_angle + chamfer_val --+ 0.1
 			
-			minimal_foot_pos_z += add_by_angle
+			min_foot_pos_z += add_by_angle
 		)
-		--format "MINIMAL_LEG_POS_Z: %\n" minimal_foot_pos_z
+		--format "MINIMAL_LEG_POS_Z: %\n" min_foot_pos_z
 	),
 	
 	/** Get minimal lenght of segment by angle to KEEP CLEAND CORNERS OF SWEEP MODIFIER 

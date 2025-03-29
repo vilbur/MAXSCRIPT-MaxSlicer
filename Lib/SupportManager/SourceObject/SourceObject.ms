@@ -359,10 +359,10 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
-		--format "supports.count: %\n" (Supports.count)
+		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		format "supports.count: %\n" (Supports.count)
 		--this.removeDeletedNodes()
-		
+
 		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
 
 		--for key in Supports.keys where not Supports[key].isRaft() do

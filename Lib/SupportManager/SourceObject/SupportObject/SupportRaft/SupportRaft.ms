@@ -26,7 +26,7 @@ struct SupportRaft_v
 	 */
 	function createRaft =
 	(
-		--format "\n"; print "SupportRaft_v.createRaft()"
+		format "\n"; print "SupportRaft_v.createRaft()"
 	
 		--format "\n"; print "SupportRaft_v._setSecondPointPosition()"
 		--second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
@@ -74,7 +74,7 @@ struct SupportRaft_v
 	 */
 	function _testHitOfSourceObject max_distance =
 	(
-		format "\n"; print "SupportObject_v._testHitOfSourceObject()"
+		--format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
 		
 		ray_pos = Support.points_positions[1]
 		

@@ -310,7 +310,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		--format "\n"; print "SupportManager_v.updateSourceObject()"
+		format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
@@ -322,14 +322,14 @@ struct SupportManager_v
 			SourceObject = SourceObjects[sync_key]
 			
 			SourceObject.removeDeletedNodes()
-			--format "SOURCEOBJECT.SUPPORTS.KEYS: %\n" SourceObject.Supports.keys
+
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_knot_2:false 
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 		)	
@@ -344,7 +344,7 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes update_knot_2:true direction:undefined what_to_update: =
+	function updateSupports support_nodes update_raft:true direction:undefined what_to_update: =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "direction: %\n" direction
@@ -358,7 +358,7 @@ struct SupportManager_v
 		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
 		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_knot_2:update_knot_2 direction:direction
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction
 			
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
@@ -463,7 +463,7 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		--format "\n"; print "SupportManager_v.updateShapes()"
+		format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
 			for _shape in shapes_to_update do

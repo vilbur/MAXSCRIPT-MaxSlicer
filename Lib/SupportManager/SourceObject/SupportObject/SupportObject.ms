@@ -208,18 +208,20 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos: update_raft:true direction: dir_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "first_knot_pos: %\n" first_knot_pos
+		format "update_raft: %\n" update_raft
+		format "update_leg: %\n" update_leg
 		
 		--points_positions = this._getPointsPositionsFromLine()
 		
 		/* GET 1st knot POSITION FROM LINE */ 
-		if classOf first_knot_pos == unsupplied then
+		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
-		
+
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		--------------------------------------------------------------------------------*/
@@ -235,14 +237,18 @@ struct SupportObject_v
 			UPDATE SUPPORT
 		--------------------------------------------------------------------------------*/
 		
-		/* UPDATE RAFT */ 
-		SupportRaft.updateRaft()
 		
+		/* UPDATE RAFT */
+		if update_raft then
+			SupportRaft.updateRaft()
 		
+		--format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		--format "this.points_positions[3]: %\n" this.points_positions[3]
 		/* UPDATE LERG */ 
-		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg()
+		if update_leg and SupportRaft.hit_raft == undefined then 
+			SupportLeg.updateLeg()
 		
+		--format "this.points_positions[3]: %\n" this.points_positions[3]
 		
 		/* UPDATE FOOT */ 
 		--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
@@ -262,22 +268,29 @@ struct SupportObject_v
 		this._updateKnotsPositionByPoints()
 		
 		this._setPivotToSecondPoint()
-		--
+		
 		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
 		
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
 	/** Update leg position
 	 */
-	function updateLeg points_positions: =
+	function updateSupportHeight =
 	(
-		--format "\n"; print "SupportObject_v.updateLeg()"
+		format "\n"; print "SupportObject_v.updateSupportHeight()"
+		if foot_exists then
+		(
+			SupportFoot.setFootToGround()
+			
+			format "points_positions: %\n" this.points_positions
+		)
 
+		this._updateKnotsPositionByPoints start_knot:3
 
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
 	/** Update base height
@@ -477,12 +490,13 @@ struct SupportObject_v
 
 	/** Update line
 	 */
-	function _updateKnotsPositionByPoints =
+	function _updateKnotsPositionByPoints start_knot:1 =
 	(
-		--format "\n"; print "SupportObject_v._updateKnotsPositionByPoints()"
-		--format "points_positions: %\n" points_positions
+		format "\n"; print "SupportObject_v._updateKnotsPositionByPoints()"
+		format "points_positions: %\n" points_positions
 		--format "points_positions.count: %\n" points_positions.count
-		for knot_i = 1 to points_positions.count do
+		
+		for knot_i = start_knot to points_positions.count do
 			setKnotPoint support_obj spline_1 knot_i points_positions[knot_i]
 	),
 	

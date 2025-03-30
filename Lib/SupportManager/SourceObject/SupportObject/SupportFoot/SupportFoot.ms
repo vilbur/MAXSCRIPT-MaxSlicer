@@ -21,18 +21,30 @@ struct SupportFoot_v
 	 */
 	function createFoot =
 	(
-		--format "\n"; print "SupportFoot_v.createFoot()"
+		format "\n"; print "SupportFoot_v.createFoot()"
 		
-		ground_point = copy Support.points_positions[3]
+		pos_ground = copy Support.points_positions[3]
 		
-		ground_point.z = 0
+		pos_ground.z = 0
 		
-		Support.points_positions[4] = ground_point
+		Support.points_positions[4] = pos_ground
 		
 		Support.foot_exists = true
 	),
 	
-
+	/** Set foot to ground
+	 */
+	function setFootToGround =
+	(
+		--format "\n"; print "SupportLeg_v.setFootToGround()"
+		format "Support.points_positions: %\n" Support.points_positions
+		
+		Support.points_positions[3].z = Support.base_height
+		
+		Support.points_positions[4].z = 0
+		format "Support.points_positions: %\n" Support.points_positions
+	),
+	
 	private
 
 

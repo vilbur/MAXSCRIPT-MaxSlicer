@@ -260,9 +260,10 @@ struct SourceObject_v
 	/** Update supports of source objects
 	  * 
 	 */
-	function updateSupports support_nodes: update_knot_1:true update_knot_2:true direction:undefined what_to_update: =
+	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
+		
 		--format "DIRECTION: %\n" direction
 
 		/* GET SUPPORTS TO UPDATE */ 
@@ -303,7 +304,7 @@ struct SourceObject_v
 			(
 				direction = #DOWN
 				
-				update_knot_2 = true
+				update_raft = true
 			)
 			
 			/* GET VECTOR  */ 
@@ -320,7 +321,7 @@ struct SourceObject_v
 			
 
 			/* UPDATE SUPPORT */ 
-			Support.updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
+			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
 			
 			
 		)
@@ -357,7 +358,7 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--this.removeDeletedNodes()
 
@@ -368,11 +369,11 @@ struct SourceObject_v
 			--Supports[key].SupportLegUpdater.updateLegHeight()
 			--Supports[key].SupportLegUpdater.updateLegWithFoot()
 		(
-			Supports[key].updateLeg()
+			Supports[key].updateSupportHeight()
 			
-			Supports[key]._setPivotToSecondPoint()
-			
-			Supports[key]._alignPivotToSeconPoint()			
+			--Supports[key]._setPivotToSecondPoint()
+			--
+			--Supports[key]._alignPivotToSeconPoint()			
         )
 
 	),

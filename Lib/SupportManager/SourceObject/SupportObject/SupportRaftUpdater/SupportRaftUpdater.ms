@@ -1,7 +1,7 @@
 
 /** Support leg updater
  */
-struct SupportLegUpdater_v
+struct SupportRaftUpdater_v
 (
 	/* CONSTRUCT */
 	SupportObject, -- parent class
@@ -75,7 +75,7 @@ struct SupportLegUpdater_v
 	function updateFoot =
 	(
 		--format "\n=======================================================================\n"
-		--format "\n"; print "SupportLegUpdater_v.updateFoot()"
+		--format "\n"; print "SupportRaftUpdater_v.updateFoot()"
 		--format "foot_exists: %\n" foot_exists
 
 		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
@@ -135,7 +135,7 @@ struct SupportLegUpdater_v
 	 */
 	function _getUserProperties =
 	(
-		--format "\n"; print "SupportLegUpdater_v._getNodeUserProperties()"
+		--format "\n"; print "SupportRaftUpdater_v._getNodeUserProperties()"
 		for prop in #( "BASE_HEIGHT", "NORMAL_LENGTH", "FOOT_ENABLED" ) where getProperty this ( prop as name ) == undefined do
 			setProperty this prop ( getUserPropVal support_obj prop )
 	),
@@ -145,7 +145,7 @@ struct SupportLegUpdater_v
 	function _mustBeFootRemoved =
 	(
 		--format "\n---------------------------------\n"
-		--format "\n"; print "SupportLegUpdater_v._mustBeFootRemoved()"
+		--format "\n"; print "SupportRaftUpdater_v._mustBeFootRemoved()"
 		min_foot_pos = SupportObject.min_foot_pos
 		
 		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot
@@ -175,7 +175,7 @@ struct SupportLegUpdater_v
 	function _canBeFootAdded =
 	(
 		--format "\n---------------------------------\n"
-		--format "\n"; print "SupportLegUpdater_v._canBeFootAdded()"
+		--format "\n"; print "SupportRaftUpdater_v._canBeFootAdded()"
 		--format "num_of_knots: %\n" num_of_knots
 		
 		/* IF NORMAL DIRECTION SUPPORT  */
@@ -223,7 +223,7 @@ struct SupportLegUpdater_v
 	*/
 	function addFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.addFoot()"
+		--format "\n"; print "SupportRaftUpdater_v.addFoot()"
 
 		/* DOWN DIRECTION */
 		if direction_is_down then
@@ -262,7 +262,7 @@ struct SupportLegUpdater_v
 	 */
 	function removeFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.removeFoot()"
+		--format "\n"; print "SupportRaftUpdater_v.removeFoot()"
 
 		/* DELETE GROUND POINT */ 
 		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)
@@ -281,7 +281,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegWithFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.updateLegWithFoot()"
+		--format "\n"; print "SupportRaftUpdater_v.updateLegWithFoot()"
 		--format "direction_is_down: %\n" direction_is_down
 
 		point_1_pos  = getKnotPoint support_obj spline_1 1
@@ -328,7 +328,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLegWithoutFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v.updateLegWithoutFoot()"
+		--format "\n"; print "SupportRaftUpdater_v.updateLegWithoutFoot()"
 		
 		--format "num_of_knots: %\n" num_of_knots
 		
@@ -411,7 +411,7 @@ struct SupportLegUpdater_v
 	 */
 	function _footExists =
 	(
-		--format "\n"; print "SupportLegUpdater_v._footExists()"
+		--format "\n"; print "SupportRaftUpdater_v._footExists()"
 
 		num_of_segments = numSegments support_obj spline_1
 		--format "num_of_segments: %\n" num_of_segments
@@ -426,7 +426,7 @@ struct SupportLegUpdater_v
 	 */
 	function _isSpaceForFoot knot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._isSpaceForFoot()"
+		--format "\n"; print "SupportRaftUpdater_v._isSpaceForFoot()"
 		--format "min_foot_pos: %\n" min_foot_pos
 		--format "is_space_for_leg: %\n" (this._getZposition knot > min_foot_pos)
 
@@ -437,7 +437,7 @@ struct SupportLegUpdater_v
 	 */
 	function _isSpaceForTopChamfer =
 	(
-		--format "\n"; print "SupportLegUpdater_v._isSpaceForTopChamfer()"
+		--format "\n"; print "SupportRaftUpdater_v._isSpaceForTopChamfer()"
 		this._setKnotsByNumKnots()
 		
 		
@@ -453,12 +453,12 @@ struct SupportLegUpdater_v
 	 */
 	function _setVerticalKnots =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setVerticalKnots()"
+		--format "\n"; print "SupportRaftUpdater_v._setVerticalKnots()"
 		/** Support is vertical
 		 */
 		function supportIsVertical knot =
 		(
-			--format "\n"; print "SupportLegUpdater_v.supportIsVertical()"
+			--format "\n"; print "SupportRaftUpdater_v.supportIsVertical()"
 			lower_knot_pos = getKnotPoint support_obj spline_1 knot
 			upper_knot_pos = getKnotPoint support_obj spline_1 (knot - 1)
 
@@ -499,7 +499,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setLastPointToGround =
 	(
-		--format "\n"; print "SupportLegUpdater_v.setKnotGround()"
+		--format "\n"; print "SupportRaftUpdater_v.setKnotGround()"
 		ground_knot     = numKnots support_obj spline_1
 		ground_knot_pos = getKnotPoint support_obj spline_1 ground_knot
 		
@@ -513,7 +513,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setKnotToZposition knot pos_z =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setKnotToZposition()"
+		--format "\n"; print "SupportRaftUpdater_v._setKnotToZposition()"
 		--format "KNOT: % POS_Z: %\n" knot pos_z
 				
 		knot_pos = getKnotPoint support_obj spline_1 knot
@@ -527,7 +527,7 @@ struct SupportLegUpdater_v
 	 */
 	function _getZposition knot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._getZposition()"
+		--format "\n"; print "SupportRaftUpdater_v._getZposition()"
 		knot_pos = getKnotPoint support_obj spline_1 knot
 		--format "KNOT: % POS: %\n" knot knot_pos
 		--format "Z_POS: %\n" knot_pos.z
@@ -538,7 +538,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setZposition knot pos_z =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setZposition()"
+		--format "\n"; print "SupportRaftUpdater_v._setZposition()"
 		--format "KNOT: % POS_Z: %\n" knot pos_z
 				
 		knot_pos = getKnotPoint support_obj spline_1 knot
@@ -552,7 +552,7 @@ struct SupportLegUpdater_v
 	 */
 	function _alignKnotToPreviousKnot knot pos_z =
 	(
-		--format "\n"; print "SupportLegUpdater_v._alignKnotToPreviousKnot()"
+		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
 		knot_pos = getKnotPoint support_obj spline_1 (knot - 1)
 
 		knot_pos.z = pos_z
@@ -566,7 +566,7 @@ struct SupportLegUpdater_v
 	 */
 	function _extendSecondPointToNormalLenght =
 	(
-		--formats "\n"; print "SupportLegUpdater_v._extendSecondPointToNormalLenght()"
+		--formats "\n"; print "SupportRaftUpdater_v._extendSecondPointToNormalLenght()"
 		point_1_pos = getKnotPoint support_obj spline_1 1
 		point_2_pos = getKnotPoint support_obj spline_1 2
 
@@ -579,7 +579,7 @@ struct SupportLegUpdater_v
 	-- */
 	--function _extendRaftKnotToGound =
 	--(
-	--	--format "\n"; print "SupportLegUpdater_v._extendRaftKnotToGound()"
+	--	--format "\n"; print "SupportRaftUpdater_v._extendRaftKnotToGound()"
 	--	first_knot_pos  = getKnotPoint support_obj spline_1 1
 	--	second_knot_pos = getKnotPoint support_obj spline_1 2
 	--	
@@ -600,7 +600,7 @@ struct SupportLegUpdater_v
 	-- */
 	--function _getSecondPointPosOnNormal =
 	--(
-	--	--format "\n"; print "SupportLegUpdater_v._getSecondPointPosOnNormal()"
+	--	--format "\n"; print "SupportRaftUpdater_v._getSecondPointPosOnNormal()"
 	--	first_knot_pos  = getKnotPoint support_obj spline_1 1
 	--	second_knot_pos = getKnotPoint support_obj spline_1 2
 	--	
@@ -620,13 +620,13 @@ struct SupportLegUpdater_v
 	 */
 	function _shortenNormalAndKeepLeg =
 	(
-		--format "\n"; print "SupportLegUpdater_v._shortenNormalAndKeepLeg()"
+		--format "\n"; print "SupportRaftUpdater_v._shortenNormalAndKeepLeg()"
 		
 		/** Get second point position above ground using angle of support
 		 */
 		function getSecondPointPosition =
 		(
-			--format "\n"; print "SupportLegUpdater_v.getSecondPointPosition()"
+			--format "\n"; print "SupportRaftUpdater_v.getSecondPointPosition()"
 			first_knot_pos  = getKnotPoint support_obj spline_1 1
 			second_knot_pos = getKnotPoint support_obj spline_1 2
 			
@@ -659,7 +659,7 @@ struct SupportLegUpdater_v
 	  */
 	function _addBasePoint =
 	(
-		--format "\n"; print "SupportLegUpdater_v._addBasePoint()"
+		--format "\n"; print "SupportRaftUpdater_v._addBasePoint()"
 		this._addKnot (base_height)
 	),
 	
@@ -667,7 +667,7 @@ struct SupportLegUpdater_v
 	  */
 	function _addGroundPoint =
 	(
-		--format "\n"; print "SupportLegUpdater_v._addGroundPoint()"
+		--format "\n"; print "SupportRaftUpdater_v._addGroundPoint()"
 		this._addKnot (0)
 	),
 	
@@ -675,7 +675,7 @@ struct SupportLegUpdater_v
 	 */
 	function _addKnot z_pos =
 	(
-		--format "\n"; print "SupportLegUpdater_v.addPoint()"
+		--format "\n"; print "SupportRaftUpdater_v.addPoint()"
 		--format "z_pos: %\n" z_pos
 		knot_pos  = getKnotPoint support_obj spline_1 ( this._getLastKnot() )
 
@@ -697,7 +697,7 @@ struct SupportLegUpdater_v
 	-- */
 	--function _getTopVerticalKnot =
 	--(
-	--	--format "\n"; print "SupportLegUpdater_v._getTopVerticalKnot()"
+	--	--format "\n"; print "SupportRaftUpdater_v._getTopVerticalKnot()"
 	--	--format "VERTICAL_KNOTS: %\n" vertical_knots
 	--	vertical_knots[vertical_knots.count]
 	--),
@@ -706,7 +706,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setMaterialToFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setMaterialToFoot()"
+		--format "\n"; print "SupportRaftUpdater_v._setMaterialToFoot()"
 		
 		num_of_segments = numSegments support_obj spline_1
 		
@@ -720,7 +720,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setPivotToSecondPoint()"
+		--format "\n"; print "SupportRaftUpdater_v._setPivotToSecondPoint()"
 		--support_obj.pivot = getKnotPoint support_obj spline_1 2
 		support_obj.pivot = getKnotPoint support_obj spline_1 2
 	),
@@ -729,7 +729,7 @@ struct SupportLegUpdater_v
 	 */
 	function _getDistanceOfKnots knot_A knot_B =
 	(
-		--format "\n"; print "SupportLegUpdater_v._getDistanceOfKnots()"
+		--format "\n"; print "SupportRaftUpdater_v._getDistanceOfKnots()"
 		point_1_pos = getKnotPoint support_obj spline_1 knot_A
 		point_2_pos = getKnotPoint support_obj spline_1 knot_B
 		
@@ -740,7 +740,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setKnotsByNumKnots =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setKnotsByNumKnots()"
+		--format "\n"; print "SupportRaftUpdater_v._setKnotsByNumKnots()"
         num_of_knots = numKnots support_obj spline_1
 
         ground_knot  = num_of_knots
@@ -770,7 +770,7 @@ struct SupportLegUpdater_v
 	 */
 	function _updateVerticalKnots =
 	(
-		--format "\n"; print "SupportLegUpdater_v._updateVerticalKnots()"
+		--format "\n"; print "SupportRaftUpdater_v._updateVerticalKnots()"
 		num_knots = numKnots support_obj spline_1
 		
 		for i = vertical_knots.count to 1 by -1 where vertical_knots[i] > num_knots do
@@ -781,7 +781,7 @@ struct SupportLegUpdater_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportLegUpdater.onCreate()"
+		--format "\n"; print "SupportRaftUpdater.onCreate()"
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

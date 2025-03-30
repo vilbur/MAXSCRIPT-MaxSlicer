@@ -1,7 +1,7 @@
 
 /** Support leg updater
  */
-struct SupportLegUpdater_v
+struct SupportRaftUpdater_v
 (
 	/* construct */
 	support_obj,
@@ -48,7 +48,7 @@ struct SupportLegUpdater_v
 	 */
 	function updateLeg =
 	(
-		format "\n"; print "SupportLegUpdater_v.updateLeg()"
+		format "\n"; print "SupportRaftUpdater_v.updateLeg()"
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		--if this.is_on_ground then
@@ -332,7 +332,7 @@ struct SupportLegUpdater_v
 	 */
 	function _footExists =
 	(
-		format "\n"; print "SupportLegUpdater_v._footExists()"
+		format "\n"; print "SupportRaftUpdater_v._footExists()"
 		num_of_segments = numSegments support_obj spline_1
 		format "num_of_segments: %\n" num_of_segments
 		getMaterialID support_obj spline_1 num_of_segments == 4
@@ -342,7 +342,7 @@ struct SupportLegUpdater_v
 	 */
 	function _removeFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._removeFoot()"
+		--format "\n"; print "SupportRaftUpdater_v._removeFoot()"
 		format "\nREMOVE FOOT\n"
 
 		deleteKnot support_obj spline_1 ( numKnots support_obj spline_1)
@@ -352,7 +352,7 @@ struct SupportLegUpdater_v
 	 */
 	function _isSpaceForFoot leg_knot_pos_z: =
 	(
-		--format "\n"; print "SupportLegUpdater_v._isSpaceForFoot()"
+		--format "\n"; print "SupportRaftUpdater_v._isSpaceForFoot()"
 		--format "vertical_knots.count: %\n" vertical_knots.count
 		
 		/* GET SPACE ON SKEWED SUPPORT */
@@ -369,7 +369,7 @@ struct SupportLegUpdater_v
 	 */
 	function _isSpaceForLeg knot =
 	(
-		format "\n"; print "SupportLegUpdater_v._isSpaceForLeg()"
+		format "\n"; print "SupportRaftUpdater_v._isSpaceForLeg()"
 
 		this._getZposition knot > minimal_leg_pos_z
 	),
@@ -410,7 +410,7 @@ struct SupportLegUpdater_v
 	 */
 	function _updateVerticalKnots =
 	(
-		--format "\n"; print "SupportLegUpdater_v._updateVerticalKnots()"
+		--format "\n"; print "SupportRaftUpdater_v._updateVerticalKnots()"
 		num_knots = numKnots support_obj spline_1
 		
 		for i = vertical_knots.count to 1 by -1 where vertical_knots[i] > num_knots do
@@ -519,10 +519,10 @@ struct SupportLegUpdater_v
 	 */
 	function _removeVerticalSegments =
 	(
-		format "\n"; print "SupportLegUpdater_v._removeVerticalSegments()"
+		format "\n"; print "SupportRaftUpdater_v._removeVerticalSegments()"
 		format "VERTICAL_KNOTS: %\n" vertical_knots
 		format "NUM KNOTS: %\n" (numKnots support_obj spline_1)
-		--format "\n"; print "SupportLegUpdater_v. REMOVE_VERTICAL_SEGMENTS ()"
+		--format "\n"; print "SupportRaftUpdater_v. REMOVE_VERTICAL_SEGMENTS ()"
 		for index = 1 to vertical_knots.count - 1 do 
 			deleteKnot support_obj spline_1 vertical_knots[index]
 	),
@@ -547,7 +547,7 @@ struct SupportLegUpdater_v
 	 */
 	function _addPoint z_pos =
 	(
-		--format "\n"; print "SupportLegUpdater_v.addPoint()"
+		--format "\n"; print "SupportRaftUpdater_v.addPoint()"
 		knot_pos  = getKnotPoint support_obj spline_1 ( this._getLastKnot() )
 
 		knot_pos.z  = z_pos
@@ -594,7 +594,7 @@ struct SupportLegUpdater_v
 	 */
 	function _setMaterialToFoot =
 	(
-		--format "\n"; print "SupportLegUpdater_v._setMaterialToFoot()"
+		--format "\n"; print "SupportRaftUpdater_v._setMaterialToFoot()"
 		setMaterialID support_obj spline_1 ( numSegments support_obj spline_1 ) this.foot_mat_id
 	),
 	
@@ -602,7 +602,7 @@ struct SupportLegUpdater_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportLegUpdater.onCreate()"
+		--format "\n"; print "SupportRaftUpdater.onCreate()"
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

@@ -25,12 +25,12 @@ verts_colors = Dictionary #string
 clr_blue =  ( color 30 144 255 ) as string
 clr_cyan =  ( color 0 255 255 ) as string
 
-verts_colors[ "red"	] = #{ 29 }
-verts_colors[ clr_blue	] = #{ 22 }
-verts_colors[ "green"	] = #{ 45 }
-verts_colors[ "orange"	] = #{ 40 }
-verts_colors[ "gray"	] = #{ 32 }
-verts_colors[ clr_cyan	] = #{ 30 }
+--verts_colors[ "red"	] = #{ 29 }
+--verts_colors[ clr_blue	] = #{ 22 }
+verts_colors[ "green"	] = #{ 42 }
+--verts_colors[ "orange"	] = #{ 40 }
+--verts_colors[ "gray"	] = #{ 32 }
+--verts_colors[ clr_cyan	] = #{ 30 }
 
 /* CREATE TEST OBJECT */
 obj = $PackMan
@@ -50,7 +50,7 @@ pos_z = 10
 select_verts	= #{}
 --select_verts = verts_colors["red"]
 --select_verts = verts_colors["orange"]
---select_verts = verts_colors["green"]
+select_verts = verts_colors["green"]
 --select_verts = verts_colors[clr_cyan]
 --select_verts = verts_colors[clr_blue]
 --select_verts = #{ 40 }
@@ -88,8 +88,9 @@ SUPPORT_OPTIONS.base_width	= 10
 SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
 --SUPPORT_OPTIONS.normal_length	= 0.75
 --SUPPORT_OPTIONS.normal_length	= 1.25
-SUPPORT_OPTIONS.normal_length	= 5
---SUPPORT_OPTIONS.normal_length	= 10
+--SUPPORT_OPTIONS.normal_length	= 5
+SUPPORT_OPTIONS.normal_length	= 30
+
 
 
 /* NORMLA DIRECTION */ 

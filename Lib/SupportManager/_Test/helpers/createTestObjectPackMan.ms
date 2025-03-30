@@ -36,8 +36,8 @@ function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefine
 	
 	--delete $PackMan
 	
-	segments = 10
-	seg_angle = (360 / segments) as integer
+	segments = 20
+	seg_angle = (360 / segments ) as integer
 	
 	--radius = 100
 	

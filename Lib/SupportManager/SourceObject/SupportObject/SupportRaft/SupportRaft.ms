@@ -13,8 +13,10 @@ struct SupportRaft_v
 	first_knot_pos,
 	dir_vector,
 
+	--is_space_for_foot = true,
 	hit_raft,
-	
+	raft_is_full = true,
+
 	/* private */
 	/* dependency */
 	/* reference */
@@ -47,20 +49,27 @@ struct SupportRaft_v
 	(
 		--format "\n"; print "SupportRaft_v._setSecondPointPosition()"
 		--second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
-		normal_length_option = SUPPORT_OPTIONS.normal_length
+		normal_length_option = SupportObject.normal_length
 
 	    this._testHitOfSourceObject (normal_length_option)
 		
-		format "HIT_RAFT: %\n" hit_raft
 		
 		/* KEEP MINIMAL LENGTH OF RAFT */ 
 		normal_length = normal_length_option
 
-		 
-		SupportObject.points_positions[2] = if hit_raft == undefined then first_knot_pos + ( normal_length * dir_vector ) else hit_raft
+		second_point = first_knot_pos + ( normal_length * dir_vector )
 		
+		if second_point.z < SupportObject.min_leg_length then
+		(
+			second_point.z = SupportObject.min_leg_length
+			
+			raft_is_full = false
+		)
+
 		
+		SupportObject.points_positions[2] = if hit_raft == undefined then second_point else hit_raft
 		
+
 	),
 
 	/** Get secon point position

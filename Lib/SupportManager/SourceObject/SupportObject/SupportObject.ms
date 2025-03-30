@@ -37,14 +37,15 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* support properties */
+	normal_length,
 	bar_width,
 	base_height,
 	chamfer_val,
 	
 	dir_vector,
-	min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
-	min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
-	min_length,     -- min length of raft part to avoid sweep artifact on leg knot
+	--min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
+	--min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
+	min_leg_length,     -- min length of raft part to avoid sweep artifact on leg knot
 	
 	private
 
@@ -67,15 +68,15 @@ struct SupportObject_v
 		format "\n"; print "SupportObject_v.generateSupport()"
 		this.dir_vector = dir_vector
 		
-		bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-		base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-		chamfer_val = SUPPORT_OPTIONS.getChamferBarValue()
-
-		
 		this._setSupportObject(wirecolor)
+
+		this._saveProps()
+		
+		min_leg_length = base_height + height_offset
 		
 		
 		SupportRaft.createRaft (first_knot_pos) (dir_vector)
+		
 		
 		/* CREATE LERG */ 
 		if SupportRaft.hit_raft == undefined then 
@@ -83,6 +84,7 @@ struct SupportObject_v
 		
 		
 		/* CREATE FOOT */ 
+		--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
 		if SupportLeg.hit_leg == undefined then 
 			SupportFoot.createFoot()
 
@@ -187,8 +189,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: update_knot_2:true direction: dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-	
+		format "\n"; print "SupportObject_v.updateSupport()"
+		format "first_knot_pos: %\n" first_knot_pos
 	
 	),
 
@@ -314,6 +316,26 @@ struct SupportObject_v
 			deleteSpline support_obj spline_1
 	),
 	
+	/** Save props
+	 */
+	function _saveProps =
+	(
+		--format "\n"; print "SupportObject_v._saveProps()"
+        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+        base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+        normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
+		
+		chamfer_val = SUPPORT_OPTIONS.getChamferBarValue()
+
+        setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
+        setUserPropVal support_obj "BAR_WIDTH"		bar_width
+        setUserPropVal support_obj "BASE_HEIGHT"	base_height
+        setUserPropVal support_obj "CHAMFER_VAL"	chamfer_val
+
+		setUserPropVal support_obj "DIR_VECTOR" dir_vector
+		
+	),
+
 	/** Create line
 	  */
 	function _drawLine =

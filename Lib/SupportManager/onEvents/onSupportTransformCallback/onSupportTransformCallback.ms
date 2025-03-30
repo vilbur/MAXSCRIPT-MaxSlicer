@@ -35,7 +35,7 @@ function onSupportTransformTimeoutCallback sender evt =
 			--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
 			if not mouse.buttonStates[1] then
 			(
-				SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_knot_2:true direction:#CUSTOM
+				SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED ) update_raft:true direction:#CUSTOM
 				
 				SUPPORT_MANAGER.updateShapes() -- update all shapes at once
 
@@ -131,7 +131,7 @@ function bindSupportToTransformEvent supports =
 		--with redraw off
 
 			--timer_update = timeStamp()
-			SUPPORT_MANAGER.updateSupports #( support ) update_knot_2:true direction:#CUSTOM
+			SUPPORT_MANAGER.updateSupports #( support ) update_raft:true direction:#CUSTOM
 			--format "update: % ms\n" (( timeStamp()) - timer_update)
 			
 			

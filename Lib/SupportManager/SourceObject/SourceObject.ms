@@ -321,6 +321,8 @@ struct SourceObject_v
 
 			/* UPDATE SUPPORT */ 
 			Support.updateSupport first_knot_pos:first_knot_pos update_knot_2:update_knot_2 direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
+			
+			
 		)
 		
 		free SupportsToUpdate

@@ -3,7 +3,7 @@
 struct SupportLeg_v
 (
 	/* construct */
-	SupportObject, -- parent class
+	Support, -- parent class
 
 
 	/* required */
@@ -26,7 +26,7 @@ struct SupportLeg_v
 		
 		this._testHitOfSourceObject()
 
-		SupportObject.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePoint()
+		Support.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePoint()
 		
 		
 	),
@@ -39,9 +39,9 @@ struct SupportLeg_v
 	(
 		--format "\n"; print "SupportLeg_v._getBasePoint()"
 		
-		base_point = copy SupportObject.points_positions[2]
+		base_point = copy Support.points_positions[2]
 		
-		base_point.z = SupportObject.base_height
+		base_point.z = Support.base_height
 		
 		base_point --return
 	),
@@ -52,15 +52,16 @@ struct SupportLeg_v
 	function _testHitOfSourceObject =
 	(
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
-		hit = SupportObject.intersectRaySourceObject ( SupportObject.points_positions[2]) [0,0,-1]
+		hit = Support.intersectRaySourceObject ( Support.points_positions[2]) [0,0,-1]
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and hit.pos.z <= 0 then
 			hit = undefined
 
 			
-		 if hit != undefined then
-			hit_leg = hit.pos --return
+		hit_leg = if hit != undefined then hit.pos else undefined --return
+		
+		hit_leg --return	
 	),
 
 	/**

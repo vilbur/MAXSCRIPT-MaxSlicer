@@ -365,6 +365,7 @@ struct SupportManager_v
 		this._updateBeamsBySupports(supports_by_source.keys)
 
 		this.updateShapes()
+		
 	),
  
 	/** Update base height

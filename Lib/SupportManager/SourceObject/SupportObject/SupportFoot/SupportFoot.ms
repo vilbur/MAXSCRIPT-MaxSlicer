@@ -3,7 +3,7 @@
 struct SupportFoot_v
 (
 	/* construct */
-	SupportObject, -- parent class
+	Support, -- parent class
 
 
 	/* required */
@@ -23,13 +23,13 @@ struct SupportFoot_v
 	(
 		--format "\n"; print "SupportFoot_v.createFoot()"
 		
-		ground_point = copy SupportObject.points_positions[3]
+		ground_point = copy Support.points_positions[3]
 		
 		ground_point.z = 0
 		
-		SupportObject.points_positions[4] = ground_point
+		Support.points_positions[4] = ground_point
 		
-		SupportObject.foot_exists = true
+		Support.foot_exists = true
 	),
 	
 

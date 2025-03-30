@@ -365,7 +365,13 @@ struct SourceObject_v
 		for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 			--Supports[key].SupportLegUpdater.updateLegHeight()
 			--Supports[key].SupportLegUpdater.updateLegWithFoot()
+		(
 			Supports[key].updateLeg()
+			
+			Supports[key]._setPivotToSecondPoint()
+			
+			Supports[key]._alignPivotToSeconPoint()			
+        )
 
 	),
 

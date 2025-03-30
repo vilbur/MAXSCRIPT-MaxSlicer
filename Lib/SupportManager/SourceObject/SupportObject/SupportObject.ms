@@ -191,7 +191,12 @@ struct SupportObject_v
 		
 		/* GET VECTOR OF RAFT */ 
 		this.dir_vector =  if dir_vector != undefined then dir_vector else normalize ( points_positions[2] - points_positions[1] )
+		--format "this.dir_vector: %\n" this.dir_vector
 		
+		/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */
+		if this.dir_vector.z > -0.25 then this.dir_vector.z = -0.25
+		--format "this.dir_vector: %\n" this.dir_vector
+
 
 		/* 	UPDATE KNOT 2  */ 
 		if update_knot_2 then
@@ -213,20 +218,25 @@ struct SupportObject_v
 				points_positions[2] = first_knot_pos + ( (min_length + 0.1 ) * ( normalize ( points_positions[2] - points_positions[1] ) ) ) -- make raft longer by multiplying normal length 10x
 		)
 		
+
+	
+		if update_knot_2 then
+			this._updateKnotsPositionByPoints()
+
 		
 		/* UPDATE LEG IF SUPPORT not RAFT */ 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this.updateLeg points_positions:points_positions
 		
-		/* UPDATE KNOTS POSITION IF RAFT OR SUPPORT HIT SOURCE OBJECT */ 
-		else if update_knot_2 then
-			this._updateKnotsPositionByPoints()
-
+		else
+			this._setRightCountOfKnotsToSpline()
+		
+		foot_exists = hit_raft == undefined and hit_leg == undefined
 		
 		/* UPDATE PIVOT OF NODE */ 
 		--this._setMaterialsToLineSegments()
 		this._setPivotToSecondPoint()
-		--this._alignPivotToSeconPoint()
+		this._alignPivotToSeconPoint()
 		
 		--if numKnots support_obj spline_1 > 2 then
 			--setUserPropVal support_obj "NORMAL_LENGTH" ( this._getNormalLenght() )
@@ -253,7 +263,7 @@ struct SupportObject_v
 			
 		/* TEST IF LEG HITS SOURCE OBJECT */ 
 		hit_leg = this._intersectRaySourceObject (this.points_positions[2]) ([0,0,-1])
-		--format "hit_leg: %\n" hit_leg
+		--format "HIT_LEG: %\n" hit_leg
 		
 		/* IF LEG HIT SOURCE OBJECT */ 
 		if hit_leg != undefined then
@@ -261,7 +271,7 @@ struct SupportObject_v
 		
 		--this._setRightCountOfKnotsToSpline()
 		
-		this._updateKnotsPositionByPoints()
+		--this._updateKnotsPositionByPoints()
 
 		
 		if hit_leg == undefined then
@@ -270,6 +280,13 @@ struct SupportObject_v
 				this._setMinLimints ( getUserPropVal support_obj "DIRECTION") 
 			
 			foot_exists = SupportLegUpdater.updateFoot()
+
+--			if only_leg_is_updated then
+--			(
+--                this._setPivotToSecondPoint()
+--                
+--                this._alignPivotToSeconPoint()			
+--			)
 		)
 
 
@@ -325,7 +342,7 @@ struct SupportObject_v
 		knot_1.x == knot_2.x and knot_1.y == knot_2.y and knot_1.z != knot_2.z
 	),
 	
-	private
+	--private
 	
 	/** ADD SECOND POINT of raft or support
 	  
@@ -377,14 +394,18 @@ struct SupportObject_v
 	  * Check if 2nd knot hits source object
 	  * 
 	 */
-	--function _updateSecondKnotPosition keep_direction_down:false =
 	function _updateSecondKnotPosition direction: /*dir_vector:undefined*/ =
 	(
 		--format "\n"; print "SupportObject_v._updateSecondKnotPosition()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		--format "this.dir_vector: %\n" this.dir_vector
+		--format "lock_normal_length: %\n" lock_normal_length
 		
+		/** Get position down
+		 */
+		function getPositionByVector dir_vector = points_positions[1] + ( (distance points_positions[1] points_positions[2]) * dir_vector ) -- make raft longer by multiplying normal length 10x
+			
 		/** Get zposition down
 		 */
 		function getZpositionDown =
@@ -397,11 +418,7 @@ struct SupportObject_v
 			
 			second_knot_pos --return
 		)
-		
-		/** Get position down
-		 */
-		function getPositionByVector dir_vector = points_positions[1] + ( (distance points_positions[1] points_positions[2]) * dir_vector ) -- make raft longer by multiplying normal length 10x
-	
+
 		/** Update normal length props
 		 */
 		function updateNormalLengthProps distance_of_points =
@@ -658,6 +675,7 @@ struct SupportObject_v
 	function _setMaterialsToLineSegments =
 	(
 		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+		--format "foot_exists: %\n" foot_exists
 		--format "SupportLegUpdater.foot_exists: %\n" SupportLegUpdater.foot_exists
 		num_of_segments = numSegments support_obj ( numSplines support_obj)
 	

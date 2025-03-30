@@ -127,7 +127,7 @@ icon:	"ACROSS:3|control:spinner|offset:[ 12, 20 ]|fieldwidth:24|range:[ 0.1, 999
 */ 
 macroscript	_print_option_lock_normal
 category:	"_3D-Print"
-buttontext:	"Lock"
+buttontext:	"LOCK DIRECTION"
 tooltip:	"Lock length of support direction on move"
 icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]|checked:true"
 (

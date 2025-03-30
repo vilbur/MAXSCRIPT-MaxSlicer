@@ -10,7 +10,7 @@ struct SupportLeg_v
 	
 
 	/* properties */
-	
+	hit_leg,
 
 	/* private */
 	/* dependency */
@@ -24,16 +24,44 @@ struct SupportLeg_v
 	(
 		--format "\n"; print "SupportLeg_v.createLeg()"
 		
-		base_point = copy SupportObject.points_positions[2]
+		this._testHitOfSourceObject()
+
+		SupportObject.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePoint()
 		
-		base_point.z = SupportObject.base_height
-		
-		SupportObject.points_positions[3] = base_point
 		
 	),
 
 	private
+	
+	/** Get base point
+	 */
+	function _getBasePoint =
+	(
+		--format "\n"; print "SupportLeg_v._getBasePoint()"
+		
+		base_point = copy SupportObject.points_positions[2]
+		
+		base_point.z = SupportObject.base_height
+		
+		base_point --return
+	),
+	
+	
+	/** Get secon point position
+	 */
+	function _testHitOfSourceObject =
+	(
+		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
+		hit = SupportObject.intersectRaySourceObject ( SupportObject.points_positions[2]) [0,0,-1]
+		
+		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		if hit != undefined and hit.pos.z <= 0 then
+			hit = undefined
 
+			
+		 if hit != undefined then
+			hit_leg = hit.pos --return
+	),
 
 	/**
 	 */

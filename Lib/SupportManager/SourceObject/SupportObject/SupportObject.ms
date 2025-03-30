@@ -77,9 +77,15 @@ struct SupportObject_v
 		
 		SupportRaft.createRaft (first_knot_pos) (dir_vector)
 		
-		SupportLeg.createLeg()
+		/* CREATE LERG */ 
+		if SupportRaft.hit_raft == undefined then 
+			SupportLeg.createLeg()
 		
-		SupportFoot.createFoot()
+		
+		/* CREATE FOOT */ 
+		if SupportLeg.hit_leg == undefined then 
+			SupportFoot.createFoot()
+
 		
 		--this._setSupportRaftUpdater()
 		--	

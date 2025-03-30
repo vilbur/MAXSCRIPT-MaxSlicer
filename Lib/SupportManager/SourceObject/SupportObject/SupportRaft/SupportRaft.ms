@@ -13,7 +13,7 @@ struct SupportRaft_v
 	first_knot_pos,
 	dir_vector,
 
-	points_positions,
+	hit_raft,
 	
 	/* private */
 	/* dependency */
@@ -49,32 +49,34 @@ struct SupportRaft_v
 		--second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
 		normal_length_option = SUPPORT_OPTIONS.normal_length
 
-		SupportObject.points_positions[2] = first_knot_pos + ( normal_length_option * dir_vector )
+	    this._testHitOfSourceObject (normal_length_option)
+		
+		format "HIT_RAFT: %\n" hit_raft
+		
+		/* KEEP MINIMAL LENGTH OF RAFT */ 
+		normal_length = normal_length_option
+
+		 
+		SupportObject.points_positions[2] = if hit_raft == undefined then first_knot_pos + ( normal_length * dir_vector ) else hit_raft
+		
+		
+		
 	),
 
 	/** Get secon point position
 	 */
-	function _getRaftHitPosition direction max_distance =
+	function _testHitOfSourceObject max_distance =
 	(
-		--format "\n"; print "SupportObject_v._getRaftHitPosition()"
-		--format "points_positions[1]: %\n" points_positions[1]
-		--format "max_distance: %\n" max_distance
-		
-		
-		hit_raft = SupportObject.intersectRaySourceObject ( points_positions[1]) ( direction )
-		
+		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
+		hit = SupportObject.intersectRaySourceObject ( SupportObject.points_positions[1]) ( dir_vector )
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		if hit_raft != undefined and distance points_positions[1] hit_raft.pos > max_distance then
-			hit_raft = undefined
+		if hit != undefined and distance SupportObject.points_positions[1] hit.pos > max_distance then
+			hit = undefined
 
-
-		 if hit_raft != undefined then
-		 (
-			--SupportRaftUpdater.foot_exists = false
 			
-			hit_raft.pos --return
-		 )
+		 if hit != undefined then
+			hit_raft = hit.pos --return
 	),
 
 	/**

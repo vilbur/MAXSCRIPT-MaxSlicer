@@ -35,12 +35,12 @@ struct SupportFoot_v
 	--function setFootToGround =
 	--(
 	--	--format "\n"; print "SupportLeg_v.setFootToGround()"
-	--	--format "Support.points_positions: %\n" Support.points_positions
+	--	--format "Support.points: %\n" Support.points
 	--	--
-	--	Support.points_positions[3].z = Support.base_height
+	--	Support.points[3].z = Support.base_height
 	--	
-	--	Support.points_positions[4].z = 0
-	--	--format "Support.points_positions: %\n" Support.points_positions
+	--	Support.points[4].z = 0
+	--	--format "Support.points: %\n" Support.points
 	--),
 	
 	private
@@ -50,11 +50,11 @@ struct SupportFoot_v
 	function _alignKnotToPreviousKnot index: pos_z: =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
-		pos = copy Support.points_positions[index - 1]
+		pos = copy Support.points[index - 1]
 		
 		pos.z = pos_z
 		
-		Support.points_positions[index] = pos
+		Support.points[index] = pos
 	),
 
 	/**

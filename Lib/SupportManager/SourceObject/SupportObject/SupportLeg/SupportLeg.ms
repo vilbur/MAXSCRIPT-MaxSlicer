@@ -29,7 +29,7 @@ struct SupportLeg_v
 		--if hit_leg == undefined then 
 		
 		
-		Support.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
+		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
 	),
 	
 	--/** Update leg
@@ -53,7 +53,7 @@ struct SupportLeg_v
 	(
 		--format "\n"; print "SupportLeg_v._getBasePointPos()"
 		
-		base_point_pos = copy Support.points_positions[2]
+		base_point_pos = copy Support.points[2]
 		
 		base_point_pos.z = Support.base_height
 		
@@ -65,11 +65,11 @@ struct SupportLeg_v
 	function _alignKnotToPreviousKnot index: pos_z: =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
-		pos = copy Support.points_positions[index - 1]
+		pos = copy Support.points[index - 1]
 		
 		pos.z = pos_z
 		
-		Support.points_positions[index] = pos
+		Support.points[index] = pos
 	),
 	
 	/** Get secon point position
@@ -77,7 +77,7 @@ struct SupportLeg_v
 	function _testHitOfSourceObject =
 	(
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
-		hit = Support.intersectRaySourceObject ( Support.points_positions[2]) [0,0,-1]
+		hit = Support.intersectRaySourceObject ( Support.points[2]) [0,0,-1]
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and hit.pos.z <= 0 then

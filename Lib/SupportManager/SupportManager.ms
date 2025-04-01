@@ -332,7 +332,7 @@ struct SupportManager_v
 			--		#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
 			--		#POSITION_Z: SourceObject.updateSupportsHeight()
 			--	)
-			SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
+			SourceObject.updateSupports update_knot_1:false update_raft:false
 		)	
 				
 

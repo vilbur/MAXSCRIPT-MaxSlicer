@@ -22,7 +22,7 @@ struct SupportObject_v
 
 	
 	/* properties */
-	points_positions = #(),
+	points = #(),
 
 	--is_on_ground= true,
 	foot_enabled = true,
@@ -68,6 +68,9 @@ struct SupportObject_v
 	(
 		--format "\n"
 		format "\n"; print "SupportObject_v.generateSupport()"
+		
+		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_length as string ) as float
+		
 		this._setSupportObject(wirecolor)
 		
 		this._setDirVector(dir_vector)
@@ -79,29 +82,23 @@ struct SupportObject_v
 		min_support_pos = min_leg_length + 1
 		--SupportRaft.createRaft (first_knot_pos) (dir_vector)
 		
-		points_positions = #( first_knot_pos )
+		this.points = #( first_knot_pos )
 
-		/* CREATE RAFT */ 
-		SupportRaft.createRaft()
+
 		
+		/*------------------------------------------------------------------------------
+			SET SUPPORT LINE POINTS
+		--------------------------------------------------------------------------------*/
 		
-		/* CREATE LERG */ 
-		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg()
+		this._setSupportLinePoints()
 		
-		
-		/* CREATE FOOT */ 
-		--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
-		if SupportLeg.hit_leg == undefined then 
-			SupportFoot.createFoot()
-			
 			--	
 		--/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
 		--if this.dir_vector.z > -0.25 then this.dir_vector.z = -0.25
 		--
 		--
 		--/* ADD FIRST POINT */
-		--points_positions = #( first_knot_pos, undefined )
+		--points = #( first_knot_pos, undefined )
 		--
 		--
 		--/* SET LIMITS WHEN SECOND POINT IS KNOWN */ 
@@ -135,7 +132,7 @@ struct SupportObject_v
 		--
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
-		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance points_positions[1] points_positions[2]  )
+		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance points[1] points[2]  )
 
 		/* RETURN */ 
 		this
@@ -154,12 +151,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		----format "first_knot_pos: %\n" first_knot_pos
 		--format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
-		--points_positions = this._getPointsPositionsFromLine()
+		--points = this._getPointsPositionsFromLine()
 		
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
@@ -170,7 +167,7 @@ struct SupportObject_v
 			PREPARE UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		points_positions = #(first_knot_pos, support_obj.pos)
+		points = #(first_knot_pos, support_obj.pos)
 
 		this._setDirVector(dir_vector)
 
@@ -178,32 +175,17 @@ struct SupportObject_v
 		
 		
 		/*------------------------------------------------------------------------------
-			UPDATE SUPPORT
+			UPDATE SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
-		
-		/* UPDATE RAFT */
-		--if update_raft then
-			SupportRaft.createRaft()
-			--SupportRaft.updateRaft()
-		
-		/* UPDATE LERG */ 
-		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg()
-			--SupportLeg.updateLeg()
-		
-		--format "points_positions: %\n" points_positions
-		/* UPDATE FOOT */ 
-		if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
-		--if SupportLeg.hit_leg == undefined then 
-			SupportFoot.createFoot()
-		
+		this._setSupportLinePoints()
+			
 		
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined
+		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_leg
 
 		this._updateCountOfKnots()
 		
@@ -213,10 +195,34 @@ struct SupportObject_v
 		
 		----this._alignPivotToRaft()
 		
-		--this._setMaterialsToLineSegments()
+		this._setMaterialsToLineSegments()
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-	),	
+	),
+	
+	/** Set support line points
+	 */
+	function _setSupportLinePoints =
+	(
+		format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		
+		/* CREATE RAFT */ 
+		SupportRaft.createRaft()
+		
+
+		/* CREATE LEG */ 
+		if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
+			SupportLeg.createLeg()
+		
+		
+		/* CREATE FOOT */ 
+		if SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_leg then 
+			SupportFoot.createFoot()
+		
+		
+	),
+	
+	
 	/** Get support points
 	 */
 	function _getSupportPoints =
@@ -226,7 +232,7 @@ struct SupportObject_v
 		SupportRaft.createRaft()
 		
 		
-		/* CREATE LERG */ 
+		/* CREATE LEG */ 
 		if SupportRaft.hit_raft == undefined then 
 			SupportLeg.createLeg()
 		
@@ -284,14 +290,14 @@ struct SupportObject_v
 	--(
 	--	format "\n"; print "SupportObject_v.updateSupportHeight()"
 	--	
-	--	points_positions = this._getPointsPositionsFromLine()
+	--	points = this._getPointsPositionsFromLine()
 	--
-	--	format "TEST: %\n" (points_positions[2].z < min_leg_length )
+	--	format "TEST: %\n" (points[2].z < min_leg_length )
 	--	
-	--	if points_positions[2].z < min_leg_length then
+	--	if points[2].z < min_leg_length then
 	--	(
-	--		points_positions[2] = SupportRaft.makeRaftShorter()
-	--		--points_positions[2].z = min_leg_length
+	--		points[2] = SupportRaft.makeRaftShorter()
+	--		--points[2].z = min_leg_length
 	--		
 	--	)
 	--	
@@ -300,7 +306,7 @@ struct SupportObject_v
 	--	(
 	--		SupportFoot.createFoot()
 	--		
-	--		--format "points_positions: %\n" this.points_positions
+	--		--format "points: %\n" this.points
 	--	)
 	--
 	--	this._updateKnotsPositionByPoints start_knot:2
@@ -452,7 +458,7 @@ struct SupportObject_v
 	 */
 	function _setDirVector dir_vector =
 	(
-		this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points_positions[1] )
+		this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
 	),
 		
 	/** KEEP RAFT PONT BELLOW FIRST
@@ -478,8 +484,8 @@ struct SupportObject_v
 			--format "\n"; print "SupportObject_v.addKnots()"
 			num_knots = numKnots support_obj spline_1
 	
-			for knot_i = num_knots + 1 to points_positions.count do
-				addKnot support_obj spline_1 #corner #line points_positions[knot_i]
+			for knot_i = num_knots + 1 to points.count do
+				addKnot support_obj spline_1 #corner #line points[knot_i]
 		)
 	
 		/** Remove redundant knots from line object
@@ -491,15 +497,15 @@ struct SupportObject_v
 			--format "\n"; print "SupportObject_v.removeKnots()"
 			num_knots = numKnots support_obj spline_1
 	
-			for knot_i = num_knots to points_positions.count + 1 by -1 do
+			for knot_i = num_knots to points.count + 1 by -1 do
 				deleteKnot support_obj spline_1 knot_i
 		)
 		
-		if (num_knots = numKnots support_obj spline_1) != points_positions.count then
+		if (num_knots = numKnots support_obj spline_1) != points.count then
 			case of
 			(
-				(num_knots < points_positions.count): addKnots(num_knots)
-				(num_knots > points_positions.count): removeKnots(num_knots)
+				(num_knots < points.count): addKnots(num_knots)
+				(num_knots > points.count): removeKnots(num_knots)
 			)
 	),
 
@@ -508,11 +514,11 @@ struct SupportObject_v
 	function _updateKnotsPositionByPoints start_knot:1 =
 	(
 		--format "\n"; print "SupportObject_v._updateKnotsPositionByPoints()"
-		--format "points_positions: %\n" points_positions
-		--format "points_positions.count: %\n" points_positions.count
+		--format "points: %\n" points
+		--format "points.count: %\n" points.count
 		
-		for knot_i = start_knot to points_positions.count do
-			setKnotPoint support_obj spline_1 knot_i points_positions[knot_i]
+		for knot_i = start_knot to points.count do
+			setKnotPoint support_obj spline_1 knot_i points[knot_i]
 	),
 	
 	/** Create line
@@ -525,7 +531,7 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
 		--------------------------------------------------------------------------------*/
-		for pos in points_positions do
+		for pos in points do
 			addKnot support_obj spline_1 #corner #line pos
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -555,8 +561,8 @@ struct SupportObject_v
 	(
 		format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		--support_obj = $
-		--dir = normalize (support_obj.pos - points_positions[1])
-		--dir = normalize ( points_positions[1] - support_obj.pos )
+		--dir = normalize (support_obj.pos - points[1])
+		--dir = normalize ( points[1] - support_obj.pos )
 		--dir = normalize ( (  getKnotPoint support_obj spline_1 1 ) - ( getKnotPoint support_obj spline_1 2 ) )
 		--dir = this.dir_vector
 		

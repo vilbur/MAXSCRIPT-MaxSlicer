@@ -36,7 +36,7 @@ verts_colors[ clr_cyan	] = #{ 59 }
 obj = $PackMan
 
 pos_z = 1
-pos_z = 3
+-- pos_z = 3
 -- pos_z = 10
 
 --if selection.count == 0 then
@@ -51,8 +51,8 @@ pos_z = 3
 select_verts	= #{}
  
  
--- select_verts += verts_colors["red"]
--- select_verts += verts_colors["orange"]
+select_verts += verts_colors["red"]
+select_verts += verts_colors["orange"]
 -- select_verts += verts_colors["green"]
 select_verts += verts_colors[clr_cyan]
 --select_verts += verts_colors[clr_blue]
@@ -93,7 +93,8 @@ SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH
 --SUPPORT_OPTIONS.normal_length	= 1.25
 SUPPORT_OPTIONS.normal_length	= 5
 -- SUPPORT_OPTIONS.normal_length	= 10
--- SUPPORT_OPTIONS.normal_length	= 30
+-- SUPPORT_OPTIONS.normal_length	= 20
+SUPPORT_OPTIONS.normal_length	= 30
 
 
 

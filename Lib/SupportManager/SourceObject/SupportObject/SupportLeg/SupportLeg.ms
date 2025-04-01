@@ -25,47 +25,51 @@ struct SupportLeg_v
 		format "\n"; print "SupportLeg_v.createLeg()"
 		
 		this._testHitOfSourceObject()
-
-		Support.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePoint()
+		
+		--if hit_leg == undefined then 
+		
+		
+		Support.points_positions[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
 	),
 	
-	/** Update leg
-	 */
-	function updateLeg =
-	(
-		format "\n"; print "SupportLeg_v.updateLeg()"
-		
-		this._alignKnotToPreviousKnot(3)(Support.base_height)
-		
-		this._alignKnotToPreviousKnot(4)(0)
-	),
+	--/** Update leg
+	-- */
+	--function updateLeg =
+	--(
+	--	format "\n"; print "SupportLeg_v.updateLeg()"
+	--	
+	--	this._alignKnotToPreviousKnot index:3 pos_z:0
+	--	--this._alignKnotToPreviousKnot(3)(Support.base_height)
+	--	
+	--	--this._alignKnotToPreviousKnot(4)(0)
+	--),
 
 
 	private
 	
 	/** Get base point
 	 */
-	function _getBasePoint =
+	function _getBasePointPos =
 	(
-		--format "\n"; print "SupportLeg_v._getBasePoint()"
+		--format "\n"; print "SupportLeg_v._getBasePointPos()"
 		
-		base_point = copy Support.points_positions[2]
+		base_point_pos = copy Support.points_positions[2]
 		
-		base_point.z = Support.base_height
+		base_point_pos.z = Support.base_height
 		
-		base_point --return
+		base_point_pos --return
 	),
 	
 	/** Align next knot bellow
 	 */
-	function _alignKnotToPreviousKnot point_index pos_z =
+	function _alignKnotToPreviousKnot index: pos_z: =
 	(
-		format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
-		pos = copy Support.points_positions[point_index - 1]
+		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
+		pos = copy Support.points_positions[index - 1]
 		
 		pos.z = pos_z
 		
-		Support.points_positions[point_index] = pos
+		Support.points_positions[index] = pos
 	),
 	
 	/** Get secon point position

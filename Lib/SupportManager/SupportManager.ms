@@ -326,12 +326,13 @@ struct SupportManager_v
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
-			if what_to_update != undefined then 
-				case what_to_update of
-				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
-					#POSITION_Z: SourceObject.updateSupportsHeight()
-				)
+			--if what_to_update != undefined then 
+			--	case what_to_update of
+			--	(
+			--		#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
+			--		#POSITION_Z: SourceObject.updateSupportsHeight()
+			--	)
+			SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
 		)	
 				
 
@@ -463,7 +464,7 @@ struct SupportManager_v
 	 */
 	function updateShapes =
 	(
-		format "\n"; print "SupportManager_v.updateShapes()"
+		--format "\n"; print "SupportManager_v.updateShapes()"
 
 		if shapes_to_update.count > 0 then
 			for _shape in shapes_to_update do

@@ -23,30 +23,39 @@ struct SupportFoot_v
 	(
 		format "\n"; print "SupportFoot_v.createFoot()"
 		
-		pos_ground = copy Support.points_positions[3]
-		
-		pos_ground.z = 0
-		
-		Support.points_positions[4] = pos_ground
+		this._alignKnotToPreviousKnot index:3 pos_z:Support.base_height
+
+		this._alignKnotToPreviousKnot index:4 pos_z:0
 		
 		Support.foot_exists = true
 	),
 	
-	/** Set foot to ground
-	 */
-	function setFootToGround =
-	(
-		--format "\n"; print "SupportLeg_v.setFootToGround()"
-		format "Support.points_positions: %\n" Support.points_positions
-		
-		Support.points_positions[3].z = Support.base_height
-		
-		Support.points_positions[4].z = 0
-		format "Support.points_positions: %\n" Support.points_positions
-	),
+	--/** Set foot to ground
+	-- */
+	--function setFootToGround =
+	--(
+	--	--format "\n"; print "SupportLeg_v.setFootToGround()"
+	--	--format "Support.points_positions: %\n" Support.points_positions
+	--	--
+	--	Support.points_positions[3].z = Support.base_height
+	--	
+	--	Support.points_positions[4].z = 0
+	--	--format "Support.points_positions: %\n" Support.points_positions
+	--),
 	
 	private
-
+	
+	/** Align next knot bellow
+	 */
+	function _alignKnotToPreviousKnot index: pos_z: =
+	(
+		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
+		pos = copy Support.points_positions[index - 1]
+		
+		pos.z = pos_z
+		
+		Support.points_positions[index] = pos
+	),
 
 	/**
 	 */

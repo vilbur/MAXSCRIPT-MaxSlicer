@@ -46,6 +46,7 @@ struct SupportObject_v
 	--min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
 	--min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	min_leg_length,     -- min length of raft part to avoid sweep artifact on leg knot
+	min_raft_length,
 	min_support_pos,
 	
 	private
@@ -66,7 +67,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		--format "\n"
+		format "\n----------------------------------------------\n"
 		format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_length as string ) as float
@@ -76,6 +77,9 @@ struct SupportObject_v
 		this._setDirVector(dir_vector)
 
 		this._saveProps()
+		
+		--min_raft_length = bar_width / 2.0
+		min_raft_length = bar_width 
 		
 		min_leg_length = base_height + height_offset
 		
@@ -211,15 +215,13 @@ struct SupportObject_v
 		
 
 		/* CREATE LEG */ 
-		if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
-			SupportLeg.createLeg()
-		
-		
+		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
+		if SupportRaft.hit_raft == undefined then 
+			SupportLeg.createLeg( if SupportRaft.is_space_for_foot then min_leg_length else 0 )
+
 		/* CREATE FOOT */ 
-		if SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_leg then 
+		if SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_foot then 
 			SupportFoot.createFoot()
-		
-		
 	),
 	
 	

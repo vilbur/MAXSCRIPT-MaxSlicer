@@ -15,7 +15,7 @@ struct SupportRaft_v
 
 	--is_space_for_foot = true,
 	hit_raft,
-	is_space_for_leg = true,
+	is_space_for_foot = true,
 
 	/* private */
 	/* dependency */
@@ -27,7 +27,10 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		format "\n"; print "SupportRaft_v.createRaft()"
+
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( Support.min_leg_length as string ) as float
+		
+		function hasRaftMinimalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float > ( Support.min_raft_length as string ) as float
 
 		--format "\n"; print "SupportRaft_v._setSecondPointPosition()"
 		--second_knot_vec = first_knot_pos + ( dir_vector * length_multiplier ) -- make raft longer by multiplying normal length 10x
@@ -41,64 +44,30 @@ struct SupportRaft_v
 		
 	    this._testHitOfSourceObject( Support.normal_length )
 		
-		
-		if hit_raft != undefined then
-			Support.points[2] = hit_raft
-
-		format "Support.points[2].z: %\n" Support.points[2].z
-		if Support.points[1].z < Support.min_support_pos then
-			Support.points[2].z = 0
-		
-		else
-		if Support.points[2].z < Support.min_leg_length then
-			Support.points[2] = this.shortenRaftOnDirection()
-		
-		
-		is_space_for_leg = isLegPointAboveMinimalLimit(Support.points[2].z)
-
-		
-		--if second_point.z < Support.min_leg_length then
-		--(
-		--	
-		--	second_point.z = Support.min_leg_length
-		--	
-		--	raft_is_full = false
-		--)
-
-		
-		--Support.points[2] = if hit_raft == undefined then second_point else hit_raft
-
-	),
 	
-	--/** Update raft
-	-- */
-	--function updateRaft =
-	--(
-	--	format "\n"; print "SupportRaft_v.updateRaft()"
-	--	
-	--	--raft_length = distance Support.points[1] Support.source_obj.pos
-	--	raft_length = distance Support.points[1] Support.points[2]
-	--
-	--    this._testHitOfSourceObject ( raft_length )
-	--
-	--	format "TEST: %\n" (Support.points[2].z < Support.min_leg_length)
-	--
-	--
-	--	if hit_raft != undefined then
-	--		Support.points[2] = hit_raft
-	--	
-	--	/* KEEP MINIMAL LEG HEIGHT  */ 
-	--	else if Support.points[2].z < Support.min_leg_length then
-	--		Support.points[2].z = Support.min_leg_length
-	--
-	--),
+		if Support.points[2].z < Support.min_leg_length then
+			this._shortenRaftOnDirection()
+
+
+		has_raft_minimal_lenght = hasRaftMinimalLenght()
+		format "HAS_RAFT_MINIMAL_LENGHT: %\n" has_raft_minimal_lenght
+		
+		if not hasRaftMinimalLenght() then
+			this._extendSecondPointToNormalLenght()
+		
+
+		is_space_for_foot = isLegPointAboveMinimalLimit( Support.points[2].z )
+		format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
+		
+	),
 	
 	/** Make raft shorter
 	 */
-	function shortenRaftOnDirection =
+	function _shortenRaftOnDirection =
 	(
 		format "\n"; print "SupportRaft_v._makeRaftShorter()"
-		
+		--function hasRaftMinimalLenght raft_length = ( raft_length as string ) as float < ( Support.min_raft_length as string ) as float
+
 		first_knot_pos  = Support.points[1]
 		second_knot_pos = Support.points[2]
 		
@@ -110,10 +79,25 @@ struct SupportRaft_v
 		angle_angle = acos (dot [0,0,-1] line_vector) -- get angle between
 		
 		raft_length = triangle_height / cos angle_angle
+		--format "RAFT_LENGTH: %\n" raft_length
+		--if not hasRaftMinimalLenght raft_length then
+		--	raft_length =  Support.min_raft_length
 		
-		first_knot_pos + ( raft_length * line_vector )
+		Support.points[2] = first_knot_pos + ( raft_length * line_vector )
 	),
-
+	
+	/** Extend raft knot to normal lenght
+	  * 
+	  * @return point3 coordinates of point extended to normal length
+	 */
+	function _extendSecondPointToNormalLenght =
+	(
+		format "\n"; print "SupportRaftUpdater_v._extendSecondPointToNormalLenght()"
+		line_vector = normalize ( Support.points[2] - Support.points[1] )
+		
+		Support.points[2] = Support.points[1] + ( Support.min_raft_length * line_vector ) -- return
+	),
+	
 	/** Get secon point position
 	 */
 	function _testHitOfSourceObject max_distance =

@@ -19,23 +19,26 @@ filein( getFilenamePath(getSourceFileName()) + "/../Lib/generateSupportsOrRafts.
 	PREPARE SCENE
 --------------------------------------------------------------------------------*/
 
-/*  */ 
+/*  DEFINE VERTEX COLORS */ 
 verts_colors = Dictionary #string
 
 clr_blue =  ( color 30 144 255 ) as string
 clr_cyan =  ( color 0 255 255 ) as string
+clr_pink =  ( color 255 190 200 ) as string
 
 verts_colors[ "red"	] = #{ 113 }
+verts_colors[ "orange"	] = #{ 57 }
+verts_colors[ clr_pink	] = #{ 115 }
 --verts_colors[ clr_blue	] = #{ 22 }
-verts_colors[ "green"	] = #{ 42 }
-verts_colors[ "orange"	] = #{ 115 }
---verts_colors[ "gray"	] = #{ 32 }
-verts_colors[ clr_cyan	] = #{ 59 }
+-- verts_colors[ "green"	] = #{ 42 }
+-- verts_colors[ "gray"	] = #{ 32 }
+-- verts_colors[ clr_cyan	] = #{ 59 }
 
 /* CREATE TEST OBJECT */
 obj = $PackMan
 
-pos_z = 1
+pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
+-- pos_z = 1
 -- pos_z = 3
 -- pos_z = 10
 
@@ -47,12 +50,13 @@ pos_z = 1
 )
 
 
-/* SELECT VERTS */ 
+/* SELECT VERTS  BY COLORS */ 
 select_verts	= #{}
  
  
--- select_verts += verts_colors["red"]
-select_verts += verts_colors["orange"]
+select_verts += verts_colors["red"]
+-- select_verts += verts_colors["orange"]
+-- select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_cyan]
 --select_verts += verts_colors[clr_blue]

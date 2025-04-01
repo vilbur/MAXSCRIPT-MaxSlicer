@@ -20,16 +20,24 @@ struct SupportLeg_v
 	/** Generate leg - Make lione between LEG and BASE knots
 	  *
 	 */
-	function createLeg =
+	function createLeg pos_z =
 	(
 		format "\n"; print "SupportLeg_v.createLeg()"
 		
 		this._testHitOfSourceObject()
 		
 		--if hit_leg == undefined then 
+		--Support.points[3] = case of
+		--(
+		--	(hit_leg != undefined):	hit_leg
+		--	(leg_to_ground):	
+		--	default: this._getBasePointPos()
+		--)
+		--
+		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos (pos_z)
 		
 		
-		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
+		--Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
 	),
 	
 	--/** Update leg
@@ -49,13 +57,13 @@ struct SupportLeg_v
 	
 	/** Get base point
 	 */
-	function _getBasePointPos =
+	function _getBasePointPos pos_z =
 	(
 		--format "\n"; print "SupportLeg_v._getBasePointPos()"
 		
 		base_point_pos = copy Support.points[2]
 		
-		base_point_pos.z = Support.base_height
+		base_point_pos.z = pos_z
 		
 		base_point_pos --return
 	),

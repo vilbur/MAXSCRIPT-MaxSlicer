@@ -218,7 +218,7 @@ struct SupportObject_v
 		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
 		if SupportRaft.hit_raft == undefined then 
 			SupportLeg.createLeg( if SupportRaft.is_space_for_foot then min_leg_length else 0 )
-
+		
 		/* CREATE FOOT */ 
 		if SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_foot then 
 			SupportFoot.createFoot()

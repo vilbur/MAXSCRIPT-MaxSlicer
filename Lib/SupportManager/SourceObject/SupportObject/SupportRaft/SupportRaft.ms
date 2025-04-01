@@ -44,14 +44,19 @@ struct SupportRaft_v
 		
 	    this._testHitOfSourceObject( Support.normal_length )
 		
+		has_leg_min_height = Support.points[1].z > Support.min_support_pos
+	
+		
 	
 		if Support.points[2].z < Support.min_leg_length then
-			this._shortenRaftOnDirection()
-
-
-		has_raft_minimal_lenght = hasRaftMinimalLenght()
-		format "HAS_RAFT_MINIMAL_LENGHT: %\n" has_raft_minimal_lenght
+			this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_length else Support.points[1].z - Support.min_raft_length )
+			--this._shortenRaftOnDirection( Support.min_leg_length  )
+			--this._shortenRaftOnDirection( 0.5 )
 		
+		--
+		--has_raft_minimal_lenght = hasRaftMinimalLenght()
+		--format "HAS_RAFT_MINIMAL_LENGHT: %\n" has_raft_minimal_lenght
+		--
 		if not hasRaftMinimalLenght() then
 			this._extendSecondPointToNormalLenght()
 		
@@ -63,19 +68,19 @@ struct SupportRaft_v
 	
 	/** Make raft shorter
 	 */
-	function _shortenRaftOnDirection =
+	function _shortenRaftOnDirection pos_z =
 	(
-		format "\n"; print "SupportRaft_v._makeRaftShorter()"
+		format "\n"; print "SupportRaft_v._shortenRaftOnDirection()"
 		--function hasRaftMinimalLenght raft_length = ( raft_length as string ) as float < ( Support.min_raft_length as string ) as float
 
-		first_knot_pos  = Support.points[1]
-		second_knot_pos = Support.points[2]
+		--first_knot_pos  = Support.points[1]
+		--second_knot_pos = Support.points[2]
 		
-		--triangle_height = first_knot_pos.z - 0.1
-		triangle_height = first_knot_pos.z - Support.min_leg_length
+		--triangle_height = Support.points[1].z - 0.1
+		triangle_height = Support.points[1].z - pos_z
 		
-		line_vector = normalize ( first_knot_pos - second_knot_pos )
-		
+		line_vector = normalize ( Support.points[1] - Support.points[2] )
+		--format "LINE_VECTOR: %\n" line_vector
 		angle_angle = acos (dot [0,0,-1] line_vector) -- get angle between
 		
 		raft_length = triangle_height / cos angle_angle
@@ -83,7 +88,7 @@ struct SupportRaft_v
 		--if not hasRaftMinimalLenght raft_length then
 		--	raft_length =  Support.min_raft_length
 		
-		Support.points[2] = first_knot_pos + ( raft_length * line_vector )
+		Support.points[2] = Support.points[1] + ( raft_length * line_vector )
 	),
 	
 	/** Extend raft knot to normal lenght

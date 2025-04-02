@@ -20,6 +20,7 @@ struct SupportObject_v
 	support_key, -- pointer of support when node is created
 	sync_key,
 
+	update_raft = false, -- on\off update mode of raft part
 	
 	/* properties */
 	points = #(),
@@ -72,7 +73,7 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_length as string ) as float
-		
+				
 		this._setSupportObject(wirecolor)
 		
 		this.direction = direction
@@ -133,21 +134,26 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n----------------------------------------------\n"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
-		--format "update_raft: %\n" update_raft
+		format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
 		--points = this._getPointsPositionsFromLine()
+		/*------------------------------------------------------------------------------
+			SANITIZE PARAMETERS
+		--------------------------------------------------------------------------------*/
 		
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
-
+		
+		this.update_raft = update_raft
+		
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		--------------------------------------------------------------------------------*/
@@ -183,6 +189,9 @@ struct SupportObject_v
 		
 		this._setMaterialsToLineSegments()
 		
+		this.update_raft = false
+
+		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -209,7 +218,7 @@ struct SupportObject_v
 	
 	/** Get support points
 	 */
-	function _getSupportPoints =
+	function _getSupportPoints update =
 	(
 		--format "\n"; print "SupportObject_v._getSupportPoints()"
 
@@ -483,7 +492,6 @@ struct SupportObject_v
 			this.dir_vector.z = -0.25
 	),
 	
-
 	/** SET CORECT NUMBER OF KNOTS ON OBJECT
 	 */
 	function _updateCountOfKnots =

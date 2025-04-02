@@ -29,10 +29,10 @@ clr_pink =  ( color 255 190 200 ) as string
 verts_colors[ "red"	] = #{ 113 }
 verts_colors[ "orange"	] = #{ 57 }
 verts_colors[ clr_pink	] = #{ 115 }
---verts_colors[ clr_blue	] = #{ 22 }
--- verts_colors[ "green"	] = #{ 42 }
--- verts_colors[ "gray"	] = #{ 32 }
--- verts_colors[ clr_cyan	] = #{ 59 }
+verts_colors[ clr_blue	] = #{ 22 }
+verts_colors[ "green"	] = #{ 42 }
+verts_colors[ "gray"	] = #{ 32 }
+verts_colors[ clr_cyan	] = #{ 59 }
 
 /* CREATE TEST OBJECT */
 obj = $PackMan
@@ -54,12 +54,12 @@ pos_z = 10
 select_verts	= #{}
  
  
--- select_verts += verts_colors["red"]
+select_verts += verts_colors["red"]
 select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
--- select_verts += verts_colors["green"]
--- select_verts += verts_colors[clr_cyan]
---select_verts += verts_colors[clr_blue]
+select_verts += verts_colors[clr_pink]
+select_verts += verts_colors["green"]
+select_verts += verts_colors[clr_cyan]
+select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -102,11 +102,12 @@ SUPPORT_OPTIONS.normal_length	= 5
 
 
 
-/* NORMLA DIRECTION */ 
+/* NORMAL DIRECTION */ 
 ----SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
---SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
+SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
-
+/* UNLOCK  NORMAL LENGTH  */
+SUPPORT_OPTIONS.lock_normal_length = false
 /*------------------------------------------------------------------------------
 	GENERATE SUPPORTS
 --------------------------------------------------------------------------------*/

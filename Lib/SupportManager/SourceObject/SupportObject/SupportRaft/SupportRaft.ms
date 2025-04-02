@@ -26,10 +26,15 @@ struct SupportRaft_v
 		function hasRaftMinimalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float > ( Support.min_raft_length as string ) as float
 
 		
-		/* KEEP MINIMAL LENGTH OF RAFT */ 
 		normal_length = Support.normal_length
 		
-		Support.points[2] = Support.points[1] + ( Support.normal_length * Support.dir_vector )
+		/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
+		if Support.update_raft and not SUPPORT_OPTIONS.lock_normal_length then
+			Support.points[2] = Support.support_obj.pos
+		
+		else /* LOCK NORMAL LENGTH */ 
+			Support.points[2] = Support.points[1] + ( Support.normal_length * Support.dir_vector )
+		
 		
 		
 	    this._testHitOfSourceObject( Support.normal_length )

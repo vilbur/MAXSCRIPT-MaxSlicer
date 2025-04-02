@@ -1,3 +1,6 @@
+
+
+
 global SUPPORTS_BINDED = #()
 
 global SUPPORTS_TRANSFORM_CHANGED = #()

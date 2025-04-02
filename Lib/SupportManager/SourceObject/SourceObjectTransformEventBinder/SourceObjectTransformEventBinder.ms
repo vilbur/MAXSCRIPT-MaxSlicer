@@ -5,7 +5,6 @@
 */ 
 
 
-global SOURCE_OBJECT_TRANSFORM
 
 /** Source object transform event binder
  */

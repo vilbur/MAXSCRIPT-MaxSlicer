@@ -55,9 +55,9 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
-	height_offset = 0.1, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
-	--height_offset = 0.15, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
-	--height_offset = 0.5, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
+	--dilatation  = 0.1, 
+	dilatation  = 0.15, -- add little space to minimal positions to make it work fine ;)
+	--dilatation  = 0.5, 
 
 	public
 
@@ -744,12 +744,12 @@ struct SupportObject_v
 		
 		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
 		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-			
+		format "minimal_lenght_by_angle: %\n" minimal_lenght_by_angle
 		
 		
-		min_raft_length = minimal_lenght_by_angle + chamfer_val + height_offset -- chmfer is removing length of raft also
+		min_raft_length = minimal_lenght_by_angle + chamfer_val + dilatation  -- chmfer is removing length of raft also
 		
-		min_leg_pos = minimal_lenght_by_angle + height_offset
+		min_leg_pos = minimal_lenght_by_angle + dilatation 
 		
 		min_support_pos = min_leg_pos + chamfer_val
 		
@@ -782,14 +782,14 @@ struct SupportObject_v
 				MINIMAL LEG AND FOOT Z POSITION
 			--------------------------------------------------------------------------------*/
 			
-			--min_leg_pos = base_height + height_offset
+			--min_leg_pos = base_height + dilatation 
 			--
 			--min_foot_pos = copy min_leg_pos
 			--
 			--if direction != #DOWN then
 			--(
 			--	--format "ADD_BY_ANGLE: %\n" add_by_angle
-			--	min_leg_pos =  minimal_lenght_by_angle + height_offset
+			--	min_leg_pos =  minimal_lenght_by_angle + dilatation 
 			--	
 			--	min_foot_pos += minimal_lenght_by_angle
 			--)

@@ -38,8 +38,8 @@ verts_colors[ clr_cyan	] = #{ 59 }
 obj = $PackMan
 
 pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
-pos_z = 1
-pos_z = 1.2
+-- pos_z = 1
+-- pos_z = 1.2
 
 -- pos_z = 1.5
 
@@ -59,8 +59,8 @@ pos_z = 1.2
 select_verts	= #{}
  
 -- select_verts += verts_colors["red"]
-select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
+-- select_verts += verts_colors["orange"]
+select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_cyan]
 -- select_verts += verts_colors[clr_blue]
@@ -69,13 +69,10 @@ select_verts += verts_colors["orange"]
 if select_verts.numberSet > 0 then
 	obj.EditablePoly.SetSelection #Vertex select_verts
 
-
-
 /*------------------------------------------------------------------------------
 	SET GENERATOR OPTIONS
 ------------------------------------------------------------------------------*/
 SUPPORT_OPTIONS	= SupportOptions_v()
-
 
 
 /* SET BAR WIDTH */ 
@@ -140,6 +137,6 @@ generateSupportsOrRafts obj_type:#SUPPORT
 
 /* POST TEST  */
 
-move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
+-- move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
 
 select $PackMan

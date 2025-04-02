@@ -21,9 +21,11 @@ struct SupportRaft_v
 	(
 		format "\n"; print "SupportRaft_v.createRaft()"
 
-		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( Support.min_foot_pos as string ) as float
+		function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_support_pos as string ) as float
 		
-		function hasRaftMinimalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float > ( Support.min_raft_length as string ) as float
+		function isLegPointAboveMinLimit min_z_pos = ( Support.points[2].z as string ) as float >= ( min_z_pos as string ) as float
+		
+		function raftIsShort = ( (distance Support.points[1] Support.points[2]) as string ) as float < ( Support.min_raft_length as string ) as float
 
 		format "Support.update_mode: %\n" Support.update_mode
 		format "TEST: %\n" (Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length)
@@ -40,54 +42,60 @@ struct SupportRaft_v
 		format "normal_length_current: %\n" normal_length_current
 		
 		format "\n"
-		format "Support.min_leg_pos: %\n" Support.min_leg_pos
+		format "Support.min_leg_pos:  %\n" Support.min_leg_pos
 		format "Support.min_foot_pos: %\n" Support.min_foot_pos
-		format "Support.points[2].z:    %\n" Support.points[2].z
+		format "Support.points[2].z:  %\n" Support.points[2].z
 		format "\n"
 		
 	    this._testHitOfSourceObject( Support.normal_length )
 		
 		
-		has_leg_min_height = Support.points[1].z > Support.min_support_pos
+		--has_leg_min_height = Support.points[1].z > Support.min_support_pos
 		
-		leg_space_exists = Support.points[1].z > Support.min_support_pos
+		--leg_space_exists = isLegPointAboveMinLimit( Support.min_leg_pos )
 		
-		format "LEG_SPACE_EXISTS: %\n" leg_space_exists
+		--format "SUPPORT_SPACE_EXISTS: %\n" (isSpaceForRaftAndLeg())
+		format "LEG_SPACE_EXISTS:     %\n" (isLegPointAboveMinLimit( Support.min_leg_pos ))
+		format "FOOT_SPACE_EXISTS:    %\n" (isLegPointAboveMinLimit( Support.min_foot_pos ))
 		
 		if hit_raft != undefined then
 			Support.points[2] = hit_raft
 	
-		--else 
-		--if Support.points[2].z < Support.min_leg_pos then
+		/* IF SAPCE FOR LEG EXISTS */ 
+		else if not isLegPointAboveMinLimit( Support.min_leg_pos ) then
 		--	--this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_pos else Support.points[1].z - Support.min_raft_length )
-		--	this._shortenRaftOnDirection( Support.min_leg_pos )
-		--
-		--
-		--if not hasRaftMinimalLenght() then
+			this._shortenRaftOnDirection( Support.min_leg_pos   )
+		
+		format "\n"
+		format "RAFT IS SHORT: %\n" (raftIsShort())
+
+		
+		--if not raftIsShort() then
+		--(
+		--	format "\n REMOVE LEG"
+		--	
+		--)
 		--	this._extendSecondPointToNormalLenght()
 		
-
-		foot_space_exists = isLegPointAboveMinimalLimit( Support.points[2].z )
-		format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
-		
+		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
 	),
 	
 	/** Make raft shorter
 	 */
 	function _shortenRaftOnDirection pos_z =
 	(
-		format "\n"; print "SupportRaft_v._shortenRaftOnDirection()"
-		format "pos_z: %\n" pos_z
+		--format "\n"; print "SupportRaft_v._shortenRaftOnDirection()"
+		--format "pos_z: %\n" pos_z
 
 		triangle_height = Support.points[1].z - pos_z
-		format "triangle_height: %\n" triangle_height
+		--format "triangle_height: %\n" triangle_height
 		line_vector = normalize ( Support.points[1] - Support.points[2] )
 
 		angle_of_leg = acos (dot [0,0,-1] line_vector) -- get angle between
-		format "angle_of_leg: %\n" angle_of_leg
+		--format "angle_of_leg: %\n" angle_of_leg
 
 		raft_length = triangle_height / cos angle_of_leg
-		format "raft_length:  %\n" raft_length
+		--format "raft_length:  %\n" raft_length
 		Support.points[2] = Support.points[1] + ( raft_length * line_vector )
 	),
 	

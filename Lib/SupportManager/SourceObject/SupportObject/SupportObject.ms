@@ -20,7 +20,7 @@ struct SupportObject_v
 	support_key, -- pointer of support when node is created
 	sync_key,
 
-	update_raft = false, -- on\off update mode of raft part
+	update_mode = false, -- on\off update mode of raft part
 	
 	/* properties */
 	points = #(),
@@ -46,8 +46,8 @@ struct SupportObject_v
 	direction,
 	dir_vector,
 	--min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
-	--min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
-	min_leg_length,     -- min length of raft part to avoid sweep artifact on leg knot
+	min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
+	min_leg_pos,     -- min length of raft part to avoid sweep artifact on leg knot
 	min_raft_length,
 	min_support_pos,
 	
@@ -55,8 +55,9 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
-	--height_offset = 0.1, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
-	height_offset = 0.5, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
+	height_offset = 0.1, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
+	--height_offset = 0.15, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
+	--height_offset = 0.5, -- MINIMAL SPACE BETWEEN LEG AND BASE KNOTS
 
 	public
 
@@ -72,7 +73,7 @@ struct SupportObject_v
 		--format "\n----------------------------------------------\n"
 		--format "\n"; print "SupportObject_v.generateSupport()"
 		
-		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_length as string ) as float
+		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 				
 		this._setSupportObject(wirecolor)
 		
@@ -82,23 +83,16 @@ struct SupportObject_v
 
 		this._saveProps()
 		
-		--min_raft_length = bar_width / 2.0
-		min_raft_length = bar_width 
-		
-		min_leg_length = base_height + height_offset
-		
-		min_support_pos = min_leg_length + 1
-		
 		this.points = #( first_knot_pos )
-
-
 		
+		this._setMinLimints (direction) new_support:true
+
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
-		this._setSupportLinePoints()
 		
+		this._setSupportLinePoints()
 
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
@@ -112,7 +106,8 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
-
+		this._lockRotationAndScaleTransforms()
+		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance points[1] points[2]  )
@@ -152,11 +147,14 @@ struct SupportObject_v
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
 		
-		this.update_raft = update_raft
-		
+		this.update_mode = true
+
+
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		--------------------------------------------------------------------------------*/
+
+		this._setMinLimints (direction)
 		
 		points = #(first_knot_pos, support_obj.pos)
 
@@ -177,7 +175,7 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_foot
+		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
 
 		this._updateCountOfKnots()
 		
@@ -189,7 +187,7 @@ struct SupportObject_v
 		
 		this._setMaterialsToLineSegments()
 		
-		this.update_raft = false
+		this.update_mode = false
 
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -208,10 +206,10 @@ struct SupportObject_v
 		/* CREATE LEG */ 
 		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
 		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg( if SupportRaft.is_space_for_foot then min_leg_length else 0 )
+			SupportLeg.createLeg( if SupportRaft.foot_space_exists then min_leg_pos else 0 )
 		
 		/* CREATE FOOT */ 
-		if SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_foot then 
+		if SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists then 
 			SupportFoot.createFoot()
 	),
 	
@@ -285,12 +283,12 @@ struct SupportObject_v
 	--	
 	--	points = this._getPointsPositionsFromLine()
 	--
-	--	format "TEST: %\n" (points[2].z < min_leg_length )
+	--	format "TEST: %\n" (points[2].z < min_leg_pos )
 	--	
-	--	if points[2].z < min_leg_length then
+	--	if points[2].z < min_leg_pos then
 	--	(
 	--		points[2] = SupportRaft.makeRaftShorter()
-	--		--points[2].z = min_leg_length
+	--		--points[2].z = min_leg_pos
 	--		
 	--	)
 	--	
@@ -382,7 +380,8 @@ struct SupportObject_v
 
 		if source_obj != undefined then
 		(
-			half_of_bar_width = this.bar_width / 2
+			--half_of_bar_width = this.bar_width / 2
+			half_of_bar_width = this.bar_width 
 	
 			pos += 0.1 * direction -- shift ray pos along vector outside of object
 	
@@ -395,8 +394,11 @@ struct SupportObject_v
 			)
 	
 			for pos in bar_bbox do
+			(
 				if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
 					hit_result = copy hit
+				
+			)
 		)
 
 		hit_result --return
@@ -664,6 +666,209 @@ struct SupportObject_v
 		if foot_exists then
 			setMaterialID support_obj spline_1 num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	),
+	
+
+	
+	/** Set minimal foot pos
+	  
+		TUNE MINIMAL FOOT HEIGHT BASED ON ANGLE OF SUPPORT -- to avoid corner artefact on sweep modifier
+		
+		support - 90°  > remove 90% of bar with
+		support - 135° > remove 45% of bar with
+		support - 180° > remove 0%  of bar with
+	  
+	  
+	  
+	 */
+	function _setMinLimints direction new_support:false =
+	(
+		format "\n"; print "SupportObject_v._setMinLimints()"
+		----format "direction: %\n" direction
+		--format "leg_knot: %\n" leg_knot
+		--format "dir_vector: %\n" dir_vector
+		--format "bar_width: %\n" bar_width
+		--format "chamfer_val: %\n" chamfer_val
+		--format "base_height: %\n" base_height
+
+		/** Test if values changed
+		 */
+		function valuesChanged current_values =
+		(
+			--format "\n"; print "SupportObject_v.valuesChanged()"
+			/** Compare values  --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001 */
+			function valuesAreSame val_A val_B eps:1e-3 = if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
+
+			update_needed = false
+			
+			for prop in current_values.keys while not update_needed do
+				if (prop_value = getProperty this prop) == undefined or not valuesAreSame prop_value current_values[prop] then
+					update_needed = true
+            --format "UPDATE_NEEDED: %\n" update_needed	
+			update_needed --return
+		)
+		
+		/** Get current values
+		 */
+		function getCurrentValues new_support =
+		(
+			--format "\n"; print "SupportObject_v.getCurrentValues()"
+			current_values = Dictionary()
+			
+	
+			if new_support then
+			(
+				--current_values[#BAR_WIDTH]   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+				current_values[#BAR_WIDTH]   = this.bar_width
+				
+				--current_values[#BASE_HEIGHT] = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+				current_values[#BASE_HEIGHT] = this.base_height
+			)
+			else
+			(
+				current_values[#DIR_VECTOR]  = normalize ( points[1] - points[2] )
+				
+				current_values[#BAR_WIDTH]   = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
+				
+				current_values[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
+			)
+	
+			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue (current_values[#BAR_WIDTH])
+			
+			current_values --return
+		)
+		
+		dir_vector_current = normalize ( points[1] - support_obj.pos )
+		format "dir_vector_current: %\n" dir_vector_current
+		format "this.dir_vector:    %\n" this.dir_vector
+		
+		
+		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+			
+		
+		
+		min_raft_length = minimal_lenght_by_angle + chamfer_val + height_offset -- chmfer is removing length of raft also
+		
+		min_leg_pos = minimal_lenght_by_angle + height_offset
+		
+		min_support_pos = min_leg_pos + chamfer_val
+		
+		min_foot_pos = min_leg_pos + base_height
+		
+		/* GET CURRENT VALUES */ 
+		--current_values = getCurrentValues (new_support)
+		
+		
+		/* UPDATE VALUES */ 
+		--if new_support or valuesChanged( current_values ) then
+		(
+			/* UPDATE PROPS OF THIS */ 
+			--for prop in current_values.keys do
+			--	setProperty this prop current_values[prop]
+				
+			--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+			
+			/*------------------------------------------------------------------------------
+				MINIMAL NORMAL LENGTH
+			--------------------------------------------------------------------------------*/
+			
+			/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
+			--this.min_raft_length = minimal_lenght_by_angle + chamfer_val
+		
+			--------/* FAST MINIMAL LENGTH BY WIDTH OF BAR -- left THERE JUST FOR CASE OF SPEED OPTIMALIZATION */ 
+			--------this.min_raft_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+			
+			/*------------------------------------------------------------------------------
+				MINIMAL LEG AND FOOT Z POSITION
+			--------------------------------------------------------------------------------*/
+			
+			--min_leg_pos = base_height + height_offset
+			--
+			--min_foot_pos = copy min_leg_pos
+			--
+			--if direction != #DOWN then
+			--(
+			--	--format "ADD_BY_ANGLE: %\n" add_by_angle
+			--	min_leg_pos =  minimal_lenght_by_angle + height_offset
+			--	
+			--	min_foot_pos += minimal_lenght_by_angle
+			--)
+			--else /* UPDATE DOWN DIRECTION */
+			--	min_foot_pos += chamfer_val
+		)
+
+	),
+	
+	/** Get minimal lenght of segment by angle to KEEP CLEAND CORNERS OF SWEEP MODIFIER 
+	 */
+	function _getMinimalLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfer:false */=
+	(
+		format "\n"; print "SupportLegUpdater_v._getMinimalLenghtByAngle()"
+		--format "first_knot_pos:  %\n" first_knot_pos
+		--format "second_knot_pos: %\n" second_knot_pos
+		
+		/** Get percentage of bar with by angle of corner
+		  *
+		  *    • IF ANGLE is 180° then 0%   of bar with is added
+		  *    • IF ANGLE is  90° then 100% of bar with is added
+		  *
+		  * @return integer % of bar with needed for clean corners of sweep modifier
+		 */
+		function getPercentageByAngle angle_of_leg =
+		(
+			--format "\n"; print "SupportObject_v.getPercentageByAngle()"
+			angle_of_leg -= 90
+			--format "angle_of_leg: %\n" angle_of_leg
+			( angle_of_leg / 90 * 100.0 )
+		)
+	
+		vector_leg = [ 0, 0, -1 ]
+	
+		dir_vector = normalize ( dir_vector )
+		
+		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
+		format "angle_of_leg:    %\n" angle_of_leg
+		percentage_by_angle = getPercentageByAngle(angle_of_leg)
+
+		width_by_angle = bar_width * (percentage_by_angle / 100.0)
+
+		length_by_angle = bar_width - width_by_angle
+		format "length_by_angle: %\n" length_by_angle
+
+		length_by_angle --return
+	),
+	
+	/** Lock objects transforms
+	  * 
+	  * @param type #MOVE|#ROTATE|#SCALE
+	 */
+	function _lockRotationAndScaleTransforms =
+	(
+		--format "\n"; print ".lockObjectsTransforms()"
+		/** Lock 
+		  *
+		  */
+		function toggleTransformLock type state =
+		(
+			--format "\n"; print "TransformLocker_v._lock()"
+			lock_keys = #( #MOVE_X, #MOVE_Y, #MOVE_Z, #ROTATE_X, #ROTATE_Y, #ROTATE_Z, #SCALE_X, #SCALE_Y, #SCALE_Z )
+
+			lock_states = getTransformLockFlags support_obj
+	
+			if type != #ALL then
+				for lock_key in lock_keys where matchPattern (lock_key as string ) pattern:( type as string +"*" ) do
+					lock_states[findItem lock_keys lock_key] = state
+			else
+				lock_states = if state then #{1..9} else #{}
+	
+			setTransformLockFlags support_obj lock_states
+		)
+
+		toggleTransformLock #ROTATE true
+		
+		toggleTransformLock #SCALE true
+	),
+	
 
 	/**
 	 */

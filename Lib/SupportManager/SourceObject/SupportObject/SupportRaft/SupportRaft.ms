@@ -8,7 +8,7 @@ struct SupportRaft_v
 	/* required */
 	/* properties */
 	hit_raft,
-	is_space_for_foot = true,
+	foot_space_exists = true,
 
 	/* private */
 	/* dependency */
@@ -19,39 +19,56 @@ struct SupportRaft_v
 	 */
 	function createRaft =
 	(
-		--format "\n"; print "SupportRaft_v.createRaft()"
+		format "\n"; print "SupportRaft_v.createRaft()"
 
-		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( Support.min_leg_length as string ) as float
+		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( Support.min_foot_pos as string ) as float
 		
 		function hasRaftMinimalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float > ( Support.min_raft_length as string ) as float
 
-		
-		normal_length = Support.normal_length
+		format "Support.update_mode: %\n" Support.update_mode
+		format "TEST: %\n" (Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length)
+		--normal_length = Support.normal_length
 		
 		/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
-		if Support.update_raft and not SUPPORT_OPTIONS.lock_normal_length then
+		if Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length then
 			Support.points[2] = Support.support_obj.pos
 		
 		else /* LOCK NORMAL LENGTH */ 
 			Support.points[2] = Support.points[1] + ( Support.normal_length * Support.dir_vector )
 		
+		normal_length_current = distance Support.points[1] Support.points[2]
+		format "normal_length_current: %\n" normal_length_current
 		
+		format "\n"
+		format "Support.min_leg_pos: %\n" Support.min_leg_pos
+		format "Support.min_foot_pos: %\n" Support.min_foot_pos
+		format "Support.points[2].z:    %\n" Support.points[2].z
+		format "\n"
 		
 	    this._testHitOfSourceObject( Support.normal_length )
 		
+		
 		has_leg_min_height = Support.points[1].z > Support.min_support_pos
+		
+		leg_space_exists = Support.points[1].z > Support.min_support_pos
+		
+		format "LEG_SPACE_EXISTS: %\n" leg_space_exists
+		
+		if hit_raft != undefined then
+			Support.points[2] = hit_raft
 	
-	
-		if Support.points[2].z < Support.min_leg_length then
-			this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_length else Support.points[1].z - Support.min_raft_length )
-
-
-		if not hasRaftMinimalLenght() then
-			this._extendSecondPointToNormalLenght()
+		--else 
+		--if Support.points[2].z < Support.min_leg_pos then
+		--	--this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_pos else Support.points[1].z - Support.min_raft_length )
+		--	this._shortenRaftOnDirection( Support.min_leg_pos )
+		--
+		--
+		--if not hasRaftMinimalLenght() then
+		--	this._extendSecondPointToNormalLenght()
 		
 
-		is_space_for_foot = isLegPointAboveMinimalLimit( Support.points[2].z )
-		--format "IS_SPACE_FOR_FOOT: %\n" is_space_for_foot
+		foot_space_exists = isLegPointAboveMinimalLimit( Support.points[2].z )
+		format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 		
 	),
 	
@@ -59,16 +76,18 @@ struct SupportRaft_v
 	 */
 	function _shortenRaftOnDirection pos_z =
 	(
-		--format "\n"; print "SupportRaft_v._shortenRaftOnDirection()"
+		format "\n"; print "SupportRaft_v._shortenRaftOnDirection()"
+		format "pos_z: %\n" pos_z
 
 		triangle_height = Support.points[1].z - pos_z
-		
+		format "triangle_height: %\n" triangle_height
 		line_vector = normalize ( Support.points[1] - Support.points[2] )
 
-		angle_angle = acos (dot [0,0,-1] line_vector) -- get angle between
-		
-		raft_length = triangle_height / cos angle_angle
-		
+		angle_of_leg = acos (dot [0,0,-1] line_vector) -- get angle between
+		format "angle_of_leg: %\n" angle_of_leg
+
+		raft_length = triangle_height / cos angle_of_leg
+		format "raft_length:  %\n" raft_length
 		Support.points[2] = Support.points[1] + ( raft_length * line_vector )
 	),
 	
@@ -78,7 +97,7 @@ struct SupportRaft_v
 	 */
 	function _extendSecondPointToNormalLenght =
 	(
-		--format "\n"; print "SupportRaftUpdater_v._extendSecondPointToNormalLenght()"
+		format "\n"; print "SupportRaftUpdater_v._extendSecondPointToNormalLenght()"
 		line_vector = normalize ( Support.points[2] - Support.points[1] )
 		
 		Support.points[2] = Support.points[1] + ( Support.min_raft_length * line_vector ) -- return

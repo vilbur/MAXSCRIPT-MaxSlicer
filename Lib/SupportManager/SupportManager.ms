@@ -1,6 +1,5 @@
 global SOURCE_OBJECT_TRANSFORM
 
-
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms" )	--"./onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"

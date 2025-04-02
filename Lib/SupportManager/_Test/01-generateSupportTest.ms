@@ -38,9 +38,14 @@ verts_colors[ clr_cyan	] = #{ 59 }
 obj = $PackMan
 
 pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
--- pos_z = 1
+pos_z = 1
+pos_z = 1.2
+
+-- pos_z = 1.5
+
+-- pos_z = 2
 -- pos_z = 3
-pos_z = 10
+-- pos_z = 10
 
 --if selection.count == 0 then
 (
@@ -53,13 +58,12 @@ pos_z = 10
 /* SELECT VERTS  BY COLORS */ 
 select_verts	= #{}
  
- 
-select_verts += verts_colors["red"]
+-- select_verts += verts_colors["red"]
 select_verts += verts_colors["orange"]
-select_verts += verts_colors[clr_pink]
-select_verts += verts_colors["green"]
-select_verts += verts_colors[clr_cyan]
-select_verts += verts_colors[clr_blue]
+-- select_verts += verts_colors[clr_pink]
+-- select_verts += verts_colors["green"]
+-- select_verts += verts_colors[clr_cyan]
+-- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -82,7 +86,7 @@ SUPPORT_OPTIONS.bar_width	= 2
 /* SET TOP WIDTH */ 
 --SUPPORT_OPTIONS.top_width	= 0.1
 --SUPPORT_OPTIONS.top_width	= 0.5
-SUPPORT_OPTIONS.top_width	= 1
+-- SUPPORT_OPTIONS.top_width	= 1
 --SUPPORT_OPTIONS.top_width	= 1.5
 --SUPPORT_OPTIONS.top_width	= 2
 
@@ -93,8 +97,9 @@ SUPPORT_OPTIONS.base_width	= 10
 
 /* SET NORMAL LENGTH */ 
 SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
---SUPPORT_OPTIONS.normal_length	= 0.75
---SUPPORT_OPTIONS.normal_length	= 1.25
+SUPPORT_OPTIONS.normal_length	= 0.5
+SUPPORT_OPTIONS.normal_length	= 0.75
+SUPPORT_OPTIONS.normal_length	= 1
 SUPPORT_OPTIONS.normal_length	= 5
 -- SUPPORT_OPTIONS.normal_length	= 10
 -- SUPPORT_OPTIONS.normal_length	= 20
@@ -104,7 +109,7 @@ SUPPORT_OPTIONS.normal_length	= 5
 
 /* NORMAL DIRECTION */ 
 ----SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
-SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
+-- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  NORMAL LENGTH  */
 SUPPORT_OPTIONS.lock_normal_length = false
@@ -130,3 +135,11 @@ generateSupportsOrRafts obj_type:#SUPPORT
 --MODIFIERS_MANAGER.addModifiers #( SupportObject.support_obj ) obj_type:#SUPPORT --supports_exists:supports_exists
 --
 ----SUPPORT_MANAGER.updateShapes()
+
+
+
+/* POST TEST  */
+
+move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
+
+select $PackMan

@@ -21,7 +21,7 @@ struct SupportFoot_v
 	 */
 	function createFoot =
 	(
-		format "\n"; print "SupportFoot_v.createFoot()"
+		--format "\n"; print "SupportFoot_v.createFoot()"
 		
 		this._alignKnotToPreviousKnot index:3 pos_z:Support.base_height
 

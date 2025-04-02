@@ -59,6 +59,8 @@ function onSourceObjectTransform sender evt =
 		if what_to_update != #POSITION_XY then
 		try(
 			
+			
+			
 			/*------------------------------------------------------------------------------
 			  
 				EXECUTE UPDATE
@@ -66,6 +68,11 @@ function onSourceObjectTransform sender evt =
 			--------------------------------------------------------------------------------*/
 			
 			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
+			
+			
+			
+			
+			
 		)
 		catch
 		(

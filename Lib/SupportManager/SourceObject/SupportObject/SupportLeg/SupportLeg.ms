@@ -22,22 +22,11 @@ struct SupportLeg_v
 	 */
 	function createLeg pos_z =
 	(
-		format "\n"; print "SupportLeg_v.createLeg()"
+		--format "\n"; print "SupportLeg_v.createLeg()"
 		
 		this._testHitOfSourceObject()
 		
-		--if hit_leg == undefined then 
-		--Support.points[3] = case of
-		--(
-		--	(hit_leg != undefined):	hit_leg
-		--	(leg_to_ground):	
-		--	default: this._getBasePointPos()
-		--)
-		--
 		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos (pos_z)
-		
-		
-		--Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos()
 	),
 	
 	--/** Update leg

@@ -42,6 +42,7 @@ struct SupportObject_v
 	base_height,
 	chamfer_val,
 	
+	direction,
 	dir_vector,
 	--min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
 	--min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
@@ -67,12 +68,14 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_length as string ) as float
 		
 		this._setSupportObject(wirecolor)
+		
+		this.direction = direction
 		
 		this._setDirVector(dir_vector)
 
@@ -84,7 +87,6 @@ struct SupportObject_v
 		min_leg_length = base_height + height_offset
 		
 		min_support_pos = min_leg_length + 1
-		--SupportRaft.createRaft (first_knot_pos) (dir_vector)
 		
 		this.points = #( first_knot_pos )
 
@@ -96,28 +98,7 @@ struct SupportObject_v
 		
 		this._setSupportLinePoints()
 		
-			--	
-		--/* MAKE SURE THAT SUPPORT DIRECTION OF SUPPORT IS NOT HORIZONTAL */ 
-		--if this.dir_vector.z > -0.25 then this.dir_vector.z = -0.25
-		--
-		--
-		--/* ADD FIRST POINT */
-		--points = #( first_knot_pos, undefined )
-		--
-		--
-		--/* SET LIMITS WHEN SECOND POINT IS KNOWN */ 
-		--this._setMinLimints (direction) new_support:new_support
-		--
-		--
-		--/* SET RAFT PART of support */ 
-		--this._setSecondKnotPosition(first_knot_pos) --(dir_vector)
-		--
-		--
-		--/* SET LEG AND FOOT */ 
-		--if obj_type == #SUPPORT and hit_raft == undefined then
-		--	this._setLegAndFootKnotPositions()
 
-			
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
@@ -130,10 +111,7 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
-		--this._alignPivotToRaft()
-		--
-		--SUPPORT_MANAGER.addSupportObjects (this)
-		--
+
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance points[1] points[2]  )
@@ -155,7 +133,10 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "DIRECTION: %\n" direction
+		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
 		--format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
@@ -176,6 +157,7 @@ struct SupportObject_v
 		this._setDirVector(dir_vector)
 
 		this._keepVectorDown()
+		--this._checkDirVector(direction)
 		
 		
 		/*------------------------------------------------------------------------------
@@ -189,7 +171,7 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_leg
+		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.is_space_for_foot
 
 		this._updateCountOfKnots()
 		
@@ -208,7 +190,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
 	(
-		format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
@@ -431,7 +413,7 @@ struct SupportObject_v
 	 */
 	function _saveProps =
 	(
-		--format "\n"; print "SupportObject_v._saveProps()"
+		format "\n"; print "SupportObject_v._saveProps()"
         bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
         base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
         normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
@@ -463,6 +445,33 @@ struct SupportObject_v
 		this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
 	),
 		
+	
+	----/** Check dir vector
+	-- */
+	--function _checkDirVector direction =
+	--(
+	--	----format "\n"; print "SupportObject_v._checkDirVector()"
+	--	----format "direction: %\n" direction
+	--	
+	--	/* KEEP RAFT PONT BELLOW FIRST */ 
+	--	if this.dir_vector.z > -0.25 then
+	--		this.dir_vector.z = -0.25
+	--	
+	--	else if direction != #CUSTOM then
+	--	(
+	--		format "\n"; print "SupportObject_v._checkDirVector()"
+	--		format "RESET DIR VECTOR: %\n" direction
+	--			
+	--		--dir_vector_current = normalize ( Support.points[1] - Support.points[2] )
+	--		
+	--		--this.dir_vector = getUserPropVal support_obj "DIR_VECTOR" * source_obj.rotation
+	--
+	--	)
+	--
+	--	
+	--
+	--),
+	
 	/** KEEP RAFT PONT BELLOW FIRST
 	  * 
 	  * Make sure that dir_vector of support is not horizontal or up
@@ -647,9 +656,6 @@ struct SupportObject_v
 		if foot_exists then
 			setMaterialID support_obj spline_1 num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	),
-
-
-
 
 	/**
 	 */

@@ -45,7 +45,9 @@ struct SourceObject_v
 		this.removeDeletedNodes()
 
 		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then #NORMAL else #DOWN
-					
+		
+		setUserPropVal obj "ROTATION" (obj.rotation)
+			
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
 		--------------------------------------------------------------------------------*/
@@ -262,15 +264,26 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
-		
-		--format "DIRECTION: %\n" direction
+		--format "\n"; print "SourceObject_v.updateSupports()"
 
+		/** Rotation of source object changed
+		 */
+		function rotationOfSourceObjectChanged =
+		(
+			--format "\n"; print "SourceObject_v.rotationOfSourceObjectChanged()"
+			rotation_changed = obj.rotation != getUserPropVal obj "ROTATION"
+			
+			if rotation_changed then
+				setUserPropVal obj "ROTATION" (obj.rotation)
+
+			rotation_changed --return
+		)
+		
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
 		/* GET NORMALS */ 
-		if direction == #NORMAL then
+		if rotationOfSourceObjectChanged() then
 		(
 			if Normals.normals_local == undefined then
 				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
@@ -280,50 +293,37 @@ struct SourceObject_v
 		
 		
 		/*------------------------------------------------------------------------------
+		  
 			UPDATE EACH SUPPORT
+			
 		--------------------------------------------------------------------------------*/
 		for index in SupportsToUpdate.keys do
 		(
 			Support = SupportsToUpdate[index]
 			
-			/* LAOD CURRENT DIRECTION */ 
-			current_direction = getUserPropVal Support.support_obj "DIRECTION"
-		
-			/* SAVE CURRENT DIRECTION */
-			--if direction != undefined then 
-				--setUserPropVal SupportsToUpdate[index].support_obj "DIRECTION" direction
-				
-				
-			/* UPDATE 1st POINT - if support has been moved on its own */ 
-			if update_knot_1 then
-				first_knot_pos = verts_pos[index]
-			
-			
 			/* UPDATE SECOND POINT - to keep direction down */ 
-			if direction == undefined and current_direction == #DOWN then
-			(
-				direction = #DOWN
-				
-				update_raft = true
-			)
-			
+			if direction == undefined then
+				direction = getUserPropVal Support.support_obj "DIRECTION"
+
 			/* GET VECTOR  */ 
 			dir_vector = case direction of
 			(
 				(#DOWN):   [ 0, 0, -1 ]
 				(#NORMAL): Normals.normals_world[index]
 			)
-			--format "DIR_VECTOR: %\n" dir_vector
 			
-			/* SAVE CURRENT DIRECTION */ 
-			if not ( direction == #CUSTOM and current_direction == #DOWN and Support.isVectorPointingDown() ) then 
-				setUserPropVal Support.support_obj "DIRECTION" direction
-			
+			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
+			if direction == #CUSTOM then 
+				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
+				
+				
+			/* UPDATE 1st POINT - if support has been moved on its own */ 
+			if update_knot_1 then
+				first_knot_pos = verts_pos[index]
 
 			/* UPDATE SUPPORT */ 
-			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
-			
-			
+			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
+			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
 		)
 		
 		free SupportsToUpdate

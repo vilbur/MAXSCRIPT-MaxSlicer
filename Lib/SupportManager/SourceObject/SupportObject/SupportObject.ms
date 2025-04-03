@@ -105,7 +105,8 @@ struct SupportObject_v
 		this._setName(vertex_index)
 		
 		this._setPivotToSecondPoint()
-		
+		this._alignPivotToRaft()
+
 		this._lockRotationAndScaleTransforms()
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -129,12 +130,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
-		format "update_raft: %\n" update_raft
+		--format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
 		--points = this._getPointsPositionsFromLine()
@@ -183,7 +184,7 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
-		----this._alignPivotToRaft()
+		this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
 		
@@ -580,12 +581,12 @@ struct SupportObject_v
 	 */
 	function _alignPivotToRaft =
 	(
-		format "\n"; print "SupportObject_v._alignPivotToRaft()"
+		--format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		--support_obj = $
 		--dir = normalize (support_obj.pos - points[1])
 		--dir = normalize ( points[1] - support_obj.pos )
 		--dir = normalize ( (  getKnotPoint support_obj spline_1 1 ) - ( getKnotPoint support_obj spline_1 2 ) )
-		--dir = this.dir_vector
+		dir = this.dir_vector * -1
 		
 		axis = #z
 
@@ -602,7 +603,7 @@ struct SupportObject_v
 		dir = normalize dir
 		
 		angle_vectors = acos (dot vec dir) -- get angle between
-		format "angle_vectors: %\n" angle_vectors
+		--format "angle_vectors: %\n" angle_vectors
 		
 		/**
 			PROBLEM:
@@ -682,7 +683,7 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction new_support:false =
 	(
-		format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "\n"; print "SupportObject_v._setMinLimints()"
 		----format "direction: %\n" direction
 		--format "leg_knot: %\n" leg_knot
 		--format "dir_vector: %\n" dir_vector
@@ -738,13 +739,13 @@ struct SupportObject_v
 		)
 		
 		dir_vector_current = normalize ( points[1] - support_obj.pos )
-		format "dir_vector_current: %\n" dir_vector_current
-		format "this.dir_vector:    %\n" this.dir_vector
+		--format "dir_vector_current: %\n" dir_vector_current
+		--format "this.dir_vector:    %\n" this.dir_vector
 		
 		
 		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
 		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-		format "minimal_lenght_by_angle: %\n" minimal_lenght_by_angle
+		--format "MINIMAL_LENGHT_BY_ANGLE: %\n" minimal_lenght_by_angle
 		
 		
 		min_raft_length = minimal_lenght_by_angle + chamfer_val + dilatation  -- chmfer is removing length of raft also
@@ -803,7 +804,7 @@ struct SupportObject_v
 	 */
 	function _getMinimalLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfer:false */=
 	(
-		format "\n"; print "SupportLegUpdater_v._getMinimalLenghtByAngle()"
+		--format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
 		--format "first_knot_pos:  %\n" first_knot_pos
 		--format "second_knot_pos: %\n" second_knot_pos
 		
@@ -827,13 +828,13 @@ struct SupportObject_v
 		dir_vector = normalize ( dir_vector )
 		
 		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
-		format "angle_of_leg:    %\n" angle_of_leg
+		--format "angle_of_leg:    %\n" angle_of_leg
 		percentage_by_angle = getPercentageByAngle(angle_of_leg)
 
 		width_by_angle = bar_width * (percentage_by_angle / 100.0)
 
 		length_by_angle = bar_width - width_by_angle
-		format "length_by_angle: %\n" length_by_angle
+		--format "length_by_angle: %\n" length_by_angle
 
 		length_by_angle --return
 	),

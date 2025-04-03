@@ -347,10 +347,10 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes update_raft:true direction:undefined what_to_update: =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
-		format "update_raft: %\n" update_raft
-		format "direction: %\n" direction
-		format "what_to_update: %\n" what_to_update
+		--format "\n"; print "SupportManager_v.updateSupports()"
+		--format "update_raft: %\n" update_raft
+		--format "direction: %\n" direction
+		--format "what_to_update: %\n" what_to_update
 		--format "support_nodes: %\n" support_nodes
 		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)

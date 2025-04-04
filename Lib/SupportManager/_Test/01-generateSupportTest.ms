@@ -44,7 +44,7 @@ pos_z = 1
 pos_z = 1.5
 
 -- pos_z = 2
-pos_z = 3
+-- pos_z = 3
 -- pos_z = 10
 
 --if selection.count == 0 then
@@ -60,9 +60,9 @@ select_verts	= #{}
  
 select_verts += verts_colors["red"]
 -- select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
--- select_verts += verts_colors["green"]
+select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors[clr_cyan]
+-- select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
@@ -105,7 +105,7 @@ SUPPORT_OPTIONS.normal_length	= 5
 
 
 /* NORMAL DIRECTION */ 
-----SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
+SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  NORMAL LENGTH  */

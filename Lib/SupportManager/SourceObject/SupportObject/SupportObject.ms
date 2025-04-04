@@ -195,9 +195,9 @@ struct SupportObject_v
 		--format "TEST VEC: %\n" (this.dir_vector.z < 0.0 )
 		--format "this.dir_vector.z: %\n" this.dir_vector.z
 		--if direction == #CUSTOM and this.dir_vector.z < 0.0 then
-		if direction == #CUSTOM and obj_type == #SUPPORT and points.count > 2 then
+		--if direction == #CUSTOM and obj_type == #SUPPORT and points.count > 2 then
 		--if direction == #CUSTOM then
-			setUserPropVal support_obj "DIR_VECTOR" this.dir_vector
+			--setUserPropVal support_obj "DIR_VECTOR" this.dir_vector
 
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -440,11 +440,11 @@ struct SupportObject_v
 	 */
 	function _saveProps =
 	(
-		format "\n"; print "SupportObject_v._saveProps()"
-        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+		--format "\n"; print "SupportObject_v._saveProps()"
+        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
         base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
         normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
-		
+		--format "BAR_WIDTH: %\n" bar_width
 		chamfer_val = SUPPORT_OPTIONS.getChamferBarValue()
 
         setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
@@ -698,8 +698,8 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction new_support:false =
 	(
-		format "\n"; print "SupportObject_v._setMinLimints()"
-		format "direction: %\n" direction
+		--format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "direction: %\n" direction
 		--format "leg_knot: %\n" leg_knot
 		--format "dir_vector: %\n" dir_vector
 		--format "bar_width: %\n" bar_width
@@ -712,15 +712,36 @@ struct SupportObject_v
 		(
 			--format "\n"; print "SupportObject_v.valuesChanged()"
 			/** Compare values  --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001 */
-			function valuesAreSame val_A val_B eps:1e-3 = if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
-
-			update_needed = false
 			
-			for prop in current_values.keys while not update_needed do
-				if (prop_value = getProperty this prop) == undefined or not valuesAreSame prop_value current_values[prop] then
-					update_needed = true
-            --format "UPDATE_NEEDED: %\n" update_needed	
-			update_needed --return
+			
+			--function valuesAreSame val_A val_B eps:1e-3 = if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
+			function valuesAreSame val_A val_B eps:1e-3 =
+			(
+				--format "\n"
+				--format "% == %: %\n" val_A val_B (val_A == val_B)
+				
+				--if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
+				--val_A == val_B --return
+				val_A as string == val_B as string --return
+			)
+			
+
+--			update_needed = false
+--			
+--			for prop in current_values.keys while not update_needed do
+--				if (prop_value = getProperty this prop) == undefined or not valuesAreSame prop_value current_values[prop] then
+--					update_needed = true
+--            --format "UPDATE_NEEDED: %\n" update_needed	
+--			update_needed --return
+				changed_values = Dictionary()
+
+				for prop in current_values.keys do
+					--if (prop_value = getProperty this prop) == undefined or not valuesAreSame prop_value current_values[prop] then
+					if (prop_value = getProperty this prop) != undefined and not valuesAreSame prop_value current_values[prop] then
+					--if not valuesAreSame prop_value current_values[prop] then
+						changed_values[prop] = prop_value
+			
+			changed_values --return
 		)
 		
 		/** Get current values
@@ -741,14 +762,15 @@ struct SupportObject_v
 			)
 			else
 			(
-				current_values[#DIR_VECTOR]  = normalize ( points[1] - points[2] )
+				--current_values[#DIR_VECTOR]  = normalize ( points[1] - points[2] )
+				current_values[#DIR_VECTOR]  = getUserPropVal support_obj "DIR_VECTOR"
 				
 				current_values[#BAR_WIDTH]   = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
 				
 				current_values[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
 			)
 	
-			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue (current_values[#BAR_WIDTH])
+			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:current_values[#BAR_WIDTH]
 			
 			current_values --return
 		)
@@ -758,8 +780,26 @@ struct SupportObject_v
 		--format "this.dir_vector:    %\n" this.dir_vector
 
 		
-		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+		/* GET CURRENT VALUES */ 
+		current_values = getCurrentValues (new_support)
+		
+		changed_values = valuesChanged( current_values )
+		
+		--format "current_values: %\n" current_values
+		--format "changed_values: %\n" changed_values
+		--format "changed_values.keys: %\n" changed_values.keys
+		
+		if changed_values[#DIR_VECTOR] != undefined then 
+			this.dir_vector =  changed_values[#DIR_VECTOR]
+			
+			
+		/* SET OR UPDATE VALUES */
+		
+		
+		
+		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+
+		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
 		--format "MINIMAL_LENGHT_BY_ANGLE: %\n" minimal_lenght_by_angle
 		
 		
@@ -767,17 +807,11 @@ struct SupportObject_v
 		
 		min_leg_pos = minimal_lenght_by_angle + dilatation 
 		
-		--min_support_pos = min_leg_pos + chamfer_val
-		
 		min_foot_pos = min_leg_pos + base_height
 		
-		/* GET CURRENT VALUES */ 
-		--current_values = getCurrentValues (new_support)
-		
-		
-		/* UPDATE VALUES */ 
 		--if new_support or valuesChanged( current_values ) then
 		(
+			--format "SET OR UPDATE VALUES \n"
 			/* UPDATE PROPS OF THIS */ 
 			--for prop in current_values.keys do
 			--	setProperty this prop current_values[prop]
@@ -840,7 +874,7 @@ struct SupportObject_v
 	
 		vector_leg = [ 0, 0, -1 ]
 	
-		dir_vector = normalize ( dir_vector )
+		dir_vector = normalize ( dir_vector * -1 )
 		
 		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
 		--format "angle_of_leg:    %\n" angle_of_leg

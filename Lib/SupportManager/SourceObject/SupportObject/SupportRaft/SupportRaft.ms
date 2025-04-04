@@ -22,6 +22,7 @@ struct SupportRaft_v
 	(
 		--format "\n----------------------------------------------\n"
 		--format "\n"; print "SupportRaft_v.createRaft()"
+		--format "Support.dir_vector: %\n" Support.dir_vector
 
 		--function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_support_pos as string ) as float
 		--function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_raft_length as string ) as float
@@ -33,8 +34,8 @@ struct SupportRaft_v
 		
 		function raftHasNormalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float >= ( Support.normal_length as string ) as float
 
-		is_space_for_leg = false
-		foot_space_exists = false
+		--is_space_for_leg = false
+		--foot_space_exists = false
 		--format "Support.update_mode: %\n" Support.update_mode
 		--format "TEST: %\n" (Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length)
 		--normal_length = Support.normal_length
@@ -72,7 +73,7 @@ struct SupportRaft_v
 			if isSpaceForRaftAndLeg() then
 			(
 				--format "IS SPACE FOR RAFT AND LEG\n"
-				--format "IS_SPACE_FOR_RAFT_AND_LEG\n"
+				--format "not raftHasNormalLenght(): %\n" (not raftHasNormalLenght())
 				if not raftHasNormalLenght() then
 				(
 					
@@ -101,6 +102,9 @@ struct SupportRaft_v
 					if Support.points[2].z > Support.points[1].z then
 						Support.points[2].z = 0
 				)
+				
+				setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
+				
 			)
 			else
 			(
@@ -111,6 +115,10 @@ struct SupportRaft_v
 				
 				Support.points[2] = pos
 			)
+			
+			
+			
+			
 		)
 		else
 			Support.points[2] = hit_raft
@@ -138,7 +146,9 @@ struct SupportRaft_v
 
 		triangle_height = Support.points[1].z - pos_z
 		--format "triangle_height: %\n" triangle_height
-		line_vector = normalize ( Support.points[1] - Support.points[2] )
+		--line_vector = normalize ( Support.points[1] - Support.points[2] )
+		line_vector = Support.dir_vector
+		
 		--format "line_vector: %\n" line_vector
 
 		angle_of_leg = acos (dot [0,0,-1] line_vector) -- get angle between
@@ -158,7 +168,9 @@ struct SupportRaft_v
 	function _extendSecondPoint raft_length =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
-		line_vector = normalize ( Support.points[2] - Support.points[1] )
+		--format "Support.dir_vector: %\n" Support.dir_vector
+		--line_vector = normalize ( Support.points[2] - Support.points[1] )
+		line_vector = Support.dir_vector
 		--format "line_vector.z: %\n" line_vector.z
 		
 		--if line_vector.z < 0 then

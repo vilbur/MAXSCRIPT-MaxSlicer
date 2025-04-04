@@ -133,6 +133,9 @@ struct SupportModifiers_v
 			#STACK:	0 -- from stack
 			#ALL:	5 -- all edges
 		)
+		
+		/* AVOID ARTIFACTS if raft is short */ 
+		chamfer_mod.limiteffect = true
 
 		/* SET CHAMFER VALUES */
 		chamfer_mod.amount 	 = amount

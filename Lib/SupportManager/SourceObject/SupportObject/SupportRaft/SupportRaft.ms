@@ -8,6 +8,7 @@ struct SupportRaft_v
 	/* required */
 	/* properties */
 	hit_raft,
+	is_space_for_leg = true,
 	foot_space_exists = true,
 
 	/* private */
@@ -19,16 +20,21 @@ struct SupportRaft_v
 	 */
 	function createRaft =
 	(
+		--format "\n----------------------------------------------\n"
 		--format "\n"; print "SupportRaft_v.createRaft()"
 
-		function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_support_pos as string ) as float
+		--function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_support_pos as string ) as float
+		--function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( Support.min_raft_length as string ) as float
+		function isSpaceForRaftAndLeg = ( Support.points[1].z as string ) as float >= ( (Support.min_raft_length + Support.min_leg_pos ) as string ) as float
 		
 		function isLegPointAboveMinLimit min_z_pos = ( Support.points[2].z as string ) as float >= ( min_z_pos as string ) as float
 		
-		function raftIsShort = ( (distance Support.points[1] Support.points[2]) as string ) as float < ( Support.min_raft_length as string ) as float
+		function raftIsShort = ( (distance Support.points[1] Support.points[2]) as string ) as float <= ( Support.min_raft_length as string ) as float
 		
 		function raftHasNormalLenght = ( (distance Support.points[1] Support.points[2]) as string ) as float >= ( Support.normal_length as string ) as float
 
+		is_space_for_leg = false
+		foot_space_exists = false
 		--format "Support.update_mode: %\n" Support.update_mode
 		--format "TEST: %\n" (Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length)
 		--normal_length = Support.normal_length
@@ -42,19 +48,18 @@ struct SupportRaft_v
 		
 		raft_length = distance Support.points[1] Support.points[2]
 		--format "min_raft_length: %\n" Support.min_raft_length
-		--format "raft_length:     %\n" raft_length
-		
+		----format "raft_length:     %\n" raft_length
+		--
 		--format "\n"
 		--format "Support.min_leg_pos:  %\n" Support.min_leg_pos
 		--format "Support.min_foot_pos: %\n" Support.min_foot_pos
+		--format "Support.points[1].z:  %\n" Support.points[1].z
 		--format "Support.points[2].z:  %\n" Support.points[2].z
+		--format "Support.points[1]:  %\n" Support.points[1]
+		--format "Support.points[2]:  %\n" Support.points[2]		
 		--format "\n"
-		
 	    this._testHitOfSourceObject( Support.normal_length )
-		
-		
 		--has_leg_min_height = Support.points[1].z > Support.min_support_pos
-		
 		--leg_space_exists = isLegPointAboveMinLimit( Support.min_leg_pos )
 
 		--format "SUPPORT_SPACE_EXISTS: %\n" (isSpaceForRaftAndLeg())
@@ -66,31 +71,62 @@ struct SupportRaft_v
 		(
 			if isSpaceForRaftAndLeg() then
 			(
+				--format "IS SPACE FOR RAFT AND LEG\n"
+				--format "IS_SPACE_FOR_RAFT_AND_LEG\n"
+				if not raftHasNormalLenght() then
+				(
+					
+					this._extendSecondPoint(Support.normal_length)
+				)
 				
-				if raftHasNormalLenght() then
-					this._extendSecondPointToNormalLenght(Support.normal_length)
-				
-				/* IF SAPCE FOR LEG EXISTS */ 
+				--/* IF SPACE FOR LEG EXISTS */ 
 				if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
-				--	--this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_pos else Support.points[1].z - Support.min_raft_length )
+				(
+					--format "SPACE FOR LEG EXISTS\n"
+					
 					this._shortenRaftOnDirection( Support.min_foot_pos )
-				
+				)
+				----	--this._shortenRaftOnDirection( if has_leg_min_height then Support.min_leg_pos else Support.points[1].z - Support.min_raft_length )
+				--
 				if raftIsShort() then
-					this._extendSecondPointToNormalLenght(Support.min_raft_length)
-
-			
+				(
+					--format "RAFT IS SHORT\n"
+					this._extendSecondPoint(Support.min_raft_length)
+					
+					--format "Support.points[1].z:  %\n" Support.points[1].z
+					--format "Support.points[2].z:  %\n" Support.points[2].z
+					
+					--format "TEST: %\n" (Support.points[2].z > Support.points[1].z)
+					/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
+					if Support.points[2].z > Support.points[1].z then
+						Support.points[2].z = 0
+				)
+			)
+			else
+			(
+				--format "NOT SPACE FOR RAFT AND LEG\n"
+				pos = copy Support.points[1]
+				
+				pos.z = 0
+				
+				Support.points[2] = pos
 			)
 		)
 		else
 			Support.points[2] = hit_raft
 	
 		--format "\n"
-		--
-		--format "RAFT IS SHORT:        %\n" (raftIsShort())
-		--
-		--format "FOOT_SPACE_EXISTS:    %\n" (isLegPointAboveMinLimit( Support.min_foot_pos )  )
+		--format "Support.min_foot_pos: %\n" Support.min_foot_pos
+		--format "Support.points[2].z:  %\n" Support.points[2].z
 		
-		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos ) 
+		--format "RAFT IS SHORT:        %\n" (raftIsShort())
+		is_space_for_leg = isSpaceForRaftAndLeg()
+		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )  
+		--
+		--format "IS_SPACE_FOR_RAFT_AND_LEG: %\n" (is_space_for_leg)
+		--format "FOOT_SPACE_EXISTS:         %\n" (foot_space_exists )
+		
+		
 	),
 	
 	/** Make raft shorter
@@ -103,25 +139,30 @@ struct SupportRaft_v
 		triangle_height = Support.points[1].z - pos_z
 		--format "triangle_height: %\n" triangle_height
 		line_vector = normalize ( Support.points[1] - Support.points[2] )
+		--format "line_vector: %\n" line_vector
 
 		angle_of_leg = acos (dot [0,0,-1] line_vector) -- get angle between
 		--format "angle_of_leg: %\n" angle_of_leg
 
 		raft_length = triangle_height / cos angle_of_leg
 		--format "raft_length:  %\n" raft_length
-		Support.points[2] = Support.points[1] + ( raft_length * line_vector )
+		
+		--if line_vector.z < 0 then
+			Support.points[2] = Support.points[1] + ( raft_length * line_vector )
 	),
 	
 	/** Extend raft knot to normal lenght
 	  * 
 	  * @return point3 coordinates of point extended to normal length
 	 */
-	function _extendSecondPointToNormalLenght raft_length =
+	function _extendSecondPoint raft_length =
 	(
-		--format "\n"; print "SupportRaftUpdater_v._extendSecondPointToNormalLenght()"
+		--format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
 		line_vector = normalize ( Support.points[2] - Support.points[1] )
+		--format "line_vector.z: %\n" line_vector.z
 		
-		Support.points[2] = Support.points[1] + ( raft_length * line_vector ) -- return
+		--if line_vector.z < 0 then
+		Support.points[2] = Support.points[1] + ( raft_length * line_vector )
 	),
 	
 	/** Get secon point position

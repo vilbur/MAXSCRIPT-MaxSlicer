@@ -184,11 +184,20 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		
-		this._alignPivotToRaft()
+		--this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
 		
 		this.update_mode = false
+		
+		--dir_vector_current = normalize (support_obj.pos - points[1] )
+
+		--format "TEST VEC: %\n" (this.dir_vector.z < 0.0 )
+		--format "this.dir_vector.z: %\n" this.dir_vector.z
+		--if direction == #CUSTOM and this.dir_vector.z < 0.0 then
+		if direction == #CUSTOM and obj_type == #SUPPORT and points.count > 2 then
+		--if direction == #CUSTOM then
+			setUserPropVal support_obj "DIR_VECTOR" this.dir_vector
 
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -206,12 +215,18 @@ struct SupportObject_v
 
 		/* CREATE LEG */ 
 		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
-		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg( if SupportRaft.foot_space_exists then min_leg_pos else 0 )
+		if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
+		(
+				--SupportLeg.createLeg( min_leg_pos )
+			if points[2].z > 0 then
+				SupportLeg.createLeg( if SupportRaft.foot_space_exists then min_leg_pos else 0 )
+			
+			/* CREATE FOOT */ 
+			if SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists then 
+				SupportFoot.createFoot()
+			
+		)
 		
-		/* CREATE FOOT */ 
-		if SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists then 
-			SupportFoot.createFoot()
 	),
 	
 	
@@ -683,8 +698,8 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction new_support:false =
 	(
-		--format "\n"; print "SupportObject_v._setMinLimints()"
-		----format "direction: %\n" direction
+		format "\n"; print "SupportObject_v._setMinLimints()"
+		format "direction: %\n" direction
 		--format "leg_knot: %\n" leg_knot
 		--format "dir_vector: %\n" dir_vector
 		--format "bar_width: %\n" bar_width
@@ -741,7 +756,7 @@ struct SupportObject_v
 		dir_vector_current = normalize ( points[1] - support_obj.pos )
 		--format "dir_vector_current: %\n" dir_vector_current
 		--format "this.dir_vector:    %\n" this.dir_vector
-		
+
 		
 		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
 		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
@@ -752,7 +767,7 @@ struct SupportObject_v
 		
 		min_leg_pos = minimal_lenght_by_angle + dilatation 
 		
-		min_support_pos = min_leg_pos + chamfer_val
+		--min_support_pos = min_leg_pos + chamfer_val
 		
 		min_foot_pos = min_leg_pos + base_height
 		

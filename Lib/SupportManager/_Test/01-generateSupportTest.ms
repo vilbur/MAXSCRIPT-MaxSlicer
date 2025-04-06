@@ -40,12 +40,10 @@ obj = $PackMan
 -- pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 pos_z = 1
 -- pos_z = 1.2
-
 pos_z = 1.5
-
 -- pos_z = 2
--- pos_z = 3
--- pos_z = 10
+ --pos_z = 3
+ pos_z = 10
 
 --if selection.count == 0 then
 (
@@ -58,7 +56,7 @@ pos_z = 1.5
 /* SELECT VERTS  BY COLORS */ 
 select_verts	= #{}
  
-select_verts += verts_colors["red"]
+-- select_verts += verts_colors["red"]
 -- select_verts += verts_colors["orange"]
 select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors[clr_cyan]
@@ -135,8 +133,38 @@ generateSupportsOrRafts obj_type:#SUPPORT
 
 
 
-/* POST TEST  */
+/*------------------------------------------------------------------------------
+
+	POST TEST
+
+--------------------------------------------------------------------------------*/
 
 -- move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
 
+SUPPORT_OPTIONS.getOption
+all_supports = $'*-support-*'
+
+single_support = all_supports[all_supports.count]
+
+
+select single_support
+
+move single_support [ 0, -10, 0 ]
+
+
 select $PackMan
+
+/* UPDATE MODIFIER */
+
+
+--select $'*-support-*' -- SELECT ALL SUPPORT
+
+
+-- SUPPORT_OPTIONS.setOptionValue #BAR_WIDTH 3.0
+
+-- SUPPORT_OPTIONS.init()
+
+
+--MODIFIERS_MANAGER.updateModifier( selection as array )( #BAR_WIDTH  )
+
+--move $PackMan [ 0, 0, 5 ]

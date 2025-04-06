@@ -70,8 +70,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportObject_v.generateSupport()"
+		format "\n----------------------------------------------\n"
+		format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 				
@@ -469,6 +469,7 @@ struct SupportObject_v
 	 */
 	function _setDirVector dir_vector =
 	(
+		--format "\n"; print "SupportObject_v._setDirVector()"
 		this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
 	),
 		
@@ -794,7 +795,7 @@ struct SupportObject_v
 			
 			
 		/* SET OR UPDATE VALUES */
-		
+		normal_length = if ( prop_val = getUserPropVal support_obj "NORMAL_LENGTH" ) != undefined then prop_val else SUPPORT_OPTIONS.getOption "NORMAL_LENGTH"
 		
 		
 		--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( dir_vector_current ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]

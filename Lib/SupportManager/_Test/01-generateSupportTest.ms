@@ -107,7 +107,7 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  NORMAL LENGTH  */
-SUPPORT_OPTIONS.lock_normal_length = false
+-- SUPPORT_OPTIONS.lock_normal_length = false
 /*------------------------------------------------------------------------------
 	GENERATE SUPPORTS
 --------------------------------------------------------------------------------*/

@@ -25,10 +25,10 @@ struct SupportRaft_v
 	 */
 	function createRaft =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportRaft_v.createRaft()"
-		format "Support.normal_length: %\n" Support.normal_length
-		--format "Support.dir_vector: %\n" Support.dir_vector
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportRaft_v.createRaft()"
+		--format "Support.dir_vector:    %\n" Support.dir_vector
+		--format "Support.normal_length: %\n" Support.normal_length
 
 		/* FOR PRECISE COMPARSION OF FLOATS */ 
 		--function  _float val = ( val as string ) as float
@@ -47,13 +47,14 @@ struct SupportRaft_v
 		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
 		/* SET 2nd POINT */ 
-		Support.points[2] = if Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length then
-								/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
-								Support.support_obj.pos
-							
-							else /* LOCK NORMAL LENGTH */ 
-								Support.points[1] + ( Support.normal_length * Support.dir_vector )
+		--Support.points[2] = if Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length then
+		--						/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
+		--						Support.support_obj.pos
+		--					
+		--					else /* LOCK NORMAL LENGTH */ 
+		--						Support.points[1] + ( Support.normal_length * Support.dir_vector )
 		
+		Support.points[2] =Support.points[1] + ( Support.normal_length * Support.dir_vector )
 
 	    this._testHitOfSourceObject( Support.normal_length )
 		
@@ -106,11 +107,12 @@ struct SupportRaft_v
 		is_space_for_leg = isSpaceForRaftAndLeg()
 		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
 		
+		
 		--format "notSupportInMininmalMode: %\n" (notSupportInMininmalMode())
-		--if notSupportInMininmalMode() then 
+		if notSupportInMininmalMode() then 
 			setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
-		--
-		--if raftHasNormalLenght() then
+		
+		if raftHasNormalLenght() then
 			setUserPropVal Support.support_obj "NORMAL_LENGTH" Support.normal_length
 
 		

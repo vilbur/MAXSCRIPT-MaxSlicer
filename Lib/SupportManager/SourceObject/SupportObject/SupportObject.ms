@@ -79,7 +79,9 @@ struct SupportObject_v
 		
 		this.direction = direction
 		
-		this._setDirVector(dir_vector)
+		this.dir_vector = dir_vector
+		
+		--this._setDirVector(dir_vector)
 		
 		this._setProperties()
 		
@@ -128,10 +130,10 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportObject_v.updateSupport()"
+		----format "\n===========================================================\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
@@ -159,9 +161,9 @@ struct SupportObject_v
 		
 		this._setNormalLenght update_raft:update_raft
 
-		this._setMinLimints (direction)
+		this._setDirVector (dir_vector) update_raft:update_raft
 
-		--this._setDirVector(dir_vector)
+		this._setMinLimints (direction)
 
 		this._keepVectorDown()
 		
@@ -426,22 +428,20 @@ struct SupportObject_v
         setUserPropVal support_obj "BASE_HEIGHT"  base_height
         setUserPropVal support_obj "CHAMFER_VAL"  chamfer_val
 	),
-	
-	/** Get points positions from line
-	 */
-	function _getPointsPositionsFromLine =
-	(
-		--format "\n"; print "SupportObject_v._getPointsPositionsFromLine()"
-		for knot = 1 to numKnots support_obj spline_1 collect getKnotPoint support_obj spline_1 knot
-	),
 		
 	/** Get vector of raft from current line if not defined
 	  * 
 	 */
-	function _setDirVector dir_vector =
+	function _setDirVector dir_vector update_raft:false =
 	(
 		--format "\n"; print "SupportObject_v._setDirVector()"
-		this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
+		--format "update_raft: %\n" update_raft
+		--this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
+		this.dir_vector = if update_raft then
+			 normalize (points[2] - points[1])
+		else
+			getUserPropVal support_obj "DIR_VECTOR"
+		
 	),
 		
 	/** Set normal lenght
@@ -450,8 +450,8 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setNormalLenght()"
 		
-		normal_length = if update_raft then
-			 distance points[2] points[1]
+		this.normal_length = if update_raft and not SUPPORT_OPTIONS.lock_normal_length then
+			 distance points[1] points[2]
 		else
 			getUserPropVal support_obj "NORMAL_LENGTH"
 	),
@@ -511,8 +511,8 @@ struct SupportObject_v
 			else
 			(
 				
-				format "this.dir_vector: %\n" this.dir_vector
-				format "current vector:  %\n" ( normalize ( points[2] - points[1] ))
+				--format "this.dir_vector: %\n" this.dir_vector
+				--format "current vector:  %\n" ( normalize ( points[2] - points[1] ))
 				--format "compare:         %\n" ( comaprePoint3 (this.dir_vector)(normalize ( points[2] - points[1]) ))
 				
 				current_values[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
@@ -608,6 +608,13 @@ struct SupportObject_v
 
 	),
 	
+	/** Get points positions from line
+	 */
+	function _getPointsPositionsFromLine =
+	(
+		--format "\n"; print "SupportObject_v._getPointsPositionsFromLine()"
+		for knot = 1 to numKnots support_obj spline_1 collect getKnotPoint support_obj spline_1 knot
+	),
 	
 	----/** Check dir vector
 	-- */

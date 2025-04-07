@@ -38,7 +38,9 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* support properties */
-	changed_values = Dictionary(),
+	changed_props = Dictionary(),
+	
+	min_lenght_by_angle,
 	
 	normal_length,
 	bar_width,
@@ -90,7 +92,7 @@ struct SupportObject_v
 		this._setProperties()
 		
 
-		this._setMinLimints (direction) new_support:true
+		this._setMinLimints (direction)
 
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
@@ -168,7 +170,7 @@ struct SupportObject_v
 
 		this._setDirVector (dir_vector) update_raft:update_raft
 		
-		this._setMinLimints(direction)
+		this._setMinLimints(direction) update_raft:update_raft
 
 		this._keepVectorDown()
 		
@@ -440,7 +442,7 @@ struct SupportObject_v
 	function _setDirVector dir_vector update_raft:false =
 	(
 		--format "\n"; print "SupportObject_v._setDirVector()"
-		--format "CHANGED_VALUES: %\n" changed_values.keys
+		--format "CHANGED_VALUES: %\n" changed_props.keys
 		--format "update_raft: %\n" update_raft
 		--this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
 		this.dir_vector = if update_raft then
@@ -505,9 +507,9 @@ struct SupportObject_v
 			
 			for prop in current_values.keys do
 				if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
-					changed_values[prop] = this_prop_value
+					changed_props[prop] = this_prop_value
 		
-			changed_values --return
+			changed_props --return
 		)
 		
 		/** Get current values
@@ -542,62 +544,31 @@ struct SupportObject_v
 		support - 135° > remove 45% of bar with
 		support - 180° > remove 0%  of bar with
 	 */
-	function _setMinLimints direction new_support:false =
+	function _setMinLimints direction update_raft:true =
 	(
 		--format "\n"; print "SupportObject_v._setMinLimints()"
-		--format "CHANGED_VALUES: %\n" changed_values.keys
-
-        /* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */         
-		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-
-        /* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
-		min_raft_length = minimal_lenght_by_angle + chamfer_val + dilatation -- chmfer is removing length of raft also
+		--format "changed_props: %\n" changed_props.keys
+		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
+        update_min_raft_length = update_raft or changed_props[#CHAMFER_VAL] != undefined or update_minimal_lenght
+        update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 		
-		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
-		min_leg_pos = minimal_lenght_by_angle + dilatation 
+			
+			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
+		if update_minimal_lenght then
+			min_lenght_by_angle = this._getMinLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+	
+			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
+		if update_min_raft_length then
+			min_raft_length = min_lenght_by_angle + chamfer_val --+ dilatation -- chmfer is removing length of raft also
+			
+			/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
+		if update_minimal_lenght then
+			min_leg_pos = min_lenght_by_angle --+ dilatation 
+			
+			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
+		if update_min_foot_pos then
+			min_foot_pos = min_leg_pos + base_height
 		
-		/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
-		min_foot_pos = min_leg_pos + base_height
-		
-		--
-		--if new_support or changed_values.keys.count > 0 then
-		--(
-		--	--format "SET OR UPDATE VALUES \n"
-		--	/* UPDATE PROPS OF THIS */ 
-		--	for prop in current_values.keys do
-		--		setProperty this prop current_values[prop]
-		--		
-		--	--minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-		--	
-		--	/*------------------------------------------------------------------------------
-		--		MINIMAL NORMAL LENGTH
-		--	--------------------------------------------------------------------------------*/
-		--	
-		--	/* PRECISE MINIMAL LENGTH BY ANGLE OF SUPPORT */ 
-		--	--this.min_raft_length = minimal_lenght_by_angle + chamfer_val
-		--
-		--	--------/* FAST MINIMAL LENGTH BY WIDTH OF BAR -- left THERE JUST FOR CASE OF SPEED OPTIMALIZATION */ 
-		--	--------this.min_raft_length = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
-		--	
-		--	/*------------------------------------------------------------------------------
-		--		MINIMAL LEG AND FOOT Z POSITION
-		--	--------------------------------------------------------------------------------*/
-		--	
-		--	--min_leg_pos = base_height + dilatation 
-		--	--
-		--	--min_foot_pos = copy min_leg_pos
-		--	--
-		--	--if direction != #DOWN then
-		--	--(
-		--	--	--format "ADD_BY_ANGLE: %\n" add_by_angle
-		--	--	min_leg_pos =  minimal_lenght_by_angle + dilatation 
-		--	--	
-		--	--	min_foot_pos += minimal_lenght_by_angle
-		--	--)
-		--	--else /* UPDATE DOWN DIRECTION */
-		--	--	min_foot_pos += chamfer_val
-		--)
-
 	),
 	
 	/** Get points positions from line
@@ -820,7 +791,7 @@ struct SupportObject_v
 	
 	/** Get minimal lenght of segment by angle to KEEP CLEAND CORNERS OF SWEEP MODIFIER 
 	 */
-	function _getMinimalLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfer:false */=
+	function _getMinLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfalse */=
 	(
 		--format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
 		--format "first_knot_pos:  %\n" first_knot_pos

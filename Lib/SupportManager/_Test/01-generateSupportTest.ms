@@ -107,7 +107,9 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  NORMAL LENGTH  */
--- SUPPORT_OPTIONS.lock_normal_length = false
+SUPPORT_OPTIONS.lock_normal_length = false
+
+
 /*------------------------------------------------------------------------------
 	GENERATE SUPPORTS
 --------------------------------------------------------------------------------*/
@@ -149,8 +151,13 @@ single_support = all_supports[all_supports.count]
 
 select single_support
 
-format "      MOVE            \n"
+format " TEST:  MOVE SUPPORT\n"
 move single_support [ 0, -10, 0 ]
+
+format " TEST:  MOVE SOURCE OBJECT\n"
+
+select $PackMan
+move  $PackMan [ 0, 0, 10 ]
 
 
 -- select $PackMan

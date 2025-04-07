@@ -18,6 +18,8 @@ struct SourceObjectTransformEventBinder_v
 	--delay_ms = 20,
 	
 	binded_objects = #(),
+	
+	moved_objects = #(),
 
 	transform_data = Dictionary #STRING,
 	
@@ -44,17 +46,12 @@ struct SourceObjectTransformEventBinder_v
 			
 		deleteAllChangeHandlers id:#onSourceObjectTransform
 		
-		/* DO THIS WHEN NODES CHANESTRANSFORM */ 
+		/* DO THIS WHEN NODES CHANGES TRANSFORM */ 
 		when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 		(
-			
-			--for obj in binded_objects where transform_data[this._getPointer obj] == undefined do 
-			--	this._setTransformData(obj)
-			--if selection.min.z < 0 then
-			--(
-			--	selection.center.z += abs selection.min.z
-			--	
-			--)		
+			--format "when transform binded_objects changes: %\n" obj
+
+			appendIfUnique moved_objects obj
 			
 			if this.delay_timer == undefined then
 			(
@@ -66,6 +63,8 @@ struct SourceObjectTransformEventBinder_v
 	),
 
 	/** Start timeout
+	  * 
+	  * EXECUTE onSourceObjectTransform() on timeout
 	 */
 	function _startObjectTransformTimeout =
 	(

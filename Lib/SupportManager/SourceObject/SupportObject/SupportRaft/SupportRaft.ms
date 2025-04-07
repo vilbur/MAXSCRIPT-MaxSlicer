@@ -108,14 +108,15 @@ struct SupportRaft_v
 		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
 		
 		
-		--format "notSupportInMininmalMode: %\n" (notSupportInMininmalMode())
+		/* SAVE DIR VECTOR IF SUPPORT IS NOT MINIMAL */ 
 		if notSupportInMininmalMode() then 
 			setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
 		
+		
+		/* SAVE NORMAL LENGTH IF RAFT IS NOT SHORTENED */ 
 		if raftHasNormalLenght() then
 			setUserPropVal Support.support_obj "NORMAL_LENGTH" Support.normal_length
 
-		
 	),
 	
 	/** Make raft shorter

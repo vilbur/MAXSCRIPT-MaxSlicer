@@ -38,6 +38,8 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* support properties */
+	changed_values = Dictionary(),
+	
 	normal_length,
 	bar_width,
 	base_height,
@@ -75,6 +77,8 @@ struct SupportObject_v
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 				
+		this.points = #( first_knot_pos )
+		
 		this._setSupportObject(wirecolor)
 		
 		this.direction = direction
@@ -85,7 +89,6 @@ struct SupportObject_v
 		
 		this._setProperties()
 		
-		this.points = #( first_knot_pos )
 
 		this._setMinLimints (direction) new_support:true
 
@@ -161,18 +164,21 @@ struct SupportObject_v
 		
 		this._setNormalLenght update_raft:update_raft
 
-		this._setDirVector (dir_vector) update_raft:update_raft
+		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
 
-		this._setMinLimints (direction)
+		this._setDirVector (dir_vector) update_raft:update_raft
+		
+		this._setMinLimints(direction)
 
 		this._keepVectorDown()
+		
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
 		this._setSupportLinePoints()
-			
+
 		
 		/*------------------------------------------------------------------------------
 			POST UPDATE
@@ -418,8 +424,7 @@ struct SupportObject_v
         bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
         base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
         normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
-		--format "BAR_WIDTH: %\n" bar_width
-		chamfer_val = SUPPORT_OPTIONS.getChamferBarValue()
+		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
 
         setUserPropVal support_obj "DIR_VECTOR" 	dir_vector
         setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
@@ -435,6 +440,7 @@ struct SupportObject_v
 	function _setDirVector dir_vector update_raft:false =
 	(
 		--format "\n"; print "SupportObject_v._setDirVector()"
+		--format "CHANGED_VALUES: %\n" changed_values.keys
 		--format "update_raft: %\n" update_raft
 		--this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
 		this.dir_vector = if update_raft then
@@ -445,6 +451,11 @@ struct SupportObject_v
 	),
 		
 	/** Set normal lenght
+	  * 
+	  * 1) Get normal length from options if new support is created
+	  * 2) Use current length if support is updated
+	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
+	  * 
 	 */
 	function _setNormalLenght update_raft:false =
 	(
@@ -456,85 +467,71 @@ struct SupportObject_v
 			getUserPropVal support_obj "NORMAL_LENGTH"
 	),
 	
-	/** Check changed props
+	/** Minimal values depedns on isze and direction of support
+	  * 
+	  * 
+	  * 
 	 */
 	function _checkChangedProps =
 	(
 		--format "\n"; print "SupportObject_v._checkChangedProps()"
-				/** Test if values changed
+		/** Test if values changed
 		 */
-		function valuesChanged current_values =
+		function compareValuesWithPropertisOfThis current_values =
 		(
-			--format "\n"; print "SupportObject_v.valuesChanged()"
+			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
+			--format "this.dir_vector: %\n" this.dir_vector
+			--format "current_values:  %\n" current_values[#DIR_VECTOR]
+			
 			/** Compare values  --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001 */
-			
-			
-			--function valuesAreSame val_A val_B eps:1e-3 = if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
-			function valuesAreSame val_A val_B eps:1e-3 =
+			--function valueChanged val_A val_B = val_A as string != val_B as string
+			/** Value changed
+			 */
+			function valueChanged val_A val_B  =
 			(
-				--format "\n"
-				--format "% == %: %\n" val_A val_B (val_A == val_B)
+				--format "\n"; print "SupportObject_v.valueChanged()"
+				--format "val_A: %\n" val_A
+				--format "classOf val_A: %\n" (classOf val_A)
 				
-				--if classOf val_A == point3 then distance val_A val_B < eps else val_A == val_B
-				--val_A == val_B --return
-				val_A as string == val_B as string --return
+				fn comaprePoint3 p1 p2 eps:1e-3 = distance p1 p2 < eps --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001
+				
+				if classOf val_A == point3 then
+					comaprePoint3 val_A val_B  --return
+					
+				else
+					val_A as string != val_B as string
 			)
-
-			changed_values = Dictionary()
-
+			
+			
 			for prop in current_values.keys do
-				--if (prop_value = getProperty this prop) == undefined or not valuesAreSame prop_value current_values[prop] then
-				if (prop_value = getProperty this prop) != undefined and not valuesAreSame prop_value current_values[prop] then
-				--if not valuesAreSame prop_value current_values[prop] then
-					changed_values[prop] = prop_value
+				if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
+					changed_values[prop] = this_prop_value
 		
 			changed_values --return
 		)
 		
 		/** Get current values
 		 */
-		function getCurrentValues new_support =
+		function getCurrentValues =
 		(
 			--format "\n"; print "SupportObject_v.getCurrentValues()"
-			--function comaprePoint3 p1 p2 eps:1e-3 = distance p1 p2 < eps --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001
-
 			current_values = Dictionary()
-	
-			if new_support then
-			(
-				--current_values[#BAR_WIDTH]   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-				current_values[#BAR_WIDTH]   = this.bar_width
-				
-				--current_values[#BASE_HEIGHT] = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-				current_values[#BASE_HEIGHT] = this.base_height
-			)
-			else
-			(
-				
-				--format "this.dir_vector: %\n" this.dir_vector
-				--format "current vector:  %\n" ( normalize ( points[2] - points[1] ))
-				--format "compare:         %\n" ( comaprePoint3 (this.dir_vector)(normalize ( points[2] - points[1]) ))
-				
-				current_values[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
-				--current_values[#DIR_VECTOR]  = getUserPropVal support_obj "DIR_VECTOR"
-				
-				current_values[#BAR_WIDTH]   = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
-				
-				current_values[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
-			)
-	
-			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:current_values[#BAR_WIDTH]
+
+			bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
+			
+			
+			current_values[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
+			
+			current_values[#BAR_WIDTH]   = bar_width_current
+			
+			current_values[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
+		
+			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
 			
 			current_values --return
 		)
 
-		
-		/* GET CURRENT VALUES */ 
-		current_values = getCurrentValues (new_support)
-		
-		changed_values = valuesChanged( current_values )
-		format "CHANGED_VALUES: %\n" changed_values.keys
-		
+		compareValuesWithPropertisOfThis( getCurrentValues() )
 	),
 	
 	/** Set minimal foot pos
@@ -548,23 +545,18 @@ struct SupportObject_v
 	function _setMinLimints direction new_support:false =
 	(
 		--format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "CHANGED_VALUES: %\n" changed_values.keys
 
-		--dir_vector_current = normalize ( points[1] - support_obj.pos )
-
-		
-		--if changed_values[#DIR_VECTOR] != undefined then 
-			--this.dir_vector = changed_values[#DIR_VECTOR]
-		--this.dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-			
-
+        /* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */         
 		minimal_lenght_by_angle = this._getMinimalLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
-		--format "MINIMAL_LENGHT_BY_ANGLE: %\n" minimal_lenght_by_angle
+
+        /* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
+		min_raft_length = minimal_lenght_by_angle + chamfer_val + dilatation -- chmfer is removing length of raft also
 		
-		
-		min_raft_length = minimal_lenght_by_angle + chamfer_val + dilatation  -- chmfer is removing length of raft also
-		
+		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		min_leg_pos = minimal_lenght_by_angle + dilatation 
 		
+		/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		min_foot_pos = min_leg_pos + base_height
 		
 		--

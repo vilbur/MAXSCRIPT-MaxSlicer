@@ -1,11 +1,11 @@
-/*
+/*------------------------------------------------------------------------------
+
+	
 	USED IN:
 		"./../../SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms"
-		
 
-*/ 
 
-------global SOURCE_OBJECT_TRANSFORM = undefined  -- Dictionary KEYS:#OBJECT|#POS_Z|#ROTATION
+--------------------------------------------------------------------------------*/
 
 
 /** Execute callback on timeout
@@ -32,13 +32,15 @@ function onSourceObjectTransform sender evt =
 	)
 	
 
-	/* UPDATE IF LMB IS NOT PRESSED */ 
-	if selection.count > 0 and not mouse.buttonStates[1] then
-	--if selection.count > 0  then
+	/* UPDATE WHEN LBM IS RELEASED */ 
+	--if selection.count > 0 and not mouse.buttonStates[1] then
+	if not mouse.buttonStates[1] then
 	(
 		--format "\n"; print "onSourceObjectTransform.ms.onSourceObjectTransform()"
-		source_objects = for obj in selection where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
+		source_objects = for obj in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
 
+		
+		
 		obj = source_objects[1]
 		
 		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
@@ -58,9 +60,7 @@ function onSourceObjectTransform sender evt =
 		/* Update SourceObject and its suports if necessary */
 		if what_to_update != #POSITION_XY then
 		try(
-			
-			
-			
+
 			/*------------------------------------------------------------------------------
 			  
 				EXECUTE UPDATE
@@ -68,10 +68,6 @@ function onSourceObjectTransform sender evt =
 			--------------------------------------------------------------------------------*/
 			
 			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
-			
-			
-			
-			
 			
 		)
 		catch

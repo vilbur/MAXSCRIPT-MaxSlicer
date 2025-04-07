@@ -146,34 +146,6 @@ struct SourceObject_v
 		format "new_nodes: %\n" new_nodes
 		new_nodes
 	),
-	
-	/** SET USER DATA TO SUPPORT OBJECT
-	 */
-	function _saveUserPropsToSupport SupportObject vert direction =
-	(
-		support_obj = SupportObject.support_obj
-		
-		support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
-		support_key_val  = (getHandleByAnim support_obj) as string
-		
-		
-		setUserPropVal support_obj "SYNC_KEY"	SupportObject.sync_key
-		
-		setUserPropVal support_obj support_key_prop support_key_val
-		
-		setUserPropVal support_obj "INDEX"	vert
-		
-		--setUserPropVal support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
-
-		setUserPropVal support_obj "FOOT_ENABLED"	SupportObject.foot_enabled
-		setUserPropVal support_obj "FOOT_EXISTS"	SupportObject.foot_exists
-		
-		setUserPropVal support_obj "DIRECTION" direction --asString:true
-		
-		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-		
-		setUserPropVal support_obj "NORMAL_LENGTH" SUPPORT_OPTIONS.normal_length
-	),
 
 	/** Reset supports
 	 */
@@ -472,6 +444,35 @@ struct SourceObject_v
 	),
 	
 	private
+	
+	/** SET USER DATA TO SUPPORT OBJECT
+	 */
+	function _saveUserPropsToSupport SupportObject vert direction =
+	(
+		support_obj = SupportObject.support_obj
+		
+		support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
+		support_key_val  = (getHandleByAnim support_obj) as string
+		
+		
+		setUserPropVal support_obj "SYNC_KEY"	SupportObject.sync_key
+		
+		setUserPropVal support_obj support_key_prop support_key_val
+		
+		setUserPropVal support_obj "INDEX"	vert
+		
+		setUserPropVal support_obj "DIRECTION" direction --asString:true
+		
+		--setUserPropVal support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
+
+		setUserPropVal support_obj "FOOT_ENABLED"	SupportObject.foot_enabled
+		setUserPropVal support_obj "FOOT_EXISTS"	SupportObject.foot_exists
+		
+		
+		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+		
+		setUserPropVal support_obj "NORMAL_LENGTH" SUPPORT_OPTIONS.normal_length
+	),
 
 	/** Get Supports 
 	  * 

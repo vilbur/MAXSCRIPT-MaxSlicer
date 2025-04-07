@@ -15,69 +15,60 @@ struct SupportRaft_v
 	/* dependency */
 	/* reference */
 	/* inhered */
+	
+	/* COMPARE FLOATS - is A >= B */ 
+	function isMoreThen A B = (( A as string ) as float ) >= (( B as string ) as float ),
+	
+	function raftLenght = (distance this.Support.points[1] this.Support.points[2]),
 
 	/** Generate raft
 	 */
 	function createRaft =
 	(
-		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportRaft_v.createRaft()"
-		format "Support.dir_vector: %\n" Support.dir_vector
+		format "\n----------------------------------------------\n"
+		format "\n"; print "SupportRaft_v.createRaft()"
+		format "Support.normal_length: %\n" Support.normal_length
+		--format "Support.dir_vector: %\n" Support.dir_vector
 
 		/* FOR PRECISE COMPARSION OF FLOATS */ 
-		function  _float val = ( val as string ) as float
+		--function  _float val = ( val as string ) as float
 		
-		/** GET LENGHT OF RAFT */
-		function raftLenght = _float( distance Support.points[1] Support.points[2] )
+		/* GET LENGHT OF RAFT */
+		--function raftLenght = (distance this.Support.points[1] this.Support.points[2])
+		
+		--function raftHasMinLenght = isMoreThen (distance Support.points[1] Support.points[2]) ( Support.min_raft_length )
+		function raftHasMinLenght  	= isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
+		function raftHasNormalLenght	= isMoreThen ( this.raftLenght() )  ( Support.normal_length )
+		function isSpaceForRaftAndLeg	= isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos )
 
-		function isSpaceForRaftAndLeg = _float( Support.points[1].z ) >= _float( Support.min_raft_length + Support.min_leg_pos )
-		
-		function isLegPointAboveMinLimit min_z_pos = _float(Support.points[2].z ) >= _float( min_z_pos )
-		
-		function raftHasNormalLenght = raftLenght() >= _float( Support.normal_length )
-		
-		function raftHasMinLenght = raftLenght() >= _float( Support.min_raft_length )
+		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[2].z ) ( min_z_pos )
 
-		function notSupportInMininmalMode = (Support.direction != #NORMAL or Support.direction != #CUSTOM ) and Support.dir_vector != [0,0,-1]
+		--function notSupportInMininmalMode = ( Support.direction != #NORMAL or Support.direction != #CUSTOM ) and Support.dir_vector != [0,0,-1]
+		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
-		--is_space_for_leg = false
-		--foot_space_exists = false
-		--format "Support.update_mode: %\n" Support.update_mode
-		--format "TEST: %\n" (Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length)
-		--normal_length = Support.normal_length
+		/* SET 2nd POINT */ 
+		Support.points[2] = if Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length then
+								/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
+								Support.support_obj.pos
+							
+							else /* LOCK NORMAL LENGTH */ 
+								Support.points[1] + ( Support.normal_length * Support.dir_vector )
 		
-		/* USE MODIFIED NORMAL LENGHT - 2nd point is PIVOT of support */ 
-		if Support.update_mode and not SUPPORT_OPTIONS.lock_normal_length then
-			Support.points[2] = Support.support_obj.pos
-		
-		else /* LOCK NORMAL LENGTH */ 
-			Support.points[2] = Support.points[1] + ( Support.normal_length * Support.dir_vector )
-		
-		raft_length = distance Support.points[1] Support.points[2]
-		--format "min_raft_length: %\n" Support.min_raft_length
-		----format "raft_length:     %\n" raft_length
-		--
-		--format "\n"
-		--format "Support.min_leg_pos:  %\n" Support.min_leg_pos
-		--format "Support.min_foot_pos: %\n" Support.min_foot_pos
-		--format "Support.points[1].z:  %\n" Support.points[1].z
-		--format "Support.points[2].z:  %\n" Support.points[2].z
-		--format "Support.points[1]:  %\n" Support.points[1]
-		--format "Support.points[2]:  %\n" Support.points[2]		
-		--format "\n"
+
 	    this._testHitOfSourceObject( Support.normal_length )
-		--has_leg_min_height = Support.points[1].z > Support.min_support_pos
-		--leg_space_exists = isLegPointAboveMinLimit( Support.min_leg_pos )
-
-		--format "SUPPORT_SPACE_EXISTS: %\n" (isSpaceForRaftAndLeg())
+		
+		--format "hit_raft: %\n" hit_raft
+		--format "isSpaceForRaftAndLeg: %\n" (isSpaceForRaftAndLeg())
 		--format "LEG_SPACE_EXISTS:     %\n" (isLegPointAboveMinLimit( Support.min_leg_pos ))
 		--format "RAFT IS SHORT:        %\n" (raftHasMinLenght())
-		--format "HAS NORMAL LENGHT:    %\n" (raftHasNormalLenght())
+		--format "HAS NORMAL LENGHT:      %\n" (raftLenght())
+		--format "RAFT HAS NORMAL LENGHT: %\n" (raftHasNormalLenght())
 		
 		if hit_raft == undefined then
 		(
 			if isSpaceForRaftAndLeg() then
 			(
+				
 				--format "IS SPACE FOR RAFT AND LEG\n"
 				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 				if not raftHasNormalLenght() then
@@ -94,17 +85,9 @@ struct SupportRaft_v
 					this._extendSecondPoint(Support.min_raft_length)
 					
 					/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
-					if Support.points[2].z > Support.points[1].z then
-						Support.points[2].z = 0
-				)
-				
-				--format "notSupportInMininmalMode: %\n" notSupportInMininmalMode
-				if notSupportInMininmalMode() then 
-					setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
-
-				if raftHasNormalLenght() then
-					setUserPropVal Support.support_obj "NORMAL_LENGTH" Support.normal_length
-				
+					--if Support.points[2].z > Support.points[1].z then
+					--	Support.points[2].z = 0
+				)				
 			)
 			/* SUPPORT MINIMAL MODE - only 2 points straight to ground - if support has not minimla height */ 
 			else
@@ -121,7 +104,16 @@ struct SupportRaft_v
 			Support.points[2] = hit_raft
 	
 		is_space_for_leg = isSpaceForRaftAndLeg()
-		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )  
+		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
+		
+		--format "notSupportInMininmalMode: %\n" (notSupportInMininmalMode())
+		--if notSupportInMininmalMode() then 
+			setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
+		--
+		--if raftHasNormalLenght() then
+			setUserPropVal Support.support_obj "NORMAL_LENGTH" Support.normal_length
+
+		
 	),
 	
 	/** Make raft shorter

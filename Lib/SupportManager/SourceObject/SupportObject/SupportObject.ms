@@ -59,9 +59,10 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
-	--dilatation  = 0.1, 
-	dilatation  = 0.15, -- add little space to minimal positions to make it work fine ;)
-	--dilatation  = 0.5, 
+	dilatation  = 0.1, 
+	--dilatation  = 0.15, -- add little space to minimal positions to make it work fine ;)
+	----dilatation  = 0.5, 
+	--dilatation  = 0.25, 
 
 	public
 
@@ -137,7 +138,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
-		--format "\n===========================================================\n"
+		format "\n===========================================================\n"
 		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
@@ -554,7 +555,9 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction update_raft:true =
 	(
-		--format "\n"; print "SupportObject_v._setMinLimints()"
+		format "\n"; print "SupportObject_v._setMinLimints()"
+		format "direction: %\n" direction
+		format "this.dir_vector: %\n" this.dir_vector
 		--format "update_raft: %\n" update_raft
 		
 		--format "changed_props: %\n" changed_props.keys
@@ -573,7 +576,7 @@ struct SupportObject_v
 		
 			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
-			min_lenght_by_angle = this._getMinLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
+			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
 	
 			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
@@ -585,9 +588,12 @@ struct SupportObject_v
 			
 			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		if update_min_foot_pos then
-			min_foot_pos = min_lenght_by_angle + base_height
+			min_foot_pos = min_lenght_by_angle + base_height + dilatation
+		
+		
 		
 		format "min_lenght_by_angle: %\n" min_lenght_by_angle
+		format "min_raft_length:     %\n" min_raft_length
 		format "min_foot_pos:        %\n" min_foot_pos
 		format "min_leg_pos:         %\n" min_leg_pos
 	),

@@ -39,7 +39,7 @@ struct SupportRaft_v
 		--function raftHasMinLenght = isMoreThen (distance Support.points[1] Support.points[2]) ( Support.min_raft_length )
 		function raftHasMinLenght  	= isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
 		function raftHasNormalLenght	= isMoreThen ( this.raftLenght() )  ( Support.normal_length )
-		function isSpaceForRaftAndLeg	= isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos )
+		function isSpaceForRaftAndLeg	= isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[2].z ) ( min_z_pos )
 
@@ -59,7 +59,7 @@ struct SupportRaft_v
 	    this._testHitOfSourceObject( Support.normal_length )
 		
 		--format "hit_raft: %\n" hit_raft
-		--format "isSpaceForRaftAndLeg: %\n" (isSpaceForRaftAndLeg())
+		format "isSpaceForRaftAndLeg: %\n" (isSpaceForRaftAndLeg())
 		--format "LEG_SPACE_EXISTS:     %\n" (isLegPointAboveMinLimit( Support.min_leg_pos ))
 		--format "RAFT IS SHORT:        %\n" (raftHasMinLenght())
 		--format "HAS NORMAL LENGHT:      %\n" (raftLenght())
@@ -67,10 +67,11 @@ struct SupportRaft_v
 		
 		if hit_raft == undefined then
 		(
-			if isSpaceForRaftAndLeg() then
-			(
+			--if isSpaceForRaftAndLeg() then
+			--(
 				
 				--format "IS SPACE FOR RAFT AND LEG\n"
+				format "not raftHasNormalLenght(): %\n" (not raftHasNormalLenght())
 				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 				if not raftHasNormalLenght() then
 					this._extendSecondPoint( Support.normal_length )
@@ -80,27 +81,44 @@ struct SupportRaft_v
 					--this._shortenRaftOnDirection( Support.min_foot_pos + 0.1 )
 					this._shortenRaftOnDirection( Support.min_foot_pos )
 
-				/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
+				/* IF RAFT IS TOO SHORT ( small support without foot ) */ 
 				if not raftHasMinLenght() then
 				(
-					--format "RAFT IS SHORT\n"
-					this._extendSecondPoint(Support.min_raft_length)
-					
+					/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
+					format "RAFT IS SHORT\n"
+					this._extendSecondPoint(Support.normal_length)
+					--this._extendSecondPoint(Support.min_raft_length)
+					format "Support.points[1]: %\n" Support.points[1]
+					format "Support.points[2]: %\n" Support.points[2]
+					format "TEST: %\n" (Support.points[2].z > Support.points[1].z)
 					/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
+					--if Support.points[2].z > Support.points[1].z or Support.points[2].z < 0 then
 					--if Support.points[2].z > Support.points[1].z then
-					--	Support.points[2].z = 0
-				)				
-			)
+					if Support.points[2].z < Support.min_leg_pos then
+					(
+						format "!!! NOT SPACE FOR RAFT AND LEG\n"
+
+					--	format "SET MIN LEG POS\n"
+						--if Support.points[2].z < Support.min_leg_pos then
+						this._shortenRaftOnDirection( Support.min_leg_pos )
+
+					--	Support.points[2].z = Support.min_leg_pos
+					)
+				)
+				
+				if Support.points[2].z > Support.points[1].z then
+				(
+					format "NOT SPACE FOR RAFT AND LEG\n"
+					pos = copy Support.points[1]
+					
+					pos.z = 0
+					
+					Support.points[2] = pos
+				)
+				
+				
 			/* SUPPORT MINIMAL MODE - only 2 points straight to ground - if support has not minimla height */ 
-			else
-			(
-				--format "NOT SPACE FOR RAFT AND LEG\n"
-				pos = copy Support.points[1]
-				
-				pos.z = 0
-				
-				Support.points[2] = pos
-			)
+			--else
 		)
 		else
 			Support.points[2] = hit_raft
@@ -150,7 +168,7 @@ struct SupportRaft_v
 	 */
 	function _extendSecondPoint raft_length =
 	(
-		--format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
+		format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
 		--format "Support.dir_vector: %\n" Support.dir_vector
 		--line_vector = normalize ( Support.points[2] - Support.points[1] )
 		line_vector = Support.dir_vector

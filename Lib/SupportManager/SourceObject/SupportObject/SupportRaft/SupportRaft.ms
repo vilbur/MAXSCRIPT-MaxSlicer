@@ -77,6 +77,7 @@ struct SupportRaft_v
 				
 				/* SHORTEN REAFT IF ITS TOO LONG and goes under min size of leg ( foot can not be created ) */ 
 				if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
+					--this._shortenRaftOnDirection( Support.min_foot_pos + 0.1 )
 					this._shortenRaftOnDirection( Support.min_foot_pos )
 
 				/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
@@ -106,7 +107,7 @@ struct SupportRaft_v
 	
 		is_space_for_leg = isSpaceForRaftAndLeg()
 		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
-		
+		format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 		
 		/* SAVE DIR VECTOR IF SUPPORT IS NOT MINIMAL */ 
 		if notSupportInMininmalMode() then 

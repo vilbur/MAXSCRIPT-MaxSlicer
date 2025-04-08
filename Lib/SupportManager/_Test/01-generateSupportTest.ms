@@ -43,7 +43,7 @@ pos_z = 1
 pos_z = 1.5
 -- pos_z = 2
  --pos_z = 3
- pos_z = 10
+ -- pos_z = 10
 
 --if selection.count == 0 then
 (
@@ -56,9 +56,9 @@ pos_z = 1.5
 /* SELECT VERTS  BY COLORS */ 
 select_verts	= #{}
  
--- select_verts += verts_colors["red"]
+select_verts += verts_colors["red"]
 -- select_verts += verts_colors["orange"]
-select_verts += verts_colors[clr_pink]
+-- select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors[clr_cyan]
 -- select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_blue]
@@ -149,15 +149,15 @@ all_supports = $'*-support-*'
 single_support = all_supports[all_supports.count]
 
 
-select single_support
+-- select single_support
 
-format " TEST:  MOVE SUPPORT\n"
-move single_support [ 0, -10, 0 ]
+-- format " TEST:  MOVE SUPPORT\n"
+-- move single_support [ 0, -10, 0 ]
 
-format " TEST:  MOVE SOURCE OBJECT\n"
+-- format " TEST:  MOVE SOURCE OBJECT\n"
 
 select $PackMan
-move  $PackMan [ 0, 0, 10 ]
+-- move  $PackMan [ 0, 0, 10 ]
 
 
 -- select $PackMan

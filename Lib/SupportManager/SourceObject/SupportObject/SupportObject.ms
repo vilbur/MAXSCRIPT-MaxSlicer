@@ -137,12 +137,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
-		----format "\n===========================================================\n"
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n===========================================================\n"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
-		--format "update_raft: %\n" update_raft
+		format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
 		--points = this._getPointsPositionsFromLine()
@@ -493,20 +493,28 @@ struct SupportObject_v
 			(
 				--format "\n"; print "SupportObject_v.valueChanged()"
 				--format "val_A: %\n" val_A
+				--if classOf val_A == point3 then
+				--(
+				--	format "%\n%\n" val_A val_B
+				--	format "valueChanged: %\n" (distance val_A val_B > 0.001)
+				--	format "this_prop_value: %\n" (this_prop_value = getProperty this #DIR_VECTOR)
+				--	
+				--)
 				--format "classOf val_A: %\n" (classOf val_A)
 				
-				fn comaprePoint3 p1 p2 eps:1e-3 = distance p1 p2 < eps --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001
-				
 				if classOf val_A == point3 then
-					comaprePoint3 val_A val_B  --return
+					distance val_A val_B > 0.001  --return
 					
 				else
 					val_A as string != val_B as string
 			)
 			
+			changed_props = Dictionary()
+
 			
 			for prop in current_values.keys do
-				if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
+				--if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
+				if valueChanged this_prop_value current_values[prop] then
 					changed_props[prop] = this_prop_value
 		
 			changed_props --return
@@ -547,12 +555,22 @@ struct SupportObject_v
 	function _setMinLimints direction update_raft:true =
 	(
 		--format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "update_raft: %\n" update_raft
+		
 		--format "changed_props: %\n" changed_props.keys
 		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = update_raft or changed_props[#CHAMFER_VAL] != undefined or update_minimal_lenght
         update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 		
-			
+		--format "\n"
+		--format "changed_props: %\n" changed_props.keys
+		--
+		--
+		--format "update_minimal_lenght:  %\n" update_minimal_lenght
+		--format "update_min_raft_length: %\n" update_min_raft_length
+		--format "update_min_foot_pos:    %\n" update_min_foot_pos
+		--format "update_min_leg_pos:     %\n" update_min_leg_pos
+		
 			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
 			min_lenght_by_angle = this._getMinLenghtByAngle ( this.dir_vector ) --first_knot_pos:points_positions[1] second_knot_pos:points_positions[2]
@@ -567,8 +585,11 @@ struct SupportObject_v
 			
 			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		if update_min_foot_pos then
-			min_foot_pos = min_leg_pos + base_height
+			min_foot_pos = min_lenght_by_angle + base_height
 		
+		format "min_lenght_by_angle: %\n" min_lenght_by_angle
+		format "min_foot_pos:        %\n" min_foot_pos
+		format "min_leg_pos:         %\n" min_leg_pos
 	),
 	
 	/** Get points positions from line
@@ -820,9 +841,11 @@ struct SupportObject_v
 		--format "angle_of_leg:    %\n" angle_of_leg
 		percentage_by_angle = getPercentageByAngle(angle_of_leg)
 
-		width_by_angle = bar_width * (percentage_by_angle / 100.0)
+		
+		
+		width_by_angle = ( bar_width/2.0) * (percentage_by_angle / 100.0)
 
-		length_by_angle = bar_width - width_by_angle
+		length_by_angle = ( bar_width/2.0) - width_by_angle
 		--format "length_by_angle: %\n" length_by_angle
 
 		length_by_angle --return

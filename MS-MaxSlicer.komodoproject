@@ -3,29 +3,29 @@
 <project id="12089a42-ba37-4a31-ace1-064f036ed6fb" kpf_version="5" name="MS-MaxSlicer.komodoproject">
 <livefolder id="0bfe2f64-c9ed-488d-9900-888053ee3ec9" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-11-SUPPORTS" url="content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/">
 </livefolder>
-<livefolder id="1eff869e-08e1-46aa-a66b-9a7f0c97667c" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-VERTEX_SELECTION" url="content/rollouts-Main/rollout-VERTEX_SELECTION/">
-</livefolder>
 <livefolder id="3f8cb66b-bbf6-4a8c-843c-97f4c465f424" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-01-SLICER" url="content/rollouts-Main/rollout-01-SLICER/">
-</livefolder>
-<livefolder id="5087d1f0-2781-4709-9980-98063267133e" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-MODIFY" url="content/rollouts-Main/rollout-MODIFY/">
 </livefolder>
 <livefolder id="53f51288-1e5e-4dcc-b783-13de635d4cc0" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-12-RAFTS" url="content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-12-RAFTS/">
 </livefolder>
 <livefolder id="55043b77-49d8-468c-b733-a2cab77c2656" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-02-ISLANDS" url="content/rollouts-Main/rollout-02-ISLANDS/">
 </livefolder>
-<livefolder id="60be88de-ce9c-4948-a1d9-127f5414a111" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-VERTEX_COLORS" url="content/rollouts-Main/rollout-VERTEX_COLORS/">
-</livefolder>
 <livefolder id="702ee256-8bcd-494a-ba89-6e40350d76eb" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-13-BEAMS" url="content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-13-BEAMS/">
+</livefolder>
+<livefolder id="7620f087-b528-4031-8e4e-ca4a573f4727" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-06-VERTEX_COLORS" url="content/rollouts-Main/rollout-06-VERTEX_COLORS/">
 </livefolder>
 <livefolder id="76a80363-f12d-4f51-9268-f367775b5a38" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-03-GENERATOR" url="content/rollouts-Main/rollout-03-GENERATOR/">
 </livefolder>
+<livefolder id="9edd82eb-5441-49d7-afcb-8c842bb70d73" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-05-SELECTION" url="content/rollouts-Main/rollout-05-SELECTION/">
+</livefolder>
+<livefolder id="accff6df-eff5-45f6-8b77-06d094480756" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-05-TOOLS" url="content/rollouts-Main/rollout-05-TOOLS/">
+</livefolder>
+<livefolder id="b87a0354-d195-4861-ba5e-8306904c129f" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-07-VERTEX_SELECTION" url="content/rollouts-Main/rollout-07-VERTEX_SELECTION/">
+</livefolder>
+<livefolder id="ded612a9-ff75-4494-8a02-dfd936ad3bb6" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-04-MODIFY" url="content/rollouts-Main/rollout-04-MODIFY/">
+</livefolder>
 <livefolder id="df222159-1f61-4477-8310-c390e846ae0a" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-14-DRAINS" url="content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-14-DRAINS/">
 </livefolder>
-<livefolder id="e3771f7c-8f08-4955-8b19-512a6ae00cf8" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-TOOLS" url="content/rollouts-Main/rollout-TOOLS/">
-</livefolder>
 <livefolder id="e49197ea-a56b-4cfa-acb5-71794d2a901a" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-15-PINS" url="content/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-15-PINS/">
-</livefolder>
-<livefolder id="eb11b2c9-aee9-4901-bee7-9c1bb210cb4b" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-SELECTION" url="content/rollouts-Main/rollout-SELECTION/">
 </livefolder>
 <folder id="06112c53-4a9d-4438-af63-a32caa6ae30a" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="ROLLOUTS">
 </folder>

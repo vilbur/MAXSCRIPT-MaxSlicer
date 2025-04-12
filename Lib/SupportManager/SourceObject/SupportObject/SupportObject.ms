@@ -205,15 +205,6 @@ struct SupportObject_v
 		this.update_mode = false
 		
 		--dir_vector_current = normalize (support_obj.pos - points[1] )
-
-		--format "TEST VEC: %\n" (this.dir_vector.z < 0.0 )
-		--format "this.dir_vector.z: %\n" this.dir_vector.z
-		--if direction == #CUSTOM and this.dir_vector.z < 0.0 then
-		--if direction == #CUSTOM and obj_type == #SUPPORT and points.count > 2 then
-		--if direction == #CUSTOM then
-			--setUserPropVal support_obj "DIR_VECTOR" this.dir_vector
-
-		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -225,29 +216,21 @@ struct SupportObject_v
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
-		
 
 		/* CREATE LEG */ 
-		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
-		--if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
-		--if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
-			format "foot_enabled: %\n" foot_enabled
-			enable_foot = foot_enabled and SupportRaft.foot_space_exists
-			format "ENABLE_FOOT: %\n" enable_foot
-				--SupportLeg.createLeg( min_leg_pos )
-			--if points[2].z > 0 then
-				SupportLeg.createLeg( if enable_foot then min_leg_pos else 0 )
+			--format "foot_enabled: %\n" foot_enabled
+			create_foot = foot_enabled and SupportRaft.foot_space_exists
+
+			SupportLeg.createLeg( if create_foot then min_leg_pos else 0 )
 			
 			/* CREATE FOOT */ 
-			if SupportLeg.hit_leg == undefined and enable_foot then 
+			if SupportLeg.hit_leg == undefined and create_foot then 
 				SupportFoot.createFoot()
 			
 		)
-		
 	),
-	
 	
 	/** Get support points
 	 */
@@ -582,44 +565,29 @@ struct SupportObject_v
 	function _setMinLimints direction update_raft:true =
 	(
 		--format "\n"; print "SupportObject_v._setMinLimints()"
-		--format "direction: %\n" direction
-		--format "this.dir_vector: %\n" this.dir_vector
-		--format "update_raft: %\n" update_raft
-		
-		--format "changed_props: %\n" changed_props.keys
 		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = update_raft or changed_props[#CHAMFER_VAL] != undefined or update_minimal_lenght
         update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
-		
-		--format "\n"
-		--format "changed_props: %\n" changed_props.keys
-		--
-		--
-		--format "update_minimal_lenght:  %\n" update_minimal_lenght
-		--format "update_min_raft_length: %\n" update_min_raft_length
-		--format "update_min_foot_pos:    %\n" update_min_foot_pos
-		--format "update_min_leg_pos:     %\n" update_min_leg_pos
+	
 		
 			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
 			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
 	
+	
 			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
 			min_raft_length = min_lenght_by_angle + chamfer_val + dilatation -- chmfer is removing length of raft also
+	
 			
 			/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		if update_minimal_lenght then
 			min_leg_pos = min_lenght_by_angle --+ dilatation 
+	
 			
 			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
-		
-		--format "min_lenght_by_angle: %\n" min_lenght_by_angle
-		--format "min_raft_length:     %\n" min_raft_length
-		--format "min_foot_pos:        %\n" min_foot_pos
-		--format "min_leg_pos:         %\n" min_leg_pos
 	),
 	
 	/** Get points positions from line
@@ -629,32 +597,6 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v._getPointsPositionsFromLine()"
 		for knot = 1 to numKnots support_obj spline_1 collect getKnotPoint support_obj spline_1 knot
 	),
-	
-	----/** Check dir vector
-	-- */
-	--function _checkDirVector direction =
-	--(
-	--	----format "\n"; print "SupportObject_v._checkDirVector()"
-	--	----format "direction: %\n" direction
-	--	
-	--	/* KEEP RAFT PONT BELLOW FIRST */ 
-	--	if this.dir_vector.z > -0.25 then
-	--		this.dir_vector.z = -0.25
-	--	
-	--	else if direction != #CUSTOM then
-	--	(
-	--		format "\n"; print "SupportObject_v._checkDirVector()"
-	--		format "RESET DIR VECTOR: %\n" direction
-	--			
-	--		--dir_vector_current = normalize ( Support.points[1] - Support.points[2] )
-	--		
-	--		--this.dir_vector = getUserPropVal support_obj "DIR_VECTOR" * source_obj.rotation
-	--
-	--	)
-	--
-	--	
-	--
-	--),
 	
 	/** KEEP RAFT PONT BELLOW FIRST
 	  * 
@@ -836,7 +778,7 @@ struct SupportObject_v
 			setMaterialID support_obj spline_1 segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	
 		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
-		if foot_exists then
+		if foot_enabled and foot_exists then
 			setMaterialID support_obj spline_1 num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_1> <seg_index> <matID>
 	),
 	

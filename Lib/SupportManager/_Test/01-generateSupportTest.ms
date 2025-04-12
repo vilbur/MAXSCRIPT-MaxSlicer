@@ -37,15 +37,16 @@ verts_colors[ clr_cyan	] = #{ 59 }
 /* CREATE TEST OBJECT */
 obj = $PackMan
 
-pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
--- pos_z = 1
+pos_z = 0.2 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
+-- pos_z = 0.5 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
+pos_z = 1
 -- pos_z = 1.2
--- pos_z = 1.5
+pos_z = 1.5
 -- pos_z = 2
-pos_z = 3
--- pos_z = 10
+-- pos_z = 3
+pos_z = 10
 
---if selection.count == 0 then
+--if selection.count =C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-VIEWPORTS\04-[Layout-Presets].mcr= 0 then
 (
 	delete objects
 	
@@ -54,10 +55,10 @@ pos_z = 3
 
 
 /* SELECT VERTS  BY COLORS */ 
-select_verts	= #{}
+select_verts = #{}
  
-select_verts += verts_colors["red"]
-select_verts += verts_colors["orange"]
+-- select_verts += verts_colors["red"]
+-- select_verts += verts_colors["orange"]
 select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors[clr_cyan]
 -- select_verts += verts_colors["green"]
@@ -75,7 +76,14 @@ SUPPORT_OPTIONS	= SupportOptions_v()
 
 /* SET BAR WIDTH */ 
 --SUPPORT_OPTIONS.bar_width	= 1.5
-SUPPORT_OPTIONS.bar_width	= 2
+-- SUPPORT_OPTIONS.bar_width	= 2
+
+/* SET BASE HEIGHT  */ 
+-- SUPPORT_OPTIONS.base_height	= 2
+
+/* SET BASE WIDTH  */ 
+SUPPORT_OPTIONS.base_width	= 10
+SUPPORT_OPTIONS.base_width	= 5
 
 
 /* SET TOP WIDTH */ 
@@ -86,18 +94,12 @@ SUPPORT_OPTIONS.bar_width	= 2
 --SUPPORT_OPTIONS.top_width	= 2
 
 
-/* SET BASE HEIGHT  */ 
-SUPPORT_OPTIONS.base_height	= 2
-
-/* SET BASE WIDTH  */ 
-SUPPORT_OPTIONS.base_width	= 10
-
 /* SET NORMAL LENGTH */ 
 SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
-SUPPORT_OPTIONS.normal_length	= 0.5
-SUPPORT_OPTIONS.normal_length	= 0.75
-SUPPORT_OPTIONS.normal_length	= 1
-SUPPORT_OPTIONS.normal_length	= 2
+-- SUPPORT_OPTIONS.normal_length	= 0.5
+-- SUPPORT_OPTIONS.normal_length	= 0.75
+-- SUPPORT_OPTIONS.normal_length	= 1
+-- SUPPORT_OPTIONS.normal_length	= 2
 -- SUPPORT_OPTIONS.normal_length	= 5
 -- SUPPORT_OPTIONS.normal_length	= 10
 -- SUPPORT_OPTIONS.normal_length	= 20
@@ -110,7 +112,7 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  NORMAL LENGTH  */
-SUPPORT_OPTIONS.lock_normal_length = false
+-- SUPPORT_OPTIONS.lock_normal_length = false
 
 
 /*------------------------------------------------------------------------------

@@ -23,23 +23,6 @@ function resetSupports param: =
 		resumeSupportTransformEvent()
 )
 
-
---/*
---*/
---macroscript	_print_support_generator_update
---category:	"_3D-Print"
---buttontext:	"LIVE UPDATE"
---tooltip:	"Update selected supports"
---icon:	"control:#checkbutton"
---(
---	on execute do
---		--undo "Generate Rafts" on
---		(
---			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
---			print "update"
---		)
---)
-
 /**  Export format
   *
  */
@@ -81,47 +64,26 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
   */
 macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
-buttontext:	"Normal Length"
-tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"ACROSS:3|control:spinner|offset:[ 12, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]|fieldwidth:32"
+buttontext:	"Raft Length"
+tooltip:	"Length of raft part of support\n\nFOR AUTO LENGTH RESET TO 0.0"
+icon:	"ACROSS:3|control:spinner|id:SPIN_normal_length|offset:[ 12, 20 ]|fieldwidth:24|range:[ 0.0, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
-		--format "EventFired	= % \n" EventFired
+		format "EventFired	= % \n" EventFired
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\SupportManager.ms"
 		
 		
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
-		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
-			EventFired.val = EventFired.control.value = ( SUPPORT_OPTIONS.getOption #BAR_WIDTH ) * 2
-			--EventFired.val = EventFired.control.value = (SupportOptions_v()).normal_length
-		
-		--bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-		--
-		--range = ROLLOUT_generator.SPIN_normal_length.range
-		--
-		--/* SET MIN VALUE */
-		----if range.x > bar_radius then
-		--
-		--if EventFired.val < bar_radius then
-		--(
-		--	EventFired.val = bar_radius
-		--
-		--	range.x = bar_radius
-		--	range.z = bar_radius
-		--
-		--	ROLLOUT_generator.SPIN_normal_length.range = range
-		--)
-		--
+		--if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
+			--EventFired.val = EventFired.control.value = ( SUPPORT_OPTIONS.getOption #BAR_WIDTH ) * 2
+
+
 		SUPPORT_OPTIONS.normal_length = EventFired.val
 		
 		resetSupports()
-
-		--resetSupports param:#NORMAL_LENGTH
 	)
 )
-
-
 
 /*
 */ 
@@ -137,9 +99,7 @@ icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]|che
 	on execute do
 		SUPPORT_OPTIONS.lock_normal_length = EventFired.val
 		--SUPPORT_MANAGER.updateModifiers ( EventFired )
-
 )
-
 
 
 --/* LIVE UPDATE

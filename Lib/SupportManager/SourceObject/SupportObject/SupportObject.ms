@@ -59,7 +59,8 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
-	dilatation  = 0.1, 
+	dilatation  = 0.05, 
+	--dilatation  = 0.1, 
 	--dilatation  = 0.15, -- add little space to minimal positions to make it work fine ;)
 	----dilatation  = 0.5, 
 	--dilatation  = 0.25, 
@@ -138,12 +139,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
-		format "\n===========================================================\n"
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n===========================================================\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
 		----format "first_knot_pos: %\n" first_knot_pos
-		format "update_raft: %\n" update_raft
+		--format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
 		--points = this._getPointsPositionsFromLine()
@@ -168,7 +169,7 @@ struct SupportObject_v
 		this._setNormalLenght update_raft:update_raft
 
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-
+		format "CHANGED_PROPS: %\n" changed_props.keys
 		this._setDirVector (dir_vector) update_raft:update_raft
 		
 		this._setMinLimints(direction) update_raft:update_raft
@@ -226,10 +227,12 @@ struct SupportObject_v
 
 		/* CREATE LEG */ 
 		--if SupportRaft.hit_raft == undefined and SupportRaft.is_space_for_leg then 
-		if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
+		--if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
+		--if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
+		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
 				--SupportLeg.createLeg( min_leg_pos )
-			if points[2].z > 0 then
+			--if points[2].z > 0 then
 				SupportLeg.createLeg( if SupportRaft.foot_space_exists then min_leg_pos else 0 )
 			
 			/* CREATE FOOT */ 
@@ -483,26 +486,11 @@ struct SupportObject_v
 		function compareValuesWithPropertisOfThis current_values =
 		(
 			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
-			--format "this.dir_vector: %\n" this.dir_vector
-			--format "current_values:  %\n" current_values[#DIR_VECTOR]
-			
-			/** Compare values  --  preccision of deciaml points: eps=1e-3 >>> 0.001 | eps=1e-6 >>> 0.000001 */
-			--function valueChanged val_A val_B = val_A as string != val_B as string
 			/** Value changed
 			 */
 			function valueChanged val_A val_B  =
 			(
 				--format "\n"; print "SupportObject_v.valueChanged()"
-				--format "val_A: %\n" val_A
-				--if classOf val_A == point3 then
-				--(
-				--	format "%\n%\n" val_A val_B
-				--	format "valueChanged: %\n" (distance val_A val_B > 0.001)
-				--	format "this_prop_value: %\n" (this_prop_value = getProperty this #DIR_VECTOR)
-				--	
-				--)
-				--format "classOf val_A: %\n" (classOf val_A)
-				
 				if classOf val_A == point3 then
 					distance val_A val_B > 0.001  --return
 					
@@ -510,15 +498,21 @@ struct SupportObject_v
 					val_A as string != val_B as string
 			)
 			
-			changed_props = Dictionary()
+			this.changed_props = Dictionary()
+
+			for prop in current_values.keys \
+				where (this_prop_value = getProperty this prop) != undefined \
+				and valueChanged this_prop_value current_values[prop] do
+					this.changed_props[prop] = this_prop_value
 
 			
-			for prop in current_values.keys do
-				--if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
-				if valueChanged this_prop_value current_values[prop] then
-					changed_props[prop] = this_prop_value
+			--for prop in current_values.keys do
+			--	----if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
+			--	if (this_prop_value = getProperty this prop) != undefined then
+			--		if valueChanged this_prop_value current_values[prop] then
+			--			this.changed_props[prop] = this_prop_value
 		
-			changed_props --return
+			this.changed_props --return
 		)
 		
 		/** Get current values
@@ -555,9 +549,9 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction update_raft:true =
 	(
-		format "\n"; print "SupportObject_v._setMinLimints()"
-		format "direction: %\n" direction
-		format "this.dir_vector: %\n" this.dir_vector
+		--format "\n"; print "SupportObject_v._setMinLimints()"
+		--format "direction: %\n" direction
+		--format "this.dir_vector: %\n" this.dir_vector
 		--format "update_raft: %\n" update_raft
 		
 		--format "changed_props: %\n" changed_props.keys
@@ -580,7 +574,7 @@ struct SupportObject_v
 	
 			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
-			min_raft_length = min_lenght_by_angle + chamfer_val --+ dilatation -- chmfer is removing length of raft also
+			min_raft_length = min_lenght_by_angle + chamfer_val + dilatation -- chmfer is removing length of raft also
 			
 			/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		if update_minimal_lenght then
@@ -590,12 +584,10 @@ struct SupportObject_v
 		if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
 		
-		
-		
-		format "min_lenght_by_angle: %\n" min_lenght_by_angle
-		format "min_raft_length:     %\n" min_raft_length
-		format "min_foot_pos:        %\n" min_foot_pos
-		format "min_leg_pos:         %\n" min_leg_pos
+		--format "min_lenght_by_angle: %\n" min_lenght_by_angle
+		--format "min_raft_length:     %\n" min_raft_length
+		--format "min_foot_pos:        %\n" min_foot_pos
+		--format "min_leg_pos:         %\n" min_leg_pos
 	),
 	
 	/** Get points positions from line

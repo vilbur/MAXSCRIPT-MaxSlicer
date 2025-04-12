@@ -91,7 +91,9 @@ struct SupportObject_v
 		
 		--this._setDirVector(dir_vector)
 		
-		this._setProperties()
+		this._setThisProperties()
+
+		this._saveUserProps()
 		
 
 		this._setMinLimints (direction)
@@ -458,20 +460,31 @@ struct SupportObject_v
 	  * 
 	  * Save props to objects user props
 	 */
-	function _setProperties =
+	function _setThisProperties =
 	(
-		--format "\n"; print "SupportObject_v._setProperties()"
+		--format "\n"; print "SupportObject_v._setThisProperties()"
         bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
         base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
         normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
 		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
+	),
+	
+	/** Save user props
+	 */
+	function _saveUserProps =
+	(
+		--format "\n"; print "SupportObject_v._saveUserProps()"
+        setUserPropVal support_obj "DIRECTION"		direction
+        setUserPropVal support_obj "FOOT_ENABLED"	foot_enabled
+        setUserPropVal support_obj "FOOT_EXISTS"	 foot_exists
+	
 
-        setUserPropVal support_obj "DIR_VECTOR" 	dir_vector
-        setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
-		
+        setUserPropVal support_obj "BASE_HEIGHT"	base_height
         setUserPropVal support_obj "BAR_WIDTH"		bar_width
-        setUserPropVal support_obj "BASE_HEIGHT"  base_height
-        setUserPropVal support_obj "CHAMFER_VAL"  chamfer_val
+        setUserPropVal support_obj "CHAMFER_VAL"	 chamfer_val
+	
+        setUserPropVal support_obj "DIR_VECTOR"		dir_vector
+        setUserPropVal support_obj "NORMAL_LENGTH"	 normal_length
 	),
 
 	/** Minimal values depedns on isze and direction of support

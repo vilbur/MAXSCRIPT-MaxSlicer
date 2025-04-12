@@ -169,7 +169,7 @@ struct SupportObject_v
 		this._setNormalLenght update_raft:update_raft
 
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		format "CHANGED_PROPS: %\n" changed_props.keys
+	
 		this._setDirVector (dir_vector) update_raft:update_raft
 		
 		this._setMinLimints(direction) update_raft:update_raft
@@ -420,26 +420,7 @@ struct SupportObject_v
 			deleteSpline support_obj spline_1
 	),
 	
-	/** Fill props of this with data from options
-	  * 
-	  * Save props to objects user props
-	 */
-	function _setProperties =
-	(
-		--format "\n"; print "SupportObject_v._setProperties()"
-        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
-        base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-        normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
-		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
 
-        setUserPropVal support_obj "DIR_VECTOR" 	dir_vector
-        setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
-		
-        setUserPropVal support_obj "BAR_WIDTH"		bar_width
-        setUserPropVal support_obj "BASE_HEIGHT"  base_height
-        setUserPropVal support_obj "CHAMFER_VAL"  chamfer_val
-	),
-		
 	/** Get vector of raft from current line if not defined
 	  * 
 	 */
@@ -473,6 +454,26 @@ struct SupportObject_v
 			getUserPropVal support_obj "NORMAL_LENGTH"
 	),
 	
+	/** Fill props of this with data from options
+	  * 
+	  * Save props to objects user props
+	 */
+	function _setProperties =
+	(
+		--format "\n"; print "SupportObject_v._setProperties()"
+        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+        base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+        normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
+		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
+
+        setUserPropVal support_obj "DIR_VECTOR" 	dir_vector
+        setUserPropVal support_obj "NORMAL_LENGTH"  normal_length
+		
+        setUserPropVal support_obj "BAR_WIDTH"		bar_width
+        setUserPropVal support_obj "BASE_HEIGHT"  base_height
+        setUserPropVal support_obj "CHAMFER_VAL"  chamfer_val
+	),
+
 	/** Minimal values depedns on isze and direction of support
 	  * 
 	  * 
@@ -481,40 +482,7 @@ struct SupportObject_v
 	function _checkChangedProps =
 	(
 		--format "\n"; print "SupportObject_v._checkChangedProps()"
-		/** Test if values changed
-		 */
-		function compareValuesWithPropertisOfThis current_values =
-		(
-			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
-			/** Value changed
-			 */
-			function valueChanged val_A val_B  =
-			(
-				--format "\n"; print "SupportObject_v.valueChanged()"
-				if classOf val_A == point3 then
-					distance val_A val_B > 0.001  --return
-					
-				else
-					val_A as string != val_B as string
-			)
-			
-			this.changed_props = Dictionary()
 
-			for prop in current_values.keys \
-				where (this_prop_value = getProperty this prop) != undefined \
-				and valueChanged this_prop_value current_values[prop] do
-					this.changed_props[prop] = this_prop_value
-
-			
-			--for prop in current_values.keys do
-			--	----if (this_prop_value = getProperty this prop) != undefined and valueChanged this_prop_value current_values[prop] then
-			--	if (this_prop_value = getProperty this prop) != undefined then
-			--		if valueChanged this_prop_value current_values[prop] then
-			--			this.changed_props[prop] = this_prop_value
-		
-			this.changed_props --return
-		)
-		
 		/** Get current values
 		 */
 		function getCurrentValues =
@@ -535,8 +503,50 @@ struct SupportObject_v
 			
 			current_values --return
 		)
+		
+		/** Test if values changed
+		 */
+		function compareValuesWithPropertisOfThis current_values =
+		(
+			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
+			/** Value changed
+			 */
+			function valueChanged this_val current_val  =
+			(
+				--format "\n"; print "SupportObject_v.valueChanged()"
+				if classOf this_val == point3 then
+					distance this_val current_val > 0.001  --return
+					
+				else
+					this_val as string != current_val as string
+			)
+			
+			this.changed_props = Dictionary()
 
+			for prop in current_values.keys do
+					if valueChanged ( getProperty this prop ) current_values[prop] then
+						this.changed_props[prop] = current_values[prop]
+			
+			--format "CHANGED_PROPS: %\n" this.changed_props.keys
+			this.changed_props --return
+		)
+		
+		/** Update this values
+		 */
+		function updateThisValues =
+		(
+			--format "\n"; print "SupportObject_v.updateThisValues()"
+			for prop in changed_props.keys do
+			(
+				setProperty this prop changed_props[prop]
+	
+				setUserPropVal support_obj ( toUpper ( prop as string ) ) changed_props[prop]
+			)
+		)
+		
 		compareValuesWithPropertisOfThis( getCurrentValues() )
+		
+		updateThisValues()
 	),
 	
 	/** Set minimal foot pos

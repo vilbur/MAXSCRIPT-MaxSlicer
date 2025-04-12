@@ -154,14 +154,14 @@ all_supports = $'*-support-*'
 single_support = all_supports[all_supports.count]
 
 
--- select single_support
+select single_support
 
 -- format " TEST:  MOVE SUPPORT\n"
 -- move single_support [ 0, -10, 0 ]
 
 -- format " TEST:  MOVE SOURCE OBJECT\n"
 
-select $PackMan
+-- select $PackMan
 -- move  $PackMan [ 0, 0, 10 ]
 
 

@@ -115,6 +115,9 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.lock_normal_length = false
 
 
+/* FOOT ENABLED */
+SUPPORT_OPTIONS.foot_enabled = false
+
 /*------------------------------------------------------------------------------
 	GENERATE SUPPORTS
 --------------------------------------------------------------------------------*/

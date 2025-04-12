@@ -460,18 +460,6 @@ struct SourceObject_v
 		setUserPropVal support_obj support_key_prop support_key_val
 		
 		setUserPropVal support_obj "INDEX"	vert
-		
-		setUserPropVal support_obj "DIRECTION" direction --asString:true
-		
-		--setUserPropVal support_obj "IS_ON_GROUND"	SupportObject.is_on_ground
-
-		setUserPropVal support_obj "FOOT_ENABLED"	SupportObject.foot_enabled
-		setUserPropVal support_obj "FOOT_EXISTS"	SupportObject.foot_exists
-		
-		
-		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-		
-		setUserPropVal support_obj "NORMAL_LENGTH" SUPPORT_OPTIONS.normal_length
 	),
 
 	/** Get Supports 

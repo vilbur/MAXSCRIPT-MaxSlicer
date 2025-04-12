@@ -233,12 +233,15 @@ struct SupportObject_v
 		--if SupportRaft.is_space_for_leg and SupportRaft.hit_raft == undefined then
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
+			format "foot_enabled: %\n" foot_enabled
+			enable_foot = foot_enabled and SupportRaft.foot_space_exists
+			format "ENABLE_FOOT: %\n" enable_foot
 				--SupportLeg.createLeg( min_leg_pos )
 			--if points[2].z > 0 then
-				SupportLeg.createLeg( if SupportRaft.foot_space_exists then min_leg_pos else 0 )
+				SupportLeg.createLeg( if enable_foot then min_leg_pos else 0 )
 			
 			/* CREATE FOOT */ 
-			if SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists then 
+			if SupportLeg.hit_leg == undefined and enable_foot then 
 				SupportFoot.createFoot()
 			
 		)
@@ -464,8 +467,11 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setThisProperties()"
         bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
+		
         base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
         normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
+        foot_enabled  = SUPPORT_OPTIONS.getOption #FOOT_ENABLED
+		
 		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
 	),
 	
@@ -474,18 +480,18 @@ struct SupportObject_v
 	function _saveUserProps =
 	(
 		--format "\n"; print "SupportObject_v._saveUserProps()"
-        setUserPropVal support_obj "DIRECTION"		direction
-        setUserPropVal support_obj "FOOT_ENABLED"	foot_enabled
-        setUserPropVal support_obj "FOOT_EXISTS"	 foot_exists
+        setUserPropVal support_obj "DIRECTION"    direction
+        setUserPropVal support_obj "FOOT_ENABLED" foot_enabled
+        setUserPropVal support_obj "FOOT_EXISTS"  foot_exists
 	
 
-        setUserPropVal support_obj "BASE_HEIGHT"	base_height
-        setUserPropVal support_obj "BAR_WIDTH"		bar_width
-        setUserPropVal support_obj "CHAMFER_VAL"	 chamfer_val
-	
-        setUserPropVal support_obj "DIR_VECTOR"		dir_vector
-        setUserPropVal support_obj "NORMAL_LENGTH"	 normal_length
-	),
+        setUserPropVal support_obj "BASE_HEIGHT" base_height
+        setUserPropVal support_obj "BAR_WIDTH" 	bar_width
+        setUserPropVal support_obj "CHAMFER_VAL" chamfer_val
+
+        setUserPropVal support_obj "DIR_VECTOR"    dir_vector
+        setUserPropVal support_obj "NORMAL_LENGTH" normal_length
+ ),
 
 	/** Minimal values depedns on isze and direction of support
 	  * 
@@ -501,25 +507,26 @@ struct SupportObject_v
 		function getCurrentValues =
 		(
 			--format "\n"; print "SupportObject_v.getCurrentValues()"
-			current_values = Dictionary()
-
 			bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
+
 			
+			changed_props = Dictionary()
 			
-			current_values[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
+			changed_props[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
 			
-			current_values[#BAR_WIDTH]   = bar_width_current
+			changed_props[#BAR_WIDTH]   = bar_width_current
 			
-			current_values[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
+			changed_props[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
 		
-			current_values[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
+			changed_props[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
 			
-			current_values --return
+			--changed_props --return
 		)
 		
 		/** Test if values changed
 		 */
-		function compareValuesWithPropertisOfThis current_values =
+		--function compareValuesWithPropertisOfThis changed_props =
+		function compareValuesWithPropertisOfThis =
 		(
 			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
 			/** Value changed
@@ -534,21 +541,21 @@ struct SupportObject_v
 					this_val as string != current_val as string
 			)
 			
-			this.changed_props = Dictionary()
-
-			for prop in current_values.keys do
-					if valueChanged ( getProperty this prop ) current_values[prop] then
-						this.changed_props[prop] = current_values[prop]
+			/* REMOVE UNCHANGED VALUES FROM DICTIONARY */ 
+			for prop in changed_props.keys do
+					if not valueChanged ( getProperty this prop ) changed_props[prop] then
+						RemoveDictValue changed_props prop
 			
 			--format "CHANGED_PROPS: %\n" this.changed_props.keys
-			this.changed_props --return
 		)
 		
-		/** Update this values
+		/** Update propoerties of
+		  *  	1) this
+		  *  	2) node userProps
 		 */
-		function updateThisValues =
+		function updateProperties =
 		(
-			--format "\n"; print "SupportObject_v.updateThisValues()"
+			--format "\n"; print "SupportObject_v.updateProperties()"
 			for prop in changed_props.keys do
 			(
 				setProperty this prop changed_props[prop]
@@ -557,9 +564,11 @@ struct SupportObject_v
 			)
 		)
 		
-		compareValuesWithPropertisOfThis( getCurrentValues() )
+		getCurrentValues()
 		
-		updateThisValues()
+		compareValuesWithPropertisOfThis()
+		
+		updateProperties()
 	),
 	
 	/** Set minimal foot pos

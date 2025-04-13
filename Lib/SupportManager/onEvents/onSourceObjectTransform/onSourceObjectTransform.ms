@@ -20,6 +20,8 @@ function onSourceObjectTransform sender evt =
 	*/
 	fn roundFloat val = ( local mult = 10.0 ^ 3; (floor ((val * mult) + 0.5)) / mult )
 
+	fn valuesAreSame f1 f2 eps:0.001 = abs(f1) == abs(f2) OR abs (f1 - f2) <= eps
+	
 	/** Remove timeout
 	 */
 	fn removeTimeout sender =
@@ -38,18 +40,23 @@ function onSourceObjectTransform sender evt =
 	(
 		--format "\n"; print "onSourceObjectTransform.ms.onSourceObjectTransform()"
 		source_objects = for obj in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
-
-		
 		
 		obj = source_objects[1]
 		
 		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
 
-		rotation_chaged = transform_data[#ROTATION] != quatToEuler2 obj.rotation.controller.value
+		rotation_current = quatToEuler2 obj.rotation.controller.value
+		rotation_saved   = transform_data[#ROTATION]
 		
+		/* TEST IF OBJECT HAS BEEN ROTATED ONLY BY Z AXIS - rotation only on z axis does not need update */ 
+		rotated_only_z = ( valuesAreSame rotation_current.x rotation_saved.x and valuesAreSame rotation_current.y rotation_saved.y ) and not ( valuesAreSame rotation_current.z rotation_saved.z )
+
+		rotation_chaged = not rotated_only_z
+
+		/* TEST POSITION */ 		
 		pos_z_changed	 = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z
 		
-		
+		/* CHOOSE WAHT TO UPDATE */ 		
 		what_to_update = case of
 		(
 			(not rotation_chaged and not pos_z_changed ):	#POSITION_XY
@@ -66,7 +73,7 @@ function onSourceObjectTransform sender evt =
 				EXECUTE UPDATE
 				
 			--------------------------------------------------------------------------------*/
-			
+			--format "WHAT_TO_UPDATE: %\n" what_to_update
 			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
 			
 		)

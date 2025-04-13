@@ -238,29 +238,39 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 
-		/** Rotation of source object changed
-		 */
-		function rotationOfSourceObjectChanged =
-		(
-			--format "\n"; print "SourceObject_v.rotationOfSourceObjectChanged()"
-			rotation_changed = obj.rotation != getUserPropVal obj "ROTATION"
-			
-			if rotation_changed then
-				setUserPropVal obj "ROTATION" (obj.rotation)
-
-			rotation_changed --return
-		)
+		--/** Rotation of source object changed
+		-- */
+		--function rotationOfSourceObjectChanged =
+		--(
+		--	--format "\n"; print "SourceObject_v.rotationOfSourceObjectChanged()"
+		--	rotation_current = quatToEuler2 obj.rotation.controller.value
+		--	rotation_saved   = getUserPropVal obj "ROTATION"
+		--	format "rotation_current: %\n" rotation_current
+		--	format "rotation_saved:   %\n" rotation_saved
+		--	
+		--	--rotation_changed = obj.rotation != getUserPropVal obj "ROTATION"
+		--	--
+		--	--
+		--	--if rotation_changed then
+		--	--	setUserPropVal obj "ROTATION" rotation_current
+		--	--	
+		--	----format "ROTATION_CHANGED: %\n" rotation_changed
+		--	--rotation_changed --return
+		--	true
+		--)
 		
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
 		/* GET NORMALS */ 
-		if rotationOfSourceObjectChanged() then
+		--if rotationOfSourceObjectChanged() then
+		if what_to_update == #ROTATION then
 		(
-			if Normals.normals_local == undefined then
+			--if Normals.normals_local == undefined then
 				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
 				
-			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
+			--if Normals.normals_world == undefined then
+				Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
 		)
 		
 		
@@ -276,7 +286,7 @@ struct SourceObject_v
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
-
+			--format "Normals.normals_world: %\n" Normals.normals_world
 			/* GET VECTOR  */ 
 			dir_vector = case direction of
 			(
@@ -320,7 +330,8 @@ struct SourceObject_v
 		
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
-		for key in SupportsToUpdate.keys where SupportsToUpdate[key].is_on_ground do
+		--for key in SupportsToUpdate.keys where SupportsToUpdate[key].is_on_ground do
+		for key in SupportsToUpdate.keys do
 			SupportsToUpdate[key].updateBaseHeight()
 			
 		free SupportsToUpdate

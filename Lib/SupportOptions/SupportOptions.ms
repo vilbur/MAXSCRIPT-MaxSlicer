@@ -184,7 +184,7 @@ struct SupportOptions_v
 		/* Mutate value for modifier */
 		val = case prop_key of
 		(
-			#BAR_WIDTH:	bar_width	/ 2.0 -- get radius value
+			#BAR_WIDTH:	bar_width
 			#BASE_WIDTH:	getBaseWidthValue()
 			#DRAIN_WIDTH:	drain_width	/ 2.0
 			#CHAMFER_BASE:	base_height	/ 2.0

@@ -38,14 +38,16 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* support properties */
-	changed_props = Dictionary(),
+	prop_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #FOOT_ENABLED, #TOP_WIDTH ),
 	
+	changed_props = Dictionary(),
+
 	min_lenght_by_angle,
 	
 	normal_length,
 	bar_width,
 	base_height,
-	chamfer_val,
+	top_width,
 	
 	direction,
 	dir_vector,
@@ -76,8 +78,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 				
@@ -449,13 +451,18 @@ struct SupportObject_v
 	function _setThisProperties =
 	(
 		--format "\n"; print "SupportObject_v._setThisProperties()"
-        bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH * 2
 		
-        base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-        normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
-        foot_enabled  = SUPPORT_OPTIONS.getOption #FOOT_ENABLED
+
+		for prop_key in prop_keys do
+			setProperty this prop_key ( SUPPORT_OPTIONS.getOption prop_key )
 		
-		chamfer_val   = SUPPORT_OPTIONS.getChamferBarValue()
+        --bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+        --base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
+        --normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
+        --foot_enabled  = SUPPORT_OPTIONS.getOption #FOOT_ENABLED
+        --top_width	  = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+		
+		--top_width   = SUPPORT_OPTIONS.getChamferBarValue()
 	),
 	
 	/** Save user props
@@ -470,11 +477,21 @@ struct SupportObject_v
 
         setUserPropVal support_obj "BASE_HEIGHT" base_height
         setUserPropVal support_obj "BAR_WIDTH" 	bar_width
-        setUserPropVal support_obj "CHAMFER_VAL" chamfer_val
+        setUserPropVal support_obj "TOP_WIDTH" top_width
 
         setUserPropVal support_obj "DIR_VECTOR"    dir_vector
         setUserPropVal support_obj "NORMAL_LENGTH" normal_length
- ),
+	),
+	
+	/** Load user props from node
+	 */
+	function _loadUserPropsFromNode =
+	(
+		format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
+		
+		for prop_key in prop_keys do
+			setProperty this prop_key ( getUserPropVal support_obj prop_key )
+	),
 
 	/** Minimal values depedns on isze and direction of support
 	  * 
@@ -501,7 +518,7 @@ struct SupportObject_v
 			
 			changed_props[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
 		
-			changed_props[#CHAMFER_VAL] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
+			changed_props[#TOP_WIDTH] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
 			
 			--changed_props --return
 		)
@@ -566,7 +583,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setMinLimints()"
 		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
-        update_min_raft_length = update_raft or changed_props[#CHAMFER_VAL] != undefined or update_minimal_lenght
+        update_min_raft_length = update_raft or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 	
 		
@@ -577,7 +594,7 @@ struct SupportObject_v
 	
 			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
-			min_raft_length = min_lenght_by_angle + chamfer_val + dilatation -- chmfer is removing length of raft also
+			min_raft_length = min_lenght_by_angle + top_width + dilatation -- chmfer is removing length of raft also
 	
 			
 			/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
@@ -861,6 +878,8 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject.onCreate()"
 		--this._setSupportRaftUpdater()
+		if support_obj != undefined then
+			this._loadUserPropsFromNode()
 	)
 
 )

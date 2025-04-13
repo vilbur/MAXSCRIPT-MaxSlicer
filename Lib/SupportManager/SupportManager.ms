@@ -916,7 +916,11 @@ struct SupportManager_v
 			--format "obj_in_scene: %\n" obj_in_scene
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
-			supports = SourceObject.getSupportNodes()
+			--supports = SourceObject.getSupportNodes()
+			SourceObject.getSupportNodes()
+	
+			SourceObject.Normals.loadNormalsLocal()
+
 
 			SourceObjects[sync_key] = SourceObject
 		)
@@ -935,19 +939,9 @@ struct SupportManager_v
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
 			(
-				--format "OBJ_IN_SCENE: %\n" obj_in_scene
-				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
-				--has_foot = getUserPropVal obj_in_scene "HAS_FOOT"
-				
-				--is_on_ground = getUserPropVal obj_in_scene "IS_ON_GROUND"
-				
-				--format "index: %\n" index
-				--format "sync_key: %\n" sync_key
-				
-				--format "IS_ON_GROUND: %\n" IS_ON_GROUND
-				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
+
 				if SourceObjects[sync_key] != undefined then 
 				(
 					source_obj = if sync_key != undefined then SourceObjects[sync_key].obj
@@ -1073,7 +1067,6 @@ struct SupportManager_v
 			SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent (source_obj)
 		)
 
-		--SourceObject = SourceObjects[sync_key]
 		SourceObjects[sync_key] --return
 	),
 
@@ -1082,10 +1075,9 @@ struct SupportManager_v
 	on create do
 	(
 		--format "\n"; print "SupportManager_v.onCreate()"
-
-		--DisableSceneRedraw()
-		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
-
+		if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
+		
+		
 		this._loadSourceObjectsFromScene()
 		
 		this._loadSupportsFromScene()
@@ -1093,7 +1085,6 @@ struct SupportManager_v
 		this._loadBeamsFromScene()
 
 
-		 if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers true
-		--EnableSceneRedraw()
+		if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers true
 	)
 )

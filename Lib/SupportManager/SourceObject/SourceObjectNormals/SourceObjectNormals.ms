@@ -36,22 +36,10 @@ struct SourceObjectNormals_v
 	function setLocalVertexNormals verts =
 	(
 		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
-		--format "VERTS A: %\n" verts
-		--normals_local = this._getLocalVertexNormalsByModifier(Supports.keys as BitArray )
 		this._initNormalsLocalArray()
 
-
-		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
-			normals_local = normals_local_loaded
-		
-		else
-			--if not verts.isEmpty then
-			this._updateLocalVertexNormalsByModifier( all_verts )
-		
-
-		--this._updateLocalNormals( verts )
-		--format "NORMALS: % seconds\n" ((( timeStamp()) - timer_NORMLAS) / 1000.0)
-
+		if not this.loadNormalsLocal() then
+			this._updateLocalVertexNormalsByModifier( verts )
 	),
 
 	/** Set world space vertex normals
@@ -59,8 +47,6 @@ struct SourceObjectNormals_v
 	function setWorldSpaceVertexNormals verts =
 	(
 		--format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
-		--format "verts: %\n" verts
-		--format "verts.numberSet: %\n" verts.numberSet
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
@@ -71,6 +57,17 @@ struct SourceObjectNormals_v
 		--for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
 			
 		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+	),
+	
+	/** Load normals local
+	 */
+	function loadNormalsLocal =
+	(
+		--format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
+		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
+			this.normals_local = normals_local_loaded
+
+		normals_local_loaded != undefined
 	),
 	
 	/** Is vertex normal pointing DOWN or SIDE but not UP
@@ -100,24 +97,10 @@ struct SourceObjectNormals_v
 	function _updateLocalVertexNormalsByModifier verts =
 	(
 		--format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
-		--format "VERTS: %\n" verts
 
 		eMod = Edit_Normals()
 
 		addModifier obj eMod
-		--modPanel.addModToSelection (eMod) ui:on
-
-		--vCount = eMod.GetNumVertices node:obj
-		--format "vCount: %\n" vCount
-		--normalIds = #{}
-		--eMod.ConvertVertexSelection #{1..vCount} normalIds node:obj
-		--
-		--for normal in normalIds do
-		--format "%: %\n" normal (eMod.GetNormal normal node:obj)
-		--format "verts: %\n" verts
-		--format "all_verts: %\n" all_verts
-		--format "all_verts.count: %\n" all_verts.count
-		--format "normals_local.count: %\n" normals_local.count
 
 		for vert in verts do
 		(
@@ -142,18 +125,11 @@ struct SourceObjectNormals_v
 	 */
 	function _updateLocalNormals verts =
 	(
-
 		--format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
-		--format "verts.numberSet: %\n" verts.numberSet
-		--timer_get_normals = timeStamp()
+
 		obj_mesh = obj.mesh
 
 		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
-
-
-		--format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
-		--faces_of_verts = polyop.getFacesUsingVert obj verts
-		--format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
 
 		for vert in faces_of_verts do
 		(

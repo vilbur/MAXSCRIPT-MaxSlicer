@@ -77,7 +77,7 @@ struct ModifiersManager_v
 		max modify mode
 
 		try(
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH / 2.0
 			
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5

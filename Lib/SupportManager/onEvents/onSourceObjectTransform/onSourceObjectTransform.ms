@@ -54,7 +54,7 @@ function onSourceObjectTransform sender evt =
 		rotation_chaged = not rotated_only_z
 
 		/* TEST POSITION */ 		
-		pos_z_changed	 = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z
+		pos_z_changed = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z
 		
 		/* CHOOSE WAHT TO UPDATE */ 		
 		what_to_update = case of
@@ -65,30 +65,29 @@ function onSourceObjectTransform sender evt =
 		)
 		
 		/* Update SourceObject and its suports if necessary */
-		if what_to_update != #POSITION_XY then
-		try(
+		if what_to_update != #POSITION_XY then -- UPDATE is not neede if source object has been moved on XY axises
+			try(
+	
+				/*------------------------------------------------------------------------------
+				  
+					EXECUTE UPDATE
+					
+				--------------------------------------------------------------------------------*/
 
-			/*------------------------------------------------------------------------------
-			  
-				EXECUTE UPDATE
+				SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)				
+			)
+			catch
+			(
+				format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
+	
+				format "FILE: \n%\n" (getErrorSourceFileName())
+				format "LINE: %\n" ( (getErrorSourceFileLine()) as integer )
 				
-			--------------------------------------------------------------------------------*/
-			--format "WHAT_TO_UPDATE: %\n" what_to_update
-			SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)
+				format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
+				
+			)
 			
-		)
-		catch
-		(
-			format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
-
-			format "FILE: \n%\n" (getErrorSourceFileName())
-			format "LINE: %\n" ( (getErrorSourceFileLine()) as integer )
 			
-			format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
-			
-		)
-		
-		
 		for obj in source_objects do 
 			SOURCE_OBJECT_TRANSFORM._setTransformData(obj)
 				

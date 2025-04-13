@@ -15,6 +15,7 @@ struct SupportObject_v
 
 	/* required on load from scene */
 	obj_type = #SUPPORT, -- #SUPPORT|#RAFT
+	
 	support_obj,
 
 	support_key, -- pointer of support when node is created
@@ -22,12 +23,8 @@ struct SupportObject_v
 
 	update_mode = false, -- on\off update mode of raft part
 	
-	/* properties */
+	/* generate properties */
 	points = #(),
-
-	--is_on_ground= true,
-	foot_enabled = true,
-	foot_exists  = false,
 
 	hit_raft,
 	hit_leg,
@@ -37,38 +34,41 @@ struct SupportObject_v
 	SupportLeg	= SupportLeg_v (this),
 	SupportFoot	= SupportFoot_v(this),
 	
-	/* support properties */
-	prop_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #FOOT_ENABLED, #TOP_WIDTH ),
+	/* SUPPORT PROPERTIES */
+	prop_keys   = #( #FOOT_EXISTS, #IS_ON_GROUND ),
+	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
 
-	min_lenght_by_angle,
+	direction,
+	dir_vector,
+
 	
-	normal_length,
 	bar_width,
+	normal_length,
 	base_height,
 	top_width,
 	
-	direction,
-	dir_vector,
-	--min_leg_pos,    -- minimal z position of leg knot where leg without foot can be created
+	/* minimal dimensions */ 
+	min_lenght_by_angle,
+	
 	min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	min_leg_pos,     -- min length of raft part to avoid sweep artifact on leg knot
 	min_raft_length,
 	min_support_pos,
+	
+	/* properties of existing supports */ 
+	foot_enabled = true,
+	foot_exists  = true,
+	is_on_ground = true,
 	
 	private
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
 	dilatation  = 0.05, 
-	--dilatation  = 0.1, 
-	--dilatation  = 0.15, -- add little space to minimal positions to make it work fine ;)
-	----dilatation  = 0.5, 
-	--dilatation  = 0.25, 
 
 	public
-
 
 	/** Generate support
 	  * 
@@ -76,7 +76,7 @@ struct SupportObject_v
 	  * @param #DOWN|point3	direction	dir_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor:( color ( random 100 255) ( random 100 255) ( random 100 255)) =
+	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor: =
 	(
 		--format "\n----------------------------------------------\n"
 		--format "\n"; print "SupportObject_v.generateSupport()"
@@ -93,11 +93,8 @@ struct SupportObject_v
 		
 		--this._setDirVector(dir_vector)
 		
-		this._setThisProperties()
-
-		this._saveUserProps()
+		this._fillThisWithOptionValues()
 		
-
 		this._setMinLimints (direction)
 
 		/*------------------------------------------------------------------------------
@@ -119,6 +116,10 @@ struct SupportObject_v
 		
 		this._setPivotToSecondPoint()
 		this._alignPivotToRaft()
+
+		this._isOnGround()
+		
+		this._saveUserPropsToNode()
 
 		this._lockRotationAndScaleTransforms()
 		
@@ -210,6 +211,37 @@ struct SupportObject_v
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
+	/** Update support height
+	 */
+	function updateSupportHeight =
+	(
+		--format "\n"; print "SupportObject_v.updateSupportHeight()"
+		
+		/** Set knot zposition
+		 */
+		function setKnotZposition knot z_pos =
+		(
+			--format "\n"; print "SupportObject_v.setKnotZposition z_pos()"
+			knot_pos = getKnotPoint support_obj spline_1 knot
+
+			knot_pos.z = z_pos
+
+			setKnotPoint support_obj spline_1 knot knot_pos
+		)
+
+		if is_on_ground then
+		(
+			num_knots = numKnots support_obj spline_1
+			
+			setKnotZposition (num_knots) 0
+			
+			if foot_exists then
+				setKnotZposition (num_knots - 1) base_height
+				
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
+	),
+	
 	/** Set support line points
 	 */
 	function _setSupportLinePoints =
@@ -234,26 +266,26 @@ struct SupportObject_v
 		)
 	),
 	
-	/** Get support points
-	 */
-	function _getSupportPoints update =
-	(
-		--format "\n"; print "SupportObject_v._getSupportPoints()"
-
-		SupportRaft.createRaft()
-		
-		
-		/* CREATE LEG */ 
-		if SupportRaft.hit_raft == undefined then 
-			SupportLeg.createLeg()
-		
-		
-		/* CREATE FOOT */ 
-		--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
-		if SupportLeg.hit_leg == undefined then 
-			SupportFoot.createFoot()
-
-	),
+	--/** Get support points
+	-- */
+	--function _getSupportPoints update =
+	--(
+	--	--format "\n"; print "SupportObject_v._getSupportPoints()"
+	--
+	--	SupportRaft.createRaft()
+	--	
+	--	
+	--	/* CREATE LEG */ 
+	--	if SupportRaft.hit_raft == undefined then 
+	--		SupportLeg.createLeg()
+	--	
+	--	
+	--	/* CREATE FOOT */ 
+	--	--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
+	--	if SupportLeg.hit_leg == undefined then 
+	--		SupportFoot.createFoot()
+	--
+	--),
 
 	/** Convert SUPPORT to RAFT and vice versa
 	  *
@@ -343,8 +375,6 @@ struct SupportObject_v
 		
 		knot_1.x == knot_2.x and knot_1.y == knot_2.y and knot_1.z != knot_2.z
 	),
-	
-
 
 	/** Test collision with source object
 	 */
@@ -402,6 +432,9 @@ struct SupportObject_v
 	function _setSupportObject wirecolor =
 	(
 		--format "\n"; print "SupportObject_v._getSupportNode()"
+		if wirecolor == unsupplied then 
+			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
+		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
 			support_obj = SplineShape wirecolor:wirecolor
@@ -448,12 +481,11 @@ struct SupportObject_v
 	  * 
 	  * Save props to objects user props
 	 */
-	function _setThisProperties =
+	function _fillThisWithOptionValues =
 	(
-		--format "\n"; print "SupportObject_v._setThisProperties()"
-		
+		--format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
-		for prop_key in prop_keys do
+		for prop_key in option_keys do
 			setProperty this prop_key ( SUPPORT_OPTIONS.getOption prop_key )
 		
         --bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
@@ -465,32 +497,43 @@ struct SupportObject_v
 		--top_width   = SUPPORT_OPTIONS.getChamferBarValue()
 	),
 	
-	/** Save user props
+	/** Save user props to node
 	 */
-	function _saveUserProps =
+	function _saveUserPropsToNode =
 	(
-		--format "\n"; print "SupportObject_v._saveUserProps()"
-        setUserPropVal support_obj "DIRECTION"    direction
-        setUserPropVal support_obj "FOOT_ENABLED" foot_enabled
-        setUserPropVal support_obj "FOOT_EXISTS"  foot_exists
-	
+		--format "\n"; print "SupportObject_v._saveUserPropsToNode()"
+		
 
-        setUserPropVal support_obj "BASE_HEIGHT" base_height
-        setUserPropVal support_obj "BAR_WIDTH" 	bar_width
-        setUserPropVal support_obj "TOP_WIDTH" top_width
+		for prop_key in prop_keys + option_keys do
+		(
+			key = toUpper ( prop_key as string )
+			val = getProperty this prop_key
+			
+			setUserPropVal support_obj key val
+		)
 
-        setUserPropVal support_obj "DIR_VECTOR"    dir_vector
-        setUserPropVal support_obj "NORMAL_LENGTH" normal_length
+        setUserPropVal support_obj "DIR_VECTOR" dir_vector
+		
+--		setUserPropVal support_obj "DIRECTION" direction
+--        setUserPropVal support_obj "FOOT_ENABLED" foot_enabled
+--        setUserPropVal support_obj "FOOT_EXISTS"  foot_exists
+--	
+--
+--        setUserPropVal support_obj "BASE_HEIGHT" base_height
+--        setUserPropVal support_obj "BAR_WIDTH" 	bar_width
+--        setUserPropVal support_obj "TOP_WIDTH" top_width
+--
+--        setUserPropVal support_obj "NORMAL_LENGTH" normal_length
 	),
 	
 	/** Load user props from node
 	 */
 	function _loadUserPropsFromNode =
 	(
-		format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
-		
-		for prop_key in prop_keys do
-			setProperty this prop_key ( getUserPropVal support_obj prop_key )
+
+		--format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
+		for prop_key in prop_keys + option_keys do
+			setProperty this prop_key ( getUserPropVal support_obj ( toUpper ( prop_key as string )) )
 	),
 
 	/** Minimal values depedns on isze and direction of support
@@ -708,6 +751,14 @@ struct SupportObject_v
 		)
 	),
 	
+	/** Is on ground
+	 */
+	function _isOnGround =
+	(
+		--format "\n"; print "SupportObject_v._isOnGround()"
+		is_on_ground = obj_type == #SUPPORT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined 
+	),
+
 	/** Align to vector
 	 */
 	function _alignPivotToRaft =

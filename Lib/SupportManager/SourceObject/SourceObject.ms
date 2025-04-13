@@ -235,8 +235,10 @@ struct SourceObject_v
 	  * 
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
+	--function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "what_to_update: %\n" what_to_update
 
 		--/** Rotation of source object changed
 		-- */
@@ -305,7 +307,8 @@ struct SourceObject_v
 
 			/* UPDATE SUPPORT */ 
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
-			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
+			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
+			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 		)
 		
 		free SupportsToUpdate
@@ -341,24 +344,11 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
-		--this.removeDeletedNodes()
-
-		--verts_pos = this.getVertsPositions( Supports.keys as BitArray )
-
-		--for key in Supports.keys where not Supports[key].isRaft() do
-		for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
-			--Supports[key].SupportLegUpdater.updateLegHeight()
-			--Supports[key].SupportLegUpdater.updateLegWithFoot()
-		(
+		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
+		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateSupportHeight()
-			
-			--Supports[key]._setPivotToSecondPoint()
-			--
-			--Supports[key]._alignPivotToSeconPoint()			
-        )
-
 	),
 
 	/** Get support by node
@@ -524,20 +514,20 @@ struct SourceObject_v
 		flattern_dict --return
 	),
 
-	/** test if obj rotation changed in X and Y axises
-	 */
-	function _isObjRotationChanged =
-	(
-		--format "\n"; print "SourceObject_v._isObjRotationChanged()"
-
-		current_rotation = this._getRoundedObjectRotation ( quatToEuler2 obj.rotation.controller.value )
-
-		rotation_changed = current_rotation != obj_rotation
-
-		obj_rotation = current_rotation
-
-		rotation_changed --return
-	),
+	--/** test if obj rotation changed in X and Y axises
+	-- */
+	--function _isObjRotationChanged =
+	--(
+	--	--format "\n"; print "SourceObject_v._isObjRotationChanged()"
+	--
+	--	current_rotation = this._getRoundedObjectRotation ( quatToEuler2 obj.rotation.controller.value )
+	--
+	--	rotation_changed = current_rotation != obj_rotation
+	--
+	--	obj_rotation = current_rotation
+	--
+	--	rotation_changed --return
+	--),
 
 	/** Get rounded object rotation
 	 *

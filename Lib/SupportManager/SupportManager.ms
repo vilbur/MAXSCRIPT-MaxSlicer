@@ -306,7 +306,7 @@ struct SupportManager_v
 	  *  
 	  *  This update is fired when source object is transformed
 	  *  
-      * @param #ROTATION|#POSITION_Z|#POSITION_XY what_to_update
+      * @param #ROTATION|#POSITION_Z what_to_update
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
@@ -326,13 +326,13 @@ struct SupportManager_v
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
-			--if what_to_update != undefined then 
-			--	case what_to_update of
-			--	(
-			--		#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
-			--		#POSITION_Z: SourceObject.updateSupportsHeight()
-			--	)
-			SourceObject.updateSupports update_knot_1:false update_raft:false
+			if what_to_update != undefined then 
+				case what_to_update of
+				(
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
+					#POSITION_Z: SourceObject.updateSupportsHeight()
+				)
+			--SourceObject.updateSupports update_knot_1:false update_raft:false
 		)	
 				
 
@@ -341,7 +341,6 @@ struct SupportManager_v
 		
 		this.updateShapes()
 	),
-
 
 	/** Update supports
 	 */

@@ -26,42 +26,30 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		format "\n"; print "SupportRaft_v.createRaft()"
+		--format "\n"; print "SupportRaft_v.createRaft()"
 		--format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
-		/* FOR PRECISE COMPARSION OF FLOATS */ 
-		--function  _float val = ( val as string ) as float
-		
-		/* GET LENGHT OF RAFT */
-		--function raftLenght = (distance this.Support.points[1] this.Support.points[2])
-		
-		--function raftHasMinLenght = isMoreThen (distance Support.points[1] Support.points[2]) ( Support.min_raft_length )
 		function raftHasMinLenght  	= isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
 		function raftHasFullLenght	= isMoreThen ( this.raftLenght() )  ( Support.normal_length )
 		function isSpaceForRaftAndLeg	= isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[2].z ) ( min_z_pos )
 
-		--function notSupportInMininmalMode = ( Support.direction != #NORMAL or Support.direction != #CUSTOM ) and Support.dir_vector != [0,0,-1]
 		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
 		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-		--format "Support.min_raft_length: %\n" Support.min_raft_length
+		--format "normal_length: %\n" normal_length
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    this._testHitOfSourceObject( normal_length )
 		
-		--format "hit_raft: %\n" hit_raft
-		--format "isSpaceForRaftAndLeg: %\n" (isSpaceForRaftAndLeg())
-		--format "LEG_SPACE_EXISTS:     %\n" (isLegPointAboveMinLimit( Support.min_leg_pos ))
-		--format "RAFT IS SHORT:        %\n" (raftHasMinLenght())
-		--format "HAS NORMAL LENGHT:      %\n" (raftLenght())
-		--format "RAFT HAS NORMAL LENGHT: %\n" (raftHasFullLenght())
-		
+		/*------------------------------------------------------------------------------
+			MODIFY RAFT LENGHT ABOVE GROUND
+		--------------------------------------------------------------------------------*/
 		if hit_raft == undefined then
 		(
 			--format "IS SPACE FOR RAFT AND LEG\n"
@@ -97,6 +85,9 @@ struct SupportRaft_v
 			)
 		)
 		else
+			/*------------------------------------------------------------------------------
+				GET POSITION OF HIT
+			--------------------------------------------------------------------------------*/
 			Support.points[2] = hit_raft
 	
 		

@@ -46,7 +46,7 @@ struct SourceObject_v
 
 		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then #NORMAL else #DOWN
 		
-		setUserPropVal obj "ROTATION" (obj.rotation)
+		--setUserPropVal obj "ROTATION" (obj.rotation)
 			
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
@@ -69,8 +69,6 @@ struct SourceObject_v
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
 		Normals.setLocalVertexNormals(verts_process)
-		--format "NORMALS_LOCAL: %\n" Normals.normals_local
-		--format "NORMALS_LOCAL: %\n" Normals.normals_local.count
 		
 		Normals.saveNormalsToUserProps()
 
@@ -78,7 +76,6 @@ struct SourceObject_v
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
-		--format "VERTS_PROCESS: %\n" verts_process
 		
 		
 		/*------------------------------------------------------------------------------

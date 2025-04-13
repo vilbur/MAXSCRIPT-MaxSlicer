@@ -6,7 +6,7 @@ function toggleSupportFoot state =
 	--format "\n"; print ".toggleSupportFoot()"
 	SupportObjects = SUPPORT_MANAGER.getSupportObjects (selection as Array)
 
-	for SupportObject in SupportObjects do
+	for SupportObject in SupportObjects where SupportObject.is_on_ground do
 	(
 		SupportObject.foot_enabled = state
 		
@@ -22,7 +22,7 @@ function toggleSupportFoot state =
 macroscript	_print_support_toggle_foot_true
 category:	"_3D-Print"
 buttontext:	"FOOT Toggle"
-tooltip:	""
+tooltip:	"ENABLE Foot"
 --icon:	"offset:[0,10]"
 (
 	on execute do
@@ -35,7 +35,7 @@ tooltip:	""
 macroscript	_print_support_toggle_foot_false
 category:	"_3D-Print"
 buttontext:	"FOOT Toggle"
-tooltip:	""
+tooltip:	"DISABLE Foot"
 icon:	""
 (
 	on execute do

@@ -22,7 +22,7 @@ struct SupportLeg_v
 	 */
 	function createLeg pos_z =
 	(
-		format "\n"; print "SupportLeg_v.createLeg()"
+		--format "\n"; print "SupportLeg_v.createLeg()"
 		--format "pos_z: %\n" pos_z
 		
 		this._testHitOfSourceObject()

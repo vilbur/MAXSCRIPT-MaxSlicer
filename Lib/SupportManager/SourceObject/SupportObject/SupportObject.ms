@@ -35,7 +35,7 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* SUPPORT PROPERTIES */
-	prop_keys   = #( #FOOT_EXISTS, #IS_ON_GROUND ),
+	prop_keys   = #( #DIR_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
@@ -78,8 +78,9 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor: =
 	(
-		--format "\n----------------------------------------------\n"
+		--format "\n===========================================================\n"
 		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "first_knot_pos: %\n" first_knot_pos
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 				
@@ -97,12 +98,14 @@ struct SupportObject_v
 		
 		this._setMinLimints (direction)
 
+		
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
 		
 		this._setSupportLinePoints()
+		
 
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
@@ -144,11 +147,11 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
-		--format "\n===========================================================\n"
+		--format "\n----------------------------------------------\n"
+		--format "first_knot_pos: %\n" first_knot_pos
 		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "DIRECTION: %\n" direction
 		--format "dir_vector: %\n" dir_vector
-		----format "first_knot_pos: %\n" first_knot_pos
 		--format "update_raft: %\n" update_raft
 		--format "update_leg: %\n" update_leg
 		
@@ -171,10 +174,10 @@ struct SupportObject_v
 
 		points = #(first_knot_pos, support_obj.pos)
 		
-		this._setNormalLenght update_raft:update_raft
+		this._setRaftLenght update_raft:update_raft
 
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-	
+
 		this._setDirVector (dir_vector) update_raft:update_raft
 		
 		this._setMinLimints(direction) update_raft:update_raft
@@ -216,6 +219,9 @@ struct SupportObject_v
 	function updateSupportHeight =
 	(
 		--format "\n"; print "SupportObject_v.updateSupportHeight()"
+		--format "support_obj:  %\n" support_obj.name
+		--format "is_on_ground: %\n" is_on_ground
+		--format "foot_exists:  %\n" foot_exists
 		
 		/** Set knot zposition
 		 */
@@ -255,38 +261,16 @@ struct SupportObject_v
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
 			--format "foot_enabled: %\n" foot_enabled
-			create_foot = foot_enabled and SupportRaft.foot_space_exists
+			foot_exists = foot_enabled and SupportRaft.foot_space_exists
 
-			SupportLeg.createLeg( if create_foot then min_leg_pos else 0 )
+			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
 			
 			/* CREATE FOOT */ 
-			if SupportLeg.hit_leg == undefined and create_foot then 
+			if SupportLeg.hit_leg == undefined and foot_exists then 
 				SupportFoot.createFoot()
-			
 		)
 	),
 	
-	--/** Get support points
-	-- */
-	--function _getSupportPoints update =
-	--(
-	--	--format "\n"; print "SupportObject_v._getSupportPoints()"
-	--
-	--	SupportRaft.createRaft()
-	--	
-	--	
-	--	/* CREATE LEG */ 
-	--	if SupportRaft.hit_raft == undefined then 
-	--		SupportLeg.createLeg()
-	--	
-	--	
-	--	/* CREATE FOOT */ 
-	--	--if SupportLeg.hit_leg == undefined and SupportRaft.raft_is_full then 
-	--	if SupportLeg.hit_leg == undefined then 
-	--		SupportFoot.createFoot()
-	--
-	--),
-
 	/** Convert SUPPORT to RAFT and vice versa
 	  *
 	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
@@ -467,9 +451,9 @@ struct SupportObject_v
 	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
 	  * 
 	 */
-	function _setNormalLenght update_raft:false =
+	function _setRaftLenght update_raft:false =
 	(
-		--format "\n"; print "SupportObject_v._setNormalLenght()"
+		--format "\n"; print "SupportObject_v._setRaftLenght()"
 		
 		this.normal_length = if update_raft and not SUPPORT_OPTIONS.lock_normal_length then
 			 distance points[1] points[2]
@@ -502,8 +486,6 @@ struct SupportObject_v
 	function _saveUserPropsToNode =
 	(
 		--format "\n"; print "SupportObject_v._saveUserPropsToNode()"
-		
-
 		for prop_key in prop_keys + option_keys do
 		(
 			key = toUpper ( prop_key as string )
@@ -512,25 +494,13 @@ struct SupportObject_v
 			setUserPropVal support_obj key val
 		)
 
-        setUserPropVal support_obj "DIR_VECTOR" dir_vector
-		
---		setUserPropVal support_obj "DIRECTION" direction
---        setUserPropVal support_obj "FOOT_ENABLED" foot_enabled
---        setUserPropVal support_obj "FOOT_EXISTS"  foot_exists
---	
---
---        setUserPropVal support_obj "BASE_HEIGHT" base_height
---        setUserPropVal support_obj "BAR_WIDTH" 	bar_width
---        setUserPropVal support_obj "TOP_WIDTH" top_width
---
---        setUserPropVal support_obj "NORMAL_LENGTH" normal_length
+        --setUserPropVal support_obj "DIR_VECTOR" dir_vector
 	),
 	
 	/** Load user props from node
 	 */
 	function _loadUserPropsFromNode =
 	(
-
 		--format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
 		for prop_key in prop_keys + option_keys do
 			setProperty this prop_key ( getUserPropVal support_obj ( toUpper ( prop_key as string )) )
@@ -550,18 +520,18 @@ struct SupportObject_v
 		function getCurrentValues =
 		(
 			--format "\n"; print "SupportObject_v.getCurrentValues()"
-			bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
+			--bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
 
 			
 			changed_props = Dictionary()
 			
 			changed_props[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
 			
-			changed_props[#BAR_WIDTH]   = bar_width_current
+			changed_props[#BAR_WIDTH]   = getUserPropVal support_obj "BAR_WIDTH"
 			
-			changed_props[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
+			changed_props[#TOP_WIDTH]   = getUserPropVal support_obj "TOP_WIDTH"
 		
-			changed_props[#TOP_WIDTH] = SUPPORT_OPTIONS.getChamferBarValue bar_width:bar_width_current
+			changed_props[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
 			
 			--changed_props --return
 		)
@@ -574,9 +544,12 @@ struct SupportObject_v
 			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
 			/** Value changed
 			 */
-			function valueChanged this_val current_val  =
+			function valueChanged this_val current_val =
 			(
 				--format "\n"; print "SupportObject_v.valueChanged()"
+				--format "\nprop: %\n" prop
+				--format "% == %\n" this_val current_val
+				
 				if classOf this_val == point3 then
 					distance this_val current_val > 0.001  --return
 					
@@ -586,8 +559,8 @@ struct SupportObject_v
 			
 			/* REMOVE UNCHANGED VALUES FROM DICTIONARY */ 
 			for prop in changed_props.keys do
-					if not valueChanged ( getProperty this prop ) changed_props[prop] then
-						RemoveDictValue changed_props prop
+				if not valueChanged ( getProperty this prop ) changed_props[prop] then
+					RemoveDictValue changed_props prop 
 			
 			--format "CHANGED_PROPS: %\n" this.changed_props.keys
 		)

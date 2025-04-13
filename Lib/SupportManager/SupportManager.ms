@@ -151,7 +151,7 @@ struct SupportManager_v
 
 		SUPPORT_OPTIONS.getValuesFromUi()
 
-		supports = this.getSupportsAndRafts( selection as Array )
+		supports = this.getSupportObjects( selection as Array )
 		--format "SUPPORTS: %\n" supports
 		supports = for support in supports where isTallEnough support collect support
 
@@ -822,28 +822,52 @@ struct SupportManager_v
 			source_objects --return
 	),
 	
-	/** Get support objects
-	 */
-	function getSupportObjects _objects =
-	(
-		--format "\n"; print "SupportManager_v.getSupportObjects()"
-		supports = this.getSupportsAndRafts _objects
-		--format "supports: %\n" supports
-		for SupportObject in SupportObjects where index = findItem supports SupportObject.value.support_obj > 0 collect SupportObject.value
-	),
+	
+	--/** Get support objects
+	-- */
+	--function getSupportObjects _objects =
+	--(
+	--	--format "\n"; print "SupportManager_v.getSupportObjects()"
+	--	--supports = this.getSupportObjects _objects
+	--	support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
+	--
+	--	this._getSupportObjectsByNodes(support_nodes)
+	--),
 	
 	/** Get supports and rafts
+	  *
+	  * @param #SUPPORT|#RAFT
 	 */
-	function getSupportsAndRafts _objects =
+	function getSupportObjects _objects obj_type: =
 	(
 		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
-		supports = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 
-		rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-
-		supports + rafts --return
+		support_nodes = if obj_type == unsupplied or obj_type == #SUPPORT then this._getSupportsOrRaftsNodes(_objects)(#SUPPORT) else #()
+		raft_nodes    = if obj_type == unsupplied or obj_type == #RAFT    then this._getSupportsOrRaftsNodes(_objects)(#RAFT)    else #()
+		
+		this._getSupportObjectsByNodes(support_nodes + raft_nodes)
 	),
-
+	
+	/** Get supports or rafts
+	  *
+	  * @param #SUPPORT|#RAFT
+	 */
+	function _getSupportsOrRaftsNodes _objects obj_type =
+	(
+		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
+		for obj in _objects where SUPPORT_MANAGER.isType obj_type obj != false collect obj
+	),
+	
+	/** Get support objects by nodes
+	  * 
+	  * @retrun #(SupportObject_v) array of SupportObjects
+	 */
+	function _getSupportObjectsByNodes _objects =
+	(
+		/* Loop supports */ 
+		for SupportObject in SupportObjects where index = findItem _objects SupportObject.value.support_obj > 0 collect SupportObject.value
+	),
+	
 	/*------------------------------------------------------------------------------*/
 
 	private

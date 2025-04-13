@@ -1,11 +1,27 @@
 
 /** Toggle support foot
+  * 
+  * @params boolean state TRUE: Toggle curent state of foot 	|	FALSE: Disable foot always
+  * 
  */
 function toggleSupportFoot state =
 (
-	--format "\n"; print ".toggleSupportFoot()"
-	SupportObjects = SUPPORT_MANAGER.getSupportObjects (selection as Array)
+	format "\n"; print ".toggleSupportFoot()"
+	SupportObjects = SUPPORT_MANAGER.getSupportObjects ( selection as Array ) obj_type:#SUPPORT
 
+	SupportObjects = for SupportObject in SupportObjects where SupportObject.is_on_ground collect SupportObject
+	
+	/* TOOGLE BY CURRENT STATE */ 
+	if state then
+	(
+		enabled_foot  = for SupportObject in SupportObjects where SupportObject.foot_enabled == true  collect SupportObject
+		disabled_foot = for SupportObject in SupportObjects where SupportObject.foot_enabled == false collect SupportObject
+		format "enabled_foot.count:  %\n" enabled_foot.count
+		format "disabled_foot.count: %\n" disabled_foot.count
+		state = disabled_foot.count > enabled_foot.count 
+	)
+	format "state: %\n" state
+	
 	for SupportObject in SupportObjects where SupportObject.is_on_ground do
 	(
 		SupportObject.foot_enabled = state

@@ -145,8 +145,9 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--format "\n----------------------------------------------\n"
-		--format "dir_vector: %\n" dir_vector
+		format "\n----------------------------------------------\n"
+		format "update_raft: %\n" update_raft
+		format "dir_vector:  %\n" dir_vector
 
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
@@ -171,7 +172,7 @@ struct SupportObject_v
 		
 		this._setMinLimints(direction) update_raft:update_raft
 
-		--this._keepVectorDown()
+		this._keepVectorDown()
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
@@ -188,7 +189,7 @@ struct SupportObject_v
 		this._updateKnotsPositionByPoints()
 				
 		this._setPivotToSecondPoint()
-
+		
 		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()

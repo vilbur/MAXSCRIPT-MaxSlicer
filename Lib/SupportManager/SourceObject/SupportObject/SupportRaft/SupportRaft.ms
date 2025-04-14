@@ -40,7 +40,7 @@ struct SupportRaft_v
 		
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
 		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-		format "normal_length: %\n" normal_length
+
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 

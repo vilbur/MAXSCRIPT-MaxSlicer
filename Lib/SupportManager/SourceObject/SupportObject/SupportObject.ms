@@ -21,7 +21,7 @@ struct SupportObject_v
 	support_key, -- pointer of support when node is created
 	sync_key,
 
-	update_mode = false, -- on\off update mode of raft part
+	--update_mode = false, -- on\off update mode of raft part
 	
 	/* generate properties */
 	points = #(),
@@ -58,9 +58,9 @@ struct SupportObject_v
 	min_support_pos,
 	
 	/* properties of existing supports */ 
-	foot_enabled = true,
-	foot_exists  = true,
-	is_on_ground = true,
+	foot_enabled = false, -- false is defaut for raft type
+	foot_exists  = false,
+	is_on_ground = false,
 	
 	private
 
@@ -92,7 +92,7 @@ struct SupportObject_v
 		
 		this.dir_vector = dir_vector
 		
-		--this._setDirVector(dir_vector)
+		--this._getDirVector(dir_vector)
 		
 		this._fillThisWithOptionValues()
 		
@@ -118,6 +118,7 @@ struct SupportObject_v
 		this._setName(vertex_index)
 		
 		this._setPivotToSecondPoint()
+		
 		this._alignPivotToRaft()
 
 		this._isOnGround()
@@ -128,10 +129,7 @@ struct SupportObject_v
 		
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
-		--setUserPropVal support_obj "NORMAL_LENGTH" ( distance points[1] points[2]  )
-
-		/* RETURN */ 
-		this
+		this -- return
 	),
 	
 	/** Update supports position
@@ -148,14 +146,7 @@ struct SupportObject_v
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
 	(
 		--format "\n----------------------------------------------\n"
-		--format "first_knot_pos: %\n" first_knot_pos
-		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "DIRECTION: %\n" direction
-		--format "dir_vector: %\n" dir_vector
-		--format "update_raft: %\n" update_raft
-		--format "update_leg: %\n" update_leg
-		
-		--points = this._getPointsPositionsFromLine()
+
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
 		--------------------------------------------------------------------------------*/
@@ -164,10 +155,6 @@ struct SupportObject_v
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 		
-		
-		this.update_mode = true
-
-
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		--------------------------------------------------------------------------------*/
@@ -176,9 +163,9 @@ struct SupportObject_v
 		
 		this._setRaftLenght update_raft:update_raft
 
-		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._getDirVector() for recognizing of chaged value
 
-		this._setDirVector (dir_vector) update_raft:update_raft
+		this._getDirVector update_raft:update_raft
 		
 		this._setMinLimints(direction) update_raft:update_raft
 
@@ -190,27 +177,21 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		this._setSupportLinePoints()
-
 		
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
-
 		this._updateCountOfKnots()
 		
 		this._updateKnotsPositionByPoints()
-		
+				
 		this._setPivotToSecondPoint()
-		
-		--this._alignPivotToRaft()
+
+		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
 		
-		this.update_mode = false
-		
-		--dir_vector_current = normalize (support_obj.pos - points[1] )
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -220,8 +201,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v.updateSupportHeight()"
 		--format "support_obj:  %\n" support_obj.name
-		--format "is_on_ground: %\n" is_on_ground
-		--format "foot_exists:  %\n" foot_exists
+		function isTallEnough = support_obj.pos.z > min_foot_pos
 		
 		/** Set knot zposition
 		 */
@@ -234,16 +214,45 @@ struct SupportObject_v
 
 			setKnotPoint support_obj spline_1 knot knot_pos
 		)
-
+		
 		if is_on_ground then
 		(
-			num_knots = numKnots support_obj spline_1
-			
-			setKnotZposition (num_knots) 0
-			
-			if foot_exists then
-				setKnotZposition (num_knots - 1) base_height
+			/*------------------------------------------------------------------------------
+				SIMPLE SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH
+			--------------------------------------------------------------------------------*/
+			if isTallEnough() and (( foot_enabled and foot_exists ) or not foot_enabled ) then
+			(
+				num_knots = numKnots support_obj spline_1
 				
+				setKnotZposition (num_knots) 0
+				
+				if foot_exists then
+					setKnotZposition (num_knots - 1) base_height
+					
+			)
+			/*------------------------------------------------------------------------------
+				UPDATE RAFT, LEG AND FOOT
+			--------------------------------------------------------------------------------*/
+			else
+			(
+				first_knot_pos = getKnotPoint support_obj spline_1 1
+			
+				points = #( first_knot_pos, support_obj.pos )
+			
+				this._setSupportLinePoints()
+		
+				this._updateCountOfKnots()
+				
+				this._updateKnotsPositionByPoints()
+				
+				this._setPivotToSecondPoint()
+				
+				--this._alignPivotToRaft()
+				
+				this._setMaterialsToLineSegments()
+			
+			)
+		
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 	),
@@ -269,6 +278,8 @@ struct SupportObject_v
 			if SupportLeg.hit_leg == undefined and foot_exists then 
 				SupportFoot.createFoot()
 		)
+		
+		this._setFootExists()
 	),
 	
 	/** Convert SUPPORT to RAFT and vice versa
@@ -428,20 +439,16 @@ struct SupportObject_v
 	),
 	
 
-	/** Get vector of raft from current line if not defined
+	/** Get vector of raft from current line or from user props
 	  * 
 	 */
-	function _setDirVector dir_vector update_raft:false =
+	function _getDirVector pdate_raft:false =
 	(
-		--format "\n"; print "SupportObject_v._setDirVector()"
-		--format "CHANGED_VALUES: %\n" changed_props.keys
-		--format "update_raft: %\n" update_raft
-		--this.dir_vector = if dir_vector != undefined then dir_vector else normalize ( support_obj.pos - points[1] )
+		--format "\n"; print "SupportObject_v._getDirVector()"
 		this.dir_vector = if update_raft then
-			 normalize (points[2] - points[1])
-		else
-			getUserPropVal support_obj "DIR_VECTOR"
-		
+								normalize (points[2] - points[1])
+							else
+							   getUserPropVal support_obj "DIR_VECTOR"
 	),
 		
 	/** Set normal lenght
@@ -730,6 +737,14 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._isOnGround()"
 		is_on_ground = obj_type == #SUPPORT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined 
+	),
+
+	/** Set foot exists
+	 */
+	function _setFootExists =
+	(
+		--format "\n"; print "SupportObject_v._setFootExists()"
+		foot_exists = obj_type != #RAFT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
 	),
 
 	/** Align to vector

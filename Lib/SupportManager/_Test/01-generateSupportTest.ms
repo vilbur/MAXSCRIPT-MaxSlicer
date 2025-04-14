@@ -44,7 +44,7 @@ pos_z = 1
 pos_z = 1.5
 -- pos_z = 2
 -- pos_z = 3
-pos_z = 10
+-- pos_z = 10
 
 --if selection.count =C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-VIEWPORTS\04-[Layout-Presets].mcr= 0 then
 (
@@ -58,11 +58,11 @@ pos_z = 10
 select_verts = #{}
  
 select_verts += verts_colors["red"]
--- select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
--- select_verts += verts_colors[clr_cyan]
--- select_verts += verts_colors["green"]
--- select_verts += verts_colors[clr_blue]
+select_verts += verts_colors["orange"]
+select_verts += verts_colors[clr_pink]
+select_verts += verts_colors[clr_cyan]
+select_verts += verts_colors["green"]
+select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -116,7 +116,7 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 
 
 /* FOOT ENABLED */
-SUPPORT_OPTIONS.foot_enabled = false
+-- SUPPORT_OPTIONS.foot_enabled = false
 
 /*------------------------------------------------------------------------------
 	GENERATE SUPPORTS
@@ -168,7 +168,7 @@ select single_support
 -- move  $PackMan [ 0, 0, 10 ]
 
 
--- select $PackMan
+select $PackMan
 
 /* UPDATE MODIFIER */
 

@@ -30,9 +30,9 @@ struct SupportRaft_v
 		--format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
-		function raftHasMinLenght  	= isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
-		function raftHasFullLenght	= isMoreThen ( this.raftLenght() )  ( Support.normal_length )
-		function isSpaceForRaftAndLeg	= isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
+		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
+		function raftHasFullLenght    = isMoreThen ( this.raftLenght() )  ( Support.normal_length )
+		function isSpaceForRaftAndLeg = isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[2].z ) ( min_z_pos )
 

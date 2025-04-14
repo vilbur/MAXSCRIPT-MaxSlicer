@@ -145,7 +145,6 @@ struct SupportManager_v
 
 		/** if support height is greater then min height option
 		 */
-		--function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
 

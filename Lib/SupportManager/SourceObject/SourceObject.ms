@@ -345,7 +345,12 @@ struct SourceObject_v
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 		for key in Supports.keys where not Supports[key].isRaft() do
+		(
+			
+			
+			
 			Supports[key].updateSupportHeight()
+		)
 	),
 
 	/** Get support by node

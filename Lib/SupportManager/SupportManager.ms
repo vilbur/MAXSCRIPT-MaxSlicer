@@ -328,7 +328,7 @@ struct SupportManager_v
 			if what_to_update != undefined then 
 				case what_to_update of
 				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true
+					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true what_to_update:what_to_update
 					#POSITION_Z: SourceObject.updateSupportsHeight()
 				)
 			--SourceObject.updateSupports update_knot_1:false update_raft:false
@@ -343,7 +343,7 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes update_raft:true direction:undefined what_to_update: =
+	function updateSupports support_nodes update_raft:true direction:undefined =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "update_raft: %\n" update_raft
@@ -358,7 +358,7 @@ struct SupportManager_v
 		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
 
 		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
 			
 				
 		/* UPDATE ALL BEAMS OF SUPPORTS */

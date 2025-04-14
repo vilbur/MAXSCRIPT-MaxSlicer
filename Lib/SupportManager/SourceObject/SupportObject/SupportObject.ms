@@ -35,7 +35,7 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* SUPPORT PROPERTIES */
-	prop_keys   = #( #DIR_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),
+	prop_keys   = #( #DIRECTION, #DIR_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
@@ -92,7 +92,7 @@ struct SupportObject_v
 		
 		this.dir_vector = dir_vector
 		
-		--this._getDirVector(dir_vector)
+		--this._setDirVector(dir_vector)
 		
 		this._fillThisWithOptionValues()
 		
@@ -143,9 +143,10 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined /*dir_vector:undefined*/ =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
 		--format "\n----------------------------------------------\n"
+		--format "dir_vector: %\n" dir_vector
 
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
@@ -163,14 +164,14 @@ struct SupportObject_v
 		
 		this._setRaftLenght update_raft:update_raft
 
-		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._getDirVector() for recognizing of chaged value
+		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+		--format "CHANGED_PROPS: %\n" this.changed_props.keys
 
-		this._getDirVector update_raft:update_raft
+		this._setDirVector (dir_vector) update_raft:update_raft
 		
 		this._setMinLimints(direction) update_raft:update_raft
 
-		this._keepVectorDown()
-		
+		--this._keepVectorDown()
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
@@ -191,7 +192,7 @@ struct SupportObject_v
 		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
-		
+		--format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -217,10 +218,17 @@ struct SupportObject_v
 		
 		if is_on_ground then
 		(
-			/*------------------------------------------------------------------------------
-				SIMPLE SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH
-			--------------------------------------------------------------------------------*/
-			if isTallEnough() and (( foot_enabled and foot_exists ) or not foot_enabled ) then
+			first_knot_pos = getKnotPoint support_obj spline_1 1
+		
+			points = #( first_knot_pos, support_obj.pos )
+			
+			points_distance = distance points[1] points[2]
+
+			/*------------------------------------------------------------------------------------------
+				SIMPLE SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
+			--------------------------------------------------------------------------------------------*/
+			
+			if isTallEnough() and not points_distance < normal_length and (( foot_enabled and foot_exists ) or not foot_enabled ) then
 			(
 				num_knots = numKnots support_obj spline_1
 				
@@ -230,14 +238,12 @@ struct SupportObject_v
 					setKnotZposition (num_knots - 1) base_height
 					
 			)
-			/*------------------------------------------------------------------------------
+			/*------------------------------------------------------------------------------------------
 				UPDATE RAFT, LEG AND FOOT
-			--------------------------------------------------------------------------------*/
+			--------------------------------------------------------------------------------------------*/
 			else
 			(
-				first_knot_pos = getKnotPoint support_obj spline_1 1
-			
-				points = #( first_knot_pos, support_obj.pos )
+
 			
 				this._setSupportLinePoints()
 		
@@ -442,13 +448,18 @@ struct SupportObject_v
 	/** Get vector of raft from current line or from user props
 	  * 
 	 */
-	function _getDirVector pdate_raft:false =
+	function _setDirVector dir_vector update_raft:false =
 	(
-		--format "\n"; print "SupportObject_v._getDirVector()"
-		this.dir_vector = if update_raft then
-								normalize (points[2] - points[1])
-							else
-							   getUserPropVal support_obj "DIR_VECTOR"
+		--format "\n"; print "SupportObject_v._setDirVector()"
+        vector_exist = dir_vector != undefined
+
+		this.dir_vector = case of
+		(
+            (vector_exist):	dir_vector
+            (update_raft):	normalize (points[2] - points[1])
+            default: 		getUserPropVal support_obj "DIR_VECTOR"
+		)
+		
 	),
 		
 	/** Set normal lenght

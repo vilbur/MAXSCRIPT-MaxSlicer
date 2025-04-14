@@ -65,7 +65,7 @@ function onSourceObjectTransform sender evt =
 		)
 		
 		/* Update SourceObject and its suports if necessary */
-		if what_to_update != #POSITION_XY then -- UPDATE is not neede if source object has been moved on XY axises
+		if what_to_update != #POSITION_XY then -- if source object
 			try(
 	
 				/*------------------------------------------------------------------------------

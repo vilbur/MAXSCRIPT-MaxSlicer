@@ -232,45 +232,23 @@ struct SourceObject_v
 	  * 
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
-	--function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
-		--/** Rotation of source object changed
-		-- */
-		--function rotationOfSourceObjectChanged =
-		--(
-		--	--format "\n"; print "SourceObject_v.rotationOfSourceObjectChanged()"
-		--	rotation_current = quatToEuler2 obj.rotation.controller.value
-		--	rotation_saved   = getUserPropVal obj "ROTATION"
-		--	format "rotation_current: %\n" rotation_current
-		--	format "rotation_saved:   %\n" rotation_saved
-		--	
-		--	--rotation_changed = obj.rotation != getUserPropVal obj "ROTATION"
-		--	--
-		--	--
-		--	--if rotation_changed then
-		--	--	setUserPropVal obj "ROTATION" rotation_current
-		--	--	
-		--	----format "ROTATION_CHANGED: %\n" rotation_changed
-		--	--rotation_changed --return
-		--	true
-		--)
-		
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
-		
+		--format "SupportsToUpdate.keys: %\n" SupportsToUpdate.keys
 		/* GET NORMALS */ 
 		--if rotationOfSourceObjectChanged() then
-		if what_to_update == #ROTATION then
-		(
-			--if Normals.normals_local == undefined then
-				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
-				
-			--if Normals.normals_world == undefined then
+		--if what_to_update == #ROTATION then
+		--(
+		--	--if Normals.normals_local == undefined then
+				--Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
+		--		
+		--	--if Normals.normals_world == undefined then
 				Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
-		)
+		--)
 		
 		
 		/*------------------------------------------------------------------------------
@@ -345,12 +323,7 @@ struct SourceObject_v
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 		for key in Supports.keys where not Supports[key].isRaft() do
-		(
-			
-			
-			
 			Supports[key].updateSupportHeight()
-		)
 	),
 
 	/** Get support by node

@@ -92,50 +92,51 @@ struct SupportObject_v
 		
 		this.dir_vector = dir_vector
 		
-		--this._setDirVector(dir_vector)
-		
 		this._fillThisWithOptionValues()
 		
 		this._setMinLimints (direction)
 
-		
 		/*------------------------------------------------------------------------------
-			SET SUPPORT LINE POINTS
+			GENERATE SUPPORT
 		--------------------------------------------------------------------------------*/
-		
-		
-		this._setSupportLinePoints()
-		
-
-		/*------------------------------------------------------------------------------
-			CREATE SUPPORT
-		--------------------------------------------------------------------------------*/
-				
-		this._drawLine()
-
-		this._setMaterialsToLineSegments()
-		
-		this._setName(vertex_index)
-		
-		this._setPivotToSecondPoint()
-		
-		this._alignPivotToRaft()
-
-		this._isOnGround()
-		
-		this._saveUserPropsToNode()
-
-		this._lockRotationAndScaleTransforms()
-		
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		if this._isPositionAndVectorValid() then
+		(
+			this._setSupportLinePoints()
+	
+			/*------------------------------------------------------------------------------
+				CREATE SUPPORT
+			--------------------------------------------------------------------------------*/
+					
+			this._drawLine()
+	
+			this._setMaterialsToLineSegments()
+			
+			this._setName(vertex_index)
+			
+			this._setPivotToSecondPoint()
+			
+			this._alignPivotToRaft()
+	
+			this._isOnGround()
+			
+			this._saveUserPropsToNode()
+	
+			this._lockRotationAndScaleTransforms()
+			
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
+		else
+			this._replacePointAndSupport (support_obj) (this._createProxyPoint())
 
 		this -- return
 	),
 	
-	/** Update supports position
+	/** Update support
 	  * 
-	  * 	first_knot_pos: undefined	-- GET POS FROM LINE,	WHEN SOURCE OBJECT HAS BEEN ROTATED
-	  * 	first_knot_pos: Point3	-- GET POS FROM SOURCE OBJECT,	WHEN SUPPORT ITSELF HAS BEEN MOVED, to keep support sticked on source object
+	  * Support is replaced with point if vector or z position is invalid
+	  * 
+	  * first_knot_pos: undefined	-- GET POS FROM LINE,	WHEN SOURCE OBJECT HAS BEEN ROTATED
+	  * first_knot_pos: Point3	-- GET POS FROM SOURCE OBJECT,	WHEN SUPPORT ITSELF HAS BEEN MOVED, to keep support sticked on source object
 	  * 
 	  * 
 	  *	UPDATE RAFT IF:
@@ -149,52 +150,152 @@ struct SupportObject_v
 		format "update_raft: %\n" update_raft
 		format "dir_vector:  %\n" dir_vector
 
-		/*------------------------------------------------------------------------------
-			SANITIZE PARAMETERS
-		--------------------------------------------------------------------------------*/
-		
-		/* GET 1st knot POSITION FROM LINE */ 
-		if first_knot_pos == undefined then
-			first_knot_pos = getKnotPoint support_obj spline_1 1
+		is_support_valid = this._isPositionAndVectorValid()
+		is_support_point = this._isSupportProxyPoint()
 		
 		/*------------------------------------------------------------------------------
-			PREPARE UPDATE
+			UPDATE SUPPORT
 		--------------------------------------------------------------------------------*/
+		if is_support_valid and not is_support_point then
+		(
+			/*------------------------------------------------------------------------------
+				SANITIZE PARAMETERS
+			--------------------------------------------------------------------------------*/
+			
+			/* GET 1st knot POSITION FROM LINE */ 
+			if first_knot_pos == undefined then
+				first_knot_pos = getKnotPoint support_obj spline_1 1
+			
+			/*------------------------------------------------------------------------------
+				PREPARE UPDATE
+			--------------------------------------------------------------------------------*/
+	
+			points = #(first_knot_pos, support_obj.pos)
 
-		points = #(first_knot_pos, support_obj.pos)
 		
-		this._setRaftLenght update_raft:update_raft
-
-		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		--format "CHANGED_PROPS: %\n" this.changed_props.keys
-
-		this._setDirVector (dir_vector) update_raft:update_raft
+			this._setRaftLenght update_raft:update_raft
+	
+			this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+	
+			this._setDirVector (dir_vector) update_raft:update_raft
 		
-		this._setMinLimints(direction) update_raft:update_raft
-
-		this._keepVectorDown()
+			this._setMinLimints(direction) update_raft:update_raft
+	
+			this._keepVectorDown()
+			
+			/*------------------------------------------------------------------------------
+				UPDATE SUPPORT LINE POINTS
+			--------------------------------------------------------------------------------*/
+			
+			this._setSupportLinePoints()
+			
+			/*------------------------------------------------------------------------------
+				POST UPDATE
+			--------------------------------------------------------------------------------*/
+			
+			this._updateCountOfKnots()
+			
+			this._updateKnotsPositionByPoints()
+					
+			this._setPivotToSecondPoint()
+			
+			----this._alignPivotToRaft()
+			
+			this._setMaterialsToLineSegments()
+			--format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
+		/*------------------------------------------------------------------------------
+			REPLACE SUPPORT >>> POINT 
+		--------------------------------------------------------------------------------*/
+		else if not is_support_valid and not is_support_point then
+			this._replacePointAndSupport (support_obj) (this._createProxyPoint())
 		
 		/*------------------------------------------------------------------------------
-			UPDATE SUPPORT LINE POINTS
+			REPLACE POINT >>> SUPPORT
 		--------------------------------------------------------------------------------*/
+		else if is_support_valid and is_support_point then
+			this._rebulidSupport()
+	),
+	
+	/** Rebulid support
+	 */
+	function _rebulidSupport =
+	(
+		--format "\n"; print "SupportObject_v._rebulidSupport()"
+		index = getUserPropVal support_obj "INDEX"
+
+		wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		
-		this._setSupportLinePoints()
+		first_knot_pos = if classOf support_obj != Point then getKnotPoint support_obj spline_1 1 else support_obj.position
 		
-		/*------------------------------------------------------------------------------
-			POST UPDATE
-		--------------------------------------------------------------------------------*/
+		this.generateSupport index first_knot_pos:first_knot_pos direction:direction dir_vector:dir_vector wirecolor:wirecolor 
+	),
+	
+	/** Is support proxy point
+	 */
+	function _isSupportProxyPoint =
+	(
+		classOf support_obj == Point
+	),
+	
+	/** Get proxy point
+	 */
+	function _createProxyPoint =
+	(
+		--format "\n"; print "SupportObject_v._createProxyPoint()"
+		Point name:support_obj.name position:points[1] name:support_obj.name wirecolor:red size:3 cross:true axistripod:false centermarker:false axistripod:false Box:false constantscreensize:false drawontop:false --return
+	),
+	
+	/** Replace point and support
+	 */
+	function _replacePointAndSupport source target =
+	(
+		--format "\n"; print "SupportObject_v._replacePointAndSupport()"
+		setUserPropBuffer target ( getUserPropBuffer source )
+			
+		target.parent = source.parent
 		
-		this._updateCountOfKnots()
+		delete source
 		
-		this._updateKnotsPositionByPoints()
-				
-		this._setPivotToSecondPoint()
+		support_obj = target
+	),
+
+	/** Create new support object or get existing and delete spline subobject
+	 */
+	function _setSupportObject wirecolor =
+	(
+		--format "\n"; print "SupportObject_v._getSupportNode()"
+
+		/* CREATE NEW OBJECT */ 
+		if support_obj == undefined then
+			support_obj = this._createSupportObject (wirecolor)
 		
-		----this._alignPivotToRaft()
+		else /* USE OLD OBEJCT - RESET SPLINE */ 
+			deleteSpline support_obj spline_1
+	),
+	
+	/** Create support object
+	 */
+	function _createSupportObject wirecolor =
+	(
+		--format "\n"; print "SupportObject_v._createSupportObject()"
+		if wirecolor == unsupplied then 
+			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
 		
-		this._setMaterialsToLineSegments()
-		--format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		support = SplineShape wirecolor:wirecolor
+		
+		setUserPropVal support "WIRECOLOR" wirecolor
+		
+		support --return
+	),
+	
+	/** Is position and ctor valid
+	 */
+	function _isPositionAndVectorValid =
+	(
+		--format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
+		this.points[1].z > 0 and this.dir_vector.z < 0 --return
 	),
 	
 	/** Update support height
@@ -428,23 +529,7 @@ struct SupportObject_v
 
 
 	--private
-	
-	/** Create new support object or get existing and delete spline subobject
-	 */
-	function _setSupportObject wirecolor =
-	(
-		--format "\n"; print "SupportObject_v._getSupportNode()"
-		if wirecolor == unsupplied then 
-			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
-		
-		/* CREATE NEW OBJECT */ 
-		if support_obj == undefined then
-			support_obj = SplineShape wirecolor:wirecolor
-		
-		else /* USE OLD OBEJCT - RESET SPLINE */ 
-			deleteSpline support_obj spline_1
-	),
-	
+
 
 	/** Get vector of raft from current line or from user props
 	  * 

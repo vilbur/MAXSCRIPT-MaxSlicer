@@ -112,10 +112,10 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
-				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
+				result = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
-				if SupportObject.support_obj != undefined then
+				--if SupportObject.support_obj != undefined then
 				(
 					/* ADD TO ARRAYS */
 					this.Supports[vert] = SupportObject
@@ -128,7 +128,11 @@ struct SourceObject_v
 
 					append new_nodes SupportObject.support_obj
 				)
+
+				if result == false then
+					this._replaceSupportWithProxy(SupportObject)
 			)
+		
 		
 		/*------------------------------------------------------------------------------
 			BIND EVENTS
@@ -283,10 +287,45 @@ struct SourceObject_v
 			/* UPDATE SUPPORT */ 
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
-			Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+			
+			if not Support.support_obj.wirecolor == red then
+			(
+				result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+
+				if result == false then
+					this._replaceSupportWithProxy(Support)
+			)
+			else
+				Support.rebulidSupport()
+			
+			 
 		)
 		
 		free SupportsToUpdate
+	),
+	
+	/** Replace support with proxy
+	 */
+	function _replaceSupportWithProxy Support =
+	(
+		format "\n"; print "SourceObject_v._replaceSupportWithProxy()"
+		Support.support_obj.wirecolor = red
+		
+		--deleteSpline Support.support_obj 1
+
+		--updateShape 
+		--support_obj = Support.support_obj
+		--
+		--proxy = Point name:support_obj.name position:Support.points[1] name:support_obj.name wirecolor:red size:3 cross:true axistripod:false centermarker:false axistripod:false Box:false constantscreensize:false drawontop:false --return
+		--
+		--setUserPropBuffer proxy ( getUserPropBuffer support_obj )
+		--	
+		--proxy.parent = support_obj.parent
+		--
+		--delete support_obj
+		--
+		--support_obj = proxy
+		
 	),
 
 	/** Update single support
@@ -323,7 +362,21 @@ struct SourceObject_v
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 		for key in Supports.keys where not Supports[key].isRaft() do
-			Supports[key].updateSupportHeight()
+		(
+			Support = Supports[key]
+					   
+			if not Support.support_obj.wirecolor == red then
+			(
+				result = Support.updateSupportHeight()
+
+				if result == false then
+					this._replaceSupportWithProxy(Support)
+			)
+			else
+				Support.rebulidSupport()
+		)
+			
+			
 	),
 
 	/** Get support by node

@@ -27,6 +27,7 @@ clr_cyan =  ( color 0 255 255 ) as string
 clr_pink =  ( color 255 190 200 ) as string
 
 verts_colors[ "red"	] = #{ 113 }
+verts_colors[ "yellow"	] = #{ 113 }
 verts_colors[ "orange"	] = #{ 57 }
 verts_colors[ clr_pink	] = #{ 115 }
 verts_colors[ clr_blue	] = #{ 22 }
@@ -58,9 +59,11 @@ pos_z = 1.5
 select_verts = #{}
  
 -- select_verts += verts_colors["red"]
+select_verts += verts_colors["yellow"]
+
 -- select_verts += verts_colors["orange"]
 -- select_verts += verts_colors[clr_pink]
-select_verts += verts_colors[clr_cyan]
+-- select_verts += verts_colors[clr_cyan]
 -- select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
@@ -173,7 +176,7 @@ select $PackMan
 /* UPDATE MODIFIER */
 
 
---select $'*-support-*' -- SELECT ALL SUPPORT
+-- select $'*-support-*' -- SELECT ALL SUPPORT
 
 
 -- SUPPORT_OPTIONS.setOptionValue #BAR_WIDTH 3.0

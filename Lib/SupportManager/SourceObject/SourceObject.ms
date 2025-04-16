@@ -130,7 +130,7 @@ struct SourceObject_v
 				)
 
 				if result == false then
-					this._replaceSupportWithProxy(SupportObject)
+					this._redWirecolorToInvalidSupport(SupportObject)
 			)
 		
 		
@@ -291,12 +291,12 @@ struct SourceObject_v
 			if not Support.support_obj.wirecolor == red then
 			(
 				result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-
+				format "Support.dir_vector: %\n" Support.dir_vector
 				if result == false then
-					this._replaceSupportWithProxy(Support)
+					this._redWirecolorToInvalidSupport(Support)
 			)
 			else
-				Support.rebulidSupport()
+				Support.rebulidSupport dir_vector:Normals.normals_world[index]
 			
 			 
 		)
@@ -306,9 +306,9 @@ struct SourceObject_v
 	
 	/** Replace support with proxy
 	 */
-	function _replaceSupportWithProxy Support =
+	function _redWirecolorToInvalidSupport Support =
 	(
-		format "\n"; print "SourceObject_v._replaceSupportWithProxy()"
+		format "\n"; print "SourceObject_v._redWirecolorToInvalidSupport()"
 		Support.support_obj.wirecolor = red
 		
 		--deleteSpline Support.support_obj 1
@@ -370,7 +370,7 @@ struct SourceObject_v
 				result = Support.updateSupportHeight()
 
 				if result == false then
-					this._replaceSupportWithProxy(Support)
+					this._redWirecolorToInvalidSupport(Support)
 			)
 			else
 				Support.rebulidSupport()

@@ -212,14 +212,15 @@ struct SupportObject_v
 	
 	/** Rebulid support
 	 */
-	function rebulidSupport =
+	function rebulidSupport dir_vector: =
 	(
 		format "\n"; print "SupportObject_v.rebulidSupport()"
 		format "dir_vector: %\n" dir_vector
 		index = getUserPropVal support_obj "INDEX"
 		
+		if dir_vector == unsupplied then 
 		dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-		format "dir_vector: %\n" dir_vector
+		--format "dir_vector: %\n" dir_vector
 
 		wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		

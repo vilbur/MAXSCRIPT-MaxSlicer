@@ -1,4 +1,4 @@
-/** Support options
+/** SUPPORT_OPTIONS
   *
   *
   * IMPORTANT: Control id, SupportOptions.porp and Modifiers names MUST HAVE SAME NAME

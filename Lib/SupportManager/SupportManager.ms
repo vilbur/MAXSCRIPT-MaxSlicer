@@ -138,7 +138,7 @@ struct SupportManager_v
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
-		--format "SORT_MODE: %\n" sort_mode
+		format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
@@ -152,8 +152,10 @@ struct SupportManager_v
 
 		supports = this.getSupportObjects( selection as Array )
 		--format "SUPPORTS: %\n" supports
-		supports = for support in supports where isTallEnough support collect support
+		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
 
+		--new_beams = #(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+		
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/

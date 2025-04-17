@@ -44,8 +44,8 @@ pos_z = 1
 -- pos_z = 1.2
 pos_z = 1.5
 -- pos_z = 2
--- pos_z = 3
--- pos_z = 10
+pos_z = 3
+pos_z = 10
 
 --if selection.count =C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-VIEWPORTS\04-[Layout-Presets].mcr= 0 then
 (
@@ -61,11 +61,11 @@ select_verts = #{}
 -- select_verts += verts_colors["red"]
 select_verts += verts_colors["yellow"]
 
--- select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
--- select_verts += verts_colors[clr_cyan]
--- select_verts += verts_colors["green"]
--- select_verts += verts_colors[clr_blue]
+select_verts += verts_colors["orange"]
+select_verts += verts_colors[clr_pink]
+select_verts += verts_colors[clr_cyan]
+select_verts += verts_colors["green"]
+select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -101,18 +101,18 @@ SUPPORT_OPTIONS.base_width	= 5
 SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
 -- SUPPORT_OPTIONS.normal_length	= 0.5
 -- SUPPORT_OPTIONS.normal_length	= 0.75
--- SUPPORT_OPTIONS.normal_length	= 1
-SUPPORT_OPTIONS.normal_length	= 2
+SUPPORT_OPTIONS.normal_length	= 1
+-- SUPPORT_OPTIONS.normal_length	= 2
 -- SUPPORT_OPTIONS.normal_length	= 5
-SUPPORT_OPTIONS.normal_length	= 10
+-- SUPPORT_OPTIONS.normal_length	= 10
 -- SUPPORT_OPTIONS.normal_length	= 20
 -- SUPPORT_OPTIONS.normal_length	= 30
 
 
 
 /* RAFT DIRECTION */ 
--- SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
-SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
+SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
+-- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  RAFT LENGTH  */
 SUPPORT_OPTIONS.lock_normal_length = false
@@ -202,6 +202,6 @@ select $PackMan
 -- move $ [0,0,-44.8418]
 -- rotate $ (angleaxis -3.5 [1,0,0])
 
-rotate $ (angleaxis 64.5 [1,0,0])
-rotate $ (angleaxis 31.5 [1,0,0])
-rotate $ (angleaxis -22 [1,0,0])
+-- rotate $ (angleaxis 64.5 [1,0,0])
+-- rotate $ (angleaxis 31.5 [1,0,0])
+-- rotate $ (angleaxis -22 [1,0,0])

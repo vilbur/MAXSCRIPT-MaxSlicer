@@ -237,8 +237,8 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
 	(
-		format "\n****************************************************\n"
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n****************************************************\n"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
 		/* GET SUPPORTS TO UPDATE */ 
@@ -264,13 +264,13 @@ struct SourceObject_v
 		for index in SupportsToUpdate.keys do
 		(
 			Support = SupportsToUpdate[index]
-			format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
-			format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
+			--format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
+			--format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 			--format "Normals.normals_world: %\n" Normals.normals_world
-			format "direction: %\n" direction
+			--format "direction: %\n" direction
 			/* GET VECTOR  */ 
 			dir_vector = this._getDirVector direction index
 			
@@ -293,7 +293,7 @@ struct SourceObject_v
 				if not Support.support_obj.wirecolor == red then
 				(
 					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-					format "dir_vector: %\n" dir_vector
+					--format "dir_vector: %\n" dir_vector
 					if result == false then
 						this._redWirecolorToInvalidSupport(Support)
 				)
@@ -330,9 +330,15 @@ struct SourceObject_v
 		format "\n"; print "SourceObject_v._redWirecolorToInvalidSupport()"
 		Support.support_obj.wirecolor = red
 		
-		--deleteSpline Support.support_obj 1
+		knot_pos = getKnotPoint Support.support_obj 1 1
 
-		--updateShape 
+		--deleteSpline Support.support_obj 1
+			deleteSpline Support.support_obj 1
+
+		updateShape Support.support_obj
+		
+		Support.support_obj.pivot = knot_pos
+		
 		--support_obj = Support.support_obj
 		--
 		--proxy = Point name:support_obj.name position:Support.points[1] name:support_obj.name wirecolor:red size:3 cross:true axistripod:false centermarker:false axistripod:false Box:false constantscreensize:false drawontop:false --return
@@ -363,20 +369,21 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n****************************************************\n"
+		--format "\n****************************************************\n"
 
-		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 /* GET VECTOR  */ 
 			
+				Normals.setWorldSpaceVertexNormals ( Supports.keys as BitArray )
 
 		for index in Supports.keys where not Supports[index].isRaft() do
 		(
 			Support = Supports[index]
 			
-			format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
-			format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
+			--format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
+			--format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			
 			--normal_world = Normals.normals_world[index]
 			

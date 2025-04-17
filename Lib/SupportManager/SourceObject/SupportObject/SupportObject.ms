@@ -30,6 +30,7 @@ struct SupportObject_v
 	hit_leg,
 	
 	/* dependency */
+	--SupportRaft	= SupportRaft_v(this),
 	SupportRaft	= SupportRaft_v(this),
 	SupportLeg	= SupportLeg_v (this),
 	SupportFoot	= SupportFoot_v(this),
@@ -79,8 +80,8 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor: =
 	(
 		--format "\n===========================================================\n"
-		format "\n"; print "SupportObject_v.generateSupport()"
-		format "dir_vector: %\n" dir_vector
+		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "dir_vector: %\n" dir_vector
 		--format "wirecolor: %\n" wirecolor
 		--format "first_knot_pos: %\n" first_knot_pos
 		
@@ -152,8 +153,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		format "\n----------------------------------------------\n"
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n----------------------------------------------\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "update_raft: %\n" update_raft
 		--format "dir_vector:  %\n" dir_vector
 		
@@ -172,18 +173,23 @@ struct SupportObject_v
 		points = #(first_knot_pos, support_obj.pos)
 		
 		this._setRaftLenght update_raft:update_raft
+		
+		this.dir_vector = if dir_vector == undefined then  normalize (points[2] - points[1]) else dir_vector
 
-		if not this._isPositionAndVectorValid points[1] dir_vector then
+		if not this._isPositionAndVectorValid points[1] this.dir_vector then
 			return false
 			
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
 		--format "CHANGED_PROPS: %\n" this.changed_props.keys
 
-		this._setDirVector (dir_vector) update_raft:update_raft
+		
+			
+		--this._setDirVector (dir_vector) update_raft:update_raft
+		set_min_limits = update_raft == true or min_raft_length == undefined
 		
 		
-		
-		this._setMinLimints(direction) update_raft:update_raft
+		--this._setMinLimints(direction) update_raft:update_raft
+		this._setMinLimints(direction) update_raft:set_min_limits
 
 		this._keepVectorDown()
 		
@@ -197,7 +203,7 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		
-		this._updateCountOfKnots()
+		this._updateCountOfKnots()www
 		
 		this._updateKnotsPositionByPoints()
 				
@@ -224,8 +230,12 @@ struct SupportObject_v
 
 		wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		
+		if numSplines support_obj == 0 then
+			addNewSpline support_obj
+
 		--first_knot_pos = if classOf support_obj != Point then getKnotPoint support_obj spline_1 1 else support_obj.position
-		first_knot_pos = getKnotPoint support_obj spline_1 1
+		--first_knot_pos = getKnotPoint support_obj spline_1 1
+		first_knot_pos = support_obj.pivot
 		
 		this.generateSupport index first_knot_pos:first_knot_pos direction:direction dir_vector:dir_vector wirecolor:wirecolor 
 	),
@@ -234,7 +244,7 @@ struct SupportObject_v
 	 */
 	function updateSupportHeight  =
 	(
-		format "\n"; print "SupportObject_v.updateSupportHeight()"
+		--format "\n"; print "SupportObject_v.updateSupportHeight()"
 		--format "support_obj:  %\n" support_obj.name
 		function isTallEnough = support_obj.pos.z > min_foot_pos
 		
@@ -249,6 +259,13 @@ struct SupportObject_v
 
 			setKnotPoint support_obj spline_1 knot knot_pos
 		)
+		
+		
+		--set_min_limits = update_raft == true or min_raft_length == undefined
+		
+		
+		if  min_raft_length == undefined then
+		this._setMinLimints(direction) update_raft:true
 		
 		if is_on_ground then
 		(
@@ -471,11 +488,11 @@ struct SupportObject_v
 	--function _isPositionAndVectorValid first_knot_pos dir_vector =
 	function _isPositionAndVectorValid knot_pos dir_vector =
 	(
-		format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
-		format "knot_pos.z: %\n" knot_pos.z
-		--format "points[1].z: %\n" points[1].z
-		format "dir_vector.z: %\n" dir_vector.z
-		format "test: %\n" (knot_pos.z > 0 and dir_vector.z < 0)
+		--format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
+		--format "knot_pos.z: %\n" knot_pos.z
+		----format "points[1].z: %\n" points[1].z
+		--format "dir_vector.z: %\n" dir_vector.z
+		--format "test: %\n" (knot_pos.z > 0 and dir_vector.z < 0)
 		--knot_pos.z > 0 and dir_vector.z < 0 --return
 		--points[1].z > 0 and dir_vector.z < 0 --return
 		knot_pos.z > 0 and dir_vector.z < 0 --return
@@ -495,7 +512,7 @@ struct SupportObject_v
 		
 		else /* USE OLD OBEJCT - RESET SPLINE */ 
 			deleteSpline support_obj spline_1
-		
+				
 		support_obj.wirecolor = wirecolor
 		
 		setUserPropVal support_obj "WIRECOLOR" wirecolor

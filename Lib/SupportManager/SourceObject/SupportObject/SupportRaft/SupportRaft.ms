@@ -53,6 +53,10 @@ struct SupportRaft_v
 		if hit_raft == undefined then
 		(
 			--format "IS SPACE FOR RAFT AND LEG\n"
+			--format "Support.points: %\n" Support.points
+			--format "Support.min_foot_pos: %\n" Support.min_foot_pos
+			--format "Support.min_leg_pos:  %\n" Support.min_leg_pos
+			
 			/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 			if not raftHasFullLenght() then
 				this._extendSecondPoint( normal_length )
@@ -66,7 +70,7 @@ struct SupportRaft_v
 			if not raftHasMinLenght() then
 			(
 				/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
-				this._extendSecondPoint(normal_length )
+				this._extendSecondPoint( normal_length )
 				
 				/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
 				if Support.points[2].z < Support.min_leg_pos then

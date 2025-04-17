@@ -20,9 +20,9 @@ struct BeamGenerator_v
 	 */
 	function generateBeam support_A support_B =
 	(
-		--format "\n"; print "BeamGenerator_v.generateBeam()"
-		--format "support_A: %\n" support_A
-		--format "support_B: %\n" support_B
+		format "\n"; print "BeamGenerator_v.generateBeam()"
+		format "support_A: %\n" support_A
+		format "support_B: %\n" support_B
 		BeamObject = (BeamObject_v support_A support_B )
 
 		/* IF BEAM DOES NOT EXISTS YET */
@@ -51,13 +51,13 @@ struct BeamGenerator_v
 
 	/** Generate beams chain
 	 */
-	function generateBeamsChain supports max_distance =
+	function generateBeamsChain supports =
 	(
 		--format "\n"; print "BeamGenerator_v.generateBeamsChain()"
 		--format "supports: %\n" supports
 		new_beams = #()
 
-		sorted_supports = this._sortSupportsByDistance(supports) (max_distance)
+		sorted_supports = this._sortSupportsByDistance(supports) (SUPPORT_OPTIONS.max_distance)
 
 		for supports_in_cluster in sorted_supports do
 			--format "SUPPORTS_IN_CLUSTER %: %\n" supports_in_cluster.count supports_in_cluster

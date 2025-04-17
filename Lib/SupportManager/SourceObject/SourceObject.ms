@@ -264,11 +264,13 @@ struct SourceObject_v
 		for index in SupportsToUpdate.keys do
 		(
 			Support = SupportsToUpdate[index]
-			
+			format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
+			format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 			--format "Normals.normals_world: %\n" Normals.normals_world
+			format "direction: %\n" direction
 			/* GET VECTOR  */ 
 			dir_vector = this._getDirVector direction index
 			
@@ -276,7 +278,7 @@ struct SourceObject_v
 			if direction == #CUSTOM then 
 				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
 				
-				
+			
 			/* UPDATE 1st POINT - if support has been moved on its own */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
@@ -284,17 +286,24 @@ struct SourceObject_v
 			/* UPDATE SUPPORT */ 
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
+			--normal_world = Normals.normals_world[index]
 			
-			if not Support.support_obj.wirecolor == red then
+			if Normals.normals_world[index].z < 0 then
 			(
-				result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-				format "Support.dir_vector: %\n" Support.dir_vector
-				if result == false then
-					this._redWirecolorToInvalidSupport(Support)
+				if not Support.support_obj.wirecolor == red then
+				(
+					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+					format "dir_vector: %\n" dir_vector
+					if result == false then
+						this._redWirecolorToInvalidSupport(Support)
+				)
+				else
+					Support.rebulidSupport dir_vector:dir_vector
+					--Support.rebulidSupport dir_vector:Normals.normals_world[index]
 			)
 			else
-				Support.rebulidSupport dir_vector:Normals.normals_world[index]
-			
+				this._redWirecolorToInvalidSupport(Support)
+
 			 
 		)
 		
@@ -366,20 +375,31 @@ struct SourceObject_v
 		(
 			Support = Supports[index]
 			
-			direction = getUserPropVal Support.support_obj "DIRECTION"
-
-			dir_vector = this._getDirVector direction index
+			format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
+			format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			
-			if not Support.support_obj.wirecolor == red then
+			--normal_world = Normals.normals_world[index]
+			
+			if Normals.normals_world[index].z < 0 then
 			(
-				result = Support.updateSupportHeight(dir_vector)
-
-				if result == false then
-					this._redWirecolorToInvalidSupport(Support)
+				direction = getUserPropVal Support.support_obj "DIRECTION"
+				
+				dir_vector = this._getDirVector direction index
+				
+				if not Support.support_obj.wirecolor == red then
+				(
+					result = Support.updateSupportHeight()
+	
+					if result == false then
+						this._redWirecolorToInvalidSupport(Support)
+				)
+				else
+					Support.rebulidSupport dir_vector:dir_vector
+					--Support.rebulidSupport()
+				
 			)
 			else
-				Support.rebulidSupport dir_vector:dir_vector
-				--Support.rebulidSupport()
+				this._redWirecolorToInvalidSupport(Support)
 		)
 	),
 	

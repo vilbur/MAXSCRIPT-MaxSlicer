@@ -188,10 +188,10 @@ select $PackMan
 
 --move $PackMan [ 0, 0, 5 ]
 
-move $ [0,0,-29.8397]
-rotate $ (angleaxis 41 [1,0,0])
-rotate $ (angleaxis -28 [1,0,0])
-rotate $ (angleaxis -18 [1,0,0])
+-- move $ [0,0,-29.8397]
+-- rotate $ (angleaxis 41 [1,0,0])
+-- rotate $ (angleaxis -28 [1,0,0])
+-- rotate $ (angleaxis -18 [1,0,0])
 -- move $ [0,0,42.175]
 -- rotate $ (angleaxis -115 [1,0,0])
 -- move $ [0,0,-36.9619]
@@ -201,3 +201,7 @@ rotate $ (angleaxis -18 [1,0,0])
 -- move $ [0,0,3.02209]
 -- move $ [0,0,-44.8418]
 -- rotate $ (angleaxis -3.5 [1,0,0])
+
+rotate $ (angleaxis 64.5 [1,0,0])
+rotate $ (angleaxis 31.5 [1,0,0])
+rotate $ (angleaxis -22 [1,0,0])

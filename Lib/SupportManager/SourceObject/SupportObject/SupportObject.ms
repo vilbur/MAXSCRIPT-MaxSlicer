@@ -232,7 +232,7 @@ struct SupportObject_v
 	
 	/** Update support height
 	 */
-	function updateSupportHeight =
+	function updateSupportHeight  =
 	(
 		format "\n"; print "SupportObject_v.updateSupportHeight()"
 		--format "support_obj:  %\n" support_obj.name

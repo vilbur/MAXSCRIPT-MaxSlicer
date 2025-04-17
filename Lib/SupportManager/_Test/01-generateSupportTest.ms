@@ -111,8 +111,8 @@ SUPPORT_OPTIONS.normal_length	= 10
 
 
 /* RAFT DIRECTION */ 
-SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
--- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
+-- SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
+SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  RAFT LENGTH  */
 SUPPORT_OPTIONS.lock_normal_length = false
@@ -187,3 +187,17 @@ select $PackMan
 --MODIFIERS_MANAGER.updateModifier( selection as array )( #BAR_WIDTH  )
 
 --move $PackMan [ 0, 0, 5 ]
+
+move $ [0,0,-29.8397]
+rotate $ (angleaxis 41 [1,0,0])
+rotate $ (angleaxis -28 [1,0,0])
+rotate $ (angleaxis -18 [1,0,0])
+-- move $ [0,0,42.175]
+-- rotate $ (angleaxis -115 [1,0,0])
+-- move $ [0,0,-36.9619]
+-- rotate $ (angleaxis 67 [1,0,0])
+-- move $ [0,0,33.2041]
+-- move $ [0,0,-3.84295]
+-- move $ [0,0,3.02209]
+-- move $ [0,0,-44.8418]
+-- rotate $ (angleaxis -3.5 [1,0,0])

@@ -78,7 +78,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor: =
 	(
-		format "\n===========================================================\n"
+		--format "\n===========================================================\n"
 		format "\n"; print "SupportObject_v.generateSupport()"
 		format "dir_vector: %\n" dir_vector
 		--format "wirecolor: %\n" wirecolor
@@ -218,7 +218,7 @@ struct SupportObject_v
 		format "dir_vector: %\n" dir_vector
 		index = getUserPropVal support_obj "INDEX"
 		
-		if dir_vector == unsupplied then 
+		if dir_vector == unsupplied  then 
 		dir_vector = getUserPropVal support_obj "DIR_VECTOR"
 		--format "dir_vector: %\n" dir_vector
 

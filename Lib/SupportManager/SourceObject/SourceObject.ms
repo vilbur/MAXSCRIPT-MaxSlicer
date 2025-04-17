@@ -237,7 +237,8 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n****************************************************\n"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
 		/* GET SUPPORTS TO UPDATE */ 
@@ -269,11 +270,7 @@ struct SourceObject_v
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 			--format "Normals.normals_world: %\n" Normals.normals_world
 			/* GET VECTOR  */ 
-			dir_vector = case direction of
-			(
-				(#DOWN):   [ 0, 0, -1 ]
-				(#NORMAL): Normals.normals_world[index]
-			)
+			dir_vector = this._getDirVector direction index
 			
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			if direction == #CUSTOM then 
@@ -303,6 +300,19 @@ struct SourceObject_v
 		
 		free SupportsToUpdate
 	),
+	
+	/** Get dir vector
+	 */
+	function _getDirVector direction index =
+	(
+		--format "\n"; print "SourceObject_v._getDirVector()"
+		case direction of
+			(
+				(#DOWN):   [ 0, 0, -1 ]
+				(#NORMAL): Normals.normals_world[index]
+			)
+	),
+	
 	
 	/** Replace support with proxy
 	 */
@@ -339,6 +349,40 @@ struct SourceObject_v
 		Supports[index].updateSupport first_knot_pos:verts_pos[index] update_direction:update_direction
 	),
 
+
+	/** Update supports height
+	 */
+	function updateSupportsHeight =
+	(
+		format "\n****************************************************\n"
+
+		format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		--format "supports.count: %\n" (Supports.count)
+		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
+/* GET VECTOR  */ 
+			
+
+		for index in Supports.keys where not Supports[index].isRaft() do
+		(
+			Support = Supports[index]
+			
+			direction = getUserPropVal Support.support_obj "DIRECTION"
+
+			dir_vector = this._getDirVector direction index
+			
+			if not Support.support_obj.wirecolor == red then
+			(
+				result = Support.updateSupportHeight(dir_vector)
+
+				if result == false then
+					this._redWirecolorToInvalidSupport(Support)
+			)
+			else
+				Support.rebulidSupport dir_vector:dir_vector
+				--Support.rebulidSupport()
+		)
+	),
+	
 	/** Update base height
 	 */
 	function updateBaseHeight support_nodes =
@@ -352,31 +396,6 @@ struct SourceObject_v
 			SupportsToUpdate[key].updateBaseHeight()
 			
 		free SupportsToUpdate
-	),
-
-	/** Update supports height
-	 */
-	function updateSupportsHeight =
-	(
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
-		--format "supports.count: %\n" (Supports.count)
-		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
-		for key in Supports.keys where not Supports[key].isRaft() do
-		(
-			Support = Supports[key]
-					   
-			if not Support.support_obj.wirecolor == red then
-			(
-				result = Support.updateSupportHeight()
-
-				if result == false then
-					this._redWirecolorToInvalidSupport(Support)
-			)
-			else
-				Support.rebulidSupport()
-		)
-			
-			
 	),
 
 	/** Get support by node

@@ -36,7 +36,7 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		format "\n"; print "SourceObject_v.generateSupports()"
+		--format "\n"; print "SourceObject_v.generateSupports()"
 		--format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
@@ -116,30 +116,25 @@ struct SourceObject_v
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				--if SupportObject.support_obj != undefined then
-				format "\n%: %\n" vert SupportObject
+				--format "\n%: %\n" vert SupportObject
 				
 				/* ADD TO ARRAYS */
 				this.Supports[vert] = SupportObject
-				format "SupportObject.support_key: %\n" SupportObject.support_key
-				format "SupportObject: %\n" SupportObject
-				SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
 	
 				/* LINK SUPPORT TO SOURCE OBJECT */ 
 				SupportObject.support_obj.parent = obj
 	
 				/* SET USER DATA TO SUPPORT */
-				this._saveUserPropsToSupport (SupportObject) (vert) (direction)
+				--this._saveUserPropsToSupport (SupportObject) (vert) (direction)
 
-				
-				
-				append SupportObjectsNew SupportObject.support_obj
+				append SupportObjectsNew SupportObject
 				
 				if result == false then
 					this._redWirecolorToInvalidSupport(SupportObject)
 			)
 		
-		format "\n"
-		format "this.Supports: %\n" this.Supports
+		--format "\n"
+		--format "this.Supports: %\n" this.Supports
 		/*------------------------------------------------------------------------------
 			BIND EVENTS
 		--------------------------------------------------------------------------------*/
@@ -150,7 +145,7 @@ struct SourceObject_v
 		
 		
 		/* RETURN */
-		format "SupportObjectsNew: %\n" SupportObjectsNew
+		--format "SupportObjectsNew: %\n" SupportObjectsNew
 		SupportObjectsNew
 	),
 
@@ -525,24 +520,6 @@ struct SourceObject_v
 	),
 	
 	private
-	
-	/** SET USER DATA TO SUPPORT OBJECT
-	 */
-	function _saveUserPropsToSupport SupportObject vert direction =
-	(
-		support_obj = SupportObject.support_obj
-		
-		--support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
-		key_prop = if SupportObject.obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
-		--support_key_val  = (getHandleByAnim support_obj) as string
-		--setUserPropVal support_obj "WIRECOLOR" SupportObject.wirecolor
-		
-		setUserPropVal support_obj "SYNC_KEY"	SupportObject.sync_key
-		
-		setUserPropVal support_obj key_prop SupportObject.support_key
-		
-		setUserPropVal support_obj "INDEX"	vert
-	),
 
 	/** Get Supports 
 	  * 

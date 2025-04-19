@@ -64,7 +64,7 @@ select_verts += verts_colors["yellow"]
 select_verts += verts_colors["orange"]
 select_verts += verts_colors[clr_pink]
 -- select_verts += verts_colors[clr_cyan]
--- select_verts += verts_colors["green"]
+select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 

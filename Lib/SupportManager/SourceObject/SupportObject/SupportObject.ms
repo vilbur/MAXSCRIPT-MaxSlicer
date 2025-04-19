@@ -19,7 +19,7 @@ struct SupportObject_v
 	support_obj,
 
 	sync_key,
-	support_key, -- pointer of support when node is created
+	support_key, -- pointer of support`s node -- used for both types: #SUPPORT and #RAFT
 
 	--update_mode = false, -- on\off update mode of raft part
 	
@@ -92,14 +92,15 @@ struct SupportObject_v
 		
 		this.dir_vector = dir_vector
 		
-
 		this.points = #( first_knot_pos )
 		
+		this._setSupportObject(wirecolor)
+		
+		this._saveUserPropsToSupport(vertex_index)
 		
 		if not this._isPositionAndVectorValid first_knot_pos dir_vector then
 			return false
 		
-		this._setSupportObject(wirecolor)
 
 			
 		this._fillThisWithOptionValues()
@@ -555,6 +556,24 @@ struct SupportObject_v
 			getUserPropVal support_obj "NORMAL_LENGTH"
 	),
 	
+	/** SET USER DATA TO SUPPORT OBJECT
+	 */
+	function _saveUserPropsToSupport vert =
+	(
+		--support_obj = SupportObject.support_obj
+		
+		--support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
+		key_prop = if obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
+		--support_key_val  = (getHandleByAnim support_obj) as string
+		--setUserPropVal support_obj "WIRECOLOR" SupportObject.wirecolor
+	
+		setUserPropVal support_obj "SYNC_KEY" sync_key
+		
+		setUserPropVal support_obj key_prop support_key
+		
+		setUserPropVal support_obj "INDEX" vert
+	 ),
+
 	/** Fill props of this with data from options
 	  * 
 	  * Save props to objects user props

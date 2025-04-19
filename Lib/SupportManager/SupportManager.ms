@@ -113,10 +113,11 @@ struct SupportManager_v
 		--format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		/* GENERATE NEW SUPPORTS */ 
-		new_nodes = SourceObject.generateSupports obj_type:obj_type
+		SupportObjectsNew = SourceObject.generateSupports obj_type:obj_type
 
+		new_nodes = for SupportObject in SupportObjectsNew collect SupportObject.support_obj
 		
-		if new_nodes.count > 0 then
+		if SupportObjectsNew.count > 0 then
 		(
 			/* ADD MODIFIERS */ 
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type objects_exists:supports_exists
@@ -125,6 +126,10 @@ struct SupportManager_v
 			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 		
 			bindOnObjectDeletedCallback( SourceObject.getSupportNodes() )
+			
+			/* ADD NEW SUPPORTS TO MANAER */ 
+			for SupportObject in SupportObjectsNew do
+				SupportObjects[SupportObject.support_key] = SupportObject
 		
 			/* UPDATE SHAPES OF SUPPORTS */ 
 			this.updateShapes()
@@ -140,7 +145,7 @@ struct SupportManager_v
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
-		format "SORT_MODE: %\n" sort_mode
+		--format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
@@ -149,34 +154,31 @@ struct SupportManager_v
 		 */
 		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
-
 		SUPPORT_OPTIONS.getValuesFromUi()
-
+		
 		supports = this.getSupportObjects( selection as Array )
-		format "SUPPORTS: %\n" supports.count
+		
 		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
-		format "SUPPORTS: %\n" supports.count
-
-		----new_beams = #(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+			
 		new_beams = #()
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/
 		
 		if supports.count > 0 then
-		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
-					
-					then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */ 
-						#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+			new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
+						
+						then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */ 
+							#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+				
+						else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
+							case sort_mode of
+							(
+								(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports)
+								(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
+								----default:
+							)
 			
-					else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
-						case sort_mode of
-						(
-							(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports)
-							(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
-							----default:
-						)
-		
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()
@@ -830,33 +832,36 @@ struct SupportManager_v
 	),
 	
 	
-	--/** Get support objects
-	-- */
-	--function getSupportObjects _objects =
-	--(
-	--	--format "\n"; print "SupportManager_v.getSupportObjects()"
-	--	--supports = this.getSupportObjects _objects
-	--	support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
-	--
-	--	this._getSupportObjectsByNodes(support_nodes)
-	--),
-	
-	/** Get supports and rafts
-	  *
-	  * @param #SUPPORT|#RAFT
+	/** Get support objects
 	 */
-	function getSupportObjects _objects obj_type: =
+	function getSupportObjects _objects =
 	(
-		format "\n"; print "SupportManager_v.getSupportObjects()"
-		format "_objects: %\n" _objects
-		format "obj_type: %\n" obj_type
-
-		support_nodes = if obj_type == unsupplied or obj_type == #SUPPORT then this._getSupportsOrRaftsNodes(_objects)(#SUPPORT) else #()
-		raft_nodes    = if obj_type == unsupplied or obj_type == #RAFT    then this._getSupportsOrRaftsNodes(_objects)(#RAFT)    else #()
-		format "support_nodes: %\n" support_nodes
-		this._getSupportObjectsByNodes(support_nodes + raft_nodes)
+		--format "\n"; print "SupportManager_v.getSupportObjects()"
+		--supports = this.getSupportObjects _objects
+		support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
+	
+		--for support_node in support_nodes do
+			--format "support_node.name: %\n" support_node.name
+	
+		this._getSupportObjectsByNodes(support_nodes)
 	),
 	
+	--/** Get supports and rafts
+	--  *
+	--  * @param #SUPPORT|#RAFT
+	-- */
+	--function getSupportObjects _objects obj_type: =
+	--(
+	--	format "\n"; print "SupportManager_v.getSupportObjects()"
+	--	format "_objects: %\n" _objects
+	--	format "obj_type: %\n" obj_type
+	--
+	--	support_nodes = if obj_type == unsupplied or obj_type == #SUPPORT then this._getSupportsOrRaftsNodes(_objects)(#SUPPORT) else #()
+	--	raft_nodes    = if obj_type == unsupplied or obj_type == #RAFT    then this._getSupportsOrRaftsNodes(_objects)(#RAFT)    else #()
+	--	format "support_nodes: %\n" support_nodes
+	--	this._getSupportObjectsByNodes(support_nodes + raft_nodes)
+	--),
+	--
 	/** Get supports or rafts
 	  *
 	  * @param #SUPPORT|#RAFT
@@ -877,9 +882,12 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v._getSupportObjectsByNodes()"
 		--format "_objects.count: %\n" _objects.count
 		--format "SupportObjects.keys: %\n" SupportObjects.keys
+
+		--for SupportObject in SupportObjects where index = findItem _objects SupportObject.value.support_obj > 0 collect SupportObject.value
+		support_objects_keys = SupportObjects.keys
 		
-		/* Loop supports */ 
-		for SupportObject in SupportObjects where index = findItem _objects SupportObject.value.support_obj > 0 collect SupportObject.value
+		for obj in _objects where (index = findItem support_objects_keys ( getUserPropVal obj "SUPPORT_KEY" )) > 0 collect SupportObjects[support_objects_keys[index]]
+		
 	),
 	
 	/*------------------------------------------------------------------------------*/

@@ -20,9 +20,9 @@ struct BeamGenerator_v
 	 */
 	function generateBeam support_A support_B =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeam()"
-		format "support_A: %\n" support_A
-		format "support_B: %\n" support_B
+		--format "\n"; print "BeamGenerator_v.generateBeam()"
+		--format "support_A: %\n" support_A
+		--format "support_B: %\n" support_B
 		BeamObject = (BeamObject_v support_A support_B )
 
 		/* IF BEAM DOES NOT EXISTS YET */
@@ -59,7 +59,7 @@ struct BeamGenerator_v
 
 		sorted_supports = this._sortSupportsByDistance(supports) (SUPPORT_OPTIONS.max_distance)
 
-		for supports_in_cluster in sorted_supports do
+		--for supports_in_cluster in sorted_supports do
 			--format "SUPPORTS_IN_CLUSTER %: %\n" supports_in_cluster.count supports_in_cluster
 
 		for supports_in_cluster in sorted_supports do
@@ -220,6 +220,9 @@ struct BeamGenerator_v
 	(
 		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
 		format "supports.count: %\n" supports.count
+		for support in supports do 
+			format "support.name: %\n" support.name
+		
 		--format "max_distance: %\n" max_distance
         sorted_all = #()
 		cluster    = #()
@@ -236,7 +239,8 @@ struct BeamGenerator_v
 			/* GET SUPPORT NODE AND POSITION */
             support     = supports[support_i]
             support_pos = support.pos
-
+			format "\n"
+			format "support: %\n" support.name
 			/* AVOID TESTING SUPPORT AGAIN */
             proccessed_supports[support_i] = true
 
@@ -244,8 +248,9 @@ struct BeamGenerator_v
 			next_support_i = undefined
 
 			--format "SUPPORT_OPTIONS.max_distance: %\n" SUPPORT_OPTIONS.max_distance
+			
 			/*------------------------------------------------------------------------------
-				LOOP SUPPORTS AND FIND CLOSEST SUPPORT
+				LOOP SUPPORTS AND FIND NEXT CLOSEST SUPPORT
 			--------------------------------------------------------------------------------*/
 			for i = 1 to supports.count where not proccessed_supports[i] do
 			(
@@ -255,7 +260,7 @@ struct BeamGenerator_v
 					if current_distance <= max_distance  then
 					(
 						min_distance_found = current_distance
-
+						format "next_support_i: %\n" i
 						next_support_i = i
 					)
 			)

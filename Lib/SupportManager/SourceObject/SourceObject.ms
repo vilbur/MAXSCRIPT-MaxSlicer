@@ -36,11 +36,11 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		--format "\n"; print "SourceObject_v.generateSupports()"
+		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
-		new_nodes = #()
+		SupportObjectsNew = #()
 
 		this.removeDeletedNodes()
 
@@ -116,24 +116,30 @@ struct SourceObject_v
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				--if SupportObject.support_obj != undefined then
-				(
-					/* ADD TO ARRAYS */
-					this.Supports[vert] = SupportObject
-		
-					/* LINK SUPPORT TO SOURCE OBJECT */ 
-					SupportObject.support_obj.parent = obj
-		
-					/* SET USER DATA TO SUPPORT */
-					this._saveUserPropsToSupport (SupportObject) (vert) (direction)
+				format "\n%: %\n" vert SupportObject
+				
+				/* ADD TO ARRAYS */
+				this.Supports[vert] = SupportObject
+				format "SupportObject.support_key: %\n" SupportObject.support_key
+				format "SupportObject: %\n" SupportObject
+				SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
+	
+				/* LINK SUPPORT TO SOURCE OBJECT */ 
+				SupportObject.support_obj.parent = obj
+	
+				/* SET USER DATA TO SUPPORT */
+				this._saveUserPropsToSupport (SupportObject) (vert) (direction)
 
-					append new_nodes SupportObject.support_obj
-				)
-
+				
+				
+				append SupportObjectsNew SupportObject.support_obj
+				
 				if result == false then
 					this._redWirecolorToInvalidSupport(SupportObject)
 			)
 		
-		
+		format "\n"
+		format "this.Supports: %\n" this.Supports
 		/*------------------------------------------------------------------------------
 			BIND EVENTS
 		--------------------------------------------------------------------------------*/
@@ -144,8 +150,8 @@ struct SourceObject_v
 		
 		
 		/* RETURN */
-		format "new_nodes: %\n" new_nodes
-		new_nodes
+		format "SupportObjectsNew: %\n" SupportObjectsNew
+		SupportObjectsNew
 	),
 
 	/** Reset supports
@@ -526,13 +532,14 @@ struct SourceObject_v
 	(
 		support_obj = SupportObject.support_obj
 		
-		support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
-		support_key_val  = (getHandleByAnim support_obj) as string
-		
+		--support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
+		key_prop = if SupportObject.obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
+		--support_key_val  = (getHandleByAnim support_obj) as string
+		--setUserPropVal support_obj "WIRECOLOR" SupportObject.wirecolor
 		
 		setUserPropVal support_obj "SYNC_KEY"	SupportObject.sync_key
 		
-		setUserPropVal support_obj support_key_prop support_key_val
+		setUserPropVal support_obj key_prop SupportObject.support_key
 		
 		setUserPropVal support_obj "INDEX"	vert
 	),

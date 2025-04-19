@@ -18,8 +18,8 @@ struct SupportObject_v
 	
 	support_obj,
 
-	support_key, -- pointer of support when node is created
 	sync_key,
+	support_key, -- pointer of support when node is created
 
 	--update_mode = false, -- on\off update mode of raft part
 	
@@ -131,7 +131,7 @@ struct SupportObject_v
 
 		this._isOnGround()
 		
-		this._saveUserPropsToNode()
+		this._saveOptionsToUserProps()
 
 		this._lockRotationAndScaleTransforms()
 		
@@ -508,14 +508,16 @@ struct SupportObject_v
 		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
+		(
 			support_obj = SplineShape wirecolor:wirecolor
 		
+			support_key = (getHandleByAnim support_obj) as string
+		)
 		else /* USE OLD OBEJCT - RESET SPLINE */ 
 			deleteSpline support_obj spline_1
 				
 		support_obj.wirecolor = wirecolor
 		
-		setUserPropVal support_obj "WIRECOLOR" wirecolor
 	),
 	
 
@@ -575,9 +577,9 @@ struct SupportObject_v
 	
 	/** Save user props to node
 	 */
-	function _saveUserPropsToNode =
+	function _saveOptionsToUserProps =
 	(
-		--format "\n"; print "SupportObject_v._saveUserPropsToNode()"
+		--format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
 		for prop_key in prop_keys + option_keys do
 		(
 			key = toUpper ( prop_key as string )

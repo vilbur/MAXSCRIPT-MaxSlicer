@@ -20,6 +20,8 @@ filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManag
 
 /** Support manager
   *
+  * global SUPPORT_MANAGER is used to keep instance
+  *
   *  DESCRIPTION OF SUPPORT SYSTEM:
   *			• Objects are linked for easy manipulation. LINK IS NOT REQUIRED
   *
@@ -151,14 +153,17 @@ struct SupportManager_v
 		SUPPORT_OPTIONS.getValuesFromUi()
 
 		supports = this.getSupportObjects( selection as Array )
-		--format "SUPPORTS: %\n" supports
+		format "SUPPORTS: %\n" supports.count
 		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
+		format "SUPPORTS: %\n" supports.count
 
-		--new_beams = #(BeamGenerator.generateBeam (supports[1]) (supports[2]))
-		
+		----new_beams = #(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+		new_beams = #()
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/
+		
+		if supports.count > 0 then
 		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
 					
 					then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */ 
@@ -615,9 +620,10 @@ struct SupportManager_v
 	 */
 	function isType type obj =
 	(
-		--format "\n"; print "SupportManager_v._isObjectType()"
+		--format "\n"; print "SupportManager_v.isType()"
 		type_full = toUpper (type as string ) + "_KEY"
 		--format "type_full: %\n" type_full
+		--format "OBJECT_KEY: %\n" ( getUserPropVal obj type_full )
 
 		--if superClassOf obj.baseobject == shape and ( object_key = getUserPropVal obj type_full ) != undefined then
 		if ( object_key = getUserPropVal obj type_full ) != undefined then
@@ -841,11 +847,13 @@ struct SupportManager_v
 	 */
 	function getSupportObjects _objects obj_type: =
 	(
-		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
+		format "\n"; print "SupportManager_v.getSupportObjects()"
+		format "_objects: %\n" _objects
+		format "obj_type: %\n" obj_type
 
 		support_nodes = if obj_type == unsupplied or obj_type == #SUPPORT then this._getSupportsOrRaftsNodes(_objects)(#SUPPORT) else #()
 		raft_nodes    = if obj_type == unsupplied or obj_type == #RAFT    then this._getSupportsOrRaftsNodes(_objects)(#RAFT)    else #()
-		
+		format "support_nodes: %\n" support_nodes
 		this._getSupportObjectsByNodes(support_nodes + raft_nodes)
 	),
 	
@@ -855,7 +863,8 @@ struct SupportManager_v
 	 */
 	function _getSupportsOrRaftsNodes _objects obj_type =
 	(
-		--format "\n"; print "SupportManager_v.getSugetSupportsAndRaftspportsAndRaftsFromSelection()"
+		format "\n"; print "SupportManager_v._getSupportsOrRaftsNodes()"
+		format "_objects: %\n" _objects
 		for obj in _objects where SUPPORT_MANAGER.isType obj_type obj != false collect obj
 	),
 	
@@ -865,6 +874,10 @@ struct SupportManager_v
 	 */
 	function _getSupportObjectsByNodes _objects =
 	(
+		--format "\n"; print "SupportManager_v._getSupportObjectsByNodes()"
+		--format "_objects.count: %\n" _objects.count
+		--format "SupportObjects.keys: %\n" SupportObjects.keys
+		
 		/* Loop supports */ 
 		for SupportObject in SupportObjects where index = findItem _objects SupportObject.value.support_obj > 0 collect SupportObject.value
 	),

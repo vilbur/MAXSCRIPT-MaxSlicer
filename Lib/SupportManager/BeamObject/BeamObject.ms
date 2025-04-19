@@ -22,7 +22,7 @@ struct BeamObject_v
 	 */
 	function generateBeam =
 	(
-		--format "\n"; print "BeamObject_v._createBeamsBetweenTwoSupports()"
+		format "\n"; print "BeamObject_v.generateBeam()"
 		/* CREATE NEW BEAM */
 		--if beam == unsupplied then
 

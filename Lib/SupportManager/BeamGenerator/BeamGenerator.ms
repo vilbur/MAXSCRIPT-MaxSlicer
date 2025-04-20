@@ -73,8 +73,8 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsToClosestSupports _objects only_ground:true =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
-		format "_objects: %\n" _objects.count
+		--format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
+		--format "_objects: %\n" _objects.count
 		--format "max_distance:    %\n" max_distance
 		--format "max_connections: %\n" max_connections
 
@@ -103,21 +103,24 @@ struct BeamGenerator_v
 		procesed_supports = #()
 
 		
-		max_distance    = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance else 999999999999999
+		max_distance = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance else 999999999999999
 		
 		
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		--format "SOURCE_OBJECTS: %\n" source_objects
 
-		objects_support = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		--objects_support = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		--format "objects_support: %\n" objects_support
-		objects_rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-
-		supports = objects_support + objects_rafts
-		format "SUPPORTS: %\n" supports
+		--objects_rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		--
+		--supports = objects_support + objects_rafts
+		supports = SUPPORT_MANAGER.getSupportObjects(_objects) get_nodes:true
+		
+		
+		--format "SUPPORTS: %\n" supports
 		/* USE ALL SUPPORTS OF SOURCE OBJECT OR ONLY SELECTED */
 		supports_to_connect = if not use_only_selected_supports then SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT else supports
-		format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
+		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
 
 		/* DO NOT USE SUPPORTS WHICH HAS MAX BEAMS COUNT ALREADY */
 		this._filterSupportsByCountOfBeams (&supports_to_connect)

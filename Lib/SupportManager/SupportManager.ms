@@ -832,20 +832,39 @@ struct SupportManager_v
 	),
 	
 	
+
 	/** Get support objects
 	 */
-	function getSupportObjects _objects =
+	function getSupportObjects _objects get_nodes:false =
 	(
 		--format "\n"; print "SupportManager_v.getSupportObjects()"
-		--supports = this.getSupportObjects _objects
 		support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
 	
-		--for support_node in support_nodes do
-			--format "support_node.name: %\n" support_node.name
-	
-		this._getSupportObjectsByNodes(support_nodes)
+		if get_nodes then support_nodes else this._getSupportObjectsByNodes(support_nodes)
 	),
 	
+	/** Get raft objects
+	 */
+	function getRaftObjects _objects get_nodes:false =
+	(
+		--format "\n"; print "SupportManager_v.getRaftObjects()"
+		raft_nodes = this._getSupportsOrRaftsNodes(_objects)(#RAFT)
+	
+		if get_nodes then raft_nodes else this._getSupportObjectsByNodes(raft_nodes)
+	),
+		
+	/** Get support objects
+	 */
+	function getSupportAndRaftObjects _objects get_nodes:false =
+	(
+		--format "\n"; print "SupportManager_v.getSupportAndRaftObjects()"
+		support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
+		raft_nodes    = this._getSupportsOrRaftsNodes(_objects)(#RAFT)
+	
+		if get_nodes then support_nodes + raft_nodes else this._getSupportObjectsByNodes(support_nodes + raft_nodes) 
+	),
+
+
 	--/** Get supports and rafts
 	--  *
 	--  * @param #SUPPORT|#RAFT

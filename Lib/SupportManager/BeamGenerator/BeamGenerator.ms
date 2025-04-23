@@ -133,50 +133,188 @@ struct BeamGenerator_v
 		--format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect
 		
 		
-		supports = (this._sortSupportsByDistance(supports) (max_distance))[1]
+		--supports = (this._sortSupportsByDistance(supports) (max_distance))[1]
+		closest_pairs = this._findClosestPairs(supports_to_connect)
+		
+		-- Print results
+		for pair in closest_pairs do
+		(
+			format "Pair: % <--> %\n" pair[1].name pair[2].name
+				if (new_beam = this.generateBeam pair[1] pair[2] ) != undefined then
+					append new_beams new_beam
+		)
+
 		--supports = deepCopy supports_to_connect
 		--supports = (this._sortSupportsByDistance(supports) (9999999999999))[1]
 
-		for support in supports where findItem procesed_supports support == 0 do
-		(
-			--format "\n\n------------------ %" support.name
-			
-			if not supportHasMaxConnections support then
-			(
-				local closest_support = undefined 
-	
-				min_distance = 9999999
-	
-				/* GET CLOSESTS SUPPORT - BY COMPARE DISTANCES OF SUPPORTS  */
-				for support_other in supports_to_connect \
-					where support_other != support \                                  -- avoid compare same support
-					and not this.beamExists support support_other  \                   -- TEST IF BEAM EXISTS ALLERADY
-					and not supportHasMaxConnections support_other \                                  -- 
-					and ( dist = distance support support_other ) < min_distance \	 -- TEST MIN DISTANCE BETWEEN SUPPORTS
-					and dist <= max_distance \                                       -- TEST MAX DISTANCE BETWEEN SUPPORTS
-				do
-				(
-					min_distance = dist
-	
-					closest_support = support_other
-					--format "CLOSEST_SUPPORT: %\n" closest_support
-	
-					if findItem supports support_other > 0 then
-						appendIfUnique procesed_supports support
-				)
-				--format "CLOSEST_SUPPORT: %\n" CLOSEST_SUPPORT
-				/* IF CLOSESTS SUPPORT FOUND */ 
-				if closest_support != undefined and (new_beam = this.generateBeam support closest_support) != undefined then
-					append new_beams new_beam
-				
-			)
-			else
-				appendIfUnique procesed_supports support
-		)
+		--for support in supports where findItem procesed_supports support == 0 do
+		--(
+		--	--format "\n\n------------------ %" support.name
+		--	
+		--	if not supportHasMaxConnections support then
+		--	(
+		--		local closest_support = undefined 
+		--
+		--		min_distance = 9999999
+		--
+		--		/* GET CLOSESTS SUPPORT - BY COMPARE DISTANCES OF SUPPORTS  */
+		--		for support_other in supports_to_connect \
+		--			where support_other != support \                                  -- avoid compare same support
+		--			and not this.beamExists support support_other  \                   -- TEST IF BEAM EXISTS ALLERADY
+		--			and not supportHasMaxConnections support_other \                                  -- 
+		--			and ( dist = distance support support_other ) < min_distance \	 -- TEST MIN DISTANCE BETWEEN SUPPORTS
+		--			and dist <= max_distance \                                       -- TEST MAX DISTANCE BETWEEN SUPPORTS
+		--		do
+		--		(
+		--			min_distance = dist
+		--
+		--			closest_support = support_other
+		--			--format "CLOSEST_SUPPORT: %\n" closest_support
+		--
+		--			if findItem supports support_other > 0 then
+		--				appendIfUnique procesed_supports support
+		--		)
+		--		--format "CLOSEST_SUPPORT: %\n" CLOSEST_SUPPORT
+		--		/* IF CLOSESTS SUPPORT FOUND */ 
+		--		if closest_support != undefined and (new_beam = this.generateBeam support closest_support) != undefined then
+		--			append new_beams new_beam
+		--		
+		--	)
+		--	else
+		--		appendIfUnique procesed_supports support
+		--)
 
 		new_beams --return
 	),
+	
+	/** 
+	*	
+	*/
+	function _findClosestPairs supports =
+	(
+	
+		fn compareDistanceAsc a b =
+		(
+			if a[1] < b[1] then -1 else if a[1] > b[1] then 1 else 0
+		)
+		
+		/** Support has not max connections
+		 */
+		function supportHasMaxConnections support =
+		(
+			--format "\n\n"; print "BeamGenerator_v.supportHasMaxConnections()"
+			--format "support: %\n" support
+			max_connections = SUPPORT_OPTIONS.max_connections 
 
+			if classOf max_connections == integer and max_connections > 0 then
+			(
+				beams_of_support = SUPPORT_MANAGER.getObjectsByType support type:#BEAM
+				--format "beams_of_support: %\n" beams_of_support
+				
+				--connections = (SUPPORT_MANAGER.getObjectsByType support type:#BEAM).count
+				--format "connections: %\n" beams_of_support.count
+				beams_of_support.count >= max_connections
+			)
+			else
+				false
+		)
+		
+		/** Filters out pairs that are above average distance
+		*	
+		*/
+		fn filterPairsByAverageDistance result =
+		(
+			local pair_matrix = result[1]
+			local distance_matrix = result[2]
+			local filtered_pairs = #()
+		
+			if distance_matrix.count == 0 then return filtered_pairs
+		
+			local total = 0.0
+			for d in distance_matrix do total += d
+			local avg_distance = total / distance_matrix.count
+			max_allowed_distance = total / distance_matrix.count
+			--max_allowed_distance = 1.0
+			--max_allowed_distance = 1e6
+		
+			--local max_allowed_distance = avg_distance * 2
+			--max_allowed_distance /= 2.0
+			max_allowed_distance *= 1.5
+		
+			for i = 1 to distance_matrix.count do
+			(
+				if distance_matrix[i] <= max_allowed_distance do
+				(
+					append filtered_pairs pair_matrix[i]
+				)
+			)
+		
+			return filtered_pairs
+		)
+		
+		/** Pair exist
+		 */
+		function pairExist pair existing_pair  =
+		(
+			--format "\n"; print "BeamGenerator_v.pairExist()"
+			(existing_pair[1] == pair[1] and existing_pair[2] == pair[2]) or \
+		    (existing_pair[1] == pair[2] and existing_pair[2] == pair[1])
+		)
+		
+		max_connections_per_object = SUPPORT_OPTIONS.max_connections 
+		
+		local pair_matrix		= #()
+		local distance_matrix	= #()
+		local checked_pairs	= #()
+	
+		supports = for support in supports where not supportHasMaxConnections support collect support
+	
+	
+		for i = 1 to supports.count do
+		(
+			local support = supports[i]
+			local distances = #()
+	
+			--for j = 1 to supports.count do
+			for j = 1 to supports.count where i != j do
+			(
+				local support_other = supports[j]
+				local dist = distance support.position support_other.position
+	
+				append distances #(dist, support_other)
+			)
+	
+			qsort distances compareDistanceAsc
+			
+			for k = 1 to (amin max_connections_per_object distances.count) do
+			(
+				local closest_obj = distances[k][2]
+				local pair = #(support, closest_obj)
+	
+				local is_duplicate = false
+				
+				for existing_pair in checked_pairs while not is_duplicate where pairExist pair existing_pair do
+					is_duplicate = true
+					
+				
+				if not is_duplicate do
+				if not this.beamExists support closest_obj then
+				
+				(
+					append pair_matrix pair
+					append distance_matrix (distance pair[1].position pair[2].position)
+					append checked_pairs pair
+				)
+			)
+		)
+	
+		result = #(pair_matrix, distance_matrix)		
+	
+		filtered_pairs = filterPairsByAverageDistance result
+	
+		filtered_pairs --return
+	),
+	
 	/** connected with beams
 	 */
 	function beamExists support_A support_B =
@@ -186,7 +324,7 @@ struct BeamGenerator_v
 	),
 
 
-	private
+	--private
 
 
 	/** Get beam key
@@ -228,6 +366,8 @@ struct BeamGenerator_v
 		
 		--format "max_distance: %\n" max_distance
         sorted_all = #()
+		
+		
 		cluster    = #()
 
         proccessed_supports	= #{}

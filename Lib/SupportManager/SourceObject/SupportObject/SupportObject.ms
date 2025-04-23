@@ -266,7 +266,7 @@ struct SupportObject_v
 		
 		
 		if  min_raft_length == undefined then
-		this._setMinLimints(direction) update_raft:true
+			this._setMinLimints(direction) update_raft:true
 		
 		if is_on_ground then
 		(
@@ -481,6 +481,14 @@ struct SupportObject_v
 	),
 
 
+	/** Has splines
+	 */
+	function hasSplines =
+	(
+		--format "\n"; print "SupportObject_v.hasSplines()"
+		numSplines support_obj > 0
+	),
+	
 	private
 	
 	
@@ -504,7 +512,7 @@ struct SupportObject_v
 	function _setSupportObject wirecolor =
 	(
 		--format "\n"; print "SupportObject_v._getSupportNode()"
-		if wirecolor == unsupplied then 
+		if wirecolor == undefined then 
 			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
 		
 		/* CREATE NEW OBJECT */ 

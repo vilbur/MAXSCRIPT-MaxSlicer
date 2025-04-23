@@ -35,7 +35,7 @@ struct SourceObjectNormals_v
 	 */
 	function setLocalVertexNormals verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		this._initNormalsLocalArray()
 
 		if not this.loadNormalsLocal() then
@@ -46,7 +46,7 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
+		format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform

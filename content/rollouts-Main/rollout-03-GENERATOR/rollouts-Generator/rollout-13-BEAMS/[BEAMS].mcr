@@ -122,7 +122,7 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 --tooltip:	""
-icon:	"across:4|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 0, 0 ]|tooltip:Min Height of supports where beam is created|align:#RIGHT"
+icon:	"across:4|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 0, 0 ]|tooltip:MIN HEIGHT OF SUPPORT LEG where beam is created|align:#RIGHT"
 (
 	/** Get size
 	 */
@@ -163,28 +163,46 @@ icon:	"across:4|control:checkbox|id:CBX_only_ground|offset:[ 100, -10 ]|tooltip:
  */
 macroscript	_print_generator_beams_count_per_support
 category:	"_Export"
-buttontext:	"[Connections count]"
+--buttontext:	"[Connections count]"
+buttontext:	"Density"
 --buttontext:	"Max Beams"
-icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Max count of beams connected to support"
+icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3')|unselect:true|tooltip:Max count of beams connected to support"
 (
 	--format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
+
+--/**
+--  *
+-- */
+--macroscript	_print_generator_beams_count
+--category:	"_Export"
+--buttontext:	"[Beams Count]"
+----toolTip:	"Beams Count"
+--icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 102, -10 ]|tooltip:Number of bars on beam"
+--(
+--	--format "EventFired	= % \n" EventFired
+--	--on execute do
+--	--SUPPORT_MANAGER.updateModifiers ( EventFired )
+--)
+
 
 /**
   *
  */
-macroscript	_print_generator_beams_count
+macroscript	_print_generator_beams_split
 category:	"_Export"
-buttontext:	"[Beams Count]"
---toolTip:	"Beams Count"
-icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 102, -10 ]|tooltip:Number of bars on beam"
+--buttontext:	"[Connections count]"
+buttontext:	"Split"
+--buttontext:	"Max Beams"
+icon:	"control:dropdownlist|id:DL_beams_split|across:4|offset:[ 100, -12 ]|width:80|items:#( 'Square', 'Rectangle')|tooltip:Pattern of spliting beams along support"
 (
+	on execute do
+		SUPPORT_OPTIONS.beams_split = EventFired.val
+	
 	--format "EventFired	= % \n" EventFired
-	--on execute do
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
-
 
 
 --/**

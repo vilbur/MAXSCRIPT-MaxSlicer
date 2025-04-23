@@ -130,7 +130,7 @@ struct SourceObject_v
 				append SupportObjectsNew SupportObject
 				
 				if result == false then
-					this._redWirecolorToInvalidSupport(SupportObject)
+					this._disableSupportByRemoveSpline(SupportObject)
 			)
 		
 		--format "\n"
@@ -236,7 +236,7 @@ struct SourceObject_v
 	/** Update supports of source objects
 	  * 
 	 */
-	function updateSupports support_nodes: update_knot_1:true update_raft:true update_leg:false direction:undefined what_to_update: =
+	function updateSupports support_nodes: update_knot_1:true update_raft:true /*update_leg:false */direction:undefined update_normals:false =
 	(
 		--format "\n****************************************************\n"
 		--format "\n"; print "SourceObject_v.updateSupports()"
@@ -247,14 +247,13 @@ struct SourceObject_v
 		--format "SupportsToUpdate.keys: %\n" SupportsToUpdate.keys
 		/* GET NORMALS */ 
 		--if rotationOfSourceObjectChanged() then
-		--if what_to_update == #ROTATION then
-		--(
-		--	--if Normals.normals_local == undefined then
-				--Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
-		--		
-		--	--if Normals.normals_world == undefined then
-				Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
-		--)
+		if update_normals or Normals.normals_world == undefined then
+		(
+			if Normals.normals_local == undefined then
+				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
+				
+			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
+		)
 		
 		
 		/*------------------------------------------------------------------------------
@@ -296,14 +295,14 @@ struct SourceObject_v
 					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					--format "dir_vector: %\n" dir_vector
 					if result == false then
-						this._redWirecolorToInvalidSupport(Support)
+						this._disableSupportByRemoveSpline(Support)
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
 					--Support.rebulidSupport dir_vector:Normals.normals_world[index]
 			)
 			else
-				this._redWirecolorToInvalidSupport(Support)
+				this._disableSupportByRemoveSpline(Support)
 
 			 
 		)
@@ -326,32 +325,20 @@ struct SourceObject_v
 	
 	/** Replace support with proxy
 	 */
-	function _redWirecolorToInvalidSupport Support =
+	function _disableSupportByRemoveSpline Support =
 	(
-		format "\n"; print "SourceObject_v._redWirecolorToInvalidSupport()"
-		Support.support_obj.wirecolor = red
-		
-		knot_pos = getKnotPoint Support.support_obj 1 1
-
-		--deleteSpline Support.support_obj 1
+		format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
+		--Support.support_obj.wirecolor = red
+		if this.hasSplines() then
+		(
+			knot_pos = getKnotPoint Support.support_obj 1 1
+	
 			deleteSpline Support.support_obj 1
-
-		updateShape Support.support_obj
-		
-		Support.support_obj.pivot = knot_pos
-		
-		--support_obj = Support.support_obj
-		--
-		--proxy = Point name:support_obj.name position:Support.points[1] name:support_obj.name wirecolor:red size:3 cross:true axistripod:false centermarker:false axistripod:false Box:false constantscreensize:false drawontop:false --return
-		--
-		--setUserPropBuffer proxy ( getUserPropBuffer support_obj )
-		--	
-		--proxy.parent = support_obj.parent
-		--
-		--delete support_obj
-		--
-		--support_obj = proxy
-		
+	
+			updateShape Support.support_obj
+			
+			Support.support_obj.pivot = knot_pos
+		)
 	),
 
 	/** Update single support
@@ -375,10 +362,17 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
-/* GET VECTOR  */ 
 			
-				Normals.setWorldSpaceVertexNormals ( Supports.keys as BitArray )
-
+		/* GET VECTOR  */
+		--Normals.setWorldSpaceVertexNormals ( Supports.keys as BitArray )
+		if Normals.normals_world == undefined then
+		(
+			if Normals.normals_local == undefined then
+				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
+				
+			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
+		)
+		
 		for index in Supports.keys where not Supports[index].isRaft() do
 		(
 			Support = Supports[index]
@@ -393,13 +387,13 @@ struct SourceObject_v
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 				
 				dir_vector = this._getDirVector direction index
-				
-				if not Support.support_obj.wirecolor == red then
+
+				if Support.hasSplines() then
 				(
 					result = Support.updateSupportHeight()
 	
 					if result == false then
-						this._redWirecolorToInvalidSupport(Support)
+						this._disableSupportByRemoveSpline(Support)
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
@@ -407,7 +401,7 @@ struct SourceObject_v
 				
 			)
 			else
-				this._redWirecolorToInvalidSupport(Support)
+				this._disableSupportByRemoveSpline(Support)
 		)
 	),
 	

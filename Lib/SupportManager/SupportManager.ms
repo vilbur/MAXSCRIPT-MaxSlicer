@@ -334,15 +334,16 @@ struct SupportManager_v
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
-			if what_to_update != undefined then 
-				case what_to_update of
-				(
-					#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true what_to_update:what_to_update
-					#POSITION_Z: SourceObject.updateSupportsHeight()
-				)
+			--if what_to_update != undefined then 
+			case what_to_update of
+			(
+				#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true update_normals:true
+				#POSITION_Z: SourceObject.updateSupportsHeight()
+			)
 			--SourceObject.updateSupports update_knot_1:false update_raft:false
 		)	
 				
+		this.updateShapes()
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(sync_keys)

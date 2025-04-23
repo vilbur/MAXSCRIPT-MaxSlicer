@@ -55,26 +55,30 @@ struct BeamObject_v
 		--format "support_A: %\n" support_A
 		--format "support_B: %\n" support_B
 		
-		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
+		--function isTallEnough obj = obj.pos.z - obj.min.z > SUPPORT_OPTIONS.min_height
+		function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT_OPTIONS.min_height
 
-		points_of_lines = this._getBeamsEndPoints()
-		--format "END_POINTS: %\n" points_of_lines
-
-		--if numSplines beam > 0 then
 		for i = numSplines beam to 1 by -1 do
 			deleteSpline beam i
-
-		this._drawLines(points_of_lines)
-
-
-		--SUPPORT_MANAGER.updateShapeAdd (this.beam.baseobject)
-		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 		
-		--if not isTallEnough support_A or not isTallEnough support_B then
-		if not isTallEnough beam then
-			beam.wirecolor = red
-		else if beam.wirecolor == red then
-			beam.wirecolor = this._shiftWirecolor(support_A.wirecolor) 
+		--format "isTallEnough: %\n" (isTallEnough())
+		--format "support_A.pos.z: %\n" support_A.pos.z
+		--format "support_A.min.z: %\n" support_A.min.z
+		--format "HEIGHT: %\n" ( (amin support_A.pos.z support_B.pos.z ) - support_A.min.z)
+		--
+		if isTallEnough() then
+		(
+			points_of_lines = this._getBeamsEndPoints()
+	
+			this._drawLines(points_of_lines)
+	
+			--beam.wirecolor = this._shiftWirecolor(support_A.wirecolor)
+		)
+		--else
+			--beam.wirecolor = red
+		
+		SUPPORT_MANAGER.updateShapeAdd (this.beam)
+			
 	),
 
 
@@ -144,7 +148,7 @@ struct BeamObject_v
 		point_data_B = this._getSegmentEndPoints(support_B)
 
 		vectors = #( point_data_A[#VECTOR], point_data_B[#VECTOR] )
-		
+		--format "vectors: %\n" vectors
 		/* BEAM 1 */
 		bottom_A  	= point_data_A[#BOTTOM]
 		top_A	= point_data_A[#TOP]
@@ -163,11 +167,12 @@ struct BeamObject_v
 		
 
 		/* SPLIT BEAMS */ 
-		dist = distance bottom_A top_A
+		support_height = distance bottom_A top_A
+		support_dist   = distance bottom_A bottom_B
 
-		segments_count = ceil (dist / SUPPORT_OPTIONS.beams_split)
+		segments_count = floor (support_height / (support_dist * SUPPORT_OPTIONS.beams_split ) )
 
-		segment_height = dist / segments_count
+		segment_height = support_height / segments_count
 
 		
 		/* GET POINTS ON SUPPORTS */ 
@@ -330,10 +335,6 @@ struct BeamObject_v
 		--this.supports = makeUniqueArray supports_sorted
 		this.supports = supports_sorted
 	),
-
-
-
-
 
 
 	/** Add to group

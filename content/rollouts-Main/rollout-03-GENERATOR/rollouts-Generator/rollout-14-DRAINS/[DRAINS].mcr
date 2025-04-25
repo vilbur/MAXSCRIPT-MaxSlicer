@@ -1,42 +1,6 @@
 --filein( getFilenamePath(getSourceFileName()) + "/Lib/PinsGenerator.ms" )	--"./Lib/PinsGenerator.ms"
 filein( getFilenamePath(getSourceFileName()) + "/Lib/wirecolorByModifierInstance.ms" )	--"./Lib/wirecolorByModifierInstance.ms"
 
-/*
-*/
-macroscript	_print_generator_holes
-category:	"_3D-Print"
-buttontext:	"DRAINS"
-icon:	"across:5|offset:[ 4, 0 ]|height:32|width:96|tooltip:GEENERATE PINS for selected verts"
-(
-	on execute do
-		undo "Generate DRAINS" on
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\SupportManager.ms"
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-PINS_&_DRAINS\DRAINS.mcr"
-			SUPPORT_MANAGER.generateDrainHoles()
-		)
-)
-
-/*
-*/
-macroscript	_print_generator_holes_rcmenu
-category:	"_3D-Print"
-buttontext:	"DRAINS"
---icon:	"across:4|offset:[ 0, 0 ]|height:32|width:96|tooltip:GEENERATE PINS for selected verts"
-(
-	on execute do
-	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
-
-		/* DEFINE MAIN MENU */
-		Menu = RcMenu_v name:"DrainsRcMenu"
-
-		Menu.item "Set wirecolor by instance"	"wirecolorByModifierInstance #DRAIN_WIDTH"
-
-		popUpMenu (Menu.create())
-	)
-)
 
 
 /**

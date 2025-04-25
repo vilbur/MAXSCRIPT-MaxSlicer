@@ -178,7 +178,7 @@ struct SupportManager_v
 								(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
 								----default:
 							)
-			
+		format "NEW_BEAMS: %\n" new_beams
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()
@@ -401,7 +401,7 @@ struct SupportManager_v
 	/** Rebuild supports
 	 */
 	function resetSupports support_nodes =
-	(
+	(f
 		--format "\n"; print "SupportManager_v.resetSupports()"
 		--format "SUPPORT_NODES: %\n" support_nodes
 	
@@ -477,7 +477,18 @@ struct SupportManager_v
 
 		if shapes_to_update.count > 0 then
 			for _shape in shapes_to_update do
+			(
+				--try(
+				--	
 				updateShape _shape
+				--	
+				--	)catch(
+				--format "_shape:     %\n" _shape
+				--format "numSplines: %\n" ( numSplines _shape )
+				--	
+				--	
+				--)
+			)
 
 		shapes_to_update = #()
 	),
@@ -541,7 +552,7 @@ struct SupportManager_v
 	function onObjectDeleted obj =
 	(
 		--format "\n"; print "SupportManager_v.onObjectDeleted()"
-
+		--format "obj: %\n" obj
 		/* IF SOURCE OBJECT */
 		if (sync_key = this.isSourceObject obj) != false then
 		(

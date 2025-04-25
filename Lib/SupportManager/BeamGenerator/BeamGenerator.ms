@@ -239,7 +239,7 @@ struct BeamGenerator_v
 		
 			--local max_allowed_distance = avg_distance * 2
 			--max_allowed_distance /= 2.0
-			max_allowed_distance *= 1.5
+			--max_allowed_distance *= 1.5
 		
 			for i = 1 to distance_matrix.count do
 			(
@@ -262,7 +262,7 @@ struct BeamGenerator_v
 		)
 		
 		max_connections_per_object = SUPPORT_OPTIONS.max_connections 
-		
+		format "max_connections_per_object: %\n" max_connections_per_object
 		local pair_matrix		= #()
 		local distance_matrix	= #()
 		local checked_pairs	= #()
@@ -310,9 +310,10 @@ struct BeamGenerator_v
 	
 		result = #(pair_matrix, distance_matrix)		
 	
-		filtered_pairs = filterPairsByAverageDistance result
+		result[1] --return
+		--filtered_pairs = filterPairsByAverageDistance result
 	
-		filtered_pairs --return
+		--filtered_pairs --return
 	),
 	
 	/** connected with beams

@@ -99,6 +99,7 @@ function bindSupportToTransformEvent supports =
 			
 		--------------------------------------------------------------------------------*/
 		live_update_max_objects_count = 1
+		live_update_max_objects_count = 3
 		--live_update_max_objects_count = 10
 		
 

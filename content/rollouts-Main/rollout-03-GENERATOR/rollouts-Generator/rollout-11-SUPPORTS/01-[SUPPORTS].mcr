@@ -7,25 +7,25 @@
 
 global SPIN_CHAMFER_BAR_LAST_VALUE
 
-/*------------------------------------------------------------------------------
-	GENERATE SUPPORT BUTTON
---------------------------------------------------------------------------------*/
-macroscript	_print_support_generator
-category:	"_3D-Print"
-buttontext:	"S U P P O R T"
-icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]|tooltip:GEENERATE SUPPORTS"
-(
-	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
-	on isEnabled return selection.count > 0
-
-	on execute do
-		undo "Generate Supports" on
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
-			generateSupportsOrRafts obj_type:#SUPPORT
-		)
-)
+--/*------------------------------------------------------------------------------
+--	GENERATE SUPPORT BUTTON
+----------------------------------------------------------------------------------*/
+--macroscript	_print_support_generator
+--category:	"_3D-Print"
+--buttontext:	"S U P P O R T"
+--icon:	"ACROSS:4|height:32|width:96|offset:[ 0, 6 ]|tooltip:GEENERATE SUPPORTS"
+--(
+--	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
+--	on isEnabled return selection.count > 0
+--
+--	on execute do
+--		undo "Generate Supports" on
+--		(
+--			clearListener(); print("Cleared in:\n"+getSourceFileName())
+--			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
+--			generateSupportsOrRafts obj_type:#SUPPORT
+--		)
+--)
 
 /** BAR WIDTH
  */
@@ -33,7 +33,7 @@ macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ 16, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"ACROSS:3|control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ -32, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -71,7 +71,7 @@ macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|scale:1|width:90|offset:[ 8, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|scale:1|width:90|offset:[ -32, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -104,7 +104,7 @@ macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
 buttontext:	"TOP"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|width:64|offset:[ 8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|width:64|offset:[ -8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -142,7 +142,7 @@ macroscript	_print_support_foot_option
 category:	"_3D-Print"
 buttontext:	"Make Foot"
 tooltip:	"Generate supports WITH\WITHOUT FOOT"
-icon:	"ACROSS:3|control:checkbox|id:CBX_foot_enabled|offset:[ 102, -16 ]"
+icon:	"ACROSS:3|control:checkbox|id:CBX_foot_enabled|offset:[ 0, 0 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
 	--on isEnabled return selection.count > 0
@@ -159,7 +159,7 @@ macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
 buttontext:	"HEIGHT"
 tooltip:	"Height of support base"
-icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ 52, -16 ]"
+icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ -16, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
@@ -176,7 +176,7 @@ macroscript	_print_platform_generator_extrude_top
 category:	"_3D-Print"
 buttontext:	"EXT"
 tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_extend_top|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ 6, -16 ]"
+icon:	"control:spinner|id:SPIN_extend_top|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ -10, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

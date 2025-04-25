@@ -1,56 +1,6 @@
 --DEV
 --filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
-/*------------------------------------------------------------------------------
-	
-	BEMAS BUTTON
-	
---------------------------------------------------------------------------------*/
-
-/*
-
-  IF SELECTED 1 support, then beam is generated to closest support
-  IF SELECTED 2 supports, then beam is generated betweene thes supports if does not exists. Otherwise closest supports wil be connected
-
-
-
-*/
-macroscript	_print_support_generator_beams
-category:	"_3D-Print"
-buttontext:	"B E A M S"
-tooltip:	"CONNECT CLOSEST SUPPORTS\n\nCTRL: USE ONLY SELECTED SUPPORTS."
-icon:	"across:4|offset:[ -6, 2 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nIMPORTANT - IF 2 SUPPORTS SELECTED THEN\n FORCE CONNECT WITHOUT MAX DISTANCE"
-(
-	on execute do
-		undo "Generate Beams" on
-		(
-			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.controlPressed)
-			
-			SUPPORT_MANAGER.generateBeams()
-		)
-)
-
-/*
-*/
-macroscript	_print_support_generator_beams_max_distance_off
-category:	"_3D-Print"
-buttontext:	"B E A M S"
-tooltip:	"OPEN MENU"
-(
-	on execute do
-		undo "Generate Beams" on
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
-
-			/* DEFINE MAIN MENU */
-			Menu = RcMenu_v name:"GenerateBeamsMenu"
-
-			Menu.item "Connect supports in CHAIN"	( "SUPPORT_MANAGER.generateBeams sort_mode:#JOIN_SUPPORTS_CHAIN"	)
-
-			popUpMenu (Menu.create())
-		)
-)
 
 /*------------------------------------------------------------------------------
 
@@ -66,7 +16,7 @@ macroscript	_print_generator_beams_max_distance_toggle
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:4|control:checkbox|offset:[ 12, 0 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:4|control:checkbox|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
 	--on execute do
 		--SUPPORT_MANAGER.BeamGenerator.use_max_distance	= EventFired.val
@@ -77,6 +27,7 @@ icon:	"across:4|control:checkbox|offset:[ 12, 0 ]|tooltip:USE MAX DISTANCE betwe
 	--)
 )
 
+
 /**
   *
   */
@@ -84,7 +35,7 @@ macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
 buttontext:	"[Max Distance Value]"
 --tooltip:	"Max distance between supports"
-icon:	"across:4|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|filedwidth:64|offset:[ -24, 0 ]|tooltip:Max distance between supports where beams can be created\n\nRMB: Get distance of 2 selected supports"
+icon:	"across:4|offset:[ -36, 0 ]|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 999, 5 ]|filedwidth:64|tooltip:Max distance between supports where beams can be created\n\nRMB: Get distance of 2 selected supports"
 (
 	on execute do
 	(
@@ -115,48 +66,6 @@ icon:	"across:4|control:spinner|id:#SPIN_max_distance|type:#integer|range:[ 1, 9
 	)
 )
 
-/**
-  *
-  */
-macroscript	_print_generator_beams_max_length
-category:	"_3D-Print"
-buttontext:	"Min Height"
---tooltip:	""
-icon:	"across:4|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 0, 0 ]|tooltip:MIN HEIGHT OF SUPPORT LEG where beam is created|align:#RIGHT"
-(
-	/** Get size
-	 */
-	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
-
-
-	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-
-	on execute do
-		if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count > 0 then
-		(
-			sizes = for obj in selection collect  getSize obj
-
-			EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
-		)
-		else
-			SUPPORT_MANAGER.updateModifiers (EventFired)
-
-		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
-	--else
-	--	print "Spinner test #entered"
-)
-
-/** USE MAX DISTANCE CHECKBOX
-  *
-  */
-macroscript	_print_generator_beams_only_ground
-category:	"_3D-Print"
-buttontext:	"With Foot"
-icon:	"across:4|control:checkbox|id:CBX_only_ground|offset:[ 100, -10 ]|tooltip:Connect only SUPPORTS with foot|checked:true"
-(
-
-)
-
 
 /**
   *
@@ -166,7 +75,7 @@ category:	"_Export"
 --buttontext:	"[Connections count]"
 buttontext:	"Density"
 --buttontext:	"Max Beams"
-icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|width:42|items:#( '1', '2', '3')|unselect:true|tooltip:Max count of beams connected to support"
+icon:	"across:4|control:dropdownlist|id:DL_max_connections|width:42|items:#( '1', '2', '3')|unselect:true|tooltip:Max count of beams connected to support"
 (
 	--format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
@@ -179,7 +88,7 @@ icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|w
 --category:	"_Export"
 --buttontext:	"[Beams Count]"
 ----toolTip:	"Beams Count"
---icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 102, -10 ]|tooltip:Number of bars on beam"
+--icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|tooltip:Number of bars on beam"
 --(
 --	--format "EventFired	= % \n" EventFired
 --	--on execute do
@@ -193,9 +102,9 @@ icon:	"control:dropdownlist|id:DL_max_connections|across:4|offset:[ 104, -12 ]|w
 macroscript	_print_generator_beams_split
 category:	"_Export"
 --buttontext:	"[Connections count]"
-buttontext:	"Split"
+buttontext:	"Zig Zag"
 --buttontext:	"Max Beams"
-icon:	"control:dropdownlist|id:DL_beams_split|across:4|offset:[ 100, -12 ]|width:80|items:#( 'Square', 'Rectangle')|tooltip:Pattern of spliting beams along support"
+icon:	"across:4|control:dropdownlist|id:DL_beams_split|width:80|items:#( 'Square', 'Rectangle')|tooltip:Set shape of zig zag pattern of beams"
 (
 	on execute do
 		SUPPORT_OPTIONS.beams_split = EventFired.val
@@ -203,6 +112,61 @@ icon:	"control:dropdownlist|id:DL_beams_split|across:4|offset:[ 100, -12 ]|width
 	--format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
+
+
+
+
+/**
+  *
+  */
+macroscript	_print_generator_beams_max_length
+category:	"_3D-Print"
+buttontext:	"Min Height            "
+--tooltip:	""
+icon:	"id:SPIN_min_height|across:1|align:#LEFT|offset:[ 4, -20 ]|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:128|fieldWidth:32|oltip:MIN HEIGHT OF SUPPORT LEG where beam is created"
+(
+	/** Get size
+	 */
+	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
+
+
+	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+	on execute do
+		--if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count > 0 then
+	--	(
+	format "EventFired	= % \n" EventFired
+	--
+	--		sizes = for obj in selection collect  getSize obj
+	--
+	--		EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
+	--	)
+	--	else
+	--		SUPPORT_MANAGER.updateModifiers (EventFired)
+
+		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
+	--else
+	--	print "Spinner test #entered"
+)
+
+
+
+/** USE MAX DISTANCE CHECKBOX
+  *
+  */
+macroscript	_print_generator_beams_only_ground
+category:	"_3D-Print"
+buttontext:	"With Foot"
+icon:	"across:1|offset:[ 0, 0 ]|control:checkbox|id:CBX_only_ground|tooltip:Connect only SUPPORTS with foot|checked:true"
+(
+
+)
+
+
+
+
+
+
 
 
 --/**

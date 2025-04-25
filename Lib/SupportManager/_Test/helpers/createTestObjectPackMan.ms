@@ -48,7 +48,7 @@ function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefine
 
 	obj.pos = [ 0, 0, 0 ]
 	 
-	obj.pos .z = radius + ( if pos_z == undefined then radius + 2 else pos_z )
+	obj.pos.z = radius + ( if pos_z == undefined then radius + 2 else pos_z )
 	 
 	Rotate obj (angleaxis 90 [1,0,0])
 	

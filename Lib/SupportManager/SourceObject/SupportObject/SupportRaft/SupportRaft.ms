@@ -26,8 +26,8 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportRaft_v.createRaft()"
-		--format "Support.dir_vector:    %\n" Support.dir_vector
+		-- format "\n"; print "SupportRaft_v.createRaft()"
+		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
 		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )

@@ -239,6 +239,8 @@ struct SourceObject_v
 	function updateSupports support_nodes: update_knot_1:true update_raft:true /*update_leg:false */direction:undefined update_normals:false =
 	(
 		--format "\n****************************************************\n"
+		--format "support_nodes: %\n" support_nodes
+		--format "update_normals: %\n" update_normals
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
@@ -246,15 +248,9 @@ struct SourceObject_v
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		--format "SupportsToUpdate.keys: %\n" SupportsToUpdate.keys
 		/* GET NORMALS */ 
-		--if rotationOfSourceObjectChanged() then
-		if update_normals or Normals.normals_world == undefined then
-		(
-			if Normals.normals_local == undefined then
-				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
-				
-			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
-		)
 		
+		if update_normals or Normals.normals_world == undefined then
+			this.updateNormals (SupportsToUpdate)
 		
 		/*------------------------------------------------------------------------------
 		  
@@ -273,7 +269,7 @@ struct SourceObject_v
 			--format "direction: %\n" direction
 			/* GET VECTOR  */ 
 			dir_vector = this._getDirVector direction index
-			
+			--format "dir_vector: %\n" dir_vector
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			if direction == #CUSTOM then 
 				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
@@ -288,10 +284,15 @@ struct SourceObject_v
 			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
 			--normal_world = Normals.normals_world[index]
 			
-			if Normals.normals_world[index].z < 0 then
+			--format "TEST NORMAL: %\n" ( Normals.normals_world[index].z < 0 )
+			
+			--if dir_vector == undefined or (dir_vector != undefined and dir_vector.z < 0) then
+			if dir_vector == undefined or dir_vector.z < 0 then
 			(
-				if not Support.support_obj.wirecolor == red then
+				--format "Support.hasSplines(): %\n" (Support.hasSplines())
+				if Support.hasSplines() then
 				(
+					--result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					--format "dir_vector: %\n" dir_vector
 					if result == false then
@@ -327,9 +328,9 @@ struct SourceObject_v
 	 */
 	function _disableSupportByRemoveSpline Support =
 	(
-		format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
+		--format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
 		--Support.support_obj.wirecolor = red
-		if this.hasSplines() then
+		if Support.hasSplines() then
 		(
 			knot_pos = getKnotPoint Support.support_obj 1 1
 	
@@ -353,25 +354,21 @@ struct SourceObject_v
 	),
 
 
-	/** Update supports height
+	/** Update height of all supports which belongs to this source object 
 	 */
-	function updateSupportsHeight =
+	function updateSupportsHeight = 
 	(
 		--format "\n****************************************************\n"
-
 		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
-			
+		/* GET SUPPORTS TO UPDATE */ 
+		
 		/* GET VECTOR  */
 		--Normals.setWorldSpaceVertexNormals ( Supports.keys as BitArray )
 		if Normals.normals_world == undefined then
-		(
-			if Normals.normals_local == undefined then
-				Normals.setLocalVertexNormals ( SupportsToUpdate.keys as BitArray )
-				
-			Normals.setWorldSpaceVertexNormals ( SupportsToUpdate.keys as BitArray )
-		)
+			this.updateNormals (Supports)
+
 		
 		for index in Supports.keys where not Supports[index].isRaft() do
 		(
@@ -564,6 +561,18 @@ struct SourceObject_v
 		for key in verts_by_colors.keys where key != obj.wirecolor as string do flattern_dict += verts_by_colors[key]
 
 		flattern_dict --return
+	),
+
+	
+	/** Update normals
+	 */
+	function updateNormals supports_to_update =
+	(
+		--format "\n"; print "SourceObject_v.updateNormals()"
+		if Normals.normals_local == undefined then
+			Normals.setLocalVertexNormals ( supports_to_update.keys as BitArray )
+
+		Normals.setWorldSpaceVertexNormals ( supports_to_update.keys as BitArray )
 	),
 
 	--/** test if obj rotation changed in X and Y axises

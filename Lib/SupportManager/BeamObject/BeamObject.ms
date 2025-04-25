@@ -50,35 +50,29 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
+		--format "\n..........................................................................\n"
 		--format "\n"; print "BeamObject_v.updateBeam()"
-		--format "\n"
-		--format "support_A: %\n" support_A
-		--format "support_B: %\n" support_B
-		
-		--function isTallEnough obj = obj.pos.z - obj.min.z > SUPPORT_OPTIONS.min_height
+
+		/* IS SUPPORT TALL ENOOGH */ 
 		function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT_OPTIONS.min_height
 
+		/* VALIDATE SUPPORTS */ 
+		supports_are_valid = numKnots support_A > 0 and numKnots support_B > 0
+
+		/* REMOVE OLD LINE */ 
 		for i = numSplines beam to 1 by -1 do
 			deleteSpline beam i
-		
-		--format "isTallEnough: %\n" (isTallEnough())
-		--format "support_A.pos.z: %\n" support_A.pos.z
-		--format "support_A.min.z: %\n" support_A.min.z
-		--format "HEIGHT: %\n" ( (amin support_A.pos.z support_B.pos.z ) - support_A.min.z)
-		--
-		if isTallEnough() then
+
+		if supports_are_valid and isTallEnough() then
 		(
+			/* SET POINTS */ 
 			points_of_lines = this._getBeamsEndPoints()
-	
-			this._drawLines(points_of_lines)
-	
-			--beam.wirecolor = this._shiftWirecolor(support_A.wirecolor)
-		)
-		--else
-			--beam.wirecolor = red
-		
-		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 			
+			/* DRAW LINE */ 
+			this._drawLines(points_of_lines)
+		)
+
+		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
 
 
@@ -128,6 +122,9 @@ struct BeamObject_v
 	),
 
 	/** Get beams end points
+	  * 
+	  * 
+	  * @return
 	 */
 	function _getBeamsEndPoints =
 	(
@@ -170,44 +167,49 @@ struct BeamObject_v
 		support_height = distance bottom_A top_A
 		support_dist   = distance bottom_A bottom_B
 
-		segments_count = floor (support_height / (support_dist * SUPPORT_OPTIONS.beams_split ) )
+		segments_count = ceil (support_height / (support_dist * SUPPORT_OPTIONS.beams_split ) )
+		--format "segments_count: %\n" segments_count
 
 		segment_height = support_height / segments_count
-
+		--format "segment_height: %\n" segment_height
+--
 		
 		/* GET POINTS ON SUPPORTS */ 
 		for support = 1 to 2 do
 		(
-			pos = points_on_supports[support][1]
+			point_on_support = points_on_supports[support][1]
 			
 			/* DIVIDE SUPPORT */
 			for segment = 1 to segments_count do
 			(
 				/* GET POSITIONS OF BEAMS */ 
-				pos = getPosOnLine pos vectors[support] segment_height
+				point_on_support = getPosOnLine point_on_support vectors[support] segment_height
 
-				append points_on_supports[support] pos
+				append points_on_supports[support] point_on_support
 			)
 		)
-
+		--format "points_on_supports[1].count: %\n" points_on_supports[1].count
 		/* GET POINTS OF BEAMS */ 
 
 		points_of_beams = deepCopy points_on_supports
-		
+		--format "points_on_supports[1].count: %\n" points_on_supports[1].count
 		
 		for support = 1 to SUPPORT_OPTIONS.beams_count do
 		(
-			for pos = 1 to points_on_supports[1].count do
+			--format "\n"
+			--format "support: %\n" support
+			for point_i = 1 to points_on_supports[1].count do
 			(
+				--format "point_i: %\n" point_i	
 				/* GET ZIG ZAG PATTERN */
 				
-				even_pos = ( mod pos 2 ) == 0
+				even_pos = ( mod point_i 2 ) == 0
 
-				points_of_beams[support][pos] =	if (support == 1 and even_pos) or (support == 2 and even_pos)
+				points_of_beams[support][point_i] =	if (support == 1 and even_pos) or (support == 2 and even_pos)
 					then
-						points_on_supports[if support == 1 then 2 else 1][pos]
+						points_on_supports[if support == 1 then 2 else 1][point_i]
 					else
-						points_on_supports[support][pos]
+						points_on_supports[support][point_i]
 
 			)
 		)
@@ -222,14 +224,20 @@ struct BeamObject_v
 		--format "\n"; print "BeamObject_v._drawLines()"
 	--if end_points[1] != undefined and end_points[2] != undefined then
 
-		sline_i = 0
-
+		--format "\n"
+		--format "points_of_lines: %\n" points_of_lines
+		--format "points_of_lines[1][1]: %\n" points_of_lines[1][1]
+		--format "points_of_lines[2][1]: %\n" points_of_lines[1][2]
+		--
+		--this._drawLine points_of_lines[1][1] points_of_lines[1][2] 1
+		new_spline_i = 0
+		
 		for _line = 1 to points_of_lines.count do
-		(
-			for pos = 1 to points_of_lines[_line].count - 1 do
-				this._drawLine points_of_lines[_line][pos] points_of_lines[_line][pos + 1] (sline_i += 1)
-		)
+			for point_pos = 1 to points_of_lines[_line].count - 1 do
+				--this._drawLine points_of_lines[_line][point_pos] points_of_lines[_line][point_pos + 1] (_line)
+				this._drawLine points_of_lines[_line][point_pos] points_of_lines[_line][point_pos + 1] (new_spline_i += 1)
 
+				
 		--if SUPPORT_OPTIONS.cross_beams then
 			--this._drawLine  (end_points[2][1]) (end_points[2][2]) 2
 
@@ -253,11 +261,11 @@ struct BeamObject_v
 	 */
 	function _getSegmentEndPoints support =
 	(
-		--format "\n"; print "BeamObject_v.getSegmentEnds()"
+		--format "\n"; print "BeamObject_v._getSegmentEndPoints()"
+		num_knots = numKnots support
+		
 		offset_from_ends = SUPPORT_OPTIONS.bar_width / 2
-
-		num_knots	= ( numKnots support )
-
+		
 		/* GET INDEX OF USED POINTS */
 		index_bottom	= if ( numSegments support 1) <= 2 then num_knots else num_knots - 1 -- get second point or second point from end ( above ground point )
 		index_top	= index_bottom - 1

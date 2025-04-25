@@ -23,8 +23,8 @@ function bindOnObjectDeletedCallback objs =
 	
 		when ON_DELETED_OBJECTS deleted id:#onDeletedSupportOrBeamEvent obj do
 		(
-			format "\n"; print ".ON_DELETED_OBJECTS()"
-			format "ON_DELETED_OBJECTS: %\n" obj
+			--format "\n"; print ".ON_DELETED_OBJECTS()"
+			--format "ON_DELETED_OBJECTS: %\n" obj
 			
 			SUPPORT_MANAGER.onObjectDeleted( obj )
 			--for obj in BEAMS_TRANSFORM_CHANGED do

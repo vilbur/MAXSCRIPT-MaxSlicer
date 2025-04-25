@@ -1,20 +1,20 @@
 
-
-/*
-*/
-macroscript	_print_support_generator_rafts
-category:	"_3D-Print"
-buttontext:	"R A F T"
-icon:	"across:4|offset:[0, 6]|height:32|width:96|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
-(
-	on execute do
-		undo "Generate Rafts" on
-		(
-
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
-			generateSupportsOrRafts obj_type:#RAFT
-		)
-)
+--
+--/*
+--*/
+--macroscript	_print_support_generator_rafts
+--category:	"_3D-Print"
+--buttontext:	"R A F T"
+--icon:	"across:4|offset:[0, 6]|height:32|width:96|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
+--(
+--	on execute do
+--		undo "Generate Rafts" on
+--		(
+--
+--			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+--			generateSupportsOrRafts obj_type:#RAFT
+--		)
+--)
 
 
 

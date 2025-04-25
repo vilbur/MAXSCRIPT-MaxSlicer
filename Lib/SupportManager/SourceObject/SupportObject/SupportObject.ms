@@ -79,11 +79,11 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined wirecolor: =
 	(
-		--format "\n===========================================================\n"
-		--format "\n"; print "SupportObject_v.generateSupport()"
-		--format "dir_vector: %\n" dir_vector
-		--format "wirecolor: %\n" wirecolor
-		--format "first_knot_pos: %\n" first_knot_pos
+		-- format "\n===========================================================\n"
+		-- format "\n"; print "SupportObject_v.generateSupport()"
+		-- format "dir_vector: %\n" dir_vector
+		-- format "wirecolor: %\n" wirecolor
+		-- format "first_knot_pos: %\n" first_knot_pos
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
@@ -154,10 +154,10 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "update_raft: %\n" update_raft
-		--format "dir_vector:  %\n" dir_vector
+		-- format "\n----------------------------------------------\n"
+		-- format "\n"; print "SupportObject_v.updateSupport()"
+		-- format "update_raft: %\n" update_raft
+		-- format "dir_vector:  %\n" dir_vector
 		
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
@@ -169,19 +169,19 @@ struct SupportObject_v
 		
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
-		--------------------------------------------------------------------------------*/
+		----------------------------------------------------------------------------------*/
 
 		points = #(first_knot_pos, support_obj.pos)
 		
 		this._setRaftLenght update_raft:update_raft
 		
 		this.dir_vector = if dir_vector == undefined then  normalize (points[2] - points[1]) else dir_vector
-
+		-- format "this.dir_vector: %\n" this.dir_vector
 		if not this._isPositionAndVectorValid points[1] this.dir_vector then
 			return false
 			
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		--format "CHANGED_PROPS: %\n" this.changed_props.keys
+		-- format "CHANGED_PROPS: %\n" this.changed_props.keys
 
 		
 			
@@ -203,8 +203,8 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
-		
-		this._updateCountOfKnots()www
+		-- format "POINTS: %\n" POINTS.count
+		this._updateCountOfKnots()
 		
 		this._updateKnotsPositionByPoints()
 				
@@ -213,7 +213,7 @@ struct SupportObject_v
 		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
-		--format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
+		-- format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -221,13 +221,13 @@ struct SupportObject_v
 	 */
 	function rebulidSupport dir_vector: =
 	(
-		format "\n"; print "SupportObject_v.rebulidSupport()"
-		format "dir_vector: %\n" dir_vector
+		-- format "\n"; print "SupportObject_v.rebulidSupport()"
+		-- format "dir_vector: %\n" dir_vector
 		index = getUserPropVal support_obj "INDEX"
 		
 		if dir_vector == unsupplied  then 
 		dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-		--format "dir_vector: %\n" dir_vector
+		-- format "dir_vector: %\n" dir_vector
 
 		wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		
@@ -245,15 +245,15 @@ struct SupportObject_v
 	 */
 	function updateSupportHeight  =
 	(
-		--format "\n"; print "SupportObject_v.updateSupportHeight()"
-		--format "support_obj:  %\n" support_obj.name
+		-- format "\n"; print "SupportObject_v.updateSupportHeight()"
+		-- format "support_obj:  %\n" support_obj.name
 		function isTallEnough = support_obj.pos.z > min_foot_pos
 		
 		/** Set knot zposition
 		 */
 		function setKnotZposition knot z_pos =
 		(
-			--format "\n"; print "SupportObject_v.setKnotZposition z_pos()"
+			-- format "\n"; print "SupportObject_v.setKnotZposition z_pos()"
 			knot_pos = getKnotPoint support_obj spline_1 knot
 
 			knot_pos.z = z_pos
@@ -322,7 +322,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
 	(
-		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		-- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
@@ -330,7 +330,7 @@ struct SupportObject_v
 		/* CREATE LEG */ 
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
-			--format "foot_enabled: %\n" foot_enabled
+			-- format "foot_enabled: %\n" foot_enabled
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
 
 			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
@@ -350,8 +350,8 @@ struct SupportObject_v
 	 */
 	function convertType to_type =
 	(
-		--format "\n"; print "SupportObject_v.convert()"
-		--format "TO_TYPE: %\n" to_type
+		-- format "\n"; print "SupportObject_v.convert()"
+		-- format "TO_TYPE: %\n" to_type
 
 		--function _getKey type = ( toUpper (type as string ) + "_KEY")
 		--
@@ -387,8 +387,8 @@ struct SupportObject_v
 	 */
 	function updateBaseHeight =
 	(
-		format "\n"; print "SupportObject_v.updateBaseHeight()"
-		--format "support_obj: %\n" support_obj.name
+		-- format "\n"; print "SupportObject_v.updateBaseHeight()"
+		-- format "support_obj: %\n" support_obj.name
 		--if this.is_on_ground != undefined and this.is_on_ground then
 		--(
 		--	ground_knot = numKnots support_obj spline_1
@@ -409,7 +409,7 @@ struct SupportObject_v
 	 */
 	function isRaft =
 	(
-		--format "\n"; print "SupportObject_v.isRaft()"
+		-- format "\n"; print "SupportObject_v.isRaft()"
 		getUserPropVal support_obj "RAFT_KEY" != undefined
 	),
 
@@ -417,7 +417,7 @@ struct SupportObject_v
 	 */
 	function isVectorPointingDown =
 	(
-		--format "\n"; print "SupportObject_v.isVectorPointingDown()"
+		-- format "\n"; print "SupportObject_v.isVectorPointingDown()"
 		fn round p3 =
 		(
 			local tempArr = #(p3.x,p3.y,p3.z)
@@ -436,15 +436,15 @@ struct SupportObject_v
 	 */
 	function intersectRaySourceObject pos direction =
 	(
-		--format "\n"; print "SupportObject_v.intersectRaySourceObject()"
-		--format "pos: %\n" pos
-		--format "direction: %\n" direction
+		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		-- format "pos: %\n" pos
+		-- format "direction: %\n" direction
 		
 		/** Modify pos
 		 */
 		function modifyPos _pos axis val =
 		(
-			--format "\n"; print ".modifyPos()"
+			-- format "\n"; print ".modifyPos()"
 			_pos = copy _pos
 
 			_pos[axis] += val
@@ -485,7 +485,7 @@ struct SupportObject_v
 	 */
 	function hasSplines =
 	(
-		--format "\n"; print "SupportObject_v.hasSplines()"
+		-- format "\n"; print "SupportObject_v.hasSplines()"
 		numSplines support_obj > 0
 	),
 	
@@ -497,11 +497,11 @@ struct SupportObject_v
 	--function _isPositionAndVectorValid first_knot_pos dir_vector =
 	function _isPositionAndVectorValid knot_pos dir_vector =
 	(
-		--format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
-		--format "knot_pos.z: %\n" knot_pos.z
+		-- format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
+		-- format "knot_pos.z: %\n" knot_pos.z
 		----format "points[1].z: %\n" points[1].z
-		--format "dir_vector.z: %\n" dir_vector.z
-		--format "test: %\n" (knot_pos.z > 0 and dir_vector.z < 0)
+		-- format "dir_vector.z: %\n" dir_vector.z
+		-- format "test: %\n" (knot_pos.z > 0 and dir_vector.z < 0)
 		--knot_pos.z > 0 and dir_vector.z < 0 --return
 		--points[1].z > 0 and dir_vector.z < 0 --return
 		knot_pos.z > 0 and dir_vector.z < 0 --return
@@ -511,7 +511,7 @@ struct SupportObject_v
 	 */
 	function _setSupportObject wirecolor =
 	(
-		--format "\n"; print "SupportObject_v._getSupportNode()"
+		-- format "\n"; print "SupportObject_v._getSupportNode()"
 		if wirecolor == undefined then 
 			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
 		
@@ -535,7 +535,7 @@ struct SupportObject_v
 	 */
 	function _setDirVector dir_vector update_raft:false =
 	(
-		--format "\n"; print "SupportObject_v._setDirVector()"
+		-- format "\n"; print "SupportObject_v._setDirVector()"
         vector_exist = dir_vector != undefined
 
 		this.dir_vector = case of
@@ -556,7 +556,7 @@ struct SupportObject_v
 	 */
 	function _setRaftLenght update_raft:false =
 	(
-		--format "\n"; print "SupportObject_v._setRaftLenght()"
+		-- format "\n"; print "SupportObject_v._setRaftLenght()"
 		
 		this.normal_length = if update_raft and not SUPPORT_OPTIONS.lock_normal_length then
 			 distance points[1] points[2]
@@ -588,7 +588,7 @@ struct SupportObject_v
 	 */
 	function _fillThisWithOptionValues =
 	(
-		--format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
+		-- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
 			setProperty this prop_key ( SUPPORT_OPTIONS.getOption prop_key )
@@ -606,7 +606,7 @@ struct SupportObject_v
 	 */
 	function _saveOptionsToUserProps =
 	(
-		--format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
+		-- format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
 		for prop_key in prop_keys + option_keys do
 		(
 			key = toUpper ( prop_key as string )
@@ -622,7 +622,7 @@ struct SupportObject_v
 	 */
 	function _loadUserPropsFromNode =
 	(
-		--format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
+		-- format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
 		for prop_key in prop_keys + option_keys do
 			setProperty this prop_key ( getUserPropVal support_obj ( toUpper ( prop_key as string )) )
 	),
@@ -634,13 +634,13 @@ struct SupportObject_v
 	 */
 	function _checkChangedProps =
 	(
-		--format "\n"; print "SupportObject_v._checkChangedProps()"
+		-- format "\n"; print "SupportObject_v._checkChangedProps()"
 
 		/** Get current values
 		 */
 		function getCurrentValues =
 		(
-			--format "\n"; print "SupportObject_v.getCurrentValues()"
+			-- format "\n"; print "SupportObject_v.getCurrentValues()"
 			--bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
 
 			
@@ -662,14 +662,14 @@ struct SupportObject_v
 		--function compareValuesWithPropertisOfThis changed_props =
 		function compareValuesWithPropertisOfThis =
 		(
-			--format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
+			-- format "\n"; print "SupportObject_v.compareValuesWithPropertisOfThis()"
 			/** Value changed
 			 */
 			function valueChanged this_val current_val =
 			(
-				--format "\n"; print "SupportObject_v.valueChanged()"
-				--format "\nprop: %\n" prop
-				--format "% == %\n" this_val current_val
+				-- format "\n"; print "SupportObject_v.valueChanged()"
+				-- format "\nprop: %\n" prop
+				-- format "% == %\n" this_val current_val
 				
 				if classOf this_val == point3 then
 					distance this_val current_val > 0.001  --return
@@ -683,7 +683,7 @@ struct SupportObject_v
 				if not valueChanged ( getProperty this prop ) changed_props[prop] then
 					RemoveDictValue changed_props prop 
 			
-			--format "CHANGED_PROPS: %\n" this.changed_props.keys
+			-- format "CHANGED_PROPS: %\n" this.changed_props.keys
 		)
 		
 		/** Update propoerties of
@@ -692,7 +692,7 @@ struct SupportObject_v
 		 */
 		function updateProperties =
 		(
-			--format "\n"; print "SupportObject_v.updateProperties()"
+			-- format "\n"; print "SupportObject_v.updateProperties()"
 			for prop in changed_props.keys do
 			(
 				setProperty this prop changed_props[prop]
@@ -718,7 +718,7 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction update_raft:true =
 	(
-		--format "\n"; print "SupportObject_v._setMinLimints()"
+		-- format "\n"; print "SupportObject_v._setMinLimints()"
 		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = update_raft or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
@@ -748,7 +748,7 @@ struct SupportObject_v
 	 */
 	function _getPointsPositionsFromLine =
 	(
-		--format "\n"; print "SupportObject_v._getPointsPositionsFromLine()"
+		-- format "\n"; print "SupportObject_v._getPointsPositionsFromLine()"
 		for knot = 1 to numKnots support_obj spline_1 collect getKnotPoint support_obj spline_1 knot
 	),
 	
@@ -758,7 +758,7 @@ struct SupportObject_v
 	 */
 	function _keepVectorDown =
 	(
-		--format "\n"; print "SupportObject_v._keepVectorDown()"
+		-- format "\n"; print "SupportObject_v._keepVectorDown()"
 		if this.dir_vector.z > -0.25 then
 			this.dir_vector.z = -0.25
 	),
@@ -771,7 +771,7 @@ struct SupportObject_v
 		 */
 		function addKnots num_knots =
 		(
-			--format "\n"; print "SupportObject_v.addKnots()"
+			-- format "\n"; print "SupportObject_v.addKnots()"
 			num_knots = numKnots support_obj spline_1
 	
 			for knot_i = num_knots + 1 to points.count do
@@ -784,7 +784,7 @@ struct SupportObject_v
 		 */
 		function removeKnots num_knots =
 		(
-			--format "\n"; print "SupportObject_v.removeKnots()"
+			-- format "\n"; print "SupportObject_v.removeKnots()"
 			num_knots = numKnots support_obj spline_1
 	
 			for knot_i = num_knots to points.count + 1 by -1 do
@@ -803,9 +803,9 @@ struct SupportObject_v
 	 */
 	function _updateKnotsPositionByPoints start_knot:1 =
 	(
-		--format "\n"; print "SupportObject_v._updateKnotsPositionByPoints()"
-		--format "points: %\n" points
-		--format "points.count: %\n" points.count
+		-- format "\n"; print "SupportObject_v._updateKnotsPositionByPoints()"
+		-- format "points: %\n" points
+		-- format "points.count: %\n" points.count
 		
 		for knot_i = start_knot to points.count do
 			setKnotPoint support_obj spline_1 knot_i points[knot_i]
@@ -815,7 +815,7 @@ struct SupportObject_v
 	  */
 	function _drawLine =
 	(
-		--format "\n"; print "SupportObject_v._drawRaftLine()"
+		-- format "\n"; print "SupportObject_v._drawRaftLine()"
 		addNewSpline support_obj
 
 		/*------------------------------------------------------------------------------
@@ -831,7 +831,7 @@ struct SupportObject_v
 	 */
 	function _setName vertex_index =
 	(
-		--format "\n"; print "SupportObject_v._getName()"
+		-- format "\n"; print "SupportObject_v._getName()"
 		if source_obj != undefined then
 		(
 			support_name = substituteString source_obj.name "-source" ""
@@ -849,7 +849,7 @@ struct SupportObject_v
 	 */
 	function _isOnGround =
 	(
-		--format "\n"; print "SupportObject_v._isOnGround()"
+		-- format "\n"; print "SupportObject_v._isOnGround()"
 		is_on_ground = obj_type == #SUPPORT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined 
 	),
 
@@ -857,7 +857,7 @@ struct SupportObject_v
 	 */
 	function _setFootExists =
 	(
-		--format "\n"; print "SupportObject_v._setFootExists()"
+		-- format "\n"; print "SupportObject_v._setFootExists()"
 		foot_exists = obj_type != #RAFT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
 	),
 
@@ -865,7 +865,7 @@ struct SupportObject_v
 	 */
 	function _alignPivotToRaft =
 	(
-		--format "\n"; print "SupportObject_v._alignPivotToRaft()"
+		-- format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		--support_obj = $
 		--dir = normalize (support_obj.pos - points[1])
 		--dir = normalize ( points[1] - support_obj.pos )
@@ -887,7 +887,7 @@ struct SupportObject_v
 		dir = normalize dir
 		
 		angle_vectors = acos (dot vec dir) -- get angle between
-		--format "angle_vectors: %\n" angle_vectors
+		-- format "angle_vectors: %\n" angle_vectors
 		
 		/**
 			PROBLEM:
@@ -906,7 +906,7 @@ struct SupportObject_v
 			rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
 	
 			tempObjTM = Translate ( Rotate ( ScaleMatrix  tm.scale) (tm.rotation*rtm)) tm.pos
-			--format "tempObjTM: %\n" tempObjTM
+			-- format "tempObjTM: %\n" tempObjTM
 			WorldAlignPivot support_obj
 	
 			rot = Inverse tempObjTM.rotation
@@ -920,8 +920,8 @@ struct SupportObject_v
 		)
 		else
 		(
-			--format "\n"; format "SupportObject_v._alignPivotToRaft() %" support_obj.name
-			--format " ANGLE_VECTORS: %\n" angle_vectors
+			-- format "\n"; format "SupportObject_v._alignPivotToRaft() %" support_obj.name
+			-- format " ANGLE_VECTORS: %\n" angle_vectors
 		)
 
 		--support_obj.pivot = p1
@@ -931,7 +931,7 @@ struct SupportObject_v
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "SupportObject_v._alignPivotToRaft()"
+		-- format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		support_obj.pivot = getKnotPoint support_obj spline_1 2
 	),
 	
@@ -939,9 +939,9 @@ struct SupportObject_v
 	 */
 	function _setMaterialsToLineSegments =
 	(
-		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
-		--format "foot_exists: %\n" foot_exists
-		--format "SupportRaftUpdater.foot_exists: %\n" SupportRaftUpdater.foot_exists
+		-- format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+		-- format "foot_exists: %\n" foot_exists
+		-- format "SupportRaftUpdater.foot_exists: %\n" SupportRaftUpdater.foot_exists
 		num_of_segments = numSegments support_obj ( numSplines support_obj)
 	
 		for segment_i = 1 to num_of_segments do
@@ -956,9 +956,9 @@ struct SupportObject_v
 	 */
 	function _getMinLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfalse */=
 	(
-		--format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
-		--format "first_knot_pos:  %\n" first_knot_pos
-		--format "second_knot_pos: %\n" second_knot_pos
+		-- format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
+		-- format "first_knot_pos:  %\n" first_knot_pos
+		-- format "second_knot_pos: %\n" second_knot_pos
 		
 		/** Get percentage of bar with by angle of corner
 		  *
@@ -969,9 +969,9 @@ struct SupportObject_v
 		 */
 		function getPercentageByAngle angle_of_leg =
 		(
-			--format "\n"; print "SupportObject_v.getPercentageByAngle()"
+			-- format "\n"; print "SupportObject_v.getPercentageByAngle()"
 			angle_of_leg -= 90
-			--format "angle_of_leg: %\n" angle_of_leg
+			-- format "angle_of_leg: %\n" angle_of_leg
 			( angle_of_leg / 90 * 100.0 )
 		)
 	
@@ -980,7 +980,7 @@ struct SupportObject_v
 		dir_vector = normalize ( dir_vector * -1 )
 		
 		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
-		--format "angle_of_leg:    %\n" angle_of_leg
+		-- format "angle_of_leg:    %\n" angle_of_leg
 		percentage_by_angle = getPercentageByAngle(angle_of_leg)
 
 		
@@ -988,7 +988,7 @@ struct SupportObject_v
 		width_by_angle = ( bar_width/2.0) * (percentage_by_angle / 100.0)
 
 		length_by_angle = ( bar_width/2.0) - width_by_angle
-		--format "length_by_angle: %\n" length_by_angle
+		-- format "length_by_angle: %\n" length_by_angle
 
 		length_by_angle --return
 	),
@@ -999,13 +999,13 @@ struct SupportObject_v
 	 */
 	function _lockRotationAndScaleTransforms =
 	(
-		--format "\n"; print ".lockObjectsTransforms()"
+		-- format "\n"; print ".lockObjectsTransforms()"
 		/** Lock 
 		  *
 		  */
 		function toggleTransformLock type state =
 		(
-			--format "\n"; print "TransformLocker_v._lock()"
+			-- format "\n"; print "TransformLocker_v._lock()"
 			lock_keys = #( #MOVE_X, #MOVE_Y, #MOVE_Z, #ROTATE_X, #ROTATE_Y, #ROTATE_Z, #SCALE_X, #SCALE_Y, #SCALE_Z )
 
 			lock_states = getTransformLockFlags support_obj
@@ -1029,7 +1029,7 @@ struct SupportObject_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportObject.onCreate()"
+		-- format "\n"; print "SupportObject.onCreate()"
 		--this._setSupportRaftUpdater()
 		if support_obj != undefined then
 			this._loadUserPropsFromNode()

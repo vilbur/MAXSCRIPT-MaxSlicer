@@ -55,15 +55,16 @@ icon:	"offset:[ 10, 6]|height:40|width:76|tooltip:GEENERATE RAFTS.\n\nWORKS ON S
 macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"B E A M S"
-tooltip:	"CONNECT CLOSEST SUPPORTS\n\nCTRL: USE ONLY SELECTED SUPPORTS."
-icon:	"offset:[ 18, 6 ]|height:40|width:76|tooltip:GENERATE BEAMS for selected supports.\n\nIMPORTANT - IF 2 SUPPORTS SELECTED THEN\n FORCE CONNECT WITHOUT MAX DISTANCE"
+tooltip:	"Connect closest supports\n\nCTRL: KEEP SELECTION ORDER\nSHIFT: USE ONLY SELECTED SUPPORTS."
+icon:	"offset:[ 18, 6 ]|height:40|width:76|tooltip:GENERATE BEAMS for selected supports.\n\nIMPORTANT:\n\n  If 2 SUPPORTS SELECTED then\n    FORCE connect without max distance"
 (
 	on execute do
 		undo "Generate Beams" on
 		(
-			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.controlPressed)
+			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.shiftPressed )
 			
-			SUPPORT_MANAGER.generateBeams()
+			
+			SUPPORT_MANAGER.generateBeams sort_mode:( if not keyboard.controlPressed then #JOIN_CLOSE_SUPPORTS )
 		)
 )
 

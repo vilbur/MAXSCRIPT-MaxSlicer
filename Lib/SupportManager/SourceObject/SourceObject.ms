@@ -341,8 +341,12 @@ struct SourceObject_v
 	(
 		-- format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
 		--Support.support_obj.wirecolor = red
-		if Support.hasSplines() then
-		(
+		
+		Support.support_obj.boxmode = true
+		
+		--if Support.hasSplines() then
+		--(
+			
 			--with redraw off
 			--try
 			--(
@@ -365,16 +369,16 @@ struct SourceObject_v
 			--redrawViews()
 			
 			
-			if pivot_pos == undefined then 
-				pivot_pos = getKnotPoint Support.support_obj 1 1
-	
-			--deleteSpline Support.support_obj 1
-	
-			--updateShape Support.support_obj
-			SUPPORT_MANAGER.updateShapeAdd (Support.support_obj)
+			--if pivot_pos == undefined then 
+			--	pivot_pos = getKnotPoint Support.support_obj 1 1
+			--
+			----deleteSpline Support.support_obj 1
+			--
+			----updateShape Support.support_obj
+			--SUPPORT_MANAGER.updateShapeAdd (Support.support_obj)
 
 			--Support.support_obj.pivot = pivot_pos
-		)
+		--)
 	),
 
 	/** Update single support

@@ -141,8 +141,10 @@ struct SupportManager_v
 	),
 
 	/** GENERATE BEAMS
+	  * 
+	  * @pram name|undefined sort_mode #JOIN_CLOSE_SUPPORTS|#JOIN_SUPPORTS_CHAIN
 	 */
-	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS =
+	function generateBeams sort_mode:undefined =
 	(
 		--format "\n"; print "SupportManager_v.generateBeams()"
 		--format "SORT_MODE: %\n" sort_mode
@@ -154,31 +156,41 @@ struct SupportManager_v
 		 */
 		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
+		new_beams = #()
+		
+		/* UPPATE OPTIONS */ 
 		SUPPORT_OPTIONS.getValuesFromUi()
 		
+		/* GET SUPPORTS */ 
 		supports = this.getSupportObjects( selection as Array )
 		
+		/* FILTER VALID SUPPORTS */ 
 		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
+		
+		/*------------------------------------------------------------------------------
 			
-		new_beams = #()
+			GENERTATE BEAMS
+			
+		--------------------------------------------------------------------------------*/
+
 		/*
 		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 		*/
-		
 		if supports.count > 0 then
-			new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2]
+			new_beams = if sort_mode == undefined or supports.count == 2
 						
-						then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */ 
-							#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
+						then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */
+							for i = 1 to supports.count - 1 collect
+								BeamGenerator.generateBeam (supports[i]) (supports[i +1])
 				
 						else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
 							case sort_mode of
-							(
+		 					(
 								(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports)
 								(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
 								----default:
 							)
-		--format "NEW_BEAMS: %\n" new_beams
+
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()

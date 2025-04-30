@@ -108,6 +108,7 @@ struct SupportObject_v
 		if not this._isPositionAndVectorValid first_knot_pos dir_vector then
 			return false
 		
+		--support_obj.boxmode = false
 			
 		this._fillThisWithOptionValues()
 		
@@ -189,6 +190,8 @@ struct SupportObject_v
 		if not this.vectorIsInRange() or not this._isPositionAndVectorValid points[1] this.dir_vector then
 			return false
 			
+		this._disbaleBoxMode()
+
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
 		-- format "CHANGED_PROPS: %\n" this.changed_props.keys
 			
@@ -316,12 +319,14 @@ struct SupportObject_v
 				
 				this._setPivotToPoint(2)
 
+				
 				this._isOnGround()
 				
 				--this._saveFirstKnotPos()
 				
 				this._setMaterialsToLineSegments()
 			
+				this._disbaleBoxMode()
 			)
 		
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
@@ -893,7 +898,6 @@ struct SupportObject_v
 		setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
 	),
 	
-
 	/** Set foot exists
 	 */
 	function _setFootExists =
@@ -902,6 +906,13 @@ struct SupportObject_v
 		foot_exists = obj_type != #RAFT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
 	),
 
+	/** Support is displayed as box if dir_vector or support position is not valid
+	 */
+	function _disbaleBoxMode =
+	(
+		--format "\n"; print "SupportObject_v._disbaleBoxMode()"
+		support_obj.boxmode = false
+	),
 	/** Align to vector
 	 */
 	function _alignPivotToRaft =

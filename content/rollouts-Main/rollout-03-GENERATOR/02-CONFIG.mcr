@@ -91,7 +91,7 @@ macroscript	_print_option_lock_normal
 category:	"_3D-Print"
 buttontext:	"LOCK"
 tooltip:	"Lock length of support direction on move"
-icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]|checked:true"
+icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
 	--on isEnabled return selection.count > 0

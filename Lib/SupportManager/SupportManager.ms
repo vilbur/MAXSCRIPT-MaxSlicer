@@ -144,7 +144,7 @@ struct SupportManager_v
 	 */
 	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS =
 	(
-		format "\n"; print "SupportManager_v.generateBeams()"
+		--format "\n"; print "SupportManager_v.generateBeams()"
 		--format "SORT_MODE: %\n" sort_mode
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
@@ -178,7 +178,7 @@ struct SupportManager_v
 								(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
 								----default:
 							)
-		format "NEW_BEAMS: %\n" new_beams
+		--format "NEW_BEAMS: %\n" new_beams
 		if new_beams.count > 0 then
 		(
 			this.updateShapes()
@@ -318,7 +318,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		--format "\n"; print "SupportManager_v.updateSourceObject()"
+		-- format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
@@ -355,11 +355,14 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes update_raft:true direction:undefined =
 	(
-		--format "\n"; print "SupportManager_v.updateSupports()"
+		 -- format "\n===========================================================\n"
+		-- format "\n"; print "SupportManager_v.updateSupports()"
 		--format "update_raft: %\n" update_raft
 		--format "direction: %\n" direction
 		--format "what_to_update: %\n" what_to_update
 		--format "support_nodes: %\n" support_nodes
+		
+		pauseSupportTransformEvent()
 		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
@@ -376,6 +379,8 @@ struct SupportManager_v
 
 		this.updateShapes()
 		
+		resumeSupportTransformEvent()
+		-- format "\n######################\n"
 	),
  
 	/** Update base height
@@ -726,7 +731,7 @@ struct SupportManager_v
 		================================================================================*/
 		if type == #SOURCE then
 		(
-			format "GET SOURCE OBJECTS\n"
+			-- format "GET SOURCE OBJECTS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			
 			sync_keys_of_objs = for obj in supports + beams + rafts collect this._getSyncKey(obj)
@@ -739,7 +744,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if type == #DRAIN then
 		(
-			format "GET DRAINS\n"
+			-- format "GET DRAINS\n"
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			objects_by_type = drains --return
 
@@ -786,7 +791,8 @@ struct SupportManager_v
 			--supports_and_rafts = if type == #SUPPORT then supports else rafts
 			supports_and_rafts = supports + rafts
 
-			objects_by_type =  deepCopy supports_and_rafts
+			--objects_by_type =  deepCopy supports_and_rafts
+			objects_by_type = if type == #SUPPORT or type == #RAFT then deepCopy supports_and_rafts else #()
 			
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then
@@ -804,7 +810,7 @@ struct SupportManager_v
 		================================================================================*/
 		else if beams.count > 0 then
 		(
-			format "GET BY BEAMS\n"
+			-- format "GET BY BEAMS\n"
 			/* GET BEAMS */
 			if type == #BEAM  then
 				objects_by_type = beams
@@ -899,8 +905,8 @@ struct SupportManager_v
 	 */
 	function _getSupportsOrRaftsNodes _objects obj_type =
 	(
-		format "\n"; print "SupportManager_v._getSupportsOrRaftsNodes()"
-		format "_objects: %\n" _objects
+		-- format "\n"; print "SupportManager_v._getSupportsOrRaftsNodes()"
+		-- format "_objects: %\n" _objects
 		for obj in _objects where SUPPORT_MANAGER.isType obj_type obj != false collect obj
 	),
 	

@@ -112,7 +112,7 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
-				result = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
+				result = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector normal_world:Normals.normals_world[vert] wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
 		
 				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
 				--if SupportObject.support_obj != undefined then
@@ -238,17 +238,19 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true /*update_leg:false */direction:undefined update_normals:false =
 	(
-		--format "\n****************************************************\n"
+		format "\n****************************************************\n"
 		--format "support_nodes: %\n" support_nodes
-		--format "update_normals: %\n" update_normals
+		format "update_normals: %\n" update_normals
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		--format "SupportsToUpdate.keys: %\n" SupportsToUpdate.keys
-		/* GET NORMALS */ 
 		
+		--for key in SupportsToUpdate.keys where SupportsToUpdate[key].hasValidVector() do RemoveDictValue SupportsToUpdate key
+		
+		/* GET NORMALS */ 
 		if update_normals or Normals.normals_world == undefined then
 			this.updateNormals (SupportsToUpdate)
 		
@@ -292,11 +294,20 @@ struct SourceObject_v
 				--format "Support.hasSplines(): %\n" (Support.hasSplines())
 				if Support.hasSplines() then
 				(
+		--try(
 					--result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					--format "dir_vector: %\n" dir_vector
 					if result == false then
-						this._disableSupportByRemoveSpline(Support)
+						this._disableSupportByRemoveSpline(Support) pivot_pos:first_knot_pos
+		--	
+		--	
+		--)catch(
+		--		format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+		--		format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+		--	
+		--)					
+					
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
@@ -326,19 +337,43 @@ struct SourceObject_v
 	
 	/** Replace support with proxy
 	 */
-	function _disableSupportByRemoveSpline Support =
+	function _disableSupportByRemoveSpline Support pivot_pos: =
 	(
-		--format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
+		-- format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
 		--Support.support_obj.wirecolor = red
 		if Support.hasSplines() then
 		(
-			knot_pos = getKnotPoint Support.support_obj 1 1
-	
-			deleteSpline Support.support_obj 1
-	
-			updateShape Support.support_obj
+			--with redraw off
+			--try
+			--(
+			--	
+			--	--for i = 1 to Support.support_obj.modifiers.count do 
+			--		deleteModifier Support.support_obj 1
+			--		deleteModifier Support.support_obj 1
+			--		--deleteModifier Support.support_obj 1
+			--		--deleteModifier Support.support_obj 1
+			--		--deleteModifier Support.support_obj 1
+			--	
+			--)
+			--catch
+			--(
+			--	format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+			--	format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+			--)
+			--(
+			--)
+			--redrawViews()
 			
-			Support.support_obj.pivot = knot_pos
+			
+			if pivot_pos == undefined then 
+				pivot_pos = getKnotPoint Support.support_obj 1 1
+	
+			--deleteSpline Support.support_obj 1
+	
+			--updateShape Support.support_obj
+			SUPPORT_MANAGER.updateShapeAdd (Support.support_obj)
+
+			--Support.support_obj.pivot = pivot_pos
 		)
 	),
 
@@ -374,10 +409,6 @@ struct SourceObject_v
 		(
 			Support = Supports[index]
 			
-			--format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
-			--format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
-			
-			--normal_world = Normals.normals_world[index]
 			
 			if Normals.normals_world[index].z < 0 then
 			(
@@ -394,7 +425,6 @@ struct SourceObject_v
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
-					--Support.rebulidSupport()
 				
 			)
 			else
@@ -568,11 +598,19 @@ struct SourceObject_v
 	 */
 	function updateNormals supports_to_update =
 	(
-		--format "\n"; print "SourceObject_v.updateNormals()"
+		format "\n"; print "SourceObject_v.updateNormals()"
+		supports_keys = supports_to_update.keys as BitArray
+		format "supports_keys: %\n" supports_keys
+		
 		if Normals.normals_local == undefined then
-			Normals.setLocalVertexNormals ( supports_to_update.keys as BitArray )
+			Normals.setLocalVertexNormals( supports_keys )
 
-		Normals.setWorldSpaceVertexNormals ( supports_to_update.keys as BitArray )
+		Normals.setWorldSpaceVertexNormals ( supports_keys )
+		
+		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
+		for vert in supports_keys do
+			setUserPropVal Supports[vert].support_obj "NORMAL_WORLD" Normals.normals_world[vert]
+			
 	),
 
 	--/** test if obj rotation changed in X and Y axises

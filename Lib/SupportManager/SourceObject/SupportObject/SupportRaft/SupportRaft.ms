@@ -50,6 +50,7 @@ struct SupportRaft_v
 		/*------------------------------------------------------------------------------
 			MODIFY RAFT LENGHT ABOVE GROUND
 		--------------------------------------------------------------------------------*/
+		--format "hit_raft: %\n" hit_raft
 		if hit_raft == undefined then
 		(
 			--format "IS SPACE FOR RAFT AND LEG\n"
@@ -94,7 +95,7 @@ struct SupportRaft_v
 			--------------------------------------------------------------------------------*/
 			Support.points[2] = hit_raft
 	
-		
+		--format "Support.dir_vector: %\n" Support.dir_vector
 		is_space_for_leg = isSpaceForRaftAndLeg()
 		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
 		--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists

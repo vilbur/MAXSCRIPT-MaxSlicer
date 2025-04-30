@@ -1,22 +1,25 @@
--- Struct: only main working functions
-struct SearchForNearObjectsByRadius (
-    
-    function createTestObjects object_count area_size = (
-        created_objects = #()
-        for i = 1 to object_count do (
-            pos = [ 
-                random (area_size * -1) area_size,
-                random (area_size * -1) area_size,
-                random (area_size * -1) area_size]
-            sphere_obj = sphere radius:(random 5 15) pos:pos
-            append created_objects sphere_obj
-        )
-        created_objects -- return
+-- Struct: contains only spatial _grid and search logic
+struct SearchForNearObjectsByRadius_v (
+
+    cell_size = 0.0,
+
+    /** Search for objects in radius
+    */
+    function searchForObjectsInRadius search_object _objects radius = 
+    (
+		--cell_size = radius * 2.5
+		cell_size = radius * 3 -- value: 3 makes most less iterations of loops in this.getObjectsInRadius()
+		
+        _grid = this.buildSpatialGrid _objects
+        this.getObjectsInRadius _grid search_object.position radius -- return
     ),
 
-    function buildSpatialGrid objects cell_size = (
-        grid = Dictionary()
-        for obj in objects do (
+    /** Build spatial _grid based on objects and cell size
+    */
+    function buildSpatialGrid _objects = 
+    (
+        _grid = Dictionary()
+        for obj in _objects do (
             cell_x = floor (obj.position.x / cell_size)
             cell_y = floor (obj.position.y / cell_size)
             cell_z = floor (obj.position.z / cell_size)
@@ -24,15 +27,18 @@ struct SearchForNearObjectsByRadius (
             cell_key_str = "cell_" + (cell_x as string) + "_" + (cell_y as string) + "_" + (cell_z as string)
             cell_key = (cell_key_str as name)
 
-            if not (HasDictValue grid cell_key) do (
-                grid[cell_key] = #()
+            if not (HasDictValue _grid cell_key) do (
+                _grid[cell_key] = #()
             )
-            append grid[cell_key] obj
+            append _grid[cell_key] obj
         )
-        grid -- return
+        _grid -- return
     ),
 
-    function getObjectsInRadius _grid center_pos radius cell_size = (
+    /** Get nearby objects within radius
+    */
+    function getObjectsInRadius _grid center_pos radius = 
+    (
         result = #()
         cell_radius = ceil (radius / cell_size)
         center_cell_x = floor (center_pos.x / cell_size)
@@ -56,39 +62,68 @@ struct SearchForNearObjectsByRadius (
             )
         )
         result -- return
+    ),
+
+    on create do
+    (
     )
 )
 
-
--- Global test function: builds grid and returns test data
-function testBuildGrid = (
-    delete objects -- clear scene
-    s = SearchForNearObjectsByRadius()
-    test_objects = s.createTestObjects 200 500.0
-    cell_size = 100.0
-    grid = s.buildSpatialGrid test_objects cell_size
-    #(s, test_objects, grid, cell_size) -- return
+-- Global function: create random test objects
+function createTestObjects object_count area_size = 
+(
+    created_objects = #()
+    for i = 1 to object_count do (
+        pos = [
+            random (area_size * -1) area_size,
+            random (area_size * -1) area_size,
+            random (area_size * -1) area_size ]
+		
+        sphere_obj = sphere radius:(random 5 15) pos:pos wirecolor:gray
+        append created_objects sphere_obj
+    )
+    created_objects -- return
 )
 
--- Global test function: runs search
-function testRunSearch = (
-    local test_data = testBuildGrid()
-    s = test_data[1]
-    test_objects = test_data[2]
-    grid = test_data[3]
-    cell_size = test_data[4]
+-- Global function: run search and visualize
+function runSearchForObjectsInRadius _objects radius  = 
+(
+	-- Helper function: get random element from array
+	function getRandomElement arr = 
+	(
+		if arr.count > 0 then (
+			arr[random 1 arr.count]
+		)
+		else undefined -- return
+	)
+	
+    first_object = getRandomElement _objects
 
-    some_object = test_objects[1]
-    nearby_objects = s.getObjectsInRadius grid some_object.position 500.0 cell_size
+    SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v()
+
+    nearby_objects = SearchForNearObjectsByRadius.searchForObjectsInRadius first_object _objects radius
 
     for obj in nearby_objects do (
         obj.wirecolor = orange
     )
-    some_object.wirecolor = red
+
+    first_object.wirecolor = red
+
+    select first_object
 
     print nearby_objects
     nearby_objects -- return
 )
 
--- Run it like:
- testRunSearch()
+
+
+-- Usage:
+delete objects
+
+
+test_objects = createTestObjects 400 500.0
+
+radius = 200
+
+runSearchForObjectsInRadius test_objects radius 
+--runSearchForObjectsInRadius test_objects radius

@@ -22,7 +22,7 @@ struct BeamObject_v
 	 */
 	function generateBeam =
 	(
-		format "\n"; print "BeamObject_v.generateBeam()"
+		--format "\n"; print "BeamObject_v.generateBeam()"
 		/* CREATE NEW BEAM */
 		--if beam == unsupplied then
 
@@ -93,7 +93,7 @@ struct BeamObject_v
 	 */
 	function _createBeam =
 	(
-		--format "\n"; print "BeamObject_v._createBeam()"
+		-- format "\n"; print "BeamObject_v._createBeam()"
 		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
 
 		this._addToGroup (beam) (support_A)
@@ -101,24 +101,10 @@ struct BeamObject_v
 		beam.parent	= support_A
 		beam.pivot  = beam.center
 
-		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
-		------for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
-		----	--addModifier beam support_A.modifiers[i]
-
 		max create mode
 
 		addModifier beam support_A.modifiers[#BAR_WIDTH]
 
-
-		/* GET DISTANCE BETWEEN POINTS */
-		--distance_between_points = this.getPointDistance (copy beam_start) (copy beam_end_top )
-		--distance_between_points = this.getPointDistance (point_bottom_1) (point_bottom_2 )
-
-		/* CHECK MAX DISTANCE BETWEEN POINTS */
-		--if distance_between_points < SUPPORT_OPTIONS.max_distance then
-			--beam = this._drawLine (support_1) (beam_start) (beam_end_top)
-
-		--beam --return
 	),
 
 	/** Get beams end points
@@ -128,7 +114,7 @@ struct BeamObject_v
 	 */
 	function _getBeamsEndPoints =
 	(
-		--format "\n"; print "BeamObject_v.getBeamEndPoints()"
+		-- format "\n"; print "BeamObject_v.getBeamEndPoints()"
 		/** Get posiotion of point on line
 		 */
 		function getPosOnLine pos vector offset =
@@ -300,7 +286,7 @@ struct BeamObject_v
 	 */
 	function sortSupportsByDistance =
 	(
-		format "\n"; print "BeamObject_v.sortSupportsByDistance()"
+		-- format "\n"; print "BeamObject_v.sortSupportsByDistance()"
 
 		supports_positions	= for support in supports collect support.pos
 		proccessed_supports 	= #{1..supports.count} * #{}

@@ -8,8 +8,8 @@
 function selectHideUnhideSupports type: state: select_mode:keyboard.controlPressed select_more:keyboard.shiftPressed =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
-	--format "\n"; print "selectHideUnhideSupports()"
-	--format "type:  %\n" type
+	format "\n"; print "selectHideUnhideSupports()"
+	format "type:  %\n" type
 	--format "state: %\n" state
 	--format "SELECT_MODE: %\n" select_mode
 	--format "select_more: %\n" select_more

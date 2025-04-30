@@ -377,8 +377,8 @@ struct ModifiersManager_v
 	 */
 	on create do
 	(
-		--format "\n"; print "ModifiersManager.onCreate()"
-		SUPPORT_OPTIONS.getValuesFromUi()
+		----format "\n"; print "ModifiersManager.onCreate()"
+		--SUPPORT_OPTIONS.getValuesFromUi()
 		
 		SupportModifiers[#DEFAULT] = SupportModifiers_v() -- INIT DEFAULT MODIFIERS
 	)

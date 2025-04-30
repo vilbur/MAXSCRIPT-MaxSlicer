@@ -16,10 +16,10 @@ macroscript	_print_generator_beams_max_distance_toggle
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:4|control:checkbox|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:4|control:checkbox|id:#CBX_use_max_distance|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
-	--on execute do
-		--SUPPORT_MANAGER.BeamGenerator.use_max_distance	= EventFired.val
+	on execute do
+		SUPPORT_OPTIONS.use_max_distance = EventFired.val
 
 	--(
 	--	--format "EventFired:	% \n" EventFired

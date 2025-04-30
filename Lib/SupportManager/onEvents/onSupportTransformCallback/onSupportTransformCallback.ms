@@ -76,7 +76,8 @@ function bindSupportToTransformEvent supports =
 	--format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
 	--format "SUPPORTS: %\n" SUPPORTS
 	--format "COUNT: %\n" SUPPORTS.count
-	
+
+
 	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
 
 	if classOf supports == Array then
@@ -85,6 +86,8 @@ function bindSupportToTransformEvent supports =
 	else
 		append SUPPORTS_BINDED supports
 
+	SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED	
+		
 	deleteAllChangeHandlers id:#updateSupportsEvent
 
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
@@ -121,28 +124,9 @@ function bindSupportToTransformEvent supports =
 		else if support.isSelected then
 		(
 			--print "!!!!!!!!! FIRED UPDATE"
-
-			--bar_width   = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-			--base_height = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-			--chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
-			--
-			--z_pos_limit = base_height + chamfer_val
-			z_pos_limit = 0
 			
-			if support.pos.z < z_pos_limit then
-				support.pos.z = z_pos_limit
-			
-		--with redraw off
-
-			--timer_update = timeStamp()
 			SUPPORT_MANAGER.updateSupports #( support ) update_raft:true direction:#CUSTOM
-			--format "update: % ms\n" (( timeStamp()) - timer_update)
-			
-			
-			if selection.count == SUPPORT_MANAGER.shapes_to_update.count then
-			SUPPORT_MANAGER.updateShapes() -- update all shapes at once
 		)
-		
 	)
 )
 
@@ -159,5 +143,5 @@ function pauseSupportTransformEvent =
 function resumeSupportTransformEvent =
 (
 	--format "\n"; print "onSupportTransformCallback.ms.resumeSupportTransformEvent()"
-	bindSupportToTransformEvent #()
+	bindSupportToTransformEvent (SUPPORTS_BINDED)
 )

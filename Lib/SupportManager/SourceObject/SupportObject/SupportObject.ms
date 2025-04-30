@@ -65,8 +65,8 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	--dir_vector_angle_range = 80,
-	dir_vector_angle_range = 45,
+	dir_vector_angle_range = 80,
+	--dir_vector_angle_range = 45,
 	
 	private
 
@@ -108,7 +108,6 @@ struct SupportObject_v
 		if not this._isPositionAndVectorValid first_knot_pos dir_vector then
 			return false
 		
-
 			
 		this._fillThisWithOptionValues()
 		
@@ -138,8 +137,6 @@ struct SupportObject_v
 
 		this._isOnGround()
 		
-		--this._saveFirstKnotPos()
-
 		this._saveOptionsToUserProps()
 
 		this._lockRotationAndScaleTransforms()
@@ -187,7 +184,9 @@ struct SupportObject_v
 		-- format "NORMAL: %\n" (normalize (points[2] - points[1]))
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		 -- format "this.dir_vector: %\n" this.dir_vector
-		if not this._isPositionAndVectorValid points[1] this.dir_vector then
+		 
+		 
+		if not this.vectorIsInRange() or not this._isPositionAndVectorValid points[1] this.dir_vector then
 			return false
 			
 		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
@@ -219,7 +218,6 @@ struct SupportObject_v
 
 		this._isOnGround()
 		
-		--this._saveFirstKnotPos()
 		----this._alignPivotToRaft()
 		
 		this._setMaterialsToLineSegments()
@@ -330,15 +328,6 @@ struct SupportObject_v
 		)
 	),
 	
-	--/** Has valid vector
-	-- */
-	--function hasValidVector =
-	--(
-	--	--format "\n"; print "SupportObject_v.hasValidVector()"
-	--	
-	--	
-	--	_dir_vector.z < 0
-	--),
 	
 	/** Set support line points
 	 */
@@ -516,50 +505,45 @@ struct SupportObject_v
 	private
 	
 	
-	/** Is position and ctor valid
+	/** • AVOID SUPORT UNDER GROUND
+	  *	• ALLOW ONLY VECTORS DIRECTING DOWN
 	 */
 	--function _isPositionAndVectorValid first_knot_pos dir_vector =
 	function _isPositionAndVectorValid knot_pos _dir_vector =
 	(
 		 -- format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
-		 
-		/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
-		  * • AVOID TO FLIP DIR VECTOR TO BACKSIDE
-		  *	• AVOID SUPORT UNDER GROUND
-		  *	• ALLOW ONLY VECTORS DIRECTING DOWN
-		  *		  
-		  *		  
-		  *		  
-		  * 1)Create future dir vetor from OLD FISRT POSITION and new SUPPORT POSITION
-		  *		  
-		  * 2) Test if new vector firs to range of world normal
-		 */
-		function vectorIsInRange knot_pos =
-		(
-			
-			function testVectorInCone v1 v2 angle_treshold =
-			(
-				if distance v1 v2 > 0.001 then
-				(
-					dot_product = dot (normalize v1) (normalize v2)
-					
-					theAngle = acos(dot_product)
-
-					theAngle < angle_treshold
-				)
-				else
-					true --return true if vecros are same
-			)
-			
-			dir_vector_new = if points[2] != undefined then  normalize ( points[2] - points[1]) else this.dir_vector
-			
-			is_in_range = testVectorInCone normal_world dir_vector_new dir_vector_angle_range
-		)
-		
-		
-		vectorIsInRange(knot_pos) and knot_pos.z > 0 and _dir_vector.z < 0 --return
+		knot_pos.z > 0 and _dir_vector.z < 0 --return
 	),
 	
+	/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
+	  * • AVOID TO FLIP DIR VECTOR TO BACKSIDE
+	  *		  
+	  * 1)Create future dir vetor from OLD FISRT POSITION and new SUPPORT POSITION
+	  *		  
+	  * 2) Test if new vector firs to range of world normal
+	 */
+	function vectorIsInRange =
+	(
+		
+		function testVectorInCone v1 v2 angle_treshold =
+		(
+			if distance v1 v2 > 0.001 then
+			(
+				dot_product = dot (normalize v1) (normalize v2)
+				
+				theAngle = acos(dot_product)
+
+				theAngle < angle_treshold
+			)
+			else
+				true --return true if vectors are same
+		)
+		
+		dir_vector_new = if points[2] != undefined then  normalize ( points[2] - points[1]) else this.dir_vector
+		
+		testVectorInCone normal_world dir_vector_new dir_vector_angle_range
+	),
+
 	/** Create new support object or get existing and delete spline subobject
 	 */
 	function _setSupportObject wirecolor =
@@ -696,7 +680,7 @@ struct SupportObject_v
 		(
 			-- format "\n"; print "SupportObject_v.getCurrentValues()"
 			--bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
-			changed_props = Dictionary()
+			this.changed_props = Dictionary()
 			
 			changed_props[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
 			
@@ -705,8 +689,6 @@ struct SupportObject_v
 			changed_props[#TOP_WIDTH]   = getUserPropVal support_obj "TOP_WIDTH"
 		
 			changed_props[#BASE_HEIGHT] = getUserPropVal support_obj "BASE_HEIGHT"
-			
-			--changed_props --return
 		)
 		
 		/** Test if values changed
@@ -739,17 +721,20 @@ struct SupportObject_v
 			-- format "CHANGED_PROPS: %\n" this.changed_props.keys
 		)
 		
-		/** Update propoerties of
+		/** UPDATE PROPERTIES OF:
+		  *
 		  *  	1) this
 		  *  	2) node userProps
 		 */
-		function updateProperties =
+		function syncProperties =
 		(
-			--format "\n"; print "SupportObject_v.updateProperties()"
+			--format "\n"; print "SupportObject_v.syncProperties()"
 			for prop in changed_props.keys do
 			(
+				/* UPDATE THIS */ 
 				setProperty this prop changed_props[prop]
-	
+				
+				/* UPDATE USER PROPERTIES */ 
 				setUserPropVal support_obj ( toUpper ( prop as string ) ) changed_props[prop]
 			)
 		)
@@ -758,7 +743,7 @@ struct SupportObject_v
 		
 		compareValuesWithPropertisOfThis()
 		
-		updateProperties()
+		syncProperties()
 	),
 	
 	/** Set minimal foot pos
@@ -908,13 +893,6 @@ struct SupportObject_v
 		setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
 	),
 	
-	--/** Save first knot pos
-	-- */
-	--function _saveFirstKnotPos =
-	--(
-	--	--format "\n"; print "SupportObject_v._saveFirstKnotPos()"
-	--	setUserPropVal support_obj "FIRST_KNOT_POS" points[1]
-	--),
 
 	/** Set foot exists
 	 */

@@ -66,8 +66,10 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	dir_vector_angle_range = 270,
+	--dir_vector_angle_range = 180,
+	--dir_vector_angle_range = 180,
 	--dir_vector_angle_range = 45,
+	dir_vector_angle_range = 90,
 	
 	private
 

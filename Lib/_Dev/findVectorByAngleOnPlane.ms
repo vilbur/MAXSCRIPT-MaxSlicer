@@ -55,8 +55,8 @@ function findVectorByAngleOnPlane vector1 vector2 _angle =
 vec_A = [1,0,0]
 vec_B = [0,1,0]
 _angle = 22.5
---_angle = (90 - 22.5)
---_angle = 45
+_angle = (90 - 22.5)
+_angle = 45
 --_angle = 85
 vec_c = findVectorByAngleOnPlane vec_A vec_B _angle
 

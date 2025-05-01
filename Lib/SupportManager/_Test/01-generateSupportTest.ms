@@ -102,7 +102,7 @@ SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH
 -- SUPPORT_OPTIONS.normal_length	= 0.75
 -- SUPPORT_OPTIONS.normal_length	= 1
 SUPPORT_OPTIONS.normal_length	= 2
--- SUPPORT_OPTIONS.normal_length	= 5
+SUPPORT_OPTIONS.normal_length	= 5
 -- SUPPORT_OPTIONS.normal_length	= 10
 -- SUPPORT_OPTIONS.normal_length	= 20
 -- SUPPORT_OPTIONS.normal_length	= 30
@@ -114,7 +114,7 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 -- SUPPORT_OPTIONS.second_point_direction	= 2 -- DOWN
 
 /* UNLOCK  RAFT LENGTH  */
-SUPPORT_OPTIONS.lock_normal_length = false
+-- SUPPORT_OPTIONS.lock_normal_length = false
 
 
 /* FOOT ENABLED */

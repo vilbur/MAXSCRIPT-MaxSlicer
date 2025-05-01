@@ -57,7 +57,8 @@ struct BeamObject_v
 		function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT_OPTIONS.min_height
 
 		/* VALIDATE SUPPORTS */ 
-		supports_are_valid = numKnots support_A > 0 and numKnots support_B > 0
+		--supports_are_valid = numKnots support_A > 0 and numKnots support_B > 0
+		supports_are_valid = not support_A.boxmode and not support_B.boxmode
 
 		/* REMOVE OLD LINE */ 
 		for i = numSplines beam to 1 by -1 do

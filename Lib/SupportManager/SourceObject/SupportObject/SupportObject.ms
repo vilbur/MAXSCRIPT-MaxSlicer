@@ -40,7 +40,8 @@ struct SupportObject_v
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
-
+	--changed_keys = #(),
+	
 	direction,
 	dir_vector,
 	normal_world,
@@ -65,7 +66,7 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	dir_vector_angle_range = 80,
+	dir_vector_angle_range = 270,
 	--dir_vector_angle_range = 45,
 	
 	private
@@ -105,7 +106,7 @@ struct SupportObject_v
 		
 		this._saveUserPropsToSupport(vertex_index)
 		
-		if not this._isPositionAndVectorValid first_knot_pos dir_vector then
+		if not this._isFirstPointAboveGround() then
 			return false
 		
 		--support_obj.boxmode = false
@@ -160,9 +161,9 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		 --format "\n----------------------------------------------\n"
+		 -- format "\n----------------------------------------------\n"
 		 -- format "\n"; print "SupportObject_v.updateSupport()"
-		 -- format "first_knot_pos: %\n" first_knot_pos
+		  -- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
 		 -- format "dir_vector:  %\n" dir_vector
 		
@@ -185,23 +186,34 @@ struct SupportObject_v
 		-- format "NORMAL: %\n" (normalize (points[2] - points[1]))
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		 -- format "this.dir_vector: %\n" this.dir_vector
-		 
-		 
-		if not this.vectorIsInRange() or not this._isPositionAndVectorValid points[1] this.dir_vector then
+		
+		this._keepVectorDown()
+
+		
+		if not this._isFirstPointAboveGround() then
 			return false
+		
+		
+		--dir_vector_new = if points[2] != undefined then normalize ( points[2] - points[1]) else this.dir_vector
+
+		-- format "\n"
+
+		if not this.vectorIsInRange() then
+			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
+		
+		-- format "this.dir_vector: %\n" this.dir_vector
 			
 		this._disbaleBoxMode()
 
-		this._checkChangedProps() -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		-- format "CHANGED_PROPS: %\n" this.changed_props.keys
+		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+		 -- format "CHANGED_PROPS: %\n" this.changed_props.keys
+		-- format "this.dir_vector: %\n" this.dir_vector
 			
 		--this._setDirVector (dir_vector) update_raft:update_raft
 		set_min_limits = update_raft == true or min_raft_length == undefined
 		
 		--this._setMinLimints(direction) update_raft:update_raft
 		this._setMinLimints(direction) update_raft:set_min_limits
-
-		this._keepVectorDown()
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
@@ -212,19 +224,8 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
-		-- format "POINTS: %\n" POINTS.count
-		this._updateCountOfKnots()
-		
-		this._updateKnotsPositionByPoints()
+		this._postUpdate()
 
-		this._setPivotToPoint(2)
-
-		this._isOnGround()
-		
-		----this._alignPivotToRaft()
-		
-		this._setMaterialsToLineSegments()
-		-- format "PROPS:      %\n" (getUserPropVal support_obj "DIR_VECTOR")
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -283,10 +284,10 @@ struct SupportObject_v
 		(
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 			
-			if not this._isPositionAndVectorValid first_knot_pos dir_vector then
-				return false
-			
 			points = #( first_knot_pos, support_obj.pos )
+			
+			if not this._isFirstPointAboveGround() then
+				return false
 			
 			points_distance = distance points[1] points[2]
 
@@ -309,30 +310,35 @@ struct SupportObject_v
 			--------------------------------------------------------------------------------------------*/
 			else
 			(
-
-			
 				this._setSupportLinePoints()
 		
-				this._updateCountOfKnots()
-				
-				this._updateKnotsPositionByPoints()
-				
-				this._setPivotToPoint(2)
-
-				
-				this._isOnGround()
-				
-				--this._saveFirstKnotPos()
-				
-				this._setMaterialsToLineSegments()
-			
 				this._disbaleBoxMode()
+				
+				this._postUpdate()
 			)
 		
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
+	
 	),
 	
+	/** Post update
+	 */
+	function _postUpdate =
+	(
+		--format "\n"; print "SupportObject_v._postUpdate()"
+		this._updateCountOfKnots()
+		
+		this._updateKnotsPositionByPoints()
+		
+		this._setPivotToPoint(2)
+
+		this._saveFirstKnotPos()
+
+		this._isOnGround()
+		
+		this._setMaterialsToLineSegments()
+	),
 	
 	/** Set support line points
 	 */
@@ -511,13 +517,12 @@ struct SupportObject_v
 	
 	
 	/** • AVOID SUPORT UNDER GROUND
-	  *	• ALLOW ONLY VECTORS DIRECTING DOWN
 	 */
-	--function _isPositionAndVectorValid first_knot_pos dir_vector =
-	function _isPositionAndVectorValid knot_pos _dir_vector =
+	--function _isFirstPointAboveGround first_knot_pos dir_vector =
+	function _isFirstPointAboveGround =
 	(
-		 -- format "\n"; print "SupportObject_v._isPositionAndVectorValid()"
-		knot_pos.z > 0 and _dir_vector.z < 0 --return
+		 -- format "\n"; print "SupportObject_v._isFirstPointAboveGround()"
+		points[1].z > 0
 	),
 	
 	/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
@@ -530,23 +535,38 @@ struct SupportObject_v
 	function vectorIsInRange =
 	(
 		
-		function testVectorInCone v1 v2 angle_treshold =
+		if distance normal_world this.dir_vector > 0.001 then
 		(
-			if distance v1 v2 > 0.001 then
-			(
-				dot_product = dot (normalize v1) (normalize v2)
-				
-				theAngle = acos(dot_product)
-
-				theAngle < angle_treshold
-			)
-			else
-				true --return true if vectors are same
+			dot_product = dot (normalize normal_world) (normalize this.dir_vector)
+			
+			theAngle = acos(dot_product)
+			
+			--format "theAngle: %\n" theAngle
+			
+			theAngle < dir_vector_angle_range --return
 		)
-		
-		dir_vector_new = if points[2] != undefined then  normalize ( points[2] - points[1]) else this.dir_vector
-		
-		testVectorInCone normal_world dir_vector_new dir_vector_angle_range
+		else
+			true --return true if vectors are equal
+	),
+	
+	/*
+	Finds a vector at a given angle in the plane defined by two vectors.
+	
+	vector1 and vector2 define the plane.
+	angle is in degrees.
+	*/
+	function _findVectorByAngle vector2 _angle =
+	(
+		-- Create orthonormal basis in the plane
+		dir_x = normal_world
+		-- Remove projection of vector2 on dir_x to get perpendicular direction
+		proj = (dot vector2 dir_x) * dir_x
+		dir_y = normalize (vector2 - proj)
+	
+		-- Compute vector using _angle in plane
+		result = (cos _angle) * dir_x + (sin _angle) * dir_y
+		--format "result: %\n" result
+		result -- return
 	),
 
 	/** Create new support object or get existing and delete spline subobject
@@ -675,19 +695,19 @@ struct SupportObject_v
 	  * 
 	  * 
 	 */
-	function _checkChangedProps =
+	function _checkChangedProps dir_vector_current:undefined =
 	(
 		-- format "\n"; print "SupportObject_v._checkChangedProps()"
 
 		/** Get current values
 		 */
-		function getCurrentValues =
+		function getCurrentValues dir_vector_current =
 		(
 			-- format "\n"; print "SupportObject_v.getCurrentValues()"
 			--bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
 			this.changed_props = Dictionary()
 			
-			changed_props[#DIR_VECTOR]  = normalize ( points[2] - points[1] )
+			changed_props[#DIR_VECTOR]   = dir_vector_current
 			
 			changed_props[#BAR_WIDTH]   = getUserPropVal support_obj "BAR_WIDTH"
 			
@@ -707,10 +727,6 @@ struct SupportObject_v
 			function valueChanged this_val current_val =
 			(
 				--format "\n"; print "SupportObject_v.valueChanged()"
-				--format "current_val: %\n" current_val
-				--format "this_val: %\n" this_val
-
-				
 				if classOf this_val == point3 then
 					distance this_val current_val > 0.001  --return
 					
@@ -723,7 +739,7 @@ struct SupportObject_v
 				if not valueChanged ( getProperty this prop ) changed_props[prop] then
 					RemoveDictValue changed_props prop 
 			
-			-- format "CHANGED_PROPS: %\n" this.changed_props.keys
+			 --format "CHANGED_PROPS: %\n" this.changed_props.keys
 		)
 		
 		/** UPDATE PROPERTIES OF:
@@ -744,7 +760,7 @@ struct SupportObject_v
 			)
 		)
 		
-		getCurrentValues()
+		getCurrentValues( dir_vector_current )
 		
 		compareValuesWithPropertisOfThis()
 		
@@ -802,8 +818,8 @@ struct SupportObject_v
 	function _keepVectorDown =
 	(
 		-- format "\n"; print "SupportObject_v._keepVectorDown()"
-		if this.dir_vector.z > -0.25 then
-			this.dir_vector.z = -0.25
+		if this.dir_vector.z > 0 then
+			this.dir_vector.z = -0.1
 	),
 	
 	/** SET CORECT NUMBER OF KNOTS ON OBJECT
@@ -904,6 +920,14 @@ struct SupportObject_v
 	(
 		 --format "\n"; print "SupportObject_v._setFootExists()"
 		foot_exists = obj_type != #RAFT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
+	),
+
+	/** Save first knot pos
+	 */
+	function _saveFirstKnotPos =
+	(
+		--format "\n"; print "SupportObject_v._saveFirstKnotPos()"
+		setUserPropVal support_obj "FIRST_KNOT_POS" points[1]
 	),
 
 	/** Support is displayed as box if dir_vector or support position is not valid

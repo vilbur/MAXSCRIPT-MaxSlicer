@@ -238,9 +238,9 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true /*update_leg:false */direction:undefined update_normals:false =
 	(
-		format "\n****************************************************\n"
+		-- format "\n****************************************************\n"
 		--format "support_nodes: %\n" support_nodes
-		format "update_normals: %\n" update_normals
+		-- format "update_normals: %\n" update_normals
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "what_to_update: %\n" what_to_update
 
@@ -602,9 +602,9 @@ struct SourceObject_v
 	 */
 	function updateNormals supports_to_update =
 	(
-		format "\n"; print "SourceObject_v.updateNormals()"
+		-- format "\n"; print "SourceObject_v.updateNormals()"
 		supports_keys = supports_to_update.keys as BitArray
-		format "supports_keys: %\n" supports_keys
+		-- format "supports_keys: %\n" supports_keys
 		
 		if Normals.normals_local == undefined then
 			Normals.setLocalVertexNormals( supports_keys )

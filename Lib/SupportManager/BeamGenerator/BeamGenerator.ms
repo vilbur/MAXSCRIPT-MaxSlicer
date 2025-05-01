@@ -56,7 +56,7 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsChain supports =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeamsChain()"
+		-- format "\n"; print "BeamGenerator_v.generateBeamsChain()"
 		--format "supports: %\n" supports
 		new_beams = #()
 
@@ -76,7 +76,7 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsToClosestSupports _objects only_ground:true =
 	(
-		format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
+		--format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
 		--format "_objects: %\n" _objects.count
 		
 		new_beams = #()
@@ -91,7 +91,7 @@ struct BeamGenerator_v
 		
 		/* USE ALL SUPPORTS OF SOURCE OBJECT OR ONLY SELECTED */
 		supports_to_connect = if not use_only_selected_supports then SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT else supports
-		format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect.count
+		-- format "SUPPORTS_TO_CONNECT: %\n" supports_to_connect.count
 		
 
 		/* DO NOT USE SUPPORTS WHICH HAS MAX BEAMS COUNT ALREADY */
@@ -101,13 +101,13 @@ struct BeamGenerator_v
 		this._filterOnlyGroundedSupports(&supports_to_connect)
 
 		bbox	= nodeGetBoundingBox supports_to_connect[1] ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-		format "CELL SIZE: %\n" ((( bbox[1].z - bbox[2].z ) * 3 ))
+		-- format "CELL SIZE: %\n" ((( bbox[1].z - bbox[2].z ) * 3 ))
 		--SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v radius:max_distance cell_size:(( bbox[1].z - bbox[2].z ) * 3 )
 		SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v radius:max_distance --cell_size:(( bbox[1].z - bbox[2].z ) * 3 )
 
 		closest_pairs = SearchForNearObjectsByRadius.findClosestPairs(supports_to_connect)
 		
-		format "CLOSEST_PAIRS: %\n" closest_pairs.count
+		-- format "CLOSEST_PAIRS: %\n" closest_pairs.count
 		
 		for pair in closest_pairs do
 			if (new_beam = this.generateBeam pair[1] pair[2] ) != undefined then
@@ -161,10 +161,10 @@ struct BeamGenerator_v
 	 */
 	function _sortSupportsByDistance supports max_distance =
 	(
-		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
-		format "supports.count: %\n" supports.count
+		-- format "\n"; print "SupportManager_v.sortSupportsByDistance()"
+		-- format "supports.count: %\n" supports.count
 		for support in supports do 
-			format "support.name: %\n" support.name
+			-- format "support.name: %\n" support.name
 		
 		--format "max_distance: %\n" max_distance
         sorted_all = #()
@@ -184,8 +184,8 @@ struct BeamGenerator_v
 			/* GET SUPPORT NODE AND POSITION */
             support     = supports[support_i]
             support_pos = support.pos
-			format "\n"
-			format "support: %\n" support.name
+			-- format "\n"
+			-- format "support: %\n" support.name
 			/* AVOID TESTING SUPPORT AGAIN */
             proccessed_supports[support_i] = true
 
@@ -205,7 +205,7 @@ struct BeamGenerator_v
 					if current_distance <= max_distance  then
 					(
 						min_distance_found = current_distance
-						format "next_support_i: %\n" i
+						-- format "next_support_i: %\n" i
 						next_support_i = i
 					)
 			)

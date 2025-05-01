@@ -26,7 +26,7 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		-- format "\n"; print "SupportRaft_v.createRaft()"
+		 format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
@@ -40,7 +40,7 @@ struct SupportRaft_v
 		
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
 		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-
+		format "Support.dir_vector: %\n" Support.dir_vector
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 

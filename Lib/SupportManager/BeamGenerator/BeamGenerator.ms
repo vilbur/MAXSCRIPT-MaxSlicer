@@ -25,7 +25,7 @@ struct BeamGenerator_v
 		--format "\n"; print "BeamGenerator_v.generateBeam()"
 		--format "support_A: %\n" support_A
 		--format "support_B: %\n" support_B
-		BeamObject = (BeamObject_v support_A support_B )
+		BeamObject = BeamObject_v support_A support_B sync_key:(getUserPropVal support_A "SYNC_KEY")
 
 		/* IF BEAM DOES NOT EXISTS YET */
 		--if SUPPORT_MANAGER.BeamObjects[BeamObject.beam_key] == undefined then
@@ -35,7 +35,7 @@ struct BeamGenerator_v
 			BeamObject.beam_key = this._getBeamKey (support_A) (support_B)
 
 			/* SAVE SYNC KEY */
-			setUserPropVal BeamObject.beam "SYNC_KEY" ( getUserPropVal support_A "SYNC_KEY" )
+			setUserPropVal BeamObject.beam "SYNC_KEY"  BeamObject.sync_key
 			setUserPropVal BeamObject.beam "BEAM_KEY"  BeamObject.beam_key
 
 			setUserPropVal BeamObject.beam "SUPPORT_A" ( this._getSupportKey(support_A) )
@@ -76,14 +76,14 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsToClosestSupports _objects only_ground:true =
 	(
-		--format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
+		-- format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
 		--format "_objects: %\n" _objects.count
 		
 		new_beams = #()
 		procesed_supports = #()
 		
 		max_distance = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance
-		
+		-- format "max_distance: %\n" max_distance
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		--format "SOURCE_OBJECTS: %\n" source_objects
 
@@ -95,7 +95,7 @@ struct BeamGenerator_v
 		
 
 		/* DO NOT USE SUPPORTS WHICH HAS MAX BEAMS COUNT ALREADY */
-		--this._filterSupportsByCountOfBeams (&supports_to_connect)
+		this._filterSupportsByCountOfBeams (&supports_to_connect)
 
 		/* USE ONLY SUPPORTS TOUCHING GROUND - dont use rafts and supports without foot */
 		this._filterOnlyGroundedSupports(&supports_to_connect)

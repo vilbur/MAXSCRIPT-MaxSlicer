@@ -100,17 +100,19 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		--format "\n"; print "SupportManager_v.generateSupports()"
+		-- format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
-		max modify mode
+		--this._removeDeletedNodes()
 
+		max modify mode
+		
 		--SUPPORT_OPTIONS.getValuesFromUi()
 
 		SourceObject = this._getSourceObject(source_obj)
 
 		/* GET SUPPORTS OF SOURCE OBJECT */ 
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
-		--format "SUPPORTS_EXISTS: %\n" supports_exists
+		-- format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		/* GENERATE NEW SUPPORTS */ 
 		SupportObjectsNew = SourceObject.generateSupports obj_type:obj_type
@@ -151,10 +153,13 @@ struct SupportManager_v
 		--format "supports: %\n" supports
 		--format "max_connections: %\n" max_connections
 		--format "use_only_selected_supports: %\n" use_only_selected_supports
+		-- format "sort_mode: %\n" sort_mode
 
 		/** if support height is greater then min height option
 		 */
 		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
+
+		--this._removeDeletedNodes()
 
 		new_beams = #()
 		
@@ -330,8 +335,9 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		-- format "\n"; print "SupportManager_v.updateSourceObject()"
+		 -- format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
+		--this._removeDeletedNodes()
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 		--format "SYNC_KEYS: %\n" SYNC_KEYS
@@ -355,6 +361,7 @@ struct SupportManager_v
 			--SourceObject.updateSupports update_knot_1:false update_raft:false
 		)	
 				
+				
 		this.updateShapes()
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
@@ -373,7 +380,8 @@ struct SupportManager_v
 		--format "direction: %\n" direction
 		--format "what_to_update: %\n" what_to_update
 		--format "support_nodes: %\n" support_nodes
-		
+		--this._removeDeletedNodes()
+
 		pauseSupportTransformEvent()
 		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -578,7 +586,7 @@ struct SupportManager_v
 				delete SourceObjects[sync_key].Supports[support_key].support_obj
 
 			/* REMOVE SOURCE OBJECT FROM MANAGER */ 
-			RemoveDictValue SourceObjects sync_key
+			------RemoveDictValue SourceObjects sync_key
 		)
 
 		/* IF SUPPORT DELETED */
@@ -592,19 +600,20 @@ struct SupportManager_v
 		    index    = getUserPropVal obj "INDEX"
 
 			/* REMOVE FROM SOURCE OBJECT */
-			RemoveDictValue SourceObjects[sync_key].Supports index
+			------RemoveDictValue SourceObjects[sync_key].Supports index
 
 			/* REMOVE FROM THIS */
-			RemoveDictValue SupportObjects support_key
+			------RemoveDictValue SupportObjects support_key
 
 			/*  DELETE BEAMS */
 			for beam_key in BeamObjects.keys where matchPattern beam_key pattern:("*"+support_key+"*") do
-				delete BeamObjects[beam_key].beam
+				if isValidNode BeamObjects[beam_key].beam then -- OBJECT CAN BE DELETED IN SCENE, but it stays in code to in case of undo
+					delete BeamObjects[beam_key].beam
 		)
 
 		/* IF BEAM DELETED */
-		else if (beam_key = this.isType #BEAM obj) != false then
-			RemoveDictValue BeamObjects beam_key
+		------else if (beam_key = this.isType #BEAM obj) != false then
+			----RemoveDictValue BeamObjects beam_key
 
 	),
 
@@ -695,9 +704,8 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
-		--format "type: %\n" type
-		
+		  -- format "\n"; print "SupportManager_v.getObjectsByType()"
+		 -- format "type: %\n" type
         objects_by_type = #()
 
         source_keys = #()
@@ -707,6 +715,8 @@ struct SupportManager_v
         drains   	= #()
         pins   		= #()
 
+		--this._removeDeletedNodes()
+		
 		/* SORT BY TYPE */ 
 		for obj in _objects do
 			case of
@@ -779,12 +789,21 @@ struct SupportManager_v
 		(
 			--format "GET BY SOURCE OBJECT\n"
 			raft_test = type == #RAFT
-			
+			-- format "source_keys: %\n" source_keys
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
-					append objects_by_type BeamObjects[key].beam
+				--for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
+				--	append objects_by_type BeamObjects[key].beam
 			
+				for key in BeamObjects.keys do
+				(
+					-- format "%: %\n" key BeamObjects[key].sync_key
+					
+					if findItem source_keys BeamObjects[key].sync_key > 0 then
+						append objects_by_type BeamObjects[key].beam
+				)
+					
+					
 			/* GET SUPPORTS OF SOURCE OBJECT */
 			if hierarchy or type == #SUPPORT or type == #RAFT  then
 				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 and SupportObjects[key].isRaft() == raft_test do
@@ -954,7 +973,7 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
 		
-		for key in BeamObjects.keys where findItem support_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+		for key in BeamObjects.keys where isValidNode BeamObjects[key].beam and findItem support_keys ( this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()
 	),
 	
@@ -1096,6 +1115,19 @@ struct SupportManager_v
 	),
 
 
+	
+	/** Remove deleted nodes
+	 */
+	function _removeDeletedNodes =
+	(
+		--format "\n"; print "SupportManager_v._removeDeletedNodes()"
+		for key in SupportObjects.keys where not isValidNode SupportObjects[key].support_obj do removeDictValue SupportObjects key
+
+		for key in BeamObjects.keys where not isValidNode BeamObjects[key].beam do removeDictValue BeamObjects key
+		
+		for key in SourceObjects.keys where not isValidNode SourceObjects[key].obj do removeDictValue SourceObjects key
+	),
+	
 	/*------------------------------------------------------------------------------
 	
 		GETTERS

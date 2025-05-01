@@ -1,6 +1,9 @@
+/** Search for near objects by radius
+  *	
+  */
 struct SearchForNearObjectsByRadius_v
 (
-	radius,
+	radius, 
 	--cell_size = 100.0,
 	cell_size = 10.0,
 	
@@ -16,7 +19,9 @@ struct SearchForNearObjectsByRadius_v
     */
     function findClosestPairs supports =
     (
- 		/** 
+ 		-- format "\n"; print "SearchForNearObjectsByRadius_v.findClosestPairs()"
+		-- format "radius: %\n" radius
+		/** 
 		* Compare two distances for sorting
 		*/
 		function compareDistanceAsc a b = if a[1] < b[1] then -1 else if a[1] > b[1] then 1 else 0
@@ -34,6 +39,7 @@ struct SearchForNearObjectsByRadius_v
 			is_duplicate --return
 		)
 		
+		
 		max_connections_per_object = SUPPORT_OPTIONS.max_connections
 
         distance_matrix = for i = 1 to supports.count collect #()
@@ -42,17 +48,21 @@ struct SearchForNearObjectsByRadius_v
 
 		 if radius != undefined then
 		(
-			cell_size = radius * 3 -- value: 3 makes most less iterations of loops in this.getObjectsInRadius()
+			--cell_size = radius * 3 -- value: 3 makes most less iterations of loops in this.getObjectsInRadius()
+			cell_size = ( radius * 3 ) as float -- value: 3 makes most less iterations of loops in this.getObjectsInRadius()
 
 			_grid = this.buildSpatialGrid supports
 		 )
-
+		-- format "_GRID: %\n" _grid
         for i = 1 to supports.count do
         (
             support = supports[i]
+			-- format "\n------------------------------------\n"
+			-- format "support.name: %\n" support.name
 			
-            --other_supports = if radius != undefined then  this.getObjectsInRadius _grid support.position radius else supports
-            other_supports = supports
+            other_supports = if radius != undefined then  this.getObjectsInRadius _grid support.position radius else supports
+			-- format "OTHER_SUPPORTS: %\n" other_supports
+            --other_supports = supports
 
             distances = for j = 1 to other_supports.count where other_supports[j] != support collect #((distance support.position other_supports[j].position), other_supports[j])
 
@@ -116,13 +126,20 @@ struct SearchForNearObjectsByRadius_v
         center_cell_z = floor (center_pos.z / cell_size)
 
         for x = (center_cell_x - cell_radius) to (center_cell_x + cell_radius) do (
+			-- format "x: %\n" x
             for y = (center_cell_y - cell_radius) to (center_cell_y + cell_radius) do (
+				-- format "y: %\n" y
                 for z = (center_cell_z - cell_radius) to (center_cell_z + cell_radius) do (
+					-- format "z: %\n" z
                     cell_key_str = "cell_" + (x as string) + "_" + (y as string) + "_" + (z as string)
                     cell_key = (cell_key_str as name)
 
                     if HasDictValue _grid cell_key do (
                         for obj in _grid[cell_key] do (
+							-- format "\n"
+							-- format "radius: %\n" radius
+							-- format "distance: %\n" (distance obj.position center_pos)
+							-- format "TEST: %\n" (distance obj.position center_pos <= radius )
                             if distance obj.position center_pos <= radius do (
                                 append result obj
                             )
@@ -141,17 +158,17 @@ struct SearchForNearObjectsByRadius_v
     */
     function supportHasMaxConnections support =
     (
-        format "\n------------------------------------------------------------\n"
-        format "\n\n"; print "BeamGenerator_v.supportHasMaxConnections()"
-        format "support: %\n" support.name
+        -- format "\n------------------------------------------------------------\n"
+        -- format "\n\n"; print "BeamGenerator_v.supportHasMaxConnections()"
+        -- format "support: %\n" support.name
         max_connections = SUPPORT_OPTIONS.max_connections
-        format "max_connections: %\n" max_connections
+        -- format "max_connections: %\n" max_connections
 
         if classOf max_connections == integer and max_connections > 0 then
         (
             beams_of_support = SUPPORT_MANAGER.getObjectsByType support type:#BEAM
-            format "BEAMS_OF_SUPPORT: %\n" beams_of_support.count
-            format "TEST: %\n" (beams_of_support.count >= max_connections)
+            -- format "BEAMS_OF_SUPPORT: %\n" beams_of_support.count
+            -- format "TEST: %\n" (beams_of_support.count >= max_connections)
             beams_of_support.count >= max_connections
         )
         else

@@ -5,13 +5,13 @@ struct BeamObject_v
 	/* construct */
 	support_A, -- support node
 	support_B, -- support node
+	sync_key,
 
 	/* required */
 	beam_key,
 
 	/* properties */
 	beam,
-	sync_key,
 
 	/* private */
 	/* dependency */

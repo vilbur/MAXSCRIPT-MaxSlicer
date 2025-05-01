@@ -409,7 +409,7 @@ struct SourceObject_v
 			this.updateNormals (Supports)
 
 		
-		for index in Supports.keys where not Supports[index].isRaft() do
+		for index in Supports.keys where not Supports[index].isRaft() and isValidNode Supports[index].support_obj do
 		(
 			Support = Supports[index]
 			
@@ -462,6 +462,7 @@ struct SourceObject_v
 	),
 
 	/** Get support nodes of given type
+	  * isValidNode is check beacuse of deleted nodes stays in script for case of undo action and objects reappears.
 	  *
 	  * @param #SUPPORT|#RAFT Get only supports or rafts. Get both if unsupplied
 	  *
@@ -470,11 +471,11 @@ struct SourceObject_v
 	function getSupportNodes obj_type: =
 	(
 		--format "\n"; print "SourceObject_v.getSupportNodes()"
-		if obj_type != unsupplied then
-			for SupportObjectData in Supports where SupportObjectData.value.obj_type == obj_type collect SupportObjectData.value.support_obj --return
+		if obj_type == unsupplied then
+			for key in Supports.keys where isValidNode Supports[key].support_obj collect Supports[key].support_obj
 
 		else
-			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
+			for key in Supports.keys where Supports[key].obj_type == obj_type and isValidNode Supports[key].support_obj collect Supports[key].support_obj
 	),
 
 	/** Set verts pos by supports

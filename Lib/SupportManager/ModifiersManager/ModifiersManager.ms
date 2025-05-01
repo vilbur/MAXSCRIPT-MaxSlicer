@@ -29,7 +29,7 @@ struct ModifiersManager_v
 		--format "\n-----------------------------------------\n"
 		--format "\n"; print "ModifiersManager_v.addModifiers()"
 		--format "_objects: %\n" _objects
-		--format "objects_exists: %\n" objects_exists
+		format "objects_exists: %\n" objects_exists
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
 		
 		this._objects =	_objects

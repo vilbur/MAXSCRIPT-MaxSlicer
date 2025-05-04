@@ -335,10 +335,12 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		 -- format "\n"; print "SupportManager_v.updateSourceObject()"
+		  format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 		--this._removeDeletedNodes()
 
+		
+		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 		--format "SYNC_KEYS: %\n" SYNC_KEYS
 		
@@ -347,7 +349,6 @@ struct SupportManager_v
 		(
 			SourceObject = SourceObjects[sync_key]
 			
-			SourceObject.removeDeletedNodes()
 
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
@@ -426,7 +427,7 @@ struct SupportManager_v
 	/** Rebuild supports
 	 */
 	function resetSupports support_nodes =
-	(f
+	(
 		--format "\n"; print "SupportManager_v.resetSupports()"
 		--format "SUPPORT_NODES: %\n" support_nodes
 	

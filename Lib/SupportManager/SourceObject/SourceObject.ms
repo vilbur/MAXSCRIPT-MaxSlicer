@@ -39,7 +39,8 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v.generateSupports()"
 		--format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
-
+		--this._keepMinZposition()
+		
 		SupportObjectsNew = #()
 
 		this.removeDeletedNodes()
@@ -615,24 +616,24 @@ struct SourceObject_v
 		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
 		for vert in supports_keys do
 			setUserPropVal Supports[vert].support_obj "NORMAL_WORLD" Normals.normals_world[vert]
-			
 	),
-
-	--/** test if obj rotation changed in X and Y axises
-	-- */
-	--function _isObjRotationChanged =
-	--(
-	--	--format "\n"; print "SourceObject_v._isObjRotationChanged()"
-	--
-	--	current_rotation = this._getRoundedObjectRotation ( quatToEuler2 obj.rotation.controller.value )
-	--
-	--	rotation_changed = current_rotation != obj_rotation
-	--
-	--	obj_rotation = current_rotation
-	--
-	--	rotation_changed --return
-	--),
-
+	
+--	/** Keep min zposition
+--	 */
+--	function _keepMinZposition =
+--	(
+--		--format "\n"; print "SourceObject_v._keepMinZposition()"
+--		
+--		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+--		
+--		if (obj_min_z = bbox[1].z) != 10 then
+--		(
+--			mini_z_pos = 10
+--			
+--			obj.pos.z -= obj_min_z - mini_z_pos
+--		)
+-- 	),
+	
 	/** Get rounded object rotation
 	 *
 	 * Coordinates are changing little bit on unchaged axises beacause of "high precision" of Max values

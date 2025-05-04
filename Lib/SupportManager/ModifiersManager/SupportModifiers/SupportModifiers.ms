@@ -75,7 +75,7 @@ struct SupportModifiers_v
 			sweep_mod.yOffset = 0
 
 			sweep_mod.angle = 0
-			sweep_mod.SmoothSection = off
+			sweep_mod.SmoothSection = on
 			sweep_mod.SmoothPath = off
 			sweep_mod.PivotAlignment = 4
 
@@ -90,8 +90,8 @@ struct SupportModifiers_v
 		sweep_mod.CurrentBuiltInShape = 4 -- Set cylinder
 
 		/* GENERATE MATERIAL ID */
-		sweep_mod.UseSectionIDs	= false
-		sweep_mod.UsePathIDs	= true
+		sweep_mod.UseSectionIDs	= off
+		sweep_mod.UsePathIDs	= on
 
 		sweep_mod --return
 	),
@@ -145,9 +145,9 @@ struct SupportModifiers_v
 		/* UNSMOOTH OBJECT */
 		chamfer_mod.smooth 	= true
 
-		chamfer_mod.SmoothType = 0
+		chamfer_mod.SmoothType = 1 -- 0: entrire object | 1: Chamfer only
 
-		chamfer_mod.smooththreshold = 0
+		chamfer_mod.smooththreshold = 35
 
 		chamfer_mod.materialoption = case materialoption of -- CHAMFER MATERIAL
 									(

@@ -24,7 +24,8 @@ struct SourceObjectTransformEventBinder_v
 	transform_data = Dictionary #STRING,
 	
 	delay_timer,
-	
+    min_limit = [0,0,0],
+    max_limit = [100,100,100],
 	/* private */
 	/* dependency */
 	/* reference */
@@ -39,23 +40,37 @@ struct SourceObjectTransformEventBinder_v
 		--format "\n"; print "SourceObjectTransform_v.bindSourceObjectTransformEvent()"
 		--format "source_obj: %\n" source_obj
 		
+		
+		
 		this._setBindedObjects(source_obj)
 		
+	
 		for obj in binded_objects where transform_data[this._getPointer obj] == undefined do 
-			this._setTransformData(obj)
+			this._setTransformData(obj)	
 			
 		deleteAllChangeHandlers id:#onSourceObjectTransform
 		
 		/* DO THIS WHEN NODES CHANGES TRANSFORM */ 
-		when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
+		--when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
+		when transform binded_objects changes id:#onSourceObjectTransform obj do
 		(
-			--format "when transform binded_objects changes: %\n" obj
+			
+			bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+			
+			mini_z_pos = SUPPORT_OPTIONS.base_height * 2
+			
+			obj.position.z = mini_z_pos + ( obj.position.z - bbox[1].z )
+	
+			transform_data[this._getPointer obj][#POS_Z] = obj.position.z
+			
+			
+			format "when transform binded_objects changes: %\n" obj
 
 			appendIfUnique moved_objects obj
 			
 			if this.delay_timer == undefined then
 			(
-				pauseSupportTransformEvent()
+				--pauseSupportTransformEvent()
 				
 				this._startObjectTransformTimeout()
 			)
@@ -95,6 +110,8 @@ struct SourceObjectTransformEventBinder_v
 	),
 	
 	/** Set binded object
+	  
+	 * @return Dictionary KEYS: #POS_Z, #ROTATION
 	 */
 	function _setTransformData obj =
 	(

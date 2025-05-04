@@ -78,7 +78,6 @@ function bindSupportToTransformEvent supports =
 	--format "COUNT: %\n" SUPPORTS.count
 
 
-	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
 
 	if classOf supports == Array then
 		join SUPPORTS_BINDED supports
@@ -86,7 +85,9 @@ function bindSupportToTransformEvent supports =
 	else
 		append SUPPORTS_BINDED supports
 
-	SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED	
+	SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED
+	
+	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
 		
 	deleteAllChangeHandlers id:#updateSupportsEvent
 

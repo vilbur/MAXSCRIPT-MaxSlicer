@@ -150,12 +150,19 @@ struct SupportRaft_v
 	 */
 	function _testHitOfSourceObject max_distance =
 	(
-		-- format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
+		format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
+		format "max_distance: %\n" max_distance
 		
 		ray_pos = Support.points[1]
 		 
 		hit = Support.intersectRaySourceObject (ray_pos)  ( Support.dir_vector )
 
+		--format "POS: %\n" pos
+		--format "HIT: %\n" hit
+		if hit != undefined then
+			format "DISTANCE: %\n" ( distance ray_pos hit.pos )
+		
+		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and distance ray_pos hit.pos > max_distance then
 			hit = undefined

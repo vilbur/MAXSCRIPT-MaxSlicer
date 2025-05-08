@@ -59,12 +59,12 @@ pos_z = 10
 select_verts = #{}
  
 -- select_verts += verts_colors["red"]
-select_verts += verts_colors["yellow"]
-select_verts += verts_colors["orange"]
-select_verts += verts_colors[clr_pink]
+-- select_verts += verts_colors["yellow"]
+-- select_verts += verts_colors["orange"]
+-- select_verts += verts_colors[clr_pink]
 select_verts += verts_colors[clr_cyan]
-select_verts += verts_colors["green"]
-select_verts += verts_colors[clr_blue]
+-- select_verts += verts_colors["green"]
+-- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then

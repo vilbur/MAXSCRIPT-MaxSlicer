@@ -7,7 +7,7 @@ function selectSupportsByBeamsCount count =
 	_objects = (if selection.count > 0 then selection else objects) as Array
 
 	--supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-	supports = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
+	supports = SUPPORT_MANAGER.getSupportAndRaftObjects ( selection as Array )
 
 	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
 
@@ -147,7 +147,7 @@ toolTip:	"Select supports which are NOT on ground"
 
 		--supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
 		
-		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
+		supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( selection as Array ) get_nodes:true
 
 		supports_on_ground = for support in supports_and_rafts where support.min.z as integer != 0 collect support
 
@@ -177,7 +177,7 @@ icon:	"tooltip:SELECT SUPPORTS AND RAFTS BY DIRECTION.\nUse current selection, o
 		objs_input = if selection.count > 0 then selection as Array else visible_objects
 			
 		
-		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( objs_input)
+		supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( objs_input) get_nodes:true
 
 		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" == #DOWN collect support
 
@@ -207,7 +207,7 @@ toolTip:	"Direction NORMAL & CUSTOM"
 		objs_input = if selection.count > 0 then selection as Array else visible_objects
 			
 		
-		supports_and_rafts = SUPPORT_MANAGER.getSupportsAndRafts ( objs_input)
+		supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( objs_input) get_nodes:true
 
 		filtered = for support in supports_and_rafts where getUserPropVal support "DIRECTION" != #DOWN collect support
 

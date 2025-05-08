@@ -70,14 +70,18 @@ struct ModifiersManager_v
 	 */
 	function _setSweepProperties obj =
 	(
-		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		format "BASE_WIDTH: %\n" (SUPPORT_OPTIONS.getOption #BAR_WIDTH)
+
 		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
+		
+		
 		interpolation_Steps = 4
 		
 		max modify mode
 
 		try(
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH / 2.0
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = this._getSweepRadius()
 			
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
@@ -85,6 +89,14 @@ struct ModifiersManager_v
 			--format "****************\n"
 			
 		)
+	),
+	
+	/** Get sweep radius
+	 */
+	function _getSweepRadius =
+	(
+		--format "\n"; print "ModifiersManager_v._getSweepRadius()"
+		SUPPORT_OPTIONS.getOption #BAR_WIDTH / 2.0
 	),
 
 	/** Update modifier by value in SUPPORT_OPTIONS
@@ -139,7 +151,7 @@ struct ModifiersManager_v
 			
 			case (classOf source_mod) of
 			(
-				(sweep):	source_mod[#Cylinder_Section].radius	= val
+				(sweep):	source_mod[#Cylinder_Section].radius	= this._getSweepRadius()
 			
 				(Chamfer ):	source_mod.amount	= val
 				(Face_Extrude ):	source_mod.amount	= val

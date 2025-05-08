@@ -350,16 +350,15 @@ struct SupportObject_v
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
-		 -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
-			-- format "foot_enabled: %\n" foot_enabled
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
 		
 			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
-			 -- format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
+			  --format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
 			
 			/* CREATE FOOT */ 
 			if SupportLeg.hit_leg == undefined and foot_exists then 
@@ -462,7 +461,8 @@ struct SupportObject_v
 	 */
 	function intersectRaySourceObject pos direction =
 	(
-		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		format "DIRECTION: %\n" direction
 
 		/* Shift origin point perpendicular to a vector and project to plane
 			
@@ -497,12 +497,12 @@ struct SupportObject_v
 		
 		half_of_bar_width = this.bar_width / 2
 		
-		pos += 0.1 * direction
+		ray_pos = pos + (0.1 * direction)
 		
 		if source_obj != undefined then
 		(
 			/* TRY HIT ON CENTER OF SUPPORT */ 
-			if ( hit = intersectRay source_obj ( Ray pos direction) ) == undefined then
+			if ( hit = intersectRay source_obj ( Ray ray_pos direction) ) == undefined then
 			(
 				
 				/* TRY HITS ON BORDER OF SUPPORT */ 
@@ -510,7 +510,7 @@ struct SupportObject_v
 				(
 					shift_distance = if mod i 2 == 0 then half_of_bar_width * -1 else half_of_bar_width
 					
-					pos_shifted = shiftPointPerpendicularOnPlane pos direction shift_distance planes[i]
+					pos_shifted = shiftPointPerpendicularOnPlane ray_pos direction shift_distance planes[i]
 
 					hit = intersectRay source_obj ( Ray pos_shifted direction)
 				)

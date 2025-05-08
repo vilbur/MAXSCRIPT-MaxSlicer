@@ -18,7 +18,7 @@ struct SupportModifiers_v
 	 */
 	function _initModifiers =
 	(
-		--format "\n"; print "SupportModifiers_v.initModifiers()"
+		format "\n"; print "SupportModifiers_v.initModifiers()"
 
 		OPTIONS = SUPPORT_OPTIONS
 

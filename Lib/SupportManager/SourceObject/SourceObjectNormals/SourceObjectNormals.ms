@@ -46,13 +46,17 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v.setWorldSpaceVertexNormals()"
+		format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
+		format "verts.numberset : %\n" verts.numberset 
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
-		if normals_world == undefined then
-			normals_world = deepCopy normals_local
+		--timer_TEST = timeStamp()
+		--if normals_world == undefined then
+			--normals_world = deepCopy normals_local
+			--normals_world = deepCopy normals_local
+		--format "TEST: % ms\n" (( timeStamp()) - timer_TEST)
 
 		--for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
 			
@@ -74,7 +78,7 @@ struct SourceObjectNormals_v
 	 */
 	function isNormalValid vert =
 	(
-		--format "\n"; format "SourceObject_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
+		--format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
 		
 		if not (is_normal_valid = normals_world[vert].z <= 0 ) then
 			format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
@@ -159,9 +163,14 @@ struct SourceObjectNormals_v
 		--(
 		--)
 		normals_local = this.all_verts as Array
+		normals_world = this.all_verts as Array
 
 		for i = 1 to normals_local.count do
+		(
 			normals_local[i] = point3 0 0 0
+			
+			normals_world[i] = point3 0 0 0
+		)
 	),
 
 	/**

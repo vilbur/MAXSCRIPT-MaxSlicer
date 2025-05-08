@@ -346,10 +346,11 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
 	(
-		-- format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
+		 -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
@@ -358,12 +359,13 @@ struct SupportObject_v
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
 		
 			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
+			 -- format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
 			
 			/* CREATE FOOT */ 
 			if SupportLeg.hit_leg == undefined and foot_exists then 
 				SupportFoot.createFoot()
 		)
-		
+
 		this._setFootExists()
 	),
 	
@@ -461,51 +463,62 @@ struct SupportObject_v
 	function intersectRaySourceObject pos direction =
 	(
 		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
-		-- format "pos: %\n" pos
-		-- format "direction: %\n" direction
-		
-		/** Modify pos
-		 */
-		function modifyPos _pos axis val =
+
+		/* Shift origin point perpendicular to a vector and project to plane
+			
+			DEV EXAMPLE: --"./_Dev/shiftPointPerpendicularOnPlane_dev.ms"
+		*/
+		function shiftPointPerpendicularOnPlane origin_point direction_vector shift_distance plane =
 		(
-			-- format "\n"; print ".modifyPos()"
-			_pos = copy _pos
-
-			_pos[axis] += val
-
-			_pos --return
+			-- Project direction vector to selected plane
+			case plane of
+			(
+				#XY: projected_vector = normalize [direction_vector.x, direction_vector.y, 0]
+				#XZ: projected_vector = normalize [direction_vector.x, 0, direction_vector.z]
+				#YZ: projected_vector = normalize [0, direction_vector.y, direction_vector.z]
+				default: (format "Unsupported plane: %\n" plane; projected_vector = [1,0,0])
+			)
+			
+			-- Calculate perpendicular vector within the plane
+			case plane of
+			(
+				#XY: perp_vector = normalize [-projected_vector.y, projected_vector.x, 0]
+				#XZ: perp_vector = normalize [-projected_vector.z, 0, projected_vector.x]
+				#YZ: perp_vector = normalize [0, -projected_vector.z, projected_vector.y]
+			)
+			
+			-- Apply shift
+			origin_point + (perp_vector * shift_distance) -- return
 		)
 
-		local hit_result
+		hit = undefined
 
+		planes = #( #XY, #XY, #XZ, #XZ )
+		
+		half_of_bar_width = this.bar_width / 2
+		
+		pos += 0.1 * direction
+		
 		if source_obj != undefined then
 		(
-			--half_of_bar_width = this.bar_width / 2
-			half_of_bar_width = this.bar_width 
-	
-			pos += 0.1 * direction -- shift ray pos along vector outside of object
-	
-			bar_bbox = #(
-				modifyPos pos 1 half_of_bar_width,
-				modifyPos pos 1 (half_of_bar_width * -1),
-				modifyPos pos 2 half_of_bar_width,
-				modifyPos pos 2 (half_of_bar_width * -1),
-				pos
-			)
-	
-			for pos in bar_bbox do
+			/* TRY HIT ON CENTER OF SUPPORT */ 
+			if ( hit = intersectRay source_obj ( Ray pos direction) ) == undefined then
 			(
-				if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
-					hit_result = copy hit
 				
+				/* TRY HITS ON BORDER OF SUPPORT */ 
+				for i = 1 to 4 while hit == undefined do 
+				(
+					shift_distance = if mod i 2 == 0 then half_of_bar_width * -1 else half_of_bar_width
+					
+					pos_shifted = shiftPointPerpendicularOnPlane pos direction shift_distance planes[i]
+
+					hit = intersectRay source_obj ( Ray pos_shifted direction)
+				)
 			)
-		)
+ 		)
 
-		hit_result --return
+		hit --return
 	),
-
-
-
 
 	/** Has splines
 	 */

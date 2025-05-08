@@ -335,7 +335,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		  format "\n"; print "SupportManager_v.updateSourceObject()"
+		  -- format "\n"; print "SupportManager_v.updateSourceObject()"
 		--format "what_to_update:    %\n" what_to_update
 		--this._removeDeletedNodes()
 
@@ -583,8 +583,14 @@ struct SupportManager_v
 		if (sync_key = this.isSourceObject obj) != false then
 		(
 			/*  DELETE SUPPORTS & RAFT NODES */
+			--for support_key in SourceObjects[sync_key].Supports.keys do
 			for support_key in SourceObjects[sync_key].Supports.keys do
-				delete SourceObjects[sync_key].Supports[support_key].support_obj
+			(
+				support_obj = SourceObjects[sync_key].Supports[support_key].support_obj
+				
+				if isValidNode support_obj then
+					delete SourceObjects[sync_key].Supports[support_key].support_obj
+			)
 
 			/* REMOVE SOURCE OBJECT FROM MANAGER */ 
 			------RemoveDictValue SourceObjects sync_key

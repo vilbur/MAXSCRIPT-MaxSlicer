@@ -1,9 +1,25 @@
+
+/** KEEP MODIFIERS UNIQUE
+ */
+macroscript	_print_modifiers_keep_unique
+category:	"_3D-Print"
+buttontext:	"K E E P   I N S T A N C E S"
+icon:	"across:1|control:checkbox|id:CBX_keep_instances|height:28"
+(
+	on execute do
+	(
+		--format "\n"
+		format "EventFired:	% \n" EventFired
+	)
+
+)
+
 /** OFFSET SEEP MODIFIER
  */
 macroscript	_print_platform_offset_x
 category:	"_3D-Print"
 buttontext:	"Offset Bar"
-icon:	"control:spinner|across:3|range:[ -999, 100, 0 ]|width:78|offset:[ 0, 0 ]|ini:false|tooltip:Modify offset of sweep  modifier #BAR_WIDTH.\n\nWorks on SUPPORTS, RAFTS & BEAMS.\n\nCTRL: Modify Y offset"
+icon:	"across:1|align:#LEFT|control:spinner|range:[ -999, 100, 0 ]|width:78|offset:[ 0, 0 ]|ini:false|tooltip:Modify offset of sweep  modifier #BAR_WIDTH.\n\nWorks on SUPPORTS, RAFTS & BEAMS.\n\nCTRL: Modify Y offset"
 (
 	on execute do
 	(

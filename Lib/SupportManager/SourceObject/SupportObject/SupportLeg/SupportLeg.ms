@@ -5,9 +5,7 @@ struct SupportLeg_v
 	/* construct */
 	Support, -- parent class
 
-
 	/* required */
-	
 
 	/* properties */
 	hit_leg,
@@ -29,19 +27,6 @@ struct SupportLeg_v
 		
 		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos (pos_z)
 	),
-	
-	--/** Update leg
-	-- */
-	--function updateLeg =
-	--(
-	--	format "\n"; print "SupportLeg_v.updateLeg()"
-	--	
-	--	this._alignKnotToPreviousKnot index:3 pos_z:0
-	--	--this._alignKnotToPreviousKnot(3)(Support.base_height)
-	--	
-	--	--this._alignKnotToPreviousKnot(4)(0)
-	--),
-
 
 	private
 	
@@ -75,7 +60,7 @@ struct SupportLeg_v
 	function _testHitOfSourceObject =
 	(
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
-		hit = Support.intersectRaySourceObject ( Support.points[2]) [0,0,-1]
+		hit = Support.intersectRaySourceObject ( Support.points[2] ) [0,0,-1]
 		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and hit.pos.z <= 0 then
@@ -92,8 +77,5 @@ struct SupportLeg_v
 	on create do
 	(
 		--format "\n"; print "SupportLeg.onCreate()"
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
-
 )

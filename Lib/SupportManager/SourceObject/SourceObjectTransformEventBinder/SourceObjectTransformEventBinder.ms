@@ -54,23 +54,14 @@ struct SourceObjectTransformEventBinder_v
 		--when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 		when transform binded_objects changes id:#onSourceObjectTransform obj do
 		(
-			
-			bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-			
-			mini_z_pos = SUPPORT_OPTIONS.base_height * 2
-			
-			obj.position.z = mini_z_pos + ( obj.position.z - bbox[1].z )
-	
-			transform_data[this._getPointer obj][#POS_Z] = obj.position.z
-			
-			
-			format "when transform binded_objects changes: %\n" obj
+			if SUPPORT_OPTIONS.keep_source_minz_z_pos then
+				this._keepMinZposition(obj)
 
 			appendIfUnique moved_objects obj
 			
 			if this.delay_timer == undefined then
 			(
-				--pauseSupportTransformEvent()
+				pauseSupportTransformEvent()
 				
 				this._startObjectTransformTimeout()
 			)
@@ -113,21 +104,35 @@ struct SourceObjectTransformEventBinder_v
 	  
 	 * @return Dictionary KEYS: #POS_Z, #ROTATION
 	 */
-	function _setTransformData obj =
+	function _setTransformData source_obj =
 	(
 		--format "\n"; print "SourceObjectTransform_v._setTransformData()"
-		--format "obj: %\n" obj
-		--binded_objects[getHandleByAnim obj] = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
-		transform_data[this._getPointer obj] = Dictionary #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+		--format "source_obj: %\n" source_obj
+		--binded_objects[getHandleByAnim source_obj] = Dictionary #( #OBJECT, source_obj ) #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
+		transform_data[this._getPointer source_obj] = Dictionary #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
 	),
 	
 	private
 	
+	/** Keep min zposition
+	 */
+	function _keepMinZposition source_obj =
+	(
+		--format "\n"; print "SourceObject_v._keepMinZposition()"
+		bbox	= nodeGetBoundingBox source_obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+		
+		mini_z_pos = SUPPORT_OPTIONS.base_height + ( SUPPORT_OPTIONS.layer_height * SUPPORT_OPTIONS.base_to_support_gap ) 
+		
+		source_obj.position.z = mini_z_pos + ( source_obj.position.z - bbox[1].z )
+
+		transform_data[this._getPointer source_obj][#POS_Z] = source_obj.position.z
+ 	),
+
 	/** Get pointer
 	 */
-	function _getPointer obj =
+	function _getPointer source_obj =
 	(
-		(getHandleByAnim obj) as string --return
+		(getHandleByAnim source_obj) as string --return
 	),
 
 	/**

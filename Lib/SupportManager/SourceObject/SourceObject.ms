@@ -74,6 +74,7 @@ struct SourceObject_v
 		Normals.saveNormalsToUserProps()
 
 		Normals.setWorldSpaceVertexNormals(verts_process)
+
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
@@ -617,22 +618,6 @@ struct SourceObject_v
 		for vert in supports_keys do
 			setUserPropVal Supports[vert].support_obj "NORMAL_WORLD" Normals.normals_world[vert]
 	),
-	
---	/** Keep min zposition
---	 */
---	function _keepMinZposition =
---	(
---		--format "\n"; print "SourceObject_v._keepMinZposition()"
---		
---		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
---		
---		if (obj_min_z = bbox[1].z) != 10 then
---		(
---			mini_z_pos = 10
---			
---			obj.pos.z -= obj_min_z - mini_z_pos
---		)
--- 	),
 	
 	/** Get rounded object rotation
 	 *

@@ -2,7 +2,7 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 function testVectorInCone v1 v2 angle_treshold =
 (
-	createAlignedCylinder v2
+	createCylinderByVector v2
 	
 	dot_product = dot (normalize v1) (normalize v2)
 	
@@ -20,7 +20,7 @@ function testVectorInCone v1 v2 angle_treshold =
 )
 
 
-function createAlignedCylinder align_vector position:[0,0,0] height:100 radius:1 =
+function createCylinderByVector align_vector position:[0,0,0] height:100 radius:1 =
 (
 
     -- Normalize input direction

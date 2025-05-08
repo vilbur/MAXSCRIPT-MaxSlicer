@@ -4,7 +4,7 @@
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T S"
-icon:	"ACROSS:5|height:40|width:86|offset:[ 0, 6 ]|tooltip:GEENERATE SUPPORTS"
+icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:GEENERATE SUPPORTS"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0

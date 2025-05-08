@@ -13,19 +13,25 @@ struct SupportOptions_v
 	/* construct */
 	rollouts, -- rollout where values are store in UI
 	export_size = 1,
-
 	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
-	normal_length	= 3,
 
 	second_point_direction	= 1, -- 1:NORMAL|2:DOWN
 
 	use_nth_vertex	= 1,
 
-	lock_normal_length = true,
-
-	/* SUPPORT OBJECT OPTIONS */
 	layer_height = 0.05,
+	
+
+	/* SOURCE OBJECT */ 
+	keep_source_minz_z_pos = true,
+	base_to_support_gap = 10, -- how many layers is prented between support base and source object ( avoid glue of supports and printed object )
+	
+	
+	/* SUPPORT OBJECT OPTIONS */
+	lock_normal_length = true,
+	normal_length	= 3,
+
 
 	bottom_layers_count = 15,
 

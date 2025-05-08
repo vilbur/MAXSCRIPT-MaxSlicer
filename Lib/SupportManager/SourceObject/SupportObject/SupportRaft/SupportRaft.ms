@@ -26,7 +26,7 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		 format "\n"; print "SupportRaft_v.createRaft()"
+		 -- format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
@@ -40,7 +40,7 @@ struct SupportRaft_v
 		
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
 		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-		format "Support.dir_vector: %\n" Support.dir_vector
+		-- format "Support.dir_vector: %\n" Support.dir_vector
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 
@@ -53,11 +53,6 @@ struct SupportRaft_v
 		--format "hit_raft: %\n" hit_raft
 		if hit_raft == undefined then
 		(
-			--format "IS SPACE FOR RAFT AND LEG\n"
-			--format "Support.points: %\n" Support.points
-			--format "Support.min_foot_pos: %\n" Support.min_foot_pos
-			--format "Support.min_leg_pos:  %\n" Support.min_leg_pos
-			
 			/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 			if not raftHasFullLenght() then
 				this._extendSecondPoint( normal_length )
@@ -155,7 +150,7 @@ struct SupportRaft_v
 	 */
 	function _testHitOfSourceObject max_distance =
 	(
-		--format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
+		-- format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
 		
 		ray_pos = Support.points[1]
 		 

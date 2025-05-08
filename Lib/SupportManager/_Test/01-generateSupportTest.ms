@@ -78,14 +78,14 @@ SUPPORT_OPTIONS	= SupportOptions_v()
 
 /* SET BAR WIDTH */ 
 --SUPPORT_OPTIONS.bar_width	= 1.5
--- SUPPORT_OPTIONS.bar_width	= 2
+SUPPORT_OPTIONS.bar_width	= 2
 
 /* SET BASE HEIGHT  */ 
 -- SUPPORT_OPTIONS.base_height	= 2
 
 /* SET BASE WIDTH  */ 
 SUPPORT_OPTIONS.base_width	= 10
-SUPPORT_OPTIONS.base_width	= 5
+-- SUPPORT_OPTIONS.base_width	= 5
 
 
 /* SET TOP WIDTH */ 

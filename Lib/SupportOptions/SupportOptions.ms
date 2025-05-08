@@ -1,3 +1,5 @@
+filein( getFilenamePath(getSourceFileName()) + "/ModifierValue/ModifierValue.ms" )	--"./ModifierValue/ModifierValue.ms"
+
 /** SUPPORT_OPTIONS
   *
   *
@@ -13,6 +15,10 @@ struct SupportOptions_v
 	/* construct */
 	rollouts, -- rollout where values are store in UI
 	export_size = 1,
+	
+	/* DEPENDENCY */
+	ModifierValue = ModifierValue_v(),
+	
 	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
 
@@ -83,6 +89,27 @@ struct SupportOptions_v
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
 	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION, #MAX_CONNECTIONS, #BEAMS_COUNT ),
+
+	/** Get value of prop mutated for modifier
+	 */
+	function getOption prop_key =
+	(
+		--format "\n"; print "SupportOptions_v.getProp()"
+		
+		/* Mutate value for modifier */
+		val = case prop_key of
+		(
+			#BAR_WIDTH:	ModifierValue.getSweepRadius()
+			#BASE_WIDTH:	ModifierValue.getBaseWidthValue()
+			#DRAIN_WIDTH:	ModifierValue.getDrainWidth()
+			#CHAMFER_BASE:	ModifierValue.getChamferBaseValue()
+			#TOP_WIDTH:	ModifierValue.getChamferBarValue bar_width:bar_width
+		
+			default: getProperty this ( prop_key as string )
+		)
+		
+		val --return
+	),
 
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 
@@ -172,48 +199,19 @@ struct SupportOptions_v
 	function setOptionValue prop_key val =
 	(
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
-		--format "%: %\n" prop_key val
 		setProperty this prop_key val
-		--this.init()
 	),
 
-	/** Get value of prop mutated for modifier
-	 */
-	function getOption prop_key =
-	(
-		--format "\n"; print "SupportOptions_v.getProp()"
-		--function getChamferBarValue = (bar_width - top_width) / 2.0
-	
-		function getBaseWidthValue = if (base_width_value = (base_width - bar_width) / 2.0 ) > 0 then base_width_value else 0 -- base_width is always > 0
-		--function getBaseWidthValue = 5
-		
-		/* Mutate value for modifier */
-		val = case prop_key of
-		(
-			#BAR_WIDTH:	bar_width
-			#BASE_WIDTH:	getBaseWidthValue()
-			#DRAIN_WIDTH:	drain_width	/ 2.0
-			#CHAMFER_BASE:	base_height	/ 2.0
-			#TOP_WIDTH:	this.getChamferBarValue bar_width:bar_width
-
-			default: getProperty this ( prop_key as string )
-		)
-
-		--format "%: %\n" prop_key val
-
-		val --return
-	),
-
-	/** Get chamfer bar value
-	 */
-	function getChamferBarValue bar_width: =
-	(
-		--format "\n"; print "SupportOptions_v.getChamferBarValue()"
-		if bar_width == unsupplied then 
-			bar_width = this.bar_width
-		
-		(bar_width - top_width) / 2.0
-	),
+	--/** Get chamfer bar value
+	-- */
+	--function getChamferBarValue bar_width: =
+	--(
+	--	--format "\n"; print "SupportOptions_v.getChamferBarValue()"
+	--	if bar_width == unsupplied then 
+	--		bar_width = this.bar_width
+	--	
+	--	(bar_width - top_width) / 2.0
+	--),
 	
 	/** Get mat id
 	 */
@@ -335,14 +333,14 @@ struct SupportOptions_v
 		)
 	),
 
-	/** Set base height
-	  *
-	  */
-	function _setBaseHeight =
-	(
-		--format "\n"; print "SupportOptions_v._setBaseHeight()"
-		base_height = this.bottom_layers_count * this.layer_height / export_size
-	),
+	--/** Set base height
+	--  *
+	--  */
+	--function _setBaseHeight =
+	--(
+	--	--format "\n"; print "SupportOptions_v._setBaseHeight()"
+	--	base_height = this.bottom_layers_count * this.layer_height / export_size
+	--),
 
 	/**
 	 *

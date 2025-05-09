@@ -537,7 +537,7 @@ struct SupportManager_v
 		supports_by_source = this._sortObjectsBySourceObject(support_nodes)
 		--format "supports_by_source: %\n" supports_by_source
 
-		pauseSupportToTransformEvent()
+		pauseSupportTransformEvent()
 
 		with redraw off
 		
@@ -566,7 +566,7 @@ struct SupportManager_v
 
 		this.updateShapes()
 
-		resumeSupportToTransformEvent()
+		resumeSupportTransformEvent()
 	),
 
 	/*------------------------------------------------------------------------------

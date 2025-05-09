@@ -23,7 +23,7 @@ struct SupportLeg_v
 		--format "\n"; print "SupportLeg_v.createLeg()"
 		--format "pos_z: %\n" pos_z
 		
-		this._testHitOfSourceObject()
+		hit_leg = this._testHitOfSourceObject()
 		
 		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos (pos_z)
 	),
@@ -66,10 +66,18 @@ struct SupportLeg_v
 		if hit != undefined and hit.pos.z <= 0 then
 			hit = undefined
 
-			
-		hit_leg = if hit != undefined then hit.pos else undefined --return
 		
-		hit_leg --return	
+		if hit != undefined then
+		(
+			/* GET ONLY Z POSITION OF HIT - IT KEEPS LEG VERTICAL */ 
+			hit.pos.x = Support.points[2].x
+		
+			hit.pos.y = Support.points[2].y
+
+			hit.pos --return
+		)
+		else
+			undefined
 	),
 
 	/**

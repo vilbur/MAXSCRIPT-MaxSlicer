@@ -25,12 +25,13 @@ struct SupportModifiers_v
 		OPTIONS = SUPPORT_OPTIONS
 
 		/* SUPPORT MODIFIERS */
-		mods_support[7]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
-		mods_support[6]	= this._volSelectSetup	(Vol__Select	name:"select_base")	(OPTIONS.getMatId  #BASE )
-		mods_support[5]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH )
-		mods_support[4]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE )
-		mods_support[3]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
-		mods_support[2]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH )	--selection_option:#ALL  materialoption:#DIFFERENT
+		mods_support[8]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
+		mods_support[7]	= this._volSelectSetup	(Vol__Select	name:"select_base")	(OPTIONS.getMatId  #BASE )
+		mods_support[6]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH )
+		mods_support[5]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE )
+		mods_support[4]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
+		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH )	--selection_option:#ALL  materialoption:#DIFFERENT
+		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
 		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getModVal #EXTEND_TOP )
 
 		

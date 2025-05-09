@@ -153,7 +153,7 @@ generateSupportsOrRafts obj_type:#SUPPORT
 
 -- move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
 
-SUPPORT_OPTIONS.getOption
+SUPPORT_OPTIONS.getModVal
 all_supports = $'*-support-*'
 
 single_support = all_supports[all_supports.count]

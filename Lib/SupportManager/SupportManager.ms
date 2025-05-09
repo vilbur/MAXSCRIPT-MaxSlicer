@@ -420,7 +420,7 @@ struct SupportManager_v
 			
 			this.updateShapes()
 	
-			MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getOption #CHAMFER_BASE )
+			MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getModVal #CHAMFER_BASE )
 		)
 	),
 
@@ -813,7 +813,9 @@ struct SupportManager_v
 					
 			/* GET SUPPORTS OF SOURCE OBJECT */
 			if hierarchy or type == #SUPPORT or type == #RAFT  then
-				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 and SupportObjects[key].isRaft() == raft_test do
+				for key in SupportObjects.keys where isValidNode SupportObjects[key].support_obj \
+				and findItem source_keys SupportObjects[key].sync_key > 0 \
+				and SupportObjects[key].isRaft() == raft_test do
 					append objects_by_type SupportObjects[key].support_obj
 		)
 

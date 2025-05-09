@@ -92,7 +92,7 @@ struct SupportOptions_v
 
 	/** Get value of prop mutated for modifier
 	 */
-	function getOption prop_key =
+	function getModVal prop_key =
 	(
 		--format "\n"; print "SupportOptions_v.getProp()"
 		
@@ -115,11 +115,10 @@ struct SupportOptions_v
 	  * 
 	  * CONTROL ID >>> PROPERTY NAME 		E.G.: Rollout.BTN_prop_name >>> SupportOptions.prop_name
 	  * 
-	  * 
 	  */
 	function getValuesFromUi =
 	(
-		format "\n"; print "SupportOptions_v.getValuesFromUi()"
+		-- format "\n"; print "SupportOptions_v.getValuesFromUi()"
 
 		/** get property key from control id E.G.: "SPIN_prop_key" >>> "prop_key"
 		  * 
@@ -147,7 +146,7 @@ struct SupportOptions_v
 		--------------------------------------------------------------------------------*/
 		export_size = if ROLLOUT_export == undefined then
 		(
-			format "\n============= WARNING =============\n"
+			-- format "\n============= WARNING =============\n"
 
 			print "VilTools Exporter does not exists"
 			print "Export Size 1 is used"
@@ -178,8 +177,8 @@ struct SupportOptions_v
 	
 					this.setOptionValue (prop_key) (control_value)
 				)
-			else
-				format "SupportOptions_v.getValuesFromUi() - _rollout IS UNDEFINED" 
+			--else
+				-- format "SupportOptions_v.getValuesFromUi() - _rollout IS UNDEFINED" 
 		)
 	),
 

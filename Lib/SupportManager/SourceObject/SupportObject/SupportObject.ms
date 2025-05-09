@@ -95,6 +95,7 @@ struct SupportObject_v
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
+		
 		/* SET PARAMS */ 		
 		this.direction = direction
 		
@@ -345,12 +346,12 @@ struct SupportObject_v
 	/** Set support line points
 	 */
 	function _setSupportLinePoints =
-	(
-		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
+ 	(
+		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
-		format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		-- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
@@ -461,8 +462,8 @@ struct SupportObject_v
 	 */
 	function intersectRaySourceObject pos direction =
 	(
-		format "\n"; print "SupportObject_v.intersectRaySourceObject()"
-		format "DIRECTION: %\n" direction
+		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		-- format "DIRECTION: %\n" direction
 
 		/* Shift origin point perpendicular to a vector and project to plane
 			
@@ -668,13 +669,13 @@ struct SupportObject_v
 		-- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
-			setProperty this prop_key ( SUPPORT_OPTIONS.getOption prop_key )
+			setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
 		
-        --bar_width     = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-        --base_height   = SUPPORT_OPTIONS.getOption #BASE_HEIGHT
-        --normal_length = SUPPORT_OPTIONS.getOption #NORMAL_LENGTH
-        --foot_enabled  = SUPPORT_OPTIONS.getOption #FOOT_ENABLED
-        --top_width	  = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+        --bar_width     = SUPPORT_OPTIONS.getModVal #BAR_WIDTH
+        --base_height   = SUPPORT_OPTIONS.getModVal #BASE_HEIGHT
+        --normal_length = SUPPORT_OPTIONS.getModVal #NORMAL_LENGTH
+        --foot_enabled  = SUPPORT_OPTIONS.getModVal #FOOT_ENABLED
+        --top_width	  = SUPPORT_OPTIONS.getModVal #TOP_WIDTH
 		
 		--top_width   = SUPPORT_OPTIONS.getChamferBarValue()
 	),

@@ -72,7 +72,7 @@ struct IslandsCallbacks_v
 	 */
 	function onListboxSelectionEnd =
 	(
-		format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
+		-- format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
 		--format "EventFired	= % \n" EventFired
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
@@ -85,7 +85,7 @@ struct IslandsCallbacks_v
 			for index in selected_islands do
 			(
 				data = ISLANDS_SYSTEM.islands_data[index]
-				format "selected_island %: BOTTOM: %  TOP: %  NEW_ISLAND: %  WHOLE_ISLAND: % \n" index data[#BOTTOM] data[#TOP] data[#NEW_ISLAND] data[#WHOLE_ISLAND]
+				-- format "selected_island %: BOTTOM: %  TOP: %  NEW_ISLAND: %  WHOLE_ISLAND: % \n" index data[#BOTTOM] data[#TOP] data[#NEW_ISLAND] data[#WHOLE_ISLAND]
 			)
 
 			/* UPDATE SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */

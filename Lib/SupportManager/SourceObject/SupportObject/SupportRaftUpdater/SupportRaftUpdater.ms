@@ -78,7 +78,7 @@ struct SupportRaftUpdater_v
 		--format "\n"; print "SupportRaftUpdater_v.updateFoot()"
 		--format "foot_exists: %\n" foot_exists
 
-		chamfer_val = SUPPORT_OPTIONS.getOption #TOP_WIDTH
+		chamfer_val = SUPPORT_OPTIONS.getModVal #TOP_WIDTH
 
 		foot_just_added = false
 			

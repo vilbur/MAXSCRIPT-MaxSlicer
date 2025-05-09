@@ -35,7 +35,7 @@ struct SourceObjectNormals_v
 	 */
 	function setLocalVertexNormals verts =
 	(
-		format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		-- format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		this._initNormalsLocalArray()
 
 		if not this.loadNormalsLocal() then
@@ -46,21 +46,18 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
-		format "verts.numberset : %\n" verts.numberset 
+		-- format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
+		-- format "verts.numberset : %\n" verts.numberset 
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
 		--timer_TEST = timeStamp()
 		--if normals_world == undefined then
-			--normals_world = deepCopy normals_local
-			--normals_world = deepCopy normals_local
-		--format "TEST: % ms\n" (( timeStamp()) - timer_TEST)
+		--	normals_world = deepCopy normals_local
 
-		--for vert in verts do format "VERT: % LOCAL: % WORLD: %\n" vert normals_local[vert] normals_world[vert]
-			
 		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		
 	),
 	
 	/** Load normals local
@@ -78,12 +75,13 @@ struct SourceObjectNormals_v
 	 */
 	function isNormalValid vert =
 	(
+		--format "\n"; print "SourceObjectNormals_v.isNormalValid()"
 		--format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
+		is_normal_valid = normals_world[vert].z <= 0
+		--if not (is_normal_valid = normals_world[vert].z <= 0 ) then
+			-- format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
 		
-		if not (is_normal_valid = normals_world[vert].z <= 0 ) then
-			format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
-		
-		is_normal_valid --return
+		--is_normal_valid --return
 	),
 	
 	/** Save normals to user props
@@ -100,7 +98,7 @@ struct SourceObjectNormals_v
 	 */
 	function _updateLocalVertexNormalsByModifier verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
+		-- format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
 
 		eMod = Edit_Normals()
 
@@ -116,8 +114,9 @@ struct SourceObjectNormals_v
 
 			for normal in normal_ids do
 				local_normal += eMod.GetNormal normal node:obj
-
+				
 			normals_local[vert] = normalize local_normal
+			
 		)
 
 		deleteModifier selection eMod
@@ -151,7 +150,7 @@ struct SourceObjectNormals_v
 
 		for vert in verts do normals_local[vert] = normalize normals_local[vert]
 
-		format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
+		-- format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
 	),
 	
 	/** Set vertex normals empty array

@@ -6,8 +6,8 @@ struct ModifierValue_v
 	 */
 	function getSweepRadius =
 	(
-		format "\n"; print "ModifierValue_v.getSweepRadius()"
-		format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
+		-- format "\n"; print "ModifierValue_v.getSweepRadius()"
+		-- format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
 		SUPPORT_OPTIONS.bar_width / 2.0
 	),
 	

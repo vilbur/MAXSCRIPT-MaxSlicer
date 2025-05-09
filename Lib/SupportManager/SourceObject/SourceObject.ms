@@ -54,8 +54,7 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 
 		verts_sel	= getVertSelection obj.mesh
-
-		supports_exists = Supports.keys as BitArray
+ 		supports_exists = Supports.keys as BitArray
 
 		verts_by_colors = this._getVertsByColors()
 

@@ -322,7 +322,6 @@ struct SupportObject_v
 		
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
-	
 	),
 	
 	/** Post update
@@ -354,7 +353,7 @@ struct SupportObject_v
 		-- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
-		if points[2].z > 0 and SupportRaft.hit_raft == undefined then
+		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
 		
@@ -369,67 +368,67 @@ struct SupportObject_v
 		this._setFootExists()
 	),
 	
-	/** Convert SUPPORT to RAFT and vice versa
-	  *
-	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
-	  *
-	 */
-	function convertType to_type =
-	(
-		-- format "\n"; print "SupportObject_v.convert()"
-		-- format "TO_TYPE: %\n" to_type
+	--/** Convert SUPPORT to RAFT and vice versa
+	--  *
+	--  * @param #SUPPORT|#RAFT to_type type of obejct to covert
+	--  *
+	-- */
+	--function convertType to_type =
+	--(
+	--	-- format "\n"; print "SupportObject_v.convert()"
+	--	-- format "TO_TYPE: %\n" to_type
+	--
+	--	--function _getKey type = ( toUpper (type as string ) + "_KEY")
+	--	--
+	--	--/* SET PROPERTIES */ 
+	--	--this.obj_type = to_type
+	--	--
+	--	--this.hit_raft 	= undefined
+	--	--this.hit_leg	= undefined
+	--	----this.is_on_ground	= false
+	--	--
+	--	--
+	--	--/* GET TYPE OF ORIGIN OBJECT */ 
+	--	--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+	--	--
+	--	--
+	--	--/* REPLACE OBJECT PROPERTY DATA */ 
+	--	--deleteUserProp support_obj ( _getKey from_type  )
+	--	--
+	--	--setUserPropVal support_obj ( _getKey to_type  ) support_key
+	--	--
+	--	--
+	--	--/* IF TYPE IS CONVERTED */ 
+	--	--this._getPositionsFromLineOnConvert()
+	--	--
+	--	--
+	--	--/* UPDATE SUPPORT */ 
+	--	--this.updateSupport()
+	--),
+	--
 
-		--function _getKey type = ( toUpper (type as string ) + "_KEY")
-		--
-		--/* SET PROPERTIES */ 
-		--this.obj_type = to_type
-		--
-		--this.hit_raft 	= undefined
-		--this.hit_leg	= undefined
-		----this.is_on_ground	= false
-		--
-		--
-		--/* GET TYPE OF ORIGIN OBJECT */ 
-		--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-		--
-		--
-		--/* REPLACE OBJECT PROPERTY DATA */ 
-		--deleteUserProp support_obj ( _getKey from_type  )
-		--
-		--setUserPropVal support_obj ( _getKey to_type  ) support_key
-		--
-		--
-		--/* IF TYPE IS CONVERTED */ 
-		--this._getPositionsFromLineOnConvert()
-		--
-		--
-		--/* UPDATE SUPPORT */ 
-		--this.updateSupport()
-	),
 
-
-
-	/** Update base height
-	 */
-	function updateBaseHeight =
-	(
-		-- format "\n"; print "SupportObject_v.updateBaseHeight()"
-		-- format "support_obj: %\n" support_obj.name
-		--if this.is_on_ground != undefined and this.is_on_ground then
-		--(
-		--	ground_knot = numKnots support_obj spline_1
-		--	base_knot   = ground_knot - 1
-		--	
-		--	base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
-		--	base_knot_pos.z = SUPPORT_OPTIONS.base_height
-		--	
-		--	setKnotPoint support_obj spline_1 base_knot base_knot_pos
-		--	
-		--	setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-		--
-		--	SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		--)
-	),
+	--/** Update base height
+	-- */
+	--function updateBaseHeight =
+	--(
+	--	-- format "\n"; print "SupportObject_v.updateBaseHeight()"
+	--	-- format "support_obj: %\n" support_obj.name
+	--	--if this.is_on_ground != undefined and this.is_on_ground then
+	--	--(
+	--	--	ground_knot = numKnots support_obj spline_1
+	--	--	base_knot   = ground_knot - 1
+	--	--	
+	--	--	base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
+	--	--	base_knot_pos.z = SUPPORT_OPTIONS.base_height
+	--	--	
+	--	--	setKnotPoint support_obj spline_1 base_knot base_knot_pos
+	--	--	
+	--	--	setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+	--	--
+	--	--	SUPPORT_MANAGER.updateShapeAdd (support_obj)
+	--	--)
+	--),
  
 	/** Is raft
 	 */

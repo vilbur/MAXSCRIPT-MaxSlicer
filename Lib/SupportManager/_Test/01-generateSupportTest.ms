@@ -62,8 +62,8 @@ select_verts = #{}
 -- select_verts += verts_colors["yellow"]
 -- select_verts += verts_colors["orange"]
 -- select_verts += verts_colors[clr_pink]
-select_verts += verts_colors[clr_cyan]
--- select_verts += verts_colors["green"]
+-- select_verts += verts_colors[clr_cyan]
+select_verts += verts_colors["green"]
 -- select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
@@ -127,7 +127,12 @@ SUPPORT_OPTIONS.second_point_direction	= 1 -- NORMAL
 MODIFIERS_MANAGER	= ModifiersManager_v()
 SUPPORT_MANAGER	= SupportManager_v()
 
-generateSupportsOrRafts obj_type:#SUPPORT
+/* WHAT TO GENERATE - SUPPORT  OR  RAFT  */
+obj_type = #SUPPORT
+obj_type = #RAFT
+
+/* GENERATE */
+generateSupportsOrRafts obj_type:obj_type
 
 
 --format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
@@ -153,13 +158,12 @@ generateSupportsOrRafts obj_type:#SUPPORT
 
 -- move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
 
-SUPPORT_OPTIONS.getModVal
-all_supports = $'*-support-*'
+--all_supports = $'*-support-*'
 
-single_support = all_supports[all_supports.count]
+--single_support = all_supports[all_supports.count]
 
 
-select single_support
+--select single_support
 
 -- format " TEST:  MOVE SUPPORT\n"
 -- move single_support [ 0, -10, 0 ]
@@ -170,7 +174,7 @@ select single_support
 -- move  $PackMan [ 0, 0, 10 ]
 
 
-select $PackMan
+--select $PackMan
 
 /* UPDATE MODIFIER */
 

@@ -231,8 +231,8 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		  -- format "\n****************************************************\n"
-		 -- format "\n"; print "SourceObject_v.updateSupports()"
+		   format "\n****************************************************\n"
+		  format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 		  -- format "update_normals: %\n" update_normals
 
@@ -268,10 +268,11 @@ struct SourceObject_v
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 
-			
+			format "TEST: %\n" (dir_vector == undefined or dir_vector.z < 0)
 			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
 			if dir_vector == undefined or dir_vector.z < 0 then
 			(
+				format "boxmode: %\n" (Support.support_obj.boxmode)
 				if not Support.support_obj.boxmode then
 				(
 					/*------------------------------------------------------------------------------
@@ -280,7 +281,7 @@ struct SourceObject_v
 						
 					--------------------------------------------------------------------------------*/
 					support_updated = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-					-- format "support_updated: %\n" support_updated
+					 format "support_updated: %\n" support_updated
 					if not support_updated then
 						this._enableBoxMode(Support) pivot_pos:first_knot_pos
 				)
@@ -310,7 +311,7 @@ struct SourceObject_v
 	 */
 	function _enableBoxMode Support pivot_pos: =
 	(
-		 -- format "\n"; print "SourceObject_v._enableBoxMode()"
+		  format "\n"; print "SourceObject_v._enableBoxMode()"
 		Support.support_obj.boxmode = true
 	),
 

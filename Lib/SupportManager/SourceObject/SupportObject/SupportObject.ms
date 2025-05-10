@@ -87,11 +87,12 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		 --format "\n===========================================================\n"
-		 -- format "\n"; print "SupportObject_v.generateSupport()"
-		 --format "dir_vector: %\n" dir_vector
-		-- format "wirecolor: %\n" wirecolor
-		 -- format "vertex_index: %\n" vertex_index
+		 format "\n===========================================================\n"
+		  format "\n"; print "SupportObject_v.generateSupport()"
+		  format "first_knot_pos: %\n" first_knot_pos
+		 format "dir_vector: %\n" dir_vector
+		 format "wirecolor: %\n" wirecolor
+		  format "vertex_index: %\n" vertex_index
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
@@ -111,7 +112,7 @@ struct SupportObject_v
 		
 		if not this._isFirstPointAboveGround() then
 			return false
-		
+		format "\nWTF"
 		--support_obj.boxmode = false
 			
 		this._fillThisWithOptionValues()
@@ -236,24 +237,25 @@ struct SupportObject_v
 	 */
 	function rebulidSupport dir_vector: =
 	(
-		 -- format "\n"; print "SupportObject_v.rebulidSupport()"
-		-- format "dir_vector: %\n" dir_vector
+		format "\n"; print "SupportObject_v.rebulidSupport()"
+		format "dir_vector: %\n" dir_vector
 		index = getUserPropVal support_obj "INDEX"
 		
 		if dir_vector == undefined  then 
 			dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-		 -- format "dir_vector: %\n" dir_vector
+		  format "dir_vector: %\n" dir_vector
 
-		wirecolor = getUserPropVal support_obj "WIRECOLOR"
-		
-		if numSplines support_obj == 0 then
-			addNewSpline support_obj
+		--wirecolor = getUserPropVal support_obj "WIRECOLOR"
+		support_obj.boxmode = false
+
+		--if numSplines support_obj == 0 then
+			--addNewSpline support_obj
 
 		--first_knot_pos = if classOf support_obj != Point then getKnotPoint support_obj spline_1 1 else support_obj.position
 		--first_knot_pos = getKnotPoint support_obj spline_1 1
-		first_knot_pos = support_obj.pivot
+		--first_knot_pos = support_obj.pivot
 		
-		this.generateSupport index first_knot_pos:first_knot_pos direction:direction dir_vector:dir_vector wirecolor:wirecolor 
+		this.generateSupport index first_knot_pos:(getKnotPoint support_obj spline_1 1) direction:direction dir_vector:dir_vector --wirecolor:support_obj.wirecolor 
 	),
 	
 	/** Update support height
@@ -346,11 +348,11 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
  	(
-		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
-		-- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
@@ -606,12 +608,14 @@ struct SupportObject_v
 	function _setSupportObject wirecolor =
 	(
 		-- format "\n"; print "SupportObject_v._getSupportNode()"
-		if wirecolor == undefined then 
-			wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
 		
 		/* CREATE NEW OBJECT */ 
 		if support_obj == undefined then
 		(
+			if wirecolor == undefined then 
+				wirecolor = ( color ( random 100 255) ( random 100 255) ( random 100 255))
+			
+			
 			support_obj = SplineShape wirecolor:wirecolor
 		
 			support_key = (getHandleByAnim support_obj) as string
@@ -619,8 +623,7 @@ struct SupportObject_v
 		else /* USE OLD OBEJCT - RESET SPLINE */ 
 			deleteSpline support_obj spline_1
 				
-		support_obj.wirecolor = wirecolor
-		
+		--support_obj.wirecolor = wirecolor
 	),
 	
 

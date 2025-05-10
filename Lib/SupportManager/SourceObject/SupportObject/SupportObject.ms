@@ -164,9 +164,9 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		 -- format "\n----------------------------------------------\n"
-		 -- format "\n"; print "SupportObject_v.updateSupport()"
-		  -- format "first_knot_pos: %\n" first_knot_pos
+		-- format "\n----------------------------------------------\n"
+		-- format "\n"; print "SupportObject_v.updateSupport()"
+		-- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
 		 -- format "dir_vector:  %\n" dir_vector
 		

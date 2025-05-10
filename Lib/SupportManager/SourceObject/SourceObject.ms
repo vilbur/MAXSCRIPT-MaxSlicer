@@ -130,7 +130,7 @@ struct SourceObject_v
 				append SupportObjectsNew SupportObject
 				
 				if result == false then
-					this._disableSupportByRemoveSpline(SupportObject)
+					this._enableBoxMode(SupportObject)
 			)
 		
 		/*------------------------------------------------------------------------------
@@ -231,10 +231,10 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		  format "\n****************************************************\n"
-		-- format "\n"; print "SourceObject_v.updateSupports()"
+		  -- format "\n****************************************************\n"
+		 -- format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		  format "update_normals: %\n" update_normals
+		  -- format "update_normals: %\n" update_normals
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
@@ -250,7 +250,6 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 		for index in SupportsToUpdate.keys do
 		(
-			-- format "index: %\n" index
 			Support = SupportsToUpdate[index]
 
 			/* UPDATE SECOND POINT - to keep direction down */ 
@@ -269,36 +268,27 @@ struct SourceObject_v
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 
-			-- format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			
-			--if dir_vector == undefined or (dir_vector != undefined and dir_vector.z < 0) then
-			-- format "DIR_VECTOR: %\n" dir_vector
-			-- format "TEST: %\n" (dir_vector.z < 0)
-			
-			
+			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
 			if dir_vector == undefined or dir_vector.z < 0 then
 			(
-				--format "Support.hasSplines(): %\n" (Support.hasSplines())
-				if Support.hasSplines() then
+				if not Support.support_obj.boxmode then
 				(
 					/*------------------------------------------------------------------------------
 						
 						UPDATE SUPPORT
 						
 					--------------------------------------------------------------------------------*/
-					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-
-					if result == false then
-						this._disableSupportByRemoveSpline(Support) pivot_pos:first_knot_pos
-					-- format "RESULT: %\n" result
+					support_updated = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+					-- format "support_updated: %\n" support_updated
+					if not support_updated then
+						this._enableBoxMode(Support) pivot_pos:first_knot_pos
 				)
-				else
+				else /* RESTORE FROM BOX MODE IF VECTOR BECOME VALID */
 					Support.rebulidSupport dir_vector:dir_vector
 			)
-			else
-				this._disableSupportByRemoveSpline(Support)
-
-			setUserPropVal Support.support_obj "NORMAL" Normals.normals_world[index] 
+			else /* DISABLE SUPPORT IF NOT VALID */ 
+				this._enableBoxMode(Support)
 		)
 		
 		free SupportsToUpdate
@@ -316,51 +306,12 @@ struct SourceObject_v
 			)
 	),
 	
-	
-	/** Replace support with proxy
+	/** Disable support by showing it as box
 	 */
-	function _disableSupportByRemoveSpline Support pivot_pos: =
+	function _enableBoxMode Support pivot_pos: =
 	(
-		-- format "\n"; print "SourceObject_v._disableSupportByRemoveSpline()"
-		--Support.support_obj.wirecolor = red
-		
+		 -- format "\n"; print "SourceObject_v._enableBoxMode()"
 		Support.support_obj.boxmode = true
-		
-		--if Support.hasSplines() then
-		--(
-			
-			--with redraw off
-			--try
-			--(
-			--	
-			--	--for i = 1 to Support.support_obj.modifiers.count do 
-			--		deleteModifier Support.support_obj 1
-			--		deleteModifier Support.support_obj 1
-			--		--deleteModifier Support.support_obj 1
-			--		--deleteModifier Support.support_obj 1
-			--		--deleteModifier Support.support_obj 1
-			--	
-			--)
-			--catch
-			--(
-			--	format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
-			--	format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
-			--)
-			--(
-			--)
-			--redrawViews()
-			
-			
-			--if pivot_pos == undefined then 
-			--	pivot_pos = getKnotPoint Support.support_obj 1 1
-			--
-			----deleteSpline Support.support_obj 1
-			--
-			----updateShape Support.support_obj
-			--SUPPORT_MANAGER.updateShapeAdd (Support.support_obj)
-
-			--Support.support_obj.pivot = pivot_pos
-		--)
 	),
 
 	/** Update single support
@@ -407,14 +358,14 @@ struct SourceObject_v
 					result = Support.updateSupportHeight()
 	
 					if result == false then
-						this._disableSupportByRemoveSpline(Support)
+						this._enableBoxMode(Support)
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
 				
 			)
 			else
-				this._disableSupportByRemoveSpline(Support)
+				this._enableBoxMode(Support)
 		)
 	),
 	

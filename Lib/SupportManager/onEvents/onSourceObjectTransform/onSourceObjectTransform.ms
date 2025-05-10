@@ -36,7 +36,7 @@ function onSourceObjectTransform sender evt =
 	 */
 	function XorYrotationChanged angle_A angle_B =
 	(
-		format "\n"; print "XorYrotationChanged()"
+		-- format "\n"; print "XorYrotationChanged()"
 		
 		fn valuesAreClose f1 f2 eps:0.001 = abs(f1) == abs(f2) OR abs (f1 - f2) <= eps
 	
@@ -56,8 +56,8 @@ function onSourceObjectTransform sender evt =
 				angle_B.y = angle_A.y		
 			)
 		)
-		format "angle_A: %\n" angle_A
-		format "angle_B: %\n" angle_B
+		-- format "angle_A: %\n" angle_A
+		-- format "angle_B: %\n" angle_B
 		--( valuesAreClose angle_A.x angle_B.x and valuesAreClose angle_A.y angle_B.y) and not valuesAreClose angle_A.z angle_B.z
 		not valuesAreClose angle_A.x angle_B.x or not valuesAreClose angle_A.y angle_B.y
 		
@@ -69,8 +69,8 @@ function onSourceObjectTransform sender evt =
 	if not mouse.buttonStates[1] then
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		format "\n===========================================================\n"
-		 format "\n"; print "onSourceObjectTransform()"
+		-- format "\n===========================================================\n"
+		 -- format "\n"; print "onSourceObjectTransform()"
 		
 		source_objects = for obj in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
 		
@@ -79,14 +79,14 @@ function onSourceObjectTransform sender evt =
 		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
 
 		rotation_current = quatToEuler2 obj.rotation.controller.value
-		 format "rotation_current: %\n" rotation_current
+		 -- format "rotation_current: %\n" rotation_current
 		rotation_saved   = transform_data[#ROTATION]
-		 format "rotation_saved:   %\n" rotation_saved	
+		 -- format "rotation_saved:   %\n" rotation_saved	
 		
 		
 		/* TEST IF OBJECT HAS BEEN ROTATED ONLY BY X or Y AXIS - rotation only on z axis does not need update */
 		rotation_chaged = XorYrotationChanged rotation_current rotation_saved
-		format "ROTATION_CHAGED: %\n" rotation_chaged
+		-- format "ROTATION_CHAGED: %\n" rotation_chaged
 		
 		/* TEST POSITION */ 		
 		pos_z_changed = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z

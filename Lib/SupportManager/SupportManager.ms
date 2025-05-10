@@ -335,8 +335,8 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		 format "\n"; print "SupportManager_v.updateSourceObject()"
-		 format "what_to_update:    %\n" what_to_update
+		format "\n"; print "SupportManager_v.updateBySourceObject()"
+		format "what_to_update: %\n" what_to_update
 		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 		
@@ -345,17 +345,14 @@ struct SupportManager_v
 		(
 			SourceObject = SourceObjects[sync_key]
 			
-
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
-			--if what_to_update != undefined then 
 			case what_to_update of
 			(
 				#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true update_normals:true
 				#POSITION_Z: SourceObject.updateSupportsHeight()
 			)
-			--SourceObject.updateSupports update_knot_1:false update_raft:false
 		)	
 				
 				

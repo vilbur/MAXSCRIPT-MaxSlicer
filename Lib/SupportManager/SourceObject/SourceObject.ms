@@ -231,17 +231,17 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		 -- format "\n****************************************************\n"
+		  format "\n****************************************************\n"
 		-- format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		 -- format "update_normals: %\n" update_normals
+		  format "update_normals: %\n" update_normals
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
 		/* GET NORMALS */ 
-		--if update_normals or Normals.normals_world == undefined then
-			--this.updateNormals (SupportsToUpdate)
+		if update_normals or Normals.normals_world == undefined then
+			this.updateNormals (SupportsToUpdate)
 		
 		/*------------------------------------------------------------------------------
 		  

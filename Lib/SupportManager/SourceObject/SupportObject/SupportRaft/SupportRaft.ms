@@ -40,17 +40,17 @@ struct SupportRaft_v
 		
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
 		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-		-- format "Support.dir_vector: %\n" Support.dir_vector
+
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 
 		/* TEST HIT SOURCE OBJECT */ 
-	    this._testHitOfSourceObject( normal_length )
+	    hit_raft = this._testHitOfSourceObject( normal_length )
 		
 		/*------------------------------------------------------------------------------
 			MODIFY RAFT LENGHT ABOVE GROUND
 		--------------------------------------------------------------------------------*/
-		--format "hit_raft: %\n" hit_raft
+
 		if hit_raft == undefined then
 		(
 			/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
@@ -84,13 +84,17 @@ struct SupportRaft_v
 				Support.points[2] = pos
 			)
 		)
+		/*------------------------------------------------------------------------------
+			GET POSITION OF HIT
+		--------------------------------------------------------------------------------*/
 		else
-			/*------------------------------------------------------------------------------
-				GET POSITION OF HIT
-			--------------------------------------------------------------------------------*/
-			Support.points[2] = hit_raft
+			Support.points[2] = hit_raft.pos
 	
-		--format "Support.dir_vector: %\n" Support.dir_vector
+	
+		
+		/*------------------------------------------------------------------------------
+			GET DATA ABOUT STATE OF SUPPORTs
+		--------------------------------------------------------------------------------*/
 		is_space_for_leg = isSpaceForRaftAndLeg()
 		foot_space_exists = isLegPointAboveMinLimit( Support.min_foot_pos )
 		--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
@@ -157,22 +161,14 @@ struct SupportRaft_v
 		 
 		hit = Support.intersectRaySourceObject (ray_pos)  ( Support.dir_vector )
 
-		--format "POS: %\n" pos
-		--format "HIT: %\n" hit
-		if hit != undefined then
-			-- format "DISTANCE: %\n" ( distance ray_pos hit.pos )
-		
-		
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
-		if hit != undefined and distance ray_pos hit.pos > max_distance then
+		if hit != undefined and Support.obj_type == #SUPPORT and distance ray_pos hit.pos > max_distance then
 			hit = undefined
-
 		
-		hit_raft = if hit != undefined then hit.pos else undefined --return
-		
-		hit_raft --return	
+		hit --return
 	),
-
+	
+	
 	/**
 	 */
 	on create do

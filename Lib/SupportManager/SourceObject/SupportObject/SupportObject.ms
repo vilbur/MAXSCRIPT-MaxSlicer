@@ -462,8 +462,6 @@ struct SupportObject_v
 	function intersectRaySourceObject pos direction =
 	(
 		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
-		-- format "DIRECTION: %\n" direction
-
 		/* Shift origin point perpendicular to a vector and project to plane
 			
 			DEV EXAMPLE: --"./_Dev/shiftPointPerpendicularOnPlane_dev.ms"
@@ -490,31 +488,50 @@ struct SupportObject_v
 			-- Apply shift
 			origin_point + (perp_vector * shift_distance) -- return
 		)
+		
+		local hit
 
-		hit = undefined
+		local hit_distance
 
+		local pos_shifted
+		
 		planes = #( #XY, #XY, #XZ, #XZ )
 		
 		half_of_bar_width = this.bar_width / 2
 		
 		ray_pos = pos + (0.1 * direction)
+		--ray_pos = pos 
 		
 		if source_obj != undefined then
 		(
-			/* TRY HIT ON CENTER OF SUPPORT */ 
+			/*------------------------------------------------------------------------------
+				TRY HIT ON CENTER OF SUPPORT
+			--------------------------------------------------------------------------------*/
 			if ( hit = intersectRay source_obj ( Ray ray_pos direction) ) == undefined then
 			(
 				
-				/* TRY HITS ON BORDER OF SUPPORT */ 
+				/*------------------------------------------------------------------------------
+					TRY HITS ON BORDER OF SUPPORT
+				--------------------------------------------------------------------------------*/
 				for i = 1 to 4 while hit == undefined do 
 				(
 					shift_distance = if mod i 2 == 0 then half_of_bar_width * -1 else half_of_bar_width
 					
 					pos_shifted = shiftPointPerpendicularOnPlane ray_pos direction shift_distance planes[i]
-
-					hit = intersectRay source_obj ( Ray pos_shifted direction)
+					
+					/* GET DISTANCE TO HIT */ 
+					if ( hit = intersectRay source_obj ( Ray pos_shifted direction) ) != undefined then 
+						hit_distance = distance ray_pos hit.pos
 				)
 			)
+			else /* GET DISTANCE TO HIT */ 
+				hit_distance = distance ray_pos hit.pos
+			
+
+			/* GET HIT POSITION DIR VECTOR */ 
+			if hit_distance != undefined then
+				hit.pos = pos + ( hit_distance * direction )
+			
  		)
 
 		hit --return

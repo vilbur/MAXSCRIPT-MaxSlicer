@@ -1,4 +1,3 @@
---filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportLegUpdater/SupportLegUpdater.ms" )	--"./SupportObject/SupportLegUpdater/SupportLegUpdater.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SourceObjectNormals/SourceObjectNormals.ms" )	--"./SourceObjectNormals/SourceObjectNormals.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportObject.ms" )	--"./SupportObject/SupportObject.ms"
 /** Source object
@@ -134,19 +133,12 @@ struct SourceObject_v
 					this._disableSupportByRemoveSpline(SupportObject)
 			)
 		
-		--format "\n"
-		--format "this.Supports: %\n" this.Supports
 		/*------------------------------------------------------------------------------
-			BIND EVENTS
+			BIND EVENTS TO SOURCE OBJECT
 		--------------------------------------------------------------------------------*/
-		bindSupportToTransformEvent( this.getSupportNodes() )
-		
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
 		
-		
-		
 		/* RETURN */
-		--format "SupportObjectsNew: %\n" SupportObjectsNew
 		SupportObjectsNew
 	),
 
@@ -237,23 +229,19 @@ struct SourceObject_v
 	/** Update supports of source objects
 	  * 
 	 */
-	function updateSupports support_nodes: update_knot_1:true update_raft:true /*update_leg:false */direction:undefined update_normals:false =
+	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		-- format "\n****************************************************\n"
+		 -- format "\n****************************************************\n"
+		-- format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		-- format "update_normals: %\n" update_normals
-		--format "\n"; print "SourceObject_v.updateSupports()"
-		--format "what_to_update: %\n" what_to_update
+		 -- format "update_normals: %\n" update_normals
 
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
-		--format "SupportsToUpdate.keys: %\n" SupportsToUpdate.keys
-		
-		--for key in SupportsToUpdate.keys where SupportsToUpdate[key].hasValidVector() do RemoveDictValue SupportsToUpdate key
 		
 		/* GET NORMALS */ 
-		if update_normals or Normals.normals_world == undefined then
-			this.updateNormals (SupportsToUpdate)
+		--if update_normals or Normals.normals_world == undefined then
+			--this.updateNormals (SupportsToUpdate)
 		
 		/*------------------------------------------------------------------------------
 		  
@@ -262,17 +250,16 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 		for index in SupportsToUpdate.keys do
 		(
+			-- format "index: %\n" index
 			Support = SupportsToUpdate[index]
-			--format "LOCAL NORMAL: %\n" ( Normals.normals_local[index] )
-			--format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
+
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
-			--format "Normals.normals_world: %\n" Normals.normals_world
-			--format "direction: %\n" direction
+
 			/* GET VECTOR  */ 
 			dir_vector = this._getDirVector direction index
-			--format "dir_vector: %\n" dir_vector
+
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			if direction == #CUSTOM then 
 				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
@@ -282,42 +269,36 @@ struct SourceObject_v
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 
-			/* UPDATE SUPPORT */ 
-			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:(if direction != #CUSTOM then direction) dir_vector:dir_vector
-			--Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft update_leg:update_leg direction:direction dir_vector:dir_vector
-			--normal_world = Normals.normals_world[index]
-			
-			--format "TEST NORMAL: %\n" ( Normals.normals_world[index].z < 0 )
+			-- format "WORLD NORMAL: %\n" ( Normals.normals_world[index] )
 			
 			--if dir_vector == undefined or (dir_vector != undefined and dir_vector.z < 0) then
+			-- format "DIR_VECTOR: %\n" dir_vector
+			-- format "TEST: %\n" (dir_vector.z < 0)
+			
+			
 			if dir_vector == undefined or dir_vector.z < 0 then
 			(
 				--format "Support.hasSplines(): %\n" (Support.hasSplines())
 				if Support.hasSplines() then
 				(
-		--try(
-					--result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+					/*------------------------------------------------------------------------------
+						
+						UPDATE SUPPORT
+						
+					--------------------------------------------------------------------------------*/
 					result = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-					--format "dir_vector: %\n" dir_vector
+
 					if result == false then
 						this._disableSupportByRemoveSpline(Support) pivot_pos:first_knot_pos
-		--	
-		--	
-		--)catch(
-		--		format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
-		--		format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
-		--	
-		--)					
-					
+					-- format "RESULT: %\n" result
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
-					--Support.rebulidSupport dir_vector:Normals.normals_world[index]
 			)
 			else
 				this._disableSupportByRemoveSpline(Support)
 
-			 
+			setUserPropVal Support.support_obj "NORMAL" Normals.normals_world[index] 
 		)
 		
 		free SupportsToUpdate
@@ -327,7 +308,7 @@ struct SourceObject_v
 	 */
 	function _getDirVector direction index =
 	(
-		--format "\n"; print "SourceObject_v._getDirVector()"
+		-- format "\n"; print "SourceObject_v._getDirVector()"
 		case direction of
 			(
 				(#DOWN):   [ 0, 0, -1 ]

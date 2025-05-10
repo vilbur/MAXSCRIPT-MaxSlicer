@@ -25,7 +25,7 @@ struct SupportLeg_v
 		
 		hit_leg = this._testHitOfSourceObject()
 		
-		Support.points[3] = if hit_leg != undefined then hit_leg else this._getBasePointPos (pos_z)
+		Support.points[3] = if hit_leg != undefined then hit_leg.pos else this._getBasePointPos (pos_z)
 	),
 
 	private
@@ -66,18 +66,7 @@ struct SupportLeg_v
 		if hit != undefined and hit.pos.z <= 0 then
 			hit = undefined
 
-		
-		if hit != undefined then
-		(
-			/* GET ONLY Z POSITION OF HIT - IT KEEPS LEG VERTICAL */ 
-			hit.pos.x = Support.points[2].x
-		
-			hit.pos.y = Support.points[2].y
-
-			hit.pos --return
-		)
-		else
-			undefined
+		hit --return
 	),
 
 	/**

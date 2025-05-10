@@ -52,9 +52,8 @@ struct SourceObjectNormals_v
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
-		--timer_TEST = timeStamp()
-		--if normals_world == undefined then
-		--	normals_world = deepCopy normals_local
+		if normals_world == undefined then
+			normals_world = deepCopy normals_local
 
 		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 		
@@ -90,7 +89,7 @@ struct SourceObjectNormals_v
 	(
 		--format "\n"; print "SourceObjectNorwmals_v.saveNormalsRoUserProps()"
 		setUserPropVal obj "normals_local"	normals_local
-	),
+	), 
 	
 	private
 	
@@ -162,13 +161,13 @@ struct SourceObjectNormals_v
 		--(
 		--)
 		normals_local = this.all_verts as Array
-		normals_world = this.all_verts as Array
+		--normals_world = this.all_verts as Array
 
 		for i = 1 to normals_local.count do
 		(
 			normals_local[i] = point3 0 0 0
 			
-			normals_world[i] = point3 0 0 0
+			--normals_world[i] = point3 0 0 0
 		)
 	),
 

@@ -30,7 +30,7 @@ struct SupportOptions_v
 	
 
 	/* SOURCE OBJECT */ 
-	keep_source_minz_z_pos = true,
+	keep_source_minz_z_pos = false,
 	base_to_support_gap = 10, -- how many layers is prented between support base and source object ( avoid glue of supports and printed object )
 	
 	

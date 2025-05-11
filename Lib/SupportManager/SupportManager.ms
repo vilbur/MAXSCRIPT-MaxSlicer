@@ -619,6 +619,22 @@ struct SupportManager_v
 		HELPERS
 	--------------------------------------------------------------------------------*/
 	
+	function isSelectionLocked =
+	(
+		local currentSel = getCurrentSelection()
+
+		deselect selection
+
+		local newSel = getCurrentSelection()
+		local locked = (currentSel as string == newSel as string) -- Compare if selection changed
+		
+		if not locked then -- If it wasn't locked, reselect what was originally selected
+			select currentSel
+
+		locked --return 
+	),
+
+	
 	/** Add SupportObject to this.SupportObjects Array
 	 */
 	function addSupportObjects SupportObject =

@@ -14,8 +14,9 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	--format "SELECT_MODE: %\n" select_mode
 	--format "select_more: %\n" select_more
 	--format "\n"
+	if (is_selection_locked = SUPPORT_MANAGER.isSelectionLocked())then
+		actionMan.executeAction 0 "59231"  -- Selection: Selection Lock Toggle
 
-	
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
 		LayerManager.closeDialog()
@@ -73,6 +74,9 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 			default: for obj in objs_by_type do obj.isHidden = not state
 		)
 	)
+	
+	if is_selection_locked then
+		actionMan.executeAction 0 "59231"  -- Selection: Selection Lock Toggle
 	
 	redrawViews()
 

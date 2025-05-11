@@ -63,6 +63,8 @@ struct SlicerSystem_v
 
 		slice_mod.cap = cap_state
 
+		slice_mod.Faces___Polygons_Toggle = 2 -- operate on 2:AUTOMATIC 1:POLY 3:MESH
+
 		--this._saveEditPolyVertsVisibily()
 
 		/*  UPDATE MODIFIER PROPERTIES */

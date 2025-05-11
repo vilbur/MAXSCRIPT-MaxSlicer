@@ -39,7 +39,7 @@ macroscript	_print_support_toggle_foot_true
 category:	"_3D-Print"
 buttontext:	"FOOT Toggle"
 tooltip:	"ENABLE Foot"
---icon:	"offset:[0,10]"
+icon:	"ACROSS:4"
 (
 	on execute do
 		toggleSupportFoot(true)
@@ -58,16 +58,20 @@ icon:	""
 		toggleSupportFoot(false)
 )
 
-/** SUPPORT FOOT
+
+/** LIVE UPDATE COUNT
  */
-macroscript	_print_support_toggle_foot_false
+macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
-buttontext:	"FOOT Toggle"
-tooltip:	"DISABLE Foot"
-icon:	""
+buttontext:	"Live Update"
+tooltip:	""
+icon:	"ACROSS:4|control:spinner|id:SPIN_live_update_max_objects_count|type:#INTEGER|fieldwidth:32|range:[ 1, 100, 3 ]|width:64|offset:[ 96, 4 ]|tooltip:"
 (
 	on execute do
-		toggleSupportFoot(false)
+	(
+		--format "(EventFired.control.range).z: %\n" (EventFired.control.range).z
+		SUPPORT_OPTIONS.live_update_max_objects_count = EventFired.val
+	)
 )
 
 --/**

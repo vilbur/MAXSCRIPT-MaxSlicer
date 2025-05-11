@@ -41,6 +41,7 @@ struct SupportObject_v
 	
 	changed_props = Dictionary(),
 	--changed_keys = #(),
+	live_update_max_objects_count = 1,
 	
 	direction,
 	dir_vector,

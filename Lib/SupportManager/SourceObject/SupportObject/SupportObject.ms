@@ -87,12 +87,12 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		 format "\n===========================================================\n"
-		  format "\n"; print "SupportObject_v.generateSupport()"
-		  format "first_knot_pos: %\n" first_knot_pos
-		 format "dir_vector: %\n" dir_vector
-		 format "wirecolor: %\n" wirecolor
-		  format "vertex_index: %\n" vertex_index
+		 -- format "\n===========================================================\n"
+		  -- format "\n"; print "SupportObject_v.generateSupport()"
+		  -- format "first_knot_pos: %\n" first_knot_pos
+		 -- format "dir_vector: %\n" dir_vector
+		 -- format "wirecolor: %\n" wirecolor
+		  -- format "vertex_index: %\n" vertex_index
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
@@ -112,7 +112,7 @@ struct SupportObject_v
 		
 		if not this._isFirstPointAboveGround() then
 			return false
-		format "\nWTF"
+		-- format "\nWTF"
 		--support_obj.boxmode = false
 			
 		this._fillThisWithOptionValues()
@@ -165,14 +165,14 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		-- format "\n----------------------------------------------\n"
-		-- format "\n"; print "SupportObject_v.updateSupport()"
+		 -- format "\n----------------------------------------------\n"
+		 --format "\n"; print "SupportObject_v.updateSupport()"
 		-- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
 		 -- format "dir_vector:  %\n" dir_vector
 		
 		/*------------------------------------------------------------------------------
-			SANITIZE PARAMETERS
+			SANITIZE PARAMETERSw
 		--------------------------------------------------------------------------------*/
 		
 		/* GET 1st knot POSITION FROM LINE */ 
@@ -193,14 +193,9 @@ struct SupportObject_v
 		
 		this._keepVectorDown()
 
-		
 		if not this._isFirstPointAboveGround() then
 			return false
 		
-		
-		--dir_vector_new = if points[2] != undefined then normalize ( points[2] - points[1]) else this.dir_vector
-
-		-- format "\n"
 
 		if not this.vectorIsInRange() then
 			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
@@ -224,26 +219,29 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		this._setSupportLinePoints()
+		--print "A "
 		
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
+		--print "F"
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		--print "G"
 	),
 	
 	/** Rebulid support
 	 */
 	function rebulidSupport dir_vector: =
 	(
-		format "\n"; print "SupportObject_v.rebulidSupport()"
-		format "dir_vector: %\n" dir_vector
+		-- format "\n"; print "SupportObject_v.rebulidSupport()"
+		-- format "dir_vector: %\n" dir_vector
 		index = getUserPropVal support_obj "INDEX"
 		
 		if dir_vector == undefined  then 
 			dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-		  format "dir_vector: %\n" dir_vector
+		  -- format "dir_vector: %\n" dir_vector
 
 		--wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		support_obj.boxmode = false
@@ -326,7 +324,13 @@ struct SupportObject_v
 		)
 	),
 	
-	/** Post update
+	/** Methods needs to be done after this._setSupportLinePoints()
+
+		IMPORTANT PREVENT CRASH:
+			NEVER RUN ON UPDATE: this._setPivotToPoint(2)
+			
+			
+		THIS ALSO ALOW TO PIVOT BE FREE WHEN: SupportRaft.hit_raft == true or SupportLeg.hit_leg == true
 	 */
 	function _postUpdate =
 	(
@@ -335,8 +339,6 @@ struct SupportObject_v
 		
 		this._updateKnotsPositionByPoints()
 		
-		this._setPivotToPoint(2)
-
 		this._saveFirstKnotPos()
 
 		this._isOnGround()
@@ -348,11 +350,11 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
  	(
-		format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		-- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
-		format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		 -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
@@ -943,9 +945,9 @@ struct SupportObject_v
 	 */
 	function _isOnGround =
 	(
-		-- format "\n"; print "SupportObject_v._isOnGround()"
+		 --format "\n"; print "SupportObject_v._isOnGround()"
 		is_on_ground = obj_type == #SUPPORT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined
-		
+
 		setUserPropVal support_obj "IS_ON_GROUND" is_on_ground
 	),
 	

@@ -69,9 +69,9 @@ function onSourceObjectTransform sender evt =
 	if not mouse.buttonStates[1] then
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		-- format "\n===========================================================\n"
+		 -- format "\n===========================================================\n"
 		 -- format "\n"; print "onSourceObjectTransform()"
-		
+		pauseSupportTransformEvent()
 		source_objects = for obj in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
 		
 		obj = source_objects[1]
@@ -98,10 +98,10 @@ function onSourceObjectTransform sender evt =
 			(pos_z_changed):	#POSITION_Z
 			default:	#ROTATION
 		)
-		-- format "what_to_update: %\n" what_to_update
+		 format "what_to_update: %\n" what_to_update
 		/* Update SourceObject and its suports if necessary */
 		if what_to_update != #POSITION_XY then -- if source object
-			try(
+  
 	
 				/*------------------------------------------------------------------------------
 				  
@@ -110,9 +110,9 @@ function onSourceObjectTransform sender evt =
 				--------------------------------------------------------------------------------*/
 
 				SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)				
-			)
-			catch
-			(
+			--)
+			--catch
+			--(
 				-- format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
 	
 				-- format "FILE: \n%\n" (getErrorSourceFileName())
@@ -120,7 +120,7 @@ function onSourceObjectTransform sender evt =
 				
 				-- format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
 				
-			)
+			--)
 			
 			
 		for obj in source_objects do 
@@ -129,6 +129,6 @@ function onSourceObjectTransform sender evt =
 		
 		removeTimeout sender
 		
-		resumeSupportTransformEvent()
+		--resumeSupportTransformEvent()
 	)
 )

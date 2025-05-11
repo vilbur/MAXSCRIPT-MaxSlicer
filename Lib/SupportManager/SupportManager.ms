@@ -335,8 +335,8 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		format "\n"; print "SupportManager_v.updateBySourceObject()"
-		format "what_to_update: %\n" what_to_update
+		-- format "\n"; print "SupportManager_v.updateBySourceObject()"
+		-- format "what_to_update: %\n" what_to_update
 		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 		
@@ -387,14 +387,12 @@ struct SupportManager_v
 		for sync_key in supports_by_source.keys do
 			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
 			
-				
 		/* UPDATE ALL BEAMS OF SUPPORTS */
 		this._updateBeamsBySupports(supports_by_source.keys)
 
 		this.updateShapes()
-		
+
 		resumeSupportTransformEvent()
-		-- format "\n######################\n"
 	),
  
 	/** Update base height

@@ -1,5 +1,8 @@
---DEV
---filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
+/*
+	--"./../../../Lib/SupportManager/SupportManager.ms"
+	--"./../../../../../Lib/SupportOptions/SupportOptions.ms"
+*/ 
+
 
 
 /*------------------------------------------------------------------------------
@@ -75,10 +78,14 @@ category:	"_Export"
 --buttontext:	"[Connections count]"
 buttontext:	"Density"
 --buttontext:	"Max Beams"
-icon:	"across:4|control:dropdownlist|id:DL_max_connections|width:42|items:#( '1', '2', '3')|unselect:true|tooltip:Max count of beams connected to support"
+--icon:	"across:4|control:dropdownlist|id:DL_max_connections|width:42|items:#( '1', '2', '3')|unselect:true|tooltip:Max count of beams connected to support"
+icon:	"across:4|control:dropdownlist|id:DL_max_connections|width:52|items:#( 'LOW', 'MID', 'HIGH')|unselect:true|tooltip:Max count of beams connected to support"
 (
-	--format "EventFired	= % \n" EventFired
-	--SUPPORT_MANAGER.updateModifiers ( EventFired )
+	on execute do
+	(
+		format "EventFired	= % \n" EventFired
+		SUPPORT_OPTIONS.max_connections = EventFired.val
+	)
 )
 
 --/**

@@ -73,11 +73,9 @@ function startSupportTransformTimeout =
  */
 function bindSupportToTransformEvent supports =
 (
-	--format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
+	-- format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
 	--format "SUPPORTS: %\n" SUPPORTS
 	--format "COUNT: %\n" SUPPORTS.count
-
-
 
 	if classOf supports == Array then
 		join SUPPORTS_BINDED supports
@@ -88,9 +86,10 @@ function bindSupportToTransformEvent supports =
 	SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED
 	
 	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
-		
-	deleteAllChangeHandlers id:#updateSupportsEvent
 
+	
+	deleteAllChangeHandlers id:#updateSupportsEvent
+		
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
 		/*------------------------------------------------------------------------------
@@ -109,19 +108,19 @@ function bindSupportToTransformEvent supports =
 
 		/*------------------------------------------------------------------------------
 			ON MULTIPLE SUPPORTS TRANSFORM
-		--------------------------------------------------------------------------------*/
+		------------------------------------------------------------------------------*/
 		if selection.count > live_update_max_objects_count then
 		(
-
+		
 			if  SUPPORTS_TRANSFORM_CHANGED.count == 0 then
 				startSupportTransformTimeout()
-
+		
 			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
-
+		
 		)
 		/*------------------------------------------------------------------------------
 			ON SINGLE SUPPORT TRANSFORM
-		--------------------------------------------------------------------------------*/
+		------------------------------------------------------------------------------*/
 		else if support.isSelected then
 		(
 			--print "!!!!!!!!! FIRED UPDATE"

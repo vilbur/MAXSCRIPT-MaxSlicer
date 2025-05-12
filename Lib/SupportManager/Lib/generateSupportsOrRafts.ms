@@ -11,11 +11,11 @@ function generateSupportsOrRafts obj_type: =
 	/* SEARCH FOR SOURCE OBJECTS IN SLECTION */ 
 	source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
 
-	/* GET NEW SOURCE OBJECT IF ANY OBJECT HAS NOT BEEN FOUND */ 
+	/* GET NEW OBJECT AS SOURCE OBJECT IF ANY OBJECT HAS NOT BEEN FOUND */ 
 	if source_objects.count == 0 then
 		source_objects = for obj in _selection where not SUPPORT_MANAGER.isManaged(obj) collect obj
 	
-	--format "SOURCE_OBJECTS: %\n" source_objects
+	format "SOURCE_OBJECTS: %\n" source_objects
 		
 	/*------------------------------------------------------------------------------
 	  

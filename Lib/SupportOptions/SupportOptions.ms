@@ -40,7 +40,7 @@ struct SupportOptions_v
 
 
 	bottom_layers_count = 15,
-
+	live_update_max_objects_count = 1,
 
 	/* SUPPORT MODIFIERS */
 	bar_width 	= 1.4, -- default width is 1.5mm

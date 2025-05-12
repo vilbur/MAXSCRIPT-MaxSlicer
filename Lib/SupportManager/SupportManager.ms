@@ -146,18 +146,15 @@ struct SupportManager_v
 	  * 
 	  * @pram name|undefined sort_mode #JOIN_CLOSE_SUPPORTS|#JOIN_SUPPORTS_CHAIN
 	 */
-	function generateBeams sort_mode:undefined =
+	function generateBeams supports sort_mode:undefined =
 	(
-		--format "\n"; print "SupportManager_v.generateBeams()"
-		--format "SORT_MODE: %\n" sort_mode
-		--format "supports: %\n" supports
-		--format "max_connections: %\n" max_connections
-		--format "use_only_selected_supports: %\n" use_only_selected_supports
-		-- format "sort_mode: %\n" sort_mode
+		format "\n"; print "SupportManager_v.generateBeams()"
+		 format "sort_mode: %\n" sort_mode
 
 		/** if support height is greater then min height option
 		 */
-		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
+		--function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
+		function isTallEnough obj = obj.pivot.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
 		--this._removeDeletedNodes()
 
@@ -165,9 +162,6 @@ struct SupportManager_v
 		
 		/* UPPATE OPTIONS */ 
 		SUPPORT_OPTIONS.getValuesFromUi()
-		
-		/* GET SUPPORTS */ 
-		supports = this.getSupportObjects( selection as Array )
 		
 		/* FILTER VALID SUPPORTS */ 
 		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
@@ -376,7 +370,7 @@ struct SupportManager_v
 		--format "support_nodes: %\n" support_nodes
 		--this._removeDeletedNodes()
 
-		pauseSupportTransformEvent()
+		--pauseSupportTransformEvent()
 		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
@@ -392,7 +386,7 @@ struct SupportManager_v
 
 		this.updateShapes()
 
-		resumeSupportTransformEvent()
+		--resumeSupportTransformEvent()
 	),
  
 	/** Update base height
@@ -987,7 +981,7 @@ struct SupportManager_v
 	 */
 	function _updateBeamsBySupports support_keys =
 	(
-		--format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		-- format "\n"; print "SupportManager_v._updateBeamsBySupports()"
 		
 		for key in BeamObjects.keys where isValidNode BeamObjects[key].beam and findItem support_keys ( this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()

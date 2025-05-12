@@ -41,8 +41,7 @@ struct SupportObject_v
 	
 	changed_props = Dictionary(),
 	--changed_keys = #(),
-	live_update_max_objects_count = 1,
-	
+
 	direction,
 	dir_vector,
 	normal_world,
@@ -228,6 +227,9 @@ struct SupportObject_v
 		this._postUpdate()
 		--print "F"
 
+		if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined then
+			this._setPivotToPoint(2)
+			
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		--print "G"
 	),

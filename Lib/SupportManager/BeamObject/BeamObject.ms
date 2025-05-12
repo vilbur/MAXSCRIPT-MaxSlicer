@@ -52,27 +52,49 @@ struct BeamObject_v
 	(
 		--format "\n..........................................................................\n"
 		--format "\n"; print "BeamObject_v.updateBeam()"
+		--format "beam: %\n" beam
 
+		
+		function getWidthOfBeam points_of_lines = distance points_of_lines[1][1] points_of_lines[2][1]
+		
+		function getHeightOfBeam points_of_lines =
+		(
+			-- returns vertical distance (along Z axis)
+			function getZDistance p1 p2 = abs(p2.z - p1.z)  -- return
+
+			getZDistance points_of_lines[1][1] points_of_lines[1][points_of_lines[1].count]
+		)
+		
 		/* IS SUPPORT TALL ENOOGH */ 
-		function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT_OPTIONS.min_height
+		--function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT _OPTIONS.min_height
+		function isTallEnough height_of_beam = height_of_beam > SUPPORT_OPTIONS.min_height
 
 		/* VALIDATE SUPPORTS */ 
 		--supports_are_valid = numKnots support_A > 0 and numKnots support_B > 0
 		supports_are_valid = not support_A.boxmode and not support_B.boxmode
-
+		--format "supports_are_valid: %\n" supports_are_valid
+		
 		/* REMOVE OLD LINE */ 
 		for i = numSplines beam to 1 by -1 do
 			deleteSpline beam i
 
-		if supports_are_valid and isTallEnough() then
-		(
-			/* SET POINTS */ 
-			points_of_lines = this._getBeamsEndPoints()
-			
-			/* DRAW LINE */ 
+		--if supports_are_valid and isTallEnough() then
+		/* SET POINTS */ 
+		points_of_lines = this._getBeamsEndPoints()
+		--format "points_of_lines: %\n" points_of_lines
+	
+		height_of_beam = getHeightOfBeam (points_of_lines)
+		width_of_beam = getWidthOfBeam (points_of_lines)
+		
+		ratio = height_of_beam / width_of_beam
+		--format "ratio: %\n" ratio
+		
+		
+		/* DRAW LINE */
+		if supports_are_valid and isTallEnough(height_of_beam) and ratio >= 0.5 then
 			this._drawLines(points_of_lines)
-		)
 
+		
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
 

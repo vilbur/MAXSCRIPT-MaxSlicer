@@ -135,13 +135,14 @@ function bindSupportToTransformEvent supports =
  */
 function pauseSupportTransformEvent =
 (
-	--format "\n"; print "onSupportTransformCallback.ms.pauseSupportTransformEvent()"
+	-- format "\n"; print "onSupportTransformCallback.ms.pauseSupportTransformEvent()"
 	deleteAllChangeHandlers id:#updateSupportsEvent
 )
 /** Resume events
  */
 function resumeSupportTransformEvent =
 (
-	--format "\n"; print "onSupportTransformCallback.ms.resumeSupportTransformEvent()"
+	-- format "\n"; print "onSupportTransformCallback.ms.resumeSupportTransformEvent()"
+	-- format "SUPPORTS_BINDED: %\n" SUPPORTS_BINDED
 	bindSupportToTransformEvent (SUPPORTS_BINDED)
 )

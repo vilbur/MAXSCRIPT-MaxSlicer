@@ -1,3 +1,9 @@
+/*
+	USED:
+		--"./../../../Lib/SupportManager/Lib/generateSupportsOrRafts.ms"
+
+*/ 
+
 /*------------------------------------------------------------------------------
 	S U P P O R T S
 --------------------------------------------------------------------------------*/
@@ -61,10 +67,20 @@ icon:	"offset:[ 18, 6 ]|height:40|width:76|tooltip:GENERATE BEAMS for selected s
 	on execute do
 		undo "Generate Beams" on
 		(
+			_selection = for obj in selection collect obj
+		
+			/* SEARCH FOR SOURCE OBJECTS IN SLECTION */ 
+			source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
+
+			supports = if source_objects.count == _selection.count then
+				SUPPORT_MANAGER.getSupportObjects (SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT) get_nodes:false 
+			else
+				/* GET SUPPORTS */ 
+				SUPPORT_MANAGER.getSupportObjects( _selection )
+
 			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.shiftPressed )
-			
-			
-			SUPPORT_MANAGER.generateBeams sort_mode:( if not keyboard.controlPressed then #JOIN_CLOSE_SUPPORTS )
+
+			SUPPORT_MANAGER.generateBeams supports sort_mode:( if not keyboard.controlPressed then #JOIN_CLOSE_SUPPORTS )
 		)
 )
 

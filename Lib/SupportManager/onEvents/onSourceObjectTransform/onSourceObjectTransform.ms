@@ -98,7 +98,7 @@ function onSourceObjectTransform sender evt =
 			(pos_z_changed):	#POSITION_Z
 			default:	#ROTATION
 		)
-		 format "what_to_update: %\n" what_to_update
+		 --format "what_to_update: %\n" what_to_update
 		/* Update SourceObject and its suports if necessary */
 		if what_to_update != #POSITION_XY then -- if source object
   
@@ -129,6 +129,6 @@ function onSourceObjectTransform sender evt =
 		
 		removeTimeout sender
 		
-		--resumeSupportTransformEvent()
+		resumeSupportTransformEvent()
 	)
 )

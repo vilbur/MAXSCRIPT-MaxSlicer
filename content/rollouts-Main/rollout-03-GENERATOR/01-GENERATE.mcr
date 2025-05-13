@@ -10,7 +10,8 @@
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T S"
-icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:GEENERATE SUPPORTS"
+--tooltip:	""
+icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:• GEENERATE SUPPORTS.\n\n• RESET SELECTED SUPPORTS\n\n• CONVERT RAFT TO SUPPORT.\n\nPriority o verts:\n  1) Selected Verts\n  2) Verts with vertex color"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0

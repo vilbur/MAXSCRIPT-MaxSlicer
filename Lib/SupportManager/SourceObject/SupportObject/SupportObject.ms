@@ -69,7 +69,7 @@ struct SupportObject_v
 	--dir_vector_angle_range = 180,
 	--dir_vector_angle_range = 180,
 	--dir_vector_angle_range = 45,
-	dir_vector_angle_range = 90,
+	dir_vector_angle_range = 45,
 	
 	private
 
@@ -166,8 +166,8 @@ struct SupportObject_v
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
 		 -- format "\n----------------------------------------------\n"
-		 --format "\n"; print "SupportObject_v.updateSupport()"
-		-- format "first_knot_pos: %\n" first_knot_pos
+		 -- format "\n"; print "SupportObject_v.updateSupport()"
+		 -- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
 		 -- format "dir_vector:  %\n" dir_vector
 		
@@ -178,7 +178,7 @@ struct SupportObject_v
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
-		
+		-- format "first_knot_pos: %\n" first_knot_pos
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
@@ -192,15 +192,18 @@ struct SupportObject_v
 		 -- format "this.dir_vector: %\n" this.dir_vector
 		
 		this._keepVectorDown()
-
+		-- format "this._isFirstPointAboveGround(): %\n" (this._isFirstPointAboveGround())
 		if not this._isFirstPointAboveGround() then
 			return false
 		
-
-		if not this.vectorIsInRange() then
+		-- format "not this.vectorIsInRangeCone(): %\n" (not this.vectorIsInRangeCone())
+		if not this.vectorIsInRangeCone() then
+		(
+			-- format "WTF\n"
 			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
+		)
 		
-		-- format "this.dir_vector: %\n" this.dir_vector
+		 -- format "this.dir_vector: %\n" this.dir_vector
 			
 		this._disbaleBoxMode()
 
@@ -219,13 +222,11 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		this._setSupportLinePoints()
-		--print "A "
 		
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
-		--print "F"
 
 		if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined then
 			this._setPivotToPoint(2)
@@ -353,7 +354,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
  	(
-		-- format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft()
@@ -571,11 +572,16 @@ struct SupportObject_v
 	  *		  
 	  * 2) Test if new vector firs to range of world normal
 	 */
-	function vectorIsInRange =
+	function vectorIsInRangeCone =
 	(
-		
+		 -- format "\n"; print "SupportObject_v.vectorIsInRangeCone()"
+		-- format "SHIT\n"
+		-- format "normal_world: %\n" normal_world
+		-- format "this.dir_vector: %\n" this.dir_vector
+		-- format "DISTANCE: %\n" (distance normal_world this.dir_vector)
 		if distance normal_world this.dir_vector > 0.001 then
 		(
+		-- format "WHOOPS\n"
 			dot_product = dot (normalize normal_world) (normalize this.dir_vector)
 			
 			theAngle = acos(dot_product)
@@ -589,23 +595,21 @@ struct SupportObject_v
 	),
 	
 	/*
-	Finds a vector at a given angle in the plane defined by two vectors.
-	
-	vector1 and vector2 define the plane.
-	angle is in degrees.
+		Finds a vector at a given angle in the plane defined by two vectors.
+		
+		vector1 and vector2 define the plane.
+		angle is in degrees.
 	*/
 	function _findVectorByAngle vector2 _angle =
 	(
-		-- Create orthonormal basis in the plane
-		dir_x = normal_world
+		 -- format "\n"; print "SupportObject_v._findVectorByAngle()"
+		dir_x = normal_world -- Create orthonormal basis in the plane
 		-- Remove projection of vector2 on dir_x to get perpendicular direction
 		proj = (dot vector2 dir_x) * dir_x
 		dir_y = normalize (vector2 - proj)
-	
-		-- Compute vector using _angle in plane
-		result = (cos _angle) * dir_x + (sin _angle) * dir_y
-		--format "result: %\n" result
-		result -- return
+		-- format "RESULT: %\n" ((cos _angle) * dir_x + (sin _angle) * dir_y)
+		/* Compute vector using _angle in plane */ 
+		(cos _angle) * dir_x + (sin _angle) * dir_y
 	),
 
 	/** Create new support object or get existing and delete spline subobject
@@ -974,7 +978,7 @@ struct SupportObject_v
 	 */
 	function _disbaleBoxMode =
 	(
-		--format "\n"; print "SupportObject_v._disbaleBoxMode()"
+		-- format "\n"; print "SupportObject_v._disbaleBoxMode()"
 		support_obj.boxmode = false
 	),
 	/** Align to vector

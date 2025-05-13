@@ -76,16 +76,15 @@ struct VertexColors_v
 	  */
 	function getVertsAndColors verts:#{} exclude:#() flat:false =
 	(
-		format "\n"; print "VertexColors_v.getVertsByColor()"
-		format "verts: %\n" verts
+		-- format "\n"; print "VertexColors_v.getVertsByColor()"
+		--format "verts: %\n" verts
 		--format "flat: %\n" flat
 		--format "verts.numberSet: %\n" verts.numberSet
 		if verts.numberSet == 0 then
 			verts = #{1..(getNumVerts obj_mesh)}
 
 		this._setVertsByColors (verts) exclude:exclude
-		format "verts_by_colors: %\n" verts_by_colors
-
+		
 		if flat then
 		(
 			colored_verts = Dictionary #INTEGER
@@ -110,7 +109,7 @@ struct VertexColors_v
 	 */
 	function getColoredVerts exclude:#() =
 	(
-		--format "\n"; print "VertexColors_v.getVertsByLors()"
+		--format "\n"; print "VertexColors_v.getColoredVerts()"
 
 		appendIfUnique exclude ( white as string )
 
@@ -204,7 +203,7 @@ struct VertexColors_v
 	 */
 	function _setVertsByColors verts_get_colors exclude: =
 	(
-		--format "\n"; print "VertexColors_v._setVertsByColors()"
+		-- format "\n"; print "VertexColors_v._setVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
 		--format "pointer: %\n" pointer

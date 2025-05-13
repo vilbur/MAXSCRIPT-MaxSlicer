@@ -25,7 +25,7 @@ struct SourceObject_v
 	--direction_down = [0,0,-1],
 
 	/* dependency */
-	VertexColors,	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+	VertexColors, --"./../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 	Normals,	--"./SourceObjectNormals/SourceObjectNormals.ms"
 
 	/* reference */
@@ -35,8 +35,8 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		--format "\n"; print "SourceObject_v.generateSupports()"
-		--format "obj: %\n" obj
+		-- format "\n"; print "SourceObject_v.generateSupports()"
+		-- format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 		--this._keepMinZposition()
 		
@@ -63,6 +63,10 @@ struct SourceObject_v
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
 		--format "VERTS_PROCESS: %\n" verts_process
 		--format "VERTS_PROCESS: %\n" verts_process.numberSet
+		
+		
+		if verts_process.isEmpty then
+			messageBox "No selected or colored verts found" title:"MISSING VERTICES" 
 		
 		/*------------------------------------------------------------------------------
 			NORMALS OF VERTS
@@ -161,7 +165,7 @@ struct SourceObject_v
 		if Normals.normals_local == undefined then
 			Normals.setLocalVertexNormals(verts)
 		
-		--if Normals.normals_world == undefined then
+		----if Normals.normals_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts)
 
 		this.getVertsPositions(verts)
@@ -175,10 +179,6 @@ struct SourceObject_v
 	function resetSupport SupportObject vert =
 	(
 		--format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
-		--format "SupportObject: %\n" SupportObject
-		--format "vert: %\n" vert
-		
-		--format "wirecolor: %\n" wirecolor
 		
 		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
@@ -188,7 +188,7 @@ struct SourceObject_v
 		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(vert)
 		
 		/* REBUILD SUPPORT */ 
-		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wirecolor
+		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
  	),
 
 	/** Convert support to raft or vice versa
@@ -232,7 +232,7 @@ struct SourceObject_v
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
 		   -- format "\n****************************************************\n"
-		  -- format "\n"; print "SourceObject_v.updateSupports()"
+		   -- format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 		  -- format "update_normals: %\n" update_normals
 
@@ -517,11 +517,12 @@ struct SourceObject_v
 	 */
 	function _getVertsByColors =
 	(
-		--format "\n"; print "SourceObject_v._getVertsByColors()"
+		-- format "\n"; print "SourceObject_v._getVertsByColors()"
 		verts_by_colors = VertexColors.getVertsAndColors()
-
+		--format "verts_by_colors: %\n" verts_by_colors
+		
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
-		verts_by_colors[ obj.wirecolor as string ] = verts_by_colors[ white as string ]
+		verts_by_colors[ obj.wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
 
 		RemoveDictValue verts_by_colors ( white as string )
 

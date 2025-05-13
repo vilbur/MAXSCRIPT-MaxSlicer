@@ -73,7 +73,7 @@ function startSupportTransformTimeout =
  */
 function bindSupportToTransformEvent supports =
 (
-	-- format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
+	 -- format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
 	--format "SUPPORTS: %\n" SUPPORTS
 	--format "COUNT: %\n" SUPPORTS.count
 
@@ -86,23 +86,14 @@ function bindSupportToTransformEvent supports =
 	SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED
 	
 	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
-
+	-- format "SUPPORTS_BINDED: %\n" SUPPORTS_BINDED
 	
 	deleteAllChangeHandlers id:#updateSupportsEvent
 		
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
-		/*------------------------------------------------------------------------------
-		  
-		  
-		  
-			SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE
-			
-			
-			
-		--------------------------------------------------------------------------------*/
-		--live_update_max_objects_count = 1
-		--live_update_max_objects_count = 3
+		-- format "WTF\n"
+		/* SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE */   
 		live_update_max_objects_count = SUPPORT_OPTIONS.live_update_max_objects_count
 		
 

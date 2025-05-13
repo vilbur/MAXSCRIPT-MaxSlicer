@@ -148,8 +148,8 @@ struct SupportManager_v
 	 */
 	function generateBeams supports sort_mode:undefined =
 	(
-		format "\n"; print "SupportManager_v.generateBeams()"
-		 format "sort_mode: %\n" sort_mode
+		-- format "\n"; print "SupportManager_v.generateBeams()"
+		 -- format "sort_mode: %\n" sort_mode
 
 		/** if support height is greater then min height option
 		 */
@@ -362,8 +362,8 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes update_raft:true direction:undefined =
 	(
-		 -- format "\n===========================================================\n"
-		-- format "\n"; print "SupportManager_v.updateSupports()"
+		  -- format "\n===========================================================\n"
+		 -- format "\n"; print "SupportManager_v.updateSupports()"
 		--format "update_raft: %\n" update_raft
 		--format "direction: %\n" direction
 		--format "what_to_update: %\n" what_to_update

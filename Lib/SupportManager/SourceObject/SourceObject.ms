@@ -133,8 +133,8 @@ struct SourceObject_v
 
 				append SupportObjectsNew SupportObject
 				
-				if result == false then
-					this._enableBoxMode(SupportObject)
+				--if result == false then
+					--SupportObject._enableBoxMode()
 			)
 		
 		/*------------------------------------------------------------------------------
@@ -344,7 +344,7 @@ struct SourceObject_v
 				
 			)
 			else
-				this._enableBoxMode(Support)
+				this._enableBoxMode()
 		)
 	),
 	

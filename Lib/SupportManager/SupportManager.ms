@@ -321,6 +321,42 @@ struct SupportManager_v
 	--------------------------------------------------------------------------------*/
 
 
+	/** Update supports
+	 */
+	function updateSupports support_nodes update_raft:true direction:undefined =
+	(
+		  -- format "\n===========================================================\n"
+		 -- format "\n"; print "SupportManager_v.updateSupports()"
+		--format "update_raft: %\n" update_raft
+		--format "direction: %\n" direction
+		--format "what_to_update: %\n" what_to_update
+		--format "support_nodes: %\n" support_nodes
+		--this._removeDeletedNodes()
+
+		pauseSupportTransformEvent()
+		
+		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
+
+		--for sync_key in supports_by_source.keys do
+		--	for support_node in supports_by_source[sync_key] do
+		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
+
+		for sync_key in supports_by_source.keys do
+			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
+			
+		/* UPDATE ALL BEAMS OF SUPPORTS */
+		this._updateBeamsBySupports(supports_by_source.keys)
+
+		this.updateShapes()
+
+		/*	IMPORTANT PREVENT CRASH: setPivotToPoint(2) -- MUST BE AFTER updateShape */ 
+		for SupportObject in this.getSupportAndRaftObjects support_nodes do
+			SupportObject.setPivotToPoint(2)
+		--supports = this.getSupportAndRaftObjects support_nodes
+		
+		resumeSupportTransformEvent()
+	),
+ 
 	/** Update all supports and rafts of given source
 	  *  
 	  *  This update is fired when source object is transformed
@@ -358,37 +394,6 @@ struct SupportManager_v
 		this.updateShapes()
 	),
 
-	/** Update supports
-	 */
-	function updateSupports support_nodes update_raft:true direction:undefined =
-	(
-		  -- format "\n===========================================================\n"
-		 -- format "\n"; print "SupportManager_v.updateSupports()"
-		--format "update_raft: %\n" update_raft
-		--format "direction: %\n" direction
-		--format "what_to_update: %\n" what_to_update
-		--format "support_nodes: %\n" support_nodes
-		--this._removeDeletedNodes()
-
-		--pauseSupportTransformEvent()
-		
-		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
-
-		--for sync_key in supports_by_source.keys do
-		--	for support_node in supports_by_source[sync_key] do
-		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
-
-		for sync_key in supports_by_source.keys do
-			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
-			
-		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(supports_by_source.keys)
-
-		this.updateShapes()
-
-		--resumeSupportTransformEvent()
-	),
- 
 	/** Update base height
 	 */
 	function updateBaseHeight =
@@ -902,6 +907,16 @@ struct SupportManager_v
 		if get_nodes then support_nodes else this._getSupportObjectsByNodes(support_nodes)
 	),
 	
+	/** Get support object
+	 */
+	function getSupportObject obj =
+	(
+		--format "\n"; print "SupportManager_v.getSupportObject()"
+		if (support_nodes = this.getSupportAndRaftObjects #(obj)).count > 0 then
+			support_nodes[1] --return
+		
+		
+	),
 	/** Get raft objects
 	 */
 	function getRaftObjects _objects get_nodes:false =

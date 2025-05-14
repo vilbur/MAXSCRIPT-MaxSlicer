@@ -98,26 +98,24 @@ function bindSupportToTransformEvent supports =
 		
 
 		/*------------------------------------------------------------------------------
-			ON MULTIPLE SUPPORTS TRANSFORM
+			WHEN MULTIPLE SUPPORTS TRANSFORM
 		------------------------------------------------------------------------------*/
 		if selection.count > live_update_max_objects_count then
 		(
-		
+			/* START TIMEOUT */ 		
 			if  SUPPORTS_TRANSFORM_CHANGED.count == 0 then
 				startSupportTransformTimeout()
 		
+			/* GET BINDED OBJECT AND ADD TO CHANGED OBJECTS */ 
 			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
-		
 		)
+		
 		/*------------------------------------------------------------------------------
-			ON SINGLE SUPPORT TRANSFORM
+			FIRE UPDATE WHEN SINGLE SUPPORT TRANSFORM
 		------------------------------------------------------------------------------*/
 		else if support.isSelected then
-		(
-			--print "!!!!!!!!! FIRED UPDATE"
-			
 			SUPPORT_MANAGER.updateSupports #( support ) update_raft:true direction:#CUSTOM
-		)
+		
 	)
 )
 

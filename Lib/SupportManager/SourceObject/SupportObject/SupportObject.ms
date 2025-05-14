@@ -66,8 +66,8 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	dir_vector_angle_range = 90,
-	--dir_vector_angle_range = 45,
+	--dir_vector_angle_range = 90,
+	dir_vector_angle_range = 80,
 	
 	private
 
@@ -133,7 +133,7 @@ struct SupportObject_v
 			
 			this._setName(vertex_index)
 			
-			this._setPivotToPoint(2)
+			this.setPivotToPoint(2)
 			
 			this._alignPivotToRaft()
 	
@@ -193,8 +193,8 @@ struct SupportObject_v
 		if not this._isFirstPointAboveGround() then
 			return false
 		
-		if not this.vectorIsInRangeCone() then
-			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
+		--if not this.vectorIsInRangeCone() then
+			--this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
 		
 			
 		this._disbaleBoxMode()
@@ -215,13 +215,8 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
-		 --format "DIST: %\n" (distance points[2] support_obj.pos)
-		--if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined then
-		--if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and distance points[2] support_obj.pos > 0 then
-			--this._setPivotToPoint(2)
 			
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		--print "G"
 	),
 	
 	/** Rebulid support
@@ -480,8 +475,7 @@ struct SupportObject_v
 	/** Methods needs to be done after this._setSupportLinePoints()
 
 		IMPORTANT PREVENT CRASH:
-			NEVER RUN ON UPDATE: this._setPivotToPoint(2)
-			
+			NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
 			
 		THIS ALSO ALOW TO PIVOT BE FREE WHEN: SupportRaft.hit_raft == true or SupportLeg.hit_leg == true
 	 */
@@ -992,8 +986,12 @@ struct SupportObject_v
 	),
 
 	/** Set pivot to position
+	  *
+	  *	IMPORTANT PREVENT CRASH:
+	  *		NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
+	  *
 	 */
-	function _setPivotToPoint index =
+	function setPivotToPoint index =
 	(
 		-- format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		--support_obj.pivot = getKnotPoint support_obj spline_1 2

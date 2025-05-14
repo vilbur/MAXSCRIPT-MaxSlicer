@@ -66,8 +66,8 @@ function onSourceObjectTransform sender evt =
 
 	/* UPDATE WHEN LBM IS RELEASED */ 
 	--if selection.count > 0 and not mouse.buttonStates[1] then
-	--if isValidNode obj and not mouse.buttonStates[1] then
-	if not mouse.buttonStates[1] then
+	if isValidNode obj and not mouse.buttonStates[1] then
+	--if not mouse.buttonStates[1] then
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
 		 -- format "\n===========================================================\n"

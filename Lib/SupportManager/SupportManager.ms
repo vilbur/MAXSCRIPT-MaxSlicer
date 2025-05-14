@@ -325,12 +325,12 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes update_raft:true direction:undefined =
 	(
-		  -- format "\n===========================================================\n"
-		 -- format "\n"; print "SupportManager_v.updateSupports()"
+		   -- format "\n===========================================================\n"
+		  -- format "\n"; print "SupportManager_v.updateSupports()"
 		--format "update_raft: %\n" update_raft
 		--format "direction: %\n" direction
 		--format "what_to_update: %\n" what_to_update
-		--format "support_nodes: %\n" support_nodes
+		-- format "support_nodes: %\n" support_nodes
 		--this._removeDeletedNodes()
 
 		pauseSupportTransformEvent()
@@ -348,10 +348,12 @@ struct SupportManager_v
 		this._updateBeamsBySupports(supports_by_source.keys)
 
 		this.updateShapes()
-
+		-- format "SupportObjects: %\n" (this._getSupportObjectsByNodes support_nodes )
+		--format "SupportObjects: %\n" (this.getSupportAndRaftObjects support_nodes )
 		/*	IMPORTANT PREVENT CRASH: setPivotToPoint(2) -- MUST BE AFTER updateShape */ 
 		for SupportObject in this.getSupportAndRaftObjects support_nodes do
 			SupportObject.setPivotToPoint(2)
+			
 		--supports = this.getSupportAndRaftObjects support_nodes
 		
 		resumeSupportTransformEvent()
@@ -934,10 +936,11 @@ struct SupportManager_v
 	 */
 	function getSupportAndRaftObjects _objects get_nodes:false =
 	(
-		--format "\n"; print "SupportManager_v.getSupportAndRaftObjects()"
+		-- format "\n"; print "SupportManager_v.getSupportAndRaftObjects()"
+		-- format "_objects: %\n" _objects
 		support_nodes = this._getSupportsOrRaftsNodes(_objects)(#SUPPORT)
 		raft_nodes    = this._getSupportsOrRaftsNodes(_objects)(#RAFT)
-	
+		-- format "raft_nodes: %\n" raft_nodes
 		if get_nodes then support_nodes + raft_nodes else this._getSupportObjectsByNodes(support_nodes + raft_nodes) 
 	),
 
@@ -980,9 +983,19 @@ struct SupportManager_v
 		--format "SupportObjects.keys: %\n" SupportObjects.keys
 
 		--for SupportObject in SupportObjects where index = findItem _objects SupportObject.value.support_obj > 0 collect SupportObject.value
+		/** Has support or raft key
+		 */
+		function findSupportOrRaftKey support_objects_keys obj =
+		(
+			--format "\n"; print "SupportManager_v.findSupportOrRaftKey()"
+			obj_key = if ( support_key = getUserPropVal obj "SUPPORT_KEY" ) != undefined then support_key else getUserPropVal obj "RAFT_KEY"
+			
+			findItem support_objects_keys obj_key
+		)
+		
 		support_objects_keys = SupportObjects.keys
 		
-		for obj in _objects where (index = findItem support_objects_keys ( getUserPropVal obj "SUPPORT_KEY" )) > 0 collect SupportObjects[support_objects_keys[index]]
+		for obj in _objects where (index = findSupportOrRaftKey support_objects_keys obj ) > 0 collect SupportObjects[support_objects_keys[index]]
 		
 	),
 	

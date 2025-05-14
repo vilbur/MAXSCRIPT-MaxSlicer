@@ -11,7 +11,7 @@ macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T S"
 --tooltip:	""
-icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:• GEENERATE SUPPORTS.\n\n• RESET SELECTED SUPPORTS\n\n• CONVERT RAFT TO SUPPORT.\n\nPriority o verts:\n  1) Selected Verts\n  2) Verts with vertex color"
+icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:• GEENERATE SUPPORTS.\n\n• RESET SELECTED SUPPORTS\n\n• CONVERT SELECTED RAFTS TO SUPPORTS.\n\nPriority o verts:\n  1) Selected Verts\n  2) Verts with vertex color"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0
@@ -34,7 +34,7 @@ icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:• GEENERATE SUPPORT
 macroscript	_print_support_generator_rafts
 category:	"_3D-Print"
 buttontext:	"R A F T S"
-icon:	"offset:[ 10, 6]|height:40|width:76|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
+icon:	"offset:[ 10, 6]|height:40|width:76|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) SUPPORTS - Turn support into raft"
 (
 	on execute do
 		undo "Generate Rafts" on

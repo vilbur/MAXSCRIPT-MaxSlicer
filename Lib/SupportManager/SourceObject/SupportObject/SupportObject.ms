@@ -194,8 +194,8 @@ struct SupportObject_v
 		if not this._isFirstPointAboveGround() then
 			return false
 		
-		--if not this.vectorIsInRangeCone() then
-			--this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
+		if not this.vectorIsInRangeCone() then
+			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
 		
 			
 		this._disbaleBoxMode()
@@ -1057,7 +1057,7 @@ struct SupportObject_v
 	 */
 	function setPivotToPoint index =
 	(
-		-- format "\n"; print "SupportObject_v._alignPivotToRaft()"
+		 --format "\n"; print "SupportObject_v.setPivotToPoint()"
 		--support_obj.pivot = getKnotPoint support_obj spline_1 2
 		support_obj.pivot = points[index]
 	),

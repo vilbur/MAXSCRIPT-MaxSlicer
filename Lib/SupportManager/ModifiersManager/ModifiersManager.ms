@@ -196,11 +196,12 @@ struct ModifiersManager_v
 		)
 	),
 	
+	
 	/** Convert obj type
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
 	(
-		--format "\n"; print "ModifiersManager_v.convertSupportType()"
+		format "\n"; print "ModifiersManager_v.convertSupportType()"
 		--format "to_type: %\n" to_type
 		--format "modifiers: %\n" modifiers
 		--format "_objects: %\n" _objects
@@ -218,6 +219,7 @@ struct ModifiersManager_v
 
 		for obj in _objects do
 		(
+			
 			for i = obj.modifiers.count to 1 by -1 do
 				deleteModifier obj 1
 

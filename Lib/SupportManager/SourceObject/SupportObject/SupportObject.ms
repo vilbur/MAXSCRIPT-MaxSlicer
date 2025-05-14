@@ -68,6 +68,7 @@ struct SupportObject_v
 	/* static */ 
 	--dir_vector_angle_range = 90,
 	dir_vector_angle_range = 80,
+	--dir_vector_angle_range = 45,
 	
 	private
 
@@ -219,6 +220,44 @@ struct SupportObject_v
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
+	/** Convert SUPPORT to RAFT and vice versa
+	  *
+	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
+	  *
+	 */
+	function convertType to_type =
+	(
+		-- format "\n"; print "SupportObject_v.convert()"
+		-- format "TO_TYPE: %\n" to_type
+	
+		function _getKey type = ( toUpper (type as string ) + "_KEY")
+		
+		/* SET PROPERTIES */ 
+		this.obj_type = to_type
+		
+		this.hit_raft 	= undefined
+		this.hit_leg	= undefined
+		--this.is_on_ground	= false
+		
+		
+		/* GET TYPE OF ORIGIN OBJECT */ 
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+		
+		
+		/* REPLACE OBJECT PROPERTY DATA */ 
+		deleteUserProp support_obj ( _getKey from_type  )
+		
+		setUserPropVal support_obj ( _getKey to_type  ) support_key
+		
+		
+		/* IF TYPE IS CONVERTED */ 
+		this._getPositionsFromLineOnConvert()
+		
+		
+		/* UPDATE SUPPORT */ 
+		this.updateSupport()
+	),
+
 	/** Rebulid support
 	 */
 	function rebulidSupport dir_vector: =
@@ -241,7 +280,9 @@ struct SupportObject_v
 		--first_knot_pos = getKnotPoint support_obj spline_1 1
 		--first_knot_pos = support_obj.pivot
 		
-		this.generateSupport index first_knot_pos:(getKnotPoint support_obj spline_1 1) direction:direction dir_vector:dir_vector --wirecolor:support_obj.wirecolor 
+		this.generateSupport index first_knot_pos:(getKnotPoint support_obj spline_1 1) direction:direction dir_vector:dir_vector --wirecolor:support_obj.wirecolor
+		
+		--this.setPivotToPoint(2)
 	),
 	
 	/** Update support height
@@ -393,7 +434,6 @@ struct SupportObject_v
 			/* GET HIT POSITION DIR VECTOR */ 
 			if hit_distance != undefined then
 				hit.pos = pos + ( hit_distance * dir )
-			
  		)
 
 		hit --return
@@ -493,6 +533,30 @@ struct SupportObject_v
 		this._setMaterialsToLineSegments()
 	),
 	
+	/** Get knots postions from existing line
+	  * 
+	  * 1) SUPPORT > RAFT 
+	  * 
+	  *		A) Get 2nd point if support is on ground
+	  * 		B) Get LAST knot if support is NOT on ground
+	  * 
+	  * 
+	  *  2) RAFT > SUPPORT
+	  * 
+	  * 	 	Get LAST knot of raft
+	 */
+	function _getPositionsFromLineOnConvert =
+	(
+		--format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
+		
+		second_point = if obj_type == #RAFT and is_on_ground then 2 else numKnots support_obj spline_1
+		
+		
+		points_positions = #(
+			getKnotPoint support_obj spline_1 1,
+			getKnotPoint support_obj spline_1 second_point
+		)
+	),
 	
 	/** • AVOID SUPORT UNDER GROUND
 	 */

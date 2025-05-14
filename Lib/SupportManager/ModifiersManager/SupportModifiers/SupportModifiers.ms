@@ -7,7 +7,7 @@ struct SupportModifiers_v
 	/* properties */
 	--mod_names = #("BAR WIDTH", "Select Base", "BASE WIDTH", "CHAMFER BASE", "CHAMFER BAR", "Select Ends", "Select Top", "EXTEND"),
 
-	mods_support	=  Array (7),
+	mods_support	=  Array (8),
 	mods_raft	=  Array (4),
 
 	/* options */

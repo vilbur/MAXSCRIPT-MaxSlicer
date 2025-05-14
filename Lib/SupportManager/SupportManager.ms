@@ -511,7 +511,7 @@ struct SupportManager_v
 	
 	/*------------------------------------------------------------------------------
 	
-		CONVERT
+		CONVERT: SUPPORT <—> RAFT
 	
 	--------------------------------------------------------------------------------*/
 	
@@ -556,6 +556,9 @@ struct SupportManager_v
 
 		this.updateShapes()
 
+		--for SupportObject in this.getSupportAndRaftObjects supports_to_convert do
+			--SupportObject.setPivotToPoint(2)
+		
 		resumeSupportTransformEvent()
 	),
 

@@ -268,59 +268,29 @@ struct SourceObject_v
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
 
-			-- format "TEST: %\n" (dir_vector == undefined or dir_vector.z < 0)
 			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
 			if dir_vector == undefined or dir_vector.z < 0 then
 			(
-				-- format "boxmode: %\n" (Support.support_obj.boxmode)
+				/*------------------------------------------------------------------------------
+					UPDATE SUPPORT
+				--------------------------------------------------------------------------------*/
 				if not Support.support_obj.boxmode then
-				(
-					/*------------------------------------------------------------------------------
-						
-						UPDATE SUPPORT
-						
-					--------------------------------------------------------------------------------*/
-					try(
-						support_updated = Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
-						-- format "SUPPORT_UPDATED: %\n" SUPPORT_UPDATED
-
-					--if not support_updated then
-					if support_updated == false then
-						this._enableBoxMode(Support) pivot_pos:first_knot_pos
-					)catch(
-						-- format "\nSHIT\n"
-					)
-					 -- format "support_updated: %\n" support_updated
+					Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
 					 
-				)
-				else /* RESTORE FROM BOX MODE IF VECTOR BECOME VALID */
+				/*------------------------------------------------------------------------------
+					RESTORE FROM BOX MODE IF VECTOR BECOME VALID
+				--------------------------------------------------------------------------------*/
+				else
 					Support.rebulidSupport dir_vector:dir_vector
 			)
-			else /* DISABLE SUPPORT IF NOT VALID */ 
-				this._enableBoxMode(Support)
+			/*------------------------------------------------------------------------------
+				DISABLE SUPPORT IF NOT VALID
+			--------------------------------------------------------------------------------*/
+			else 
+				Support._enableBoxMode()
 		)
 		
 		free SupportsToUpdate
-	),
-	
-	/** Get dir vector
-	 */
-	function _getDirVector direction index =
-	(
-		-- format "\n"; print "SourceObject_v._getDirVector()"
-		case direction of
-			(
-				(#DOWN):   [ 0, 0, -1 ]
-				(#NORMAL): Normals.normals_world[index]
-			)
-	),
-	
-	/** Disable support by showing it as box
-	 */
-	function _enableBoxMode Support pivot_pos: =
-	(
-		  -- format "\n"; print "SourceObject_v._enableBoxMode()"
-		Support.support_obj.boxmode = true
 	),
 
 	/** Update single support
@@ -393,16 +363,7 @@ struct SourceObject_v
 		free SupportsToUpdate
 	),
 
-	/** Get support by node
-	 */
-	function _getSupportByNode support_node =
-	(
-		--format "\n"; print "SourceObject_v._getSupportByNode()"
-		index = getUserPropVal support_node "INDEX"
-
-		Supports[index] --return
-	),
-
+	
 	/** Get support nodes of given type
 	  * isValidNode is check beacuse of deleted nodes stays in script for case of undo action and objects reappears.
 	  *
@@ -488,6 +449,29 @@ struct SourceObject_v
 	),
 	
 	private
+
+	
+	/** Get dir vector
+	 */
+	function _getDirVector direction index =
+	(
+		-- format "\n"; print "SourceObject_v._getDirVector()"
+		case direction of
+			(
+				(#DOWN):   [ 0, 0, -1 ]
+				(#NORMAL): Normals.normals_world[index]
+			)
+	),
+		/** Get support by node
+	 */
+	function _getSupportByNode support_node =
+	(
+		--format "\n"; print "SourceObject_v._getSupportByNode()"
+		index = getUserPropVal support_node "INDEX"
+
+		Supports[index] --return
+	),
+
 
 	/** Get Supports 
 	  * 

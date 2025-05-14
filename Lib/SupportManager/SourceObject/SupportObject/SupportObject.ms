@@ -66,10 +66,8 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	--dir_vector_angle_range = 180,
-	--dir_vector_angle_range = 180,
+	dir_vector_angle_range = 90,
 	--dir_vector_angle_range = 45,
-	dir_vector_angle_range = 45,
 	
 	private
 
@@ -110,46 +108,45 @@ struct SupportObject_v
 		
 		this._saveUserPropsToSupport(vertex_index)
 		
-		if not this._isFirstPointAboveGround() then
-			return false
-		-- format "\nWTF"
-		--support_obj.boxmode = false
-			
-		this._fillThisWithOptionValues()
-		
-		this._setMinLimints (direction)
-
-		
-		/*------------------------------------------------------------------------------
-			SET SUPPORT LINE POINTS
-		--------------------------------------------------------------------------------*/
-		
-		this._setSupportLinePoints()
-		
-
-		/*------------------------------------------------------------------------------
-			CREATE SUPPORT
-		--------------------------------------------------------------------------------*/
+		if this._isFirstPointAboveGround() then
+		(
 				
-		this._drawLine()
-
-		this._setMaterialsToLineSegments()
-		
-		this._setName(vertex_index)
-		
-		this._setPivotToPoint(2)
-		
-		this._alignPivotToRaft()
-
-		this._isOnGround()
-		
-		this._saveOptionsToUserProps()
-
-		this._lockRotationAndScaleTransforms()
-		
-		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-
-		this -- return
+			this._fillThisWithOptionValues()
+			
+			this._setMinLimints (direction)
+	
+			
+			/*------------------------------------------------------------------------------
+				SET SUPPORT LINE POINTS
+			--------------------------------------------------------------------------------*/
+			
+			this._setSupportLinePoints()
+			
+	
+			/*------------------------------------------------------------------------------
+				CREATE SUPPORT
+			--------------------------------------------------------------------------------*/
+					
+			this._drawLine()
+	
+			this._setMaterialsToLineSegments()
+			
+			this._setName(vertex_index)
+			
+			this._setPivotToPoint(2)
+			
+			this._alignPivotToRaft()
+	
+			this._isOnGround()
+			
+			this._saveOptionsToUserProps()
+	
+			this._lockRotationAndScaleTransforms()
+			
+			SUPPORT_MANAGER.updateShapeAdd (support_obj)
+		)
+		else
+			this._enableBoxMode()
 	),
 	
 	/** 	UPDATE SUPPORTS
@@ -165,8 +162,9 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		 -- format "\n----------------------------------------------\n"
-		 -- format "\n"; print "SupportObject_v.updateSupport()"
+		  -- format "\n----------------------------------------------\n"
+		  -- format "\n"; print "SupportObject_v.updateSupport()"
+		  -- format "direction: %\n" direction
 		 -- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
 		 -- format "dir_vector:  %\n" dir_vector
@@ -189,32 +187,22 @@ struct SupportObject_v
 		--format "dir_vector == undefined: %\n" (dir_vector == undefined)
 		-- format "NORMAL: %\n" (normalize (points[2] - points[1]))
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
-		 -- format "this.dir_vector: %\n" this.dir_vector
 		
 		this._keepVectorDown()
-		-- format "this._isFirstPointAboveGround(): %\n" (this._isFirstPointAboveGround())
+
 		if not this._isFirstPointAboveGround() then
 			return false
 		
-		-- format "not this.vectorIsInRangeCone(): %\n" (not this.vectorIsInRangeCone())
 		if not this.vectorIsInRangeCone() then
-		(
-			-- format "WTF\n"
 			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
-		)
 		
-		 -- format "this.dir_vector: %\n" this.dir_vector
 			
 		this._disbaleBoxMode()
 
 		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		 -- format "CHANGED_PROPS: %\n" this.changed_props.keys
-		-- format "this.dir_vector: %\n" this.dir_vector
 			
-		--this._setDirVector (dir_vector) update_raft:update_raft
 		set_min_limits = update_raft == true or min_raft_length == undefined
 		
-		--this._setMinLimints(direction) update_raft:update_raft
 		this._setMinLimints(direction) update_raft:set_min_limits
 		
 		/*------------------------------------------------------------------------------
@@ -227,9 +215,10 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
-
-		if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined then
-			this._setPivotToPoint(2)
+		 --format "DIST: %\n" (distance points[2] support_obj.pos)
+		--if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined then
+		--if SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and distance points[2] support_obj.pos > 0 then
+			--this._setPivotToPoint(2)
 			
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		--print "G"
@@ -328,155 +317,18 @@ struct SupportObject_v
 		)
 	),
 	
-	/** Methods needs to be done after this._setSupportLinePoints()
-
-		IMPORTANT PREVENT CRASH:
-			NEVER RUN ON UPDATE: this._setPivotToPoint(2)
-			
-			
-		THIS ALSO ALOW TO PIVOT BE FREE WHEN: SupportRaft.hit_raft == true or SupportLeg.hit_leg == true
+	/** TEST COLLISION WITH SOURCE OBJECT
 	 */
-	function _postUpdate =
+	function intersectRaySourceObject pos dir =
 	(
-		--format "\n"; print "SupportObject_v._postUpdate()"
-		this._updateCountOfKnots()
-		
-		this._updateKnotsPositionByPoints()
-		
-		this._saveFirstKnotPos()
-
-		this._isOnGround()
-		
-		this._setMaterialsToLineSegments()
-	),
-	
-	/** Set support line points
-	 */
-	function _setSupportLinePoints =
- 	(
-		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
-		
-		/* CREATE RAFT */ 
-		SupportRaft.createRaft()
-		 -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
-
-		/* CREATE LEG */ 
-		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
-		(
-			foot_exists = foot_enabled and SupportRaft.foot_space_exists
-		
-			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
-			  --format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
-			
-			/* CREATE FOOT */ 
-			if SupportLeg.hit_leg == undefined and foot_exists then 
-				SupportFoot.createFoot()
-		)
-
-		this._setFootExists()
-	),
-	
-	--/** Convert SUPPORT to RAFT and vice versa
-	--  *
-	--  * @param #SUPPORT|#RAFT to_type type of obejct to covert
-	--  *
-	-- */
-	--function convertType to_type =
-	--(
-	--	-- format "\n"; print "SupportObject_v.convert()"
-	--	-- format "TO_TYPE: %\n" to_type
-	--
-	--	--function _getKey type = ( toUpper (type as string ) + "_KEY")
-	--	--
-	--	--/* SET PROPERTIES */ 
-	--	--this.obj_type = to_type
-	--	--
-	--	--this.hit_raft 	= undefined
-	--	--this.hit_leg	= undefined
-	--	----this.is_on_ground	= false
-	--	--
-	--	--
-	--	--/* GET TYPE OF ORIGIN OBJECT */ 
-	--	--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-	--	--
-	--	--
-	--	--/* REPLACE OBJECT PROPERTY DATA */ 
-	--	--deleteUserProp support_obj ( _getKey from_type  )
-	--	--
-	--	--setUserPropVal support_obj ( _getKey to_type  ) support_key
-	--	--
-	--	--
-	--	--/* IF TYPE IS CONVERTED */ 
-	--	--this._getPositionsFromLineOnConvert()
-	--	--
-	--	--
-	--	--/* UPDATE SUPPORT */ 
-	--	--this.updateSupport()
-	--),
-	--
-
-
-	--/** Update base height
-	-- */
-	--function updateBaseHeight =
-	--(
-	--	-- format "\n"; print "SupportObject_v.updateBaseHeight()"
-	--	-- format "support_obj: %\n" support_obj.name
-	--	--if this.is_on_ground != undefined and this.is_on_ground then
-	--	--(
-	--	--	ground_knot = numKnots support_obj spline_1
-	--	--	base_knot   = ground_knot - 1
-	--	--	
-	--	--	base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
-	--	--	base_knot_pos.z = SUPPORT_OPTIONS.base_height
-	--	--	
-	--	--	setKnotPoint support_obj spline_1 base_knot base_knot_pos
-	--	--	
-	--	--	setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-	--	--
-	--	--	SUPPORT_MANAGER.updateShapeAdd (support_obj)
-	--	--)
-	--),
- 
-	/** Is raft
-	 */
-	function isRaft =
-	(
-		-- format "\n"; print "SupportObject_v.isRaft()"
-		getUserPropVal support_obj "RAFT_KEY" != undefined
-	),
-
-	/** Is vector pointing down
-	 */
-	function isVectorPointingDown =
-	(
-		-- format "\n"; print "SupportObject_v.isVectorPointingDown()"
-		fn round p3 =
-		(
-			local tempArr = #(p3.x,p3.y,p3.z)
-			local mult = 10.00^(3 as float)
-			local rp3Arr = for c in tempArr collect ((floor ((c * mult)+0.5)) / mult)
-			point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
-		)
-	
-		knot_1 = round (getKnotPoint support_obj spline_1 1)
-		knot_2 = round (getKnotPoint support_obj spline_1 2)
-		
-		knot_1.x == knot_2.x and knot_1.y == knot_2.y and knot_1.z != knot_2.z
-	),
-
-	/** Test collision with source object
-	 */
-	function intersectRaySourceObject pos direction =
-	(
-		-- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		 -- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
 		/* Shift origin point perpendicular to a vector and project to plane
 			
 			DEV EXAMPLE: --"./_Dev/shiftPointPerpendicularOnPlane_dev.ms"
 		*/
 		function shiftPointPerpendicularOnPlane origin_point direction_vector shift_distance plane =
 		(
-			-- Project direction vector to selected plane
+			-- Project dir vector to selected plane
 			case plane of
 			(
 				#XY: projected_vector = normalize [direction_vector.x, direction_vector.y, 0]
@@ -507,15 +359,22 @@ struct SupportObject_v
 		
 		half_of_bar_width = this.bar_width / 2
 		
-		ray_pos = pos + (0.1 * direction)
+		ray_pos = pos + (0.1 * dir)
 		--ray_pos = pos 
+		
+		
+		-- format "ray_pos: %\n" ray_pos
+		-- format "dir: %\n" dir
 		
 		if source_obj != undefined then
 		(
+			hit = intersectRay source_obj ( Ray ray_pos dir )
+			
+			-- format "HIT: %\n" hit
 			/*------------------------------------------------------------------------------
 				TRY HIT ON CENTER OF SUPPORT
-			--------------------------------------------------------------------------------*/
-			if ( hit = intersectRay source_obj ( Ray ray_pos direction) ) == undefined then
+			------------------------------------------------------------------------------*/
+			if ( hit = intersectRay source_obj ( Ray ray_pos dir) ) == undefined then
 			(
 				
 				/*------------------------------------------------------------------------------
@@ -525,26 +384,62 @@ struct SupportObject_v
 				(
 					shift_distance = if mod i 2 == 0 then half_of_bar_width * -1 else half_of_bar_width
 					
-					pos_shifted = shiftPointPerpendicularOnPlane ray_pos direction shift_distance planes[i]
+					pos_shifted = shiftPointPerpendicularOnPlane ray_pos dir shift_distance planes[i]
 					
 					/* GET DISTANCE TO HIT */ 
-					if ( hit = intersectRay source_obj ( Ray pos_shifted direction) ) != undefined then 
+					if ( hit = intersectRay source_obj ( Ray pos_shifted dir) ) != undefined then 
 						hit_distance = distance ray_pos hit.pos
 				)
 			)
 			else /* GET DISTANCE TO HIT */ 
 				hit_distance = distance ray_pos hit.pos
 			
-
+			
 			/* GET HIT POSITION DIR VECTOR */ 
 			if hit_distance != undefined then
-				hit.pos = pos + ( hit_distance * direction )
+				hit.pos = pos + ( hit_distance * dir )
 			
  		)
 
 		hit --return
 	),
 
+	/** Is raft
+	 */
+	function isRaft =
+	(
+		-- format "\n"; print "SupportObject_v.isRaft()"
+		getUserPropVal support_obj "RAFT_KEY" != undefined
+	),
+
+	/** Is vector pointing down
+	 */
+	function isVectorPointingDown =
+	(
+		-- format "\n"; print "SupportObject_v.isVectorPointingDown()"
+		fn round p3 =
+		(
+			local tempArr = #(p3.x,p3.y,p3.z)
+			local mult = 10.00^(3 as float)
+			local rp3Arr = for c in tempArr collect ((floor ((c * mult)+0.5)) / mult)
+			point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
+		)
+	
+		knot_1 = round (getKnotPoint support_obj spline_1 1)
+		knot_2 = round (getKnotPoint support_obj spline_1 2)
+		
+		knot_1.x == knot_2.x and knot_1.y == knot_2.y and knot_1.z != knot_2.z
+	),
+
+	
+	/** Disable support by showing it as box
+	 */
+	function _enableBoxMode =
+	(
+		  -- format "\n"; print "SourceObject_v._enableBoxMode()"
+		support_obj.boxmode = true
+	),
+	
 	/** Has splines
 	 */
 	function hasSplines =
@@ -553,7 +448,56 @@ struct SupportObject_v
 		numSplines support_obj > 0
 	),
 	
-	private
+	--private
+	
+	
+	/** Set support line points
+	 */
+	function _setSupportLinePoints =
+ 	(
+		  -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		
+		/* CREATE RAFT */ 
+		SupportRaft.createRaft()
+		  -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+
+		/* CREATE LEG */ 
+		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
+		(
+			foot_exists = foot_enabled and SupportRaft.foot_space_exists
+		
+			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
+			  --format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
+			
+			/* CREATE FOOT */ 
+			if SupportLeg.hit_leg == undefined and foot_exists then 
+				SupportFoot.createFoot()
+		)
+
+		this._setFootExists()
+	),
+	
+	/** Methods needs to be done after this._setSupportLinePoints()
+
+		IMPORTANT PREVENT CRASH:
+			NEVER RUN ON UPDATE: this._setPivotToPoint(2)
+			
+			
+		THIS ALSO ALOW TO PIVOT BE FREE WHEN: SupportRaft.hit_raft == true or SupportLeg.hit_leg == true
+	 */
+	function _postUpdate =
+	(
+		--format "\n"; print "SupportObject_v._postUpdate()"
+		this._updateCountOfKnots()
+		
+		this._updateKnotsPositionByPoints()
+		
+		this._saveFirstKnotPos()
+
+		this._isOnGround()
+		
+		this._setMaterialsToLineSegments()
+	),
 	
 	
 	/** • AVOID SUPORT UNDER GROUND

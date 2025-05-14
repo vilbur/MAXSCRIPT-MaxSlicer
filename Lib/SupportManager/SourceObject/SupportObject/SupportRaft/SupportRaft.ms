@@ -26,7 +26,7 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		 -- format "\n"; print "SupportRaft_v.createRaft()"
+		  -- format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
@@ -46,7 +46,7 @@ struct SupportRaft_v
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    hit_raft = this._testHitOfSourceObject( normal_length )
-		
+		-- format "HIT_RAFT: %\n" hit_raft
 		/*------------------------------------------------------------------------------
 			MODIFY RAFT LENGHT ABOVE GROUND
 		--------------------------------------------------------------------------------*/
@@ -160,7 +160,7 @@ struct SupportRaft_v
 		ray_pos = Support.points[1]
 		 
 		hit = Support.intersectRaySourceObject (ray_pos)  ( Support.dir_vector )
-
+		-- format "hit: %\n" hit
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and Support.obj_type == #SUPPORT and distance ray_pos hit.pos > max_distance then
 			hit = undefined

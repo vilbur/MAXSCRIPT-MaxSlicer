@@ -138,8 +138,7 @@ struct SourceObject_v
 			)
 		
 		/*------------------------------------------------------------------------------
-			BIND EVENTS TO SOURCE OBJECT
-		--------------------------------------------------------------------------------*/
+z		--------------------------------------------------------------------------------*/
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
 		
 		/* RETURN */
@@ -344,7 +343,7 @@ struct SourceObject_v
 				
 			)
 			else
-				this._enableBoxMode()
+				Support._enableBoxMode()
 		)
 	),
 	
@@ -438,6 +437,48 @@ struct SourceObject_v
 		)
 
 		verts_pos --return
+	),
+	
+	/** Set Z axis position of source object
+	  * 
+	  * @param integer base_to_support_gap number of layer between ground and min z position of bounging box 
+	 */
+	function setMinZpos base_to_support_gap =
+	(
+		format "\n"; print "SourceObject_v.setMinZpos()"
+		
+		/** Get pointer
+		 */
+		function _getPointer = (getHandleByAnim obj) as string --return
+		
+		
+		
+		obj.position.z = SOURCE_OBJECT_TRANSFORM.transform_data[_getPointer()][#POS_Z]
+
+		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+		format "min z: %\n" (bbox[1].z)
+		mini_z_pos =  ( obj.position.z - bbox[1].z )
+		format "mini_z_pos: %\n" mini_z_pos	
+		mini_z_pos += ( SUPPORT_OPTIONS.layer_height * base_to_support_gap ) 
+		format "mini_z_pos: %\n" mini_z_pos
+		
+		mini_z_pos -= mod mini_z_pos SUPPORT_OPTIONS.layer_height -- round value to layer position E.G.: 0.0521 >>> 0.05 
+		
+		obj.position.z = mini_z_pos
+
+		SOURCE_OBJECT_TRANSFORM.transform_data[_getPointer()][#POS_Z] = mini_z_pos
+		
+		
+	),
+	
+	/** Get min z pos of world boungingBox 
+	 */
+	function getMinZ =
+	(
+		--format "\n"; print "SourceObject_v.getMinZ()"
+		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+		bbox[1].z --return
 	),
 	
 	/** Remove deleted nodes

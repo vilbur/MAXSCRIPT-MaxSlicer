@@ -62,74 +62,79 @@ function onSourceObjectTransform sender evt =
 		not valuesAreClose angle_A.x angle_B.x or not valuesAreClose angle_A.y angle_B.y
 		
 	)
-
-
-	/* UPDATE WHEN LBM IS RELEASED */ 
-	--if selection.count > 0 and not mouse.buttonStates[1] then
-	if isValidNode obj and not mouse.buttonStates[1] then
-	--if not mouse.buttonStates[1] then
+	
+	
+	source_objects = for source_object in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects source_object > 0 collect source_object 
+	
+	for source_object in source_objects do 
 	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		 -- format "\n===========================================================\n"
-		 -- format "\n"; print "onSourceObjectTransform()"
-		pauseSupportTransformEvent()
-		source_objects = for obj in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects obj > 0 collect obj 
-		
-		obj = source_objects[1]
-		
-		transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim obj) as string ]
-
-		rotation_current = quatToEuler2 obj.rotation.controller.value
-		 -- format "rotation_current: %\n" rotation_current
-		rotation_saved   = transform_data[#ROTATION]
-		 -- format "rotation_saved:   %\n" rotation_saved	
-		
-		
-		/* TEST IF OBJECT HAS BEEN ROTATED ONLY BY X or Y AXIS - rotation only on z axis does not need update */
-		rotation_chaged = XorYrotationChanged rotation_current rotation_saved
-		-- format "ROTATION_CHAGED: %\n" rotation_chaged
-		
-		/* TEST POSITION */ 		
-		pos_z_changed = roundFloat transform_data[#POS_Z] != roundFloat obj.position.z
-		--format "\nPOS_Z_CHANGED: %\n\n" pos_z_changed
-		/* CHOOSE WAHT TO UPDATE */ 		
-		what_to_update = case of
+		/* UPDATE WHEN LBM IS RELEASED */ 
+		if not mouse.buttonStates[1] then
 		(
-			(not rotation_chaged and not pos_z_changed ):	#POSITION_XY
-			(pos_z_changed):	#POSITION_Z
-			default:	#ROTATION
-		)
-		 --format "what_to_update: %\n" what_to_update
-		/* Update SourceObject and its suports if necessary */
-		if what_to_update != #POSITION_XY then -- if source object
-  
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
+			  format "\n===========================================================\n"
+			 -- format "\n"; print "onSourceObjectTransform()"
+			--format "SOURCE_OBJECTS: %\n" source_objects
+			
+			pauseSupportTransformEvent()
+			
+			transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim source_object) as string ]
 	
-				/*------------------------------------------------------------------------------
-				  
-					EXECUTE UPDATE
-					
-				--------------------------------------------------------------------------------*/
+			rotation_current = quatToEuler2 source_object.rotation.controller.value
+			 -- format "rotation_current: %\n" rotation_current
+			rotation_saved   = transform_data[#ROTATION]
+			 -- format "rotation_saved:   %\n" rotation_saved	
 
-				SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)				
-			--)
-			--catch
-			--(
-				-- format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
+			/* TEST IF OBJECT HAS BEEN ROTATED ONLY BY X or Y AXIS - rotation only on z axis does not need update */
+			rotation_chaged = XorYrotationChanged rotation_current rotation_saved
+			 format "ROTATION_CHAGED: %\n" rotation_chaged
+			format "transform_data[#POS_Z]:   %\n" transform_data[#POS_Z]
+			format "source_object.position.z: %\n" (source_object.position.z)
+			format "TEST: %\n" (abs(source_object.position.z - transform_data[#POS_Z]))
+			
+			/* TEST POSITION */ 		
+			pos_z_changed = roundFloat transform_data[#POS_Z] != roundFloat source_object.position.z
+
+			/* CHOOSE WAHT TO UPDATE */ 		
+			what_to_update = case of
+			(
+				--(not rotation_chaged and not pos_z_changed ):	#POSITION_XY
+				(rotation_chaged):	#ROTATION
+				(pos_z_changed):	#POSITION_Z
+				--default:	#ROTATION
+			)
+			 format "what_to_update: %\n" what_to_update 
+			/* Update SourceObject and its suports if necessary */
+			/*------------------------------------------------------------------------------
+				EXECUTE UPDATE
+			--------------------------------------------------------------------------------*/
+			if what_to_update != #POSITION_XY then -- if source object
 	
-				-- format "FILE: \n%\n" (getErrorSourceFileName())
-				-- format "LINE: %\n" ( (getErrorSourceFileLine()) as integer )
+					SUPPORT_MANAGER.updateBySourceObject( source_objects ) (what_to_update)				
+				--)
+				--catch
+				--(
+					-- format "\n************ EXCEPTION FILE: ************\n%\n***********************************\n"  (getCurrentException())
+		
+					-- format "FILE: \n%\n" (getErrorSourceFileName())
+					-- format "LINE: %\n" ( (getErrorSourceFileLine()) as integer )
+					
+					-- format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
+					
+				--)
 				
-				-- format "\n************ STACK ************\n%\n***********************************\n" (getCurrentExceptionCallStack())
 				
-			--)
+			for source_object in source_objects do 
+				SOURCE_OBJECT_TRANSFORM.setTransformData(source_object)
+					
+			--SOURCE_OBJECT_TRANSFORM.moved_objects = #()
+			
+			resumeSupportTransformEvent()
 			
 			
-		for obj in source_objects do 
-			SOURCE_OBJECT_TRANSFORM._setTransformData(obj)
-				
-		
-		removeTimeout sender
-		
-		resumeSupportTransformEvent()
+			removeTimeout sender
+			
+		)
 	)
 )
+

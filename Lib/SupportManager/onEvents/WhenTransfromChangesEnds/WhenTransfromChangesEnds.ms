@@ -1,11 +1,4 @@
-/** When transfrom ends callback
- */
-function transfromEndsCallback _objects =
-(
-	format "\n"; print "WhenTransfromChangesEnds_v.transfromEndsCallback()"
-	format "_OBJECTS: %\n" _objects
-	
-)
+
 
 /** When transfrom changes
   * 

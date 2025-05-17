@@ -78,7 +78,7 @@ try(
 	/*------------------------------------------------------------------------------
 		INIT GLOBAL CLASSES when ui exists
 	--------------------------------------------------------------------------------*/
-	SUPPORT_OPTIONS = SupportOptions_v #(ROLLOUT_generator, ROLLOUT_supports, ROLLOUT_beams)
+	SUPPORT_OPTIONS = SupportOptions_v (DIALOG_content)
 
 	SUPPORT_OPTIONS.getValuesFromUi()
 

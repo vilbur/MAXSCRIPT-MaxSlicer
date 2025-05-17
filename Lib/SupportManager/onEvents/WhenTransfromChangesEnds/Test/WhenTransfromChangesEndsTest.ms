@@ -5,7 +5,14 @@ filein( getFilenamePath(getSourceFileName()) + "/../WhenTransfromChangesEnds.ms"
 
 
 --format "WHEN_TRANSFROM_CHANGES_ENDS: %\n" WHEN_TRANSFROM_CHANGES_ENDS
-
+/** When transfrom ends callback
+ */
+function transfromEndsCallback _objects =
+(
+	format "\n"; print "WhenTransfromChangesEnds_v.transfromEndsCallback()"
+	format "_OBJECTS: %\n" _objects
+	
+)
 
 /* TEST */
 delete objects

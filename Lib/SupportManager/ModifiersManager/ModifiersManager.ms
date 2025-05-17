@@ -45,19 +45,12 @@ struct ModifiersManager_v
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 
 			max modify mode
+			--max create mode
 		
 			for i = modifiers.count to 1 by -1 do
-			(
-				--format "MODIFIER: %\n" (modifiers[i])
 				--addModifier _objects modifiers[i]
-				--
-				--if classOf modifiers[i] == sweep then
-				--	this._setSweepProperties (_objects[1])
-				--	
-				--else
 					modPanel.addModToSelection ( modifiers[i] ) --ui:on
-			)
-		
+
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepProperties (_objects[1])
 		)

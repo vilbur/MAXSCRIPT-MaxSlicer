@@ -13,7 +13,7 @@ filein( getFilenamePath(getSourceFileName()) + "/ModifierValue/ModifierValue.ms"
 struct SupportOptions_v
 (
 	/* construct */
-	rollouts, -- rollout where values are store in UI
+	main_rollout, -- rollout where values are store in UI
 	export_size = 1,
 	
 	/* DEPENDENCY */
@@ -110,7 +110,25 @@ struct SupportOptions_v
 		
 		val --return
 	),
-
+	/** Get controls with option value
+	 */
+	function getControlsWithOptionValue roll &controls =
+	(
+		/** Is value control
+		 */
+		function isValueControl ctrl = findItem #( #SpinnerControl, #CheckBoxControl, #RadioControl, #RadioControl ) (((classOf ctrl) as string ) as name ) > 0
+		
+		for ctrl in roll.controls do
+			if ( classOf_ctrl = classOf ctrl ) == SubRollout then
+				for subroll in ctrl.rollouts do
+					this.getControlsWithOptionValue (subroll) (controls)
+					
+			else if isValueControl(ctrl) then
+				append controls ctrl
+				
+		controls --return
+	),
+	
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 
 	  * CONTROL ID >>> PROPERTY NAME 		E.G.: Rollout.BTN_prop_name >>> SupportOptions.prop_name
@@ -120,6 +138,7 @@ struct SupportOptions_v
 	(
 		-- format "\n"; print "SupportOptions_v.getValuesFromUi()"
 
+		
 		/** get property key from control id E.G.: "SPIN_prop_key" >>> "prop_key"
 		  * 
 		  * @return string|undefined 
@@ -133,52 +152,25 @@ struct SupportOptions_v
 
 			regExReplace ctrl_name ("^("+control_type_to_fetch_values+")_")
 		)
-
-		if classOf rollouts != Array then
-			rollouts = #(rollouts)
-
-		/*------------------------------------------------------------------------------
-		  
-			HOT FIX !!!!!!!!!
-			EXPORT SIZE VALUE SHOULD BE CONNECTED TO VilTools3
-			
-			
-		--------------------------------------------------------------------------------*/
-		export_size = if ROLLOUT_export == undefined then
-		(
-			-- format "\n============= WARNING =============\n"
-
-			print "VilTools Exporter does not exists"
-			print "Export Size 1 is used"
-
-			1 --return
-		)
-		else
-		  ROLLOUT_export.SPIN_export_size.value
+		
+		controls = this.getControlsWithOptionValue (main_rollout) #()
 
 
-		/** 
-		  *
-		  * Perform kind of this in loop:
+		/** Perform kind of this in loop:
 		  *   Options.base_extrude	= roll.SPIN_base_width.value
+		  *
 		  */
-		for _rollout in rollouts do
+		for ctrl in controls where (prop_key = getPropertyKeyFromControlId ctrl.name ) != undefined and hasProperty SUPPORT_OPTIONS prop_key do
 		(
-			if _rollout != undefined then 
-				for ctrl in _rollout.controls where (prop_key = getPropertyKeyFromControlId ctrl.name ) != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-				(
-					control_value = case classOf ctrl of
-					(
-						ComboBoxControl: ctrl.selection -- dropdownlist
-						CheckBoxControl: ctrl.state
-						RadioCOntrol:    ctrl.state
-						default:         ctrl.value
-					)
-	
-					this.setOptionValue (prop_key) (control_value)
-				)
-			--else
-				-- format "SupportOptions_v.getValuesFromUi() - _rollout IS UNDEFINED" 
+			control_value = case classOf ctrl of
+			(
+				ComboBoxControl: ctrl.selection -- dropdownlist
+				CheckBoxControl: ctrl.state
+				RadioCOntrol:    ctrl.state
+				default:         ctrl.value
+			)
+
+			this.setOptionValue (prop_key) (control_value)
 		)
 	),
 
@@ -200,6 +192,7 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
 		setProperty this prop_key val
 	),
+
 
 	--/** Get chamfer bar value
 	-- */

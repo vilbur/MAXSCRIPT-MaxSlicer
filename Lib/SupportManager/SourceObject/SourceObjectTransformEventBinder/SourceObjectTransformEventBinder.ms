@@ -21,7 +21,7 @@ struct SourceObjectTransformEventBinder_v
 	
 	moved_objects = #(),
 
-	transform_data = Dictionary #STRING,
+	transform_data = Dictionary #STRING, -- KEY: "obj pointer" VALUE: Dictionary.keys #(#POS_Z, #ROTATION)
 	
 	delay_timer,
     min_limit = [0,0,0],
@@ -30,23 +30,19 @@ struct SourceObjectTransformEventBinder_v
 	/* dependency */
 	/* reference */
 	/* inhered */
-
 	
 	/** Bind source object transform event
 	 */
 	function bindSourceObjectTransformEvent source_obj =
 	(
-		--format "\n"; print "onSourceObjectTransform.ms.bindSourceObjectTransformEvent()"
 		--format "\n"; print "SourceObjectTransform_v.bindSourceObjectTransformEvent()"
 		--format "source_obj: %\n" source_obj
-		
-		
 		
 		this._setBindedObjects(source_obj)
 		
 	
 		for obj in binded_objects where transform_data[this._getPointer obj] == undefined do 
-			this._setTransformData(obj)	
+			this.setTransformData(obj)	
 			
 		deleteAllChangeHandlers id:#onSourceObjectTransform
 		
@@ -54,8 +50,10 @@ struct SourceObjectTransformEventBinder_v
 		--when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 		when transform binded_objects changes id:#onSourceObjectTransform obj do
 		(
-			if SUPPORT_OPTIONS.keep_source_minz_z_pos then
-				this._keepMinZposition(obj)
+			--format "WHEN TRANSFORM BINDED_OBJECTS CHANGES\n"
+			--format "keep_source_minz_z_pos: %\n" SUPPORT_OPTIONS.keep_source_minz_z_pos
+			--if SUPPORT_OPTIONS.keep_source_minz_z_pos then
+			--	this._keepMinZposition(obj)
 
 			appendIfUnique moved_objects obj
 			
@@ -67,6 +65,20 @@ struct SourceObjectTransformEventBinder_v
 			)
 		)
 	),
+
+	/** Set binded object
+	  
+	 * @return Dictionary KEYS: #POS_Z, #ROTATION
+	 */
+	function setTransformData source_obj =
+	(
+		format "\n"; print "SourceObjectTransform_v.setTransformData()"
+		--format "source_obj: %\n" source_obj
+		--binded_objects[getHandleByAnim source_obj] = Dictionary #( #OBJECT, source_obj ) #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
+		transform_data[this._getPointer source_obj] = Dictionary #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
+	),
+	
+	private
 
 	/** Start timeout
 	  * 
@@ -100,32 +112,24 @@ struct SourceObjectTransformEventBinder_v
 			append binded_objects source_obj
 	),
 	
-	/** Set binded object
-	  
-	 * @return Dictionary KEYS: #POS_Z, #ROTATION
-	 */
-	function _setTransformData source_obj =
-	(
-		--format "\n"; print "SourceObjectTransform_v._setTransformData()"
-		--format "source_obj: %\n" source_obj
-		--binded_objects[getHandleByAnim source_obj] = Dictionary #( #OBJECT, source_obj ) #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
-		transform_data[this._getPointer source_obj] = Dictionary #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
-	),
-	
-	private
-	
 	/** Keep min zposition
 	 */
 	function _keepMinZposition source_obj =
 	(
-		--format "\n"; print "SourceObject_v._keepMinZposition()"
+		--format "\n"; print "SourceObjectTransform_v._keepMinZposition()"
+		
+		source_obj.position.z = transform_data[this._getPointer source_obj][#POS_Z]
+		
 		bbox	= nodeGetBoundingBox source_obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
 		
-		mini_z_pos = SUPPORT_OPTIONS.base_height + ( SUPPORT_OPTIONS.layer_height * SUPPORT_OPTIONS.base_to_support_gap ) 
+		--mini_z_pos = SUPPORT_OPTIONS.base_height + ( SUPPORT_OPTIONS.layer_height * SUPPORT_OPTIONS.base_to_support_gap ) 
+		mini_z_pos =  ( source_obj.position.z - bbox[1].z )
 		
-		source_obj.position.z = mini_z_pos + ( source_obj.position.z - bbox[1].z )
+		--mini_z_pos += ( SUPPORT_OPTIONS.layer_height * SUPPORT_OPTIONS.base_to_support_gap ) 
+		
+		source_obj.position.z = mini_z_pos
 
-		transform_data[this._getPointer source_obj][#POS_Z] = source_obj.position.z
+		transform_data[this._getPointer source_obj][#POS_Z] = mini_z_pos
  	),
 
 	/** Get pointer

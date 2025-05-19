@@ -443,8 +443,17 @@ struct SupportObject_v
 	 */
 	function isRaft =
 	(
-		-- format "\n"; print "SupportObject_v.isRaft()"
-		getUserPropVal support_obj "RAFT_KEY" != undefined
+		 format "\n"; print "SupportObject_v.isRaft()"
+		 
+		if isValidNode support_obj then
+			getUserPropVal support_obj "RAFT_KEY" != undefined
+			
+		else
+		(
+			format "\n!!!!!!!!!!!!!!!!!!!!!!!!! isValidNode \n"
+			
+			false --return
+		)
 	),
 
 	/** Is vector pointing down

@@ -138,7 +138,7 @@ struct SourceObject_v
 			)
 		
 		/*------------------------------------------------------------------------------
-z		--------------------------------------------------------------------------------*/
+		--------------------------------------------------------------------------------*/
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
 		
 		/* RETURN */
@@ -439,38 +439,6 @@ z		-----------------------------------------------------------------------------
 		verts_pos --return
 	),
 	
-	/** Set Z axis position of source object
-	  * 
-	  * @param integer base_to_support_gap number of layer between ground and min z position of bounging box 
-	 */
-	function setMinZpos base_to_support_gap =
-	(
-		format "\n"; print "SourceObject_v.setMinZpos()"
-		
-		/** Get pointer
-		 */
-		function _getPointer = (getHandleByAnim obj) as string --return
-		
-		
-		
-		obj.position.z = SOURCE_OBJECT_TRANSFORM.transform_data[_getPointer()][#POS_Z]
-
-		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-		format "min z: %\n" (bbox[1].z)
-		mini_z_pos =  ( obj.position.z - bbox[1].z )
-		format "mini_z_pos: %\n" mini_z_pos	
-		mini_z_pos += ( SUPPORT_OPTIONS.layer_height * base_to_support_gap ) 
-		format "mini_z_pos: %\n" mini_z_pos
-		
-		mini_z_pos -= mod mini_z_pos SUPPORT_OPTIONS.layer_height -- round value to layer position E.G.: 0.0521 >>> 0.05 
-		
-		obj.position.z = mini_z_pos
-
-		SOURCE_OBJECT_TRANSFORM.transform_data[_getPointer()][#POS_Z] = mini_z_pos
-		
-		
-	),
-	
 	/** Get min z pos of world boungingBox 
 	 */
 	function getMinZ =
@@ -523,19 +491,21 @@ z		-----------------------------------------------------------------------------
 	function _getSupports support_nodes: =
 	(
 		--format "\n"; print "SourceObject_v._getSupports()"
+		SupportsFiltered = Dictionary #INTEGER
 		
 		if support_nodes != unsupplied then
 		(
-			SupportsFiltered = Dictionary #INTEGER
 			
 			/* LOOP SUPPORTS OF SOURCE OBJECTS AND GET ONLY SUPPORTS IN support_nodes ARRAY */ 
-			for index in Supports.keys where findItem support_nodes Supports[index].support_obj > 0 do
+			for index in Supports.keys where isValidNode Supports[index].support_obj and findItem support_nodes Supports[index].support_obj > 0 do
 				SupportsFiltered[index] = Supports[index]
 			
-			SupportsFiltered --return
 		)
 		else
-			deepCopy Supports --return
+			for index in Supports.keys where isValidNode Supports[index].support_obj do SupportsFiltered[index] = Supports[index]
+
+
+		SupportsFiltered --return
 	),
 	
 	/** Get verts by colors
@@ -581,7 +551,8 @@ z		-----------------------------------------------------------------------------
 		Normals.setWorldSpaceVertexNormals ( supports_keys )
 		
 		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
-		for vert in supports_keys do
+		--for vert in supports_keys do
+		for vert in supports_keys where isValidNode Supports[vert].support_obj do
 			setUserPropVal Supports[vert].support_obj "NORMAL_WORLD" Normals.normals_world[vert]
 	),
 	

@@ -3,6 +3,7 @@ global SOURCE_OBJECT_TRANSFORM
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms" )	--"./onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/whenSourceObjectSelectionChanges/whenSourceObjectSelectionChanges.ms" )	--"./onEvents/whenSourceObjectSelectionChanges/whenSourceObjectSelectionChanges.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms" )	--"./SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms"
 
@@ -138,6 +139,7 @@ struct SupportManager_v
 		)
 		
 		bindOnObjectDeletedCallback( source_obj )
+		whenSourceObjectSelectionChanges( source_obj )
 
 		new_nodes --return
 	),
@@ -376,7 +378,6 @@ struct SupportManager_v
 		for sync_key in sync_keys do
 		(
 			SourceObject = SourceObjects[sync_key]
-			
 			SourceObject.getVertsPositions( SourceObject.Supports.keys as BitArray )
 			
 			/* UPDATE SUPPORTS */
@@ -563,7 +564,7 @@ struct SupportManager_v
 		
 		resumeSupportTransformEvent()
 	),
-
+	
 	/*------------------------------------------------------------------------------
 		CALLBACK
 	--------------------------------------------------------------------------------*/
@@ -722,7 +723,7 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		  -- format "\n"; print "SupportManager_v.getObjectsByType()"
+		   format "\n"; print "SupportManager_v.getObjectsByType()"
 		 -- format "type: %\n" type
         objects_by_type = #()
 
@@ -899,8 +900,6 @@ struct SupportManager_v
 		else
 			source_objects --return
 	),
-	
-	
 
 	/** Get support objects
 	 */
@@ -922,6 +921,7 @@ struct SupportManager_v
 		
 		
 	),
+	
 	/** Get raft objects
 	 */
 	function getRaftObjects _objects get_nodes:false =
@@ -1082,6 +1082,7 @@ struct SupportManager_v
 		/* BIND TO EVENTS */
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 
+		whenSourceObjectSelectionChanges( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 	),
 
 	/** Load supports from scene

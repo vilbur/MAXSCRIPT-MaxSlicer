@@ -80,7 +80,45 @@ struct SourceObjectTransformEventBinder_v
 		transform_data[this._getPointer source_obj] = Dictionary #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
 	),
 	
-	--private
+	/** Keep min zposition
+	 */
+	function _keepMinZposition obj use_current_pos:false =
+	(
+		-- format "\n"; print "SourceObjectTransform_v._keepMinZposition()"
+		-- format "use_current_pos: %\n" use_current_pos
+		/* In MaxScript, due to floating-point precision limitations, setting an object's position with very small float values (e.g. less than 0.009) can result in truncation or rounding issues — especially when these values are smaller than the UI display precision or fall below the transformation matrix threshold.
+		*/ 
+		function setObjectPosition node pos =
+		(
+			t_matrix = node.transform
+			
+			t_matrix.row4.z = pos
+			
+			node.transform = t_matrix -- return
+		)
+
+		z_pos_lock_saved = getUserPropVal obj "Z_POS_LOCK" 
+		
+		bbox = nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+		
+		bbox_min = bbox[1].z
+
+		z_pos_lock = if use_current_pos or z_pos_lock_saved == undefined then ceil (bbox_min / SUPPORT_OPTIONS.layer_height) else z_pos_lock_saved
+		-- format "z_pos_lock: %\n" z_pos_lock
+		
+		if z_pos_lock < 0 then
+			z_pos_lock = 0
+		
+		min_z_pos = ( SUPPORT_OPTIONS.layer_height * z_pos_lock )
+
+		new_pos = obj.position.z - bbox_min + min_z_pos
+		
+		setUserPropVal obj "Z_POS_LOCK" z_pos_lock
+		
+		setObjectPosition obj new_pos
+ 	),
+	
+	private
 
 	/** Start timeout
 	  * 
@@ -113,41 +151,13 @@ struct SourceObjectTransformEventBinder_v
 		else
 			append binded_objects source_obj
 	),
-	
-	/** Keep min zposition
+
+	/** Get pointer
 	 */
-	function _keepMinZposition obj =
+	function _getPointer source_obj =
 	(
-		--format "\n"; print "SourceObjectTransform_v._keepMinZposition()"
-		/* In MaxScript, due to floating-point precision limitations, setting an object's position with very small float values (e.g. less than 0.009) can result in truncation or rounding issues — especially when these values are smaller than the UI display precision or fall below the transformation matrix threshold.
-		*/ 
-		function setObjectPosition node pos =
-		(
-			t_matrix = node.transform
-			
-			t_matrix.row4.z = pos
-			
-			node.transform = t_matrix -- return
-		)
-		
-		mini_z_pos = ( SUPPORT_OPTIONS.layer_height * SUPPORT_OPTIONS.base_to_support_gap )
-		
-		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-		
-		bbox_min = bbox[1].z
-
-		new_pos = obj.position.z - bbox_min + mini_z_pos
-		
-		setObjectPosition obj new_pos
-		--format "REUSLT: %\n" ((nodeGetBoundingBox obj ( Matrix3 1) )[1].z)
- 	),
-
-	--/** Get pointer
-	-- */
-	--function _getPointer source_obj =
-	--(
-	--	(getHandleByAnim source_obj) as string --return
-	--),
+		(getHandleByAnim source_obj) as string --return
+	),
 
 	/**
 	 */

@@ -369,7 +369,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		 format "\n"; print "SupportManager_v.updateBySourceObject()"
+		 -- format "\n"; print "SupportManager_v.updateBySourceObject()"
 		-- format "what_to_update: %\n" what_to_update
 		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
@@ -723,7 +723,7 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		   format "\n"; print "SupportManager_v.getObjectsByType()"
+		   -- format "\n"; print "SupportManager_v.getObjectsByType()"
 		 -- format "type: %\n" type
         objects_by_type = #()
 

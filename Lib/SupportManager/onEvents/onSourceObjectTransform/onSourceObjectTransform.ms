@@ -72,7 +72,7 @@ function onSourceObjectTransform sender evt =
 			if not mouse.buttonStates[1] then
 			(
 				--clearListener(); print("Cleared in:\n"+getSourceFileName())
-				  format "\n===========================================================\n"
+				  -- format "\n===========================================================\n"
 				 -- format "\n"; print "onSourceObjectTransform()"
 				--format "SOURCE_OBJECTS: %\n" source_objects
 				
@@ -87,10 +87,10 @@ function onSourceObjectTransform sender evt =
 	
 				/* TEST IF OBJECT HAS BEEN ROTATED ONLY BY X or Y AXIS - rotation only on z axis does not need update */
 				rotation_chaged = XorYrotationChanged rotation_current rotation_saved
-				 format "ROTATION_CHAGED: %\n" rotation_chaged
-				format "transform_data[#POS_Z]:   %\n" transform_data[#POS_Z]
-				format "source_object.position.z: %\n" (source_object.position.z)
-				format "TEST: %\n" (abs(source_object.position.z - transform_data[#POS_Z]))
+				 -- format "ROTATION_CHAGED: %\n" rotation_chaged
+				-- format "transform_data[#POS_Z]:   %\n" transform_data[#POS_Z]
+				-- format "source_object.position.z: %\n" (source_object.position.z)
+				-- format "TEST: %\n" (abs(source_object.position.z - transform_data[#POS_Z]))
 				
 				/* TEST POSITION */ 		
 				pos_z_changed = roundFloat transform_data[#POS_Z] != roundFloat source_object.position.z
@@ -103,7 +103,7 @@ function onSourceObjectTransform sender evt =
 					(pos_z_changed):	#POSITION_Z
 					--default:	#ROTATION
 				)
-				 format "what_to_update: %\n" what_to_update 
+				 -- format "what_to_update: %\n" what_to_update 
 				/* Update SourceObject and its suports if necessary */
 				/*------------------------------------------------------------------------------
 					EXECUTE UPDATE

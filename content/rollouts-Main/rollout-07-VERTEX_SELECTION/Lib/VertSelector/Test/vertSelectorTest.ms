@@ -117,7 +117,7 @@ VertSelector 	= VertSelector_v( selection[1] ) --resolution:10
 
 
 --/* LOWEST VERTS - SELECT */
-VertSelector.findIslandsPerLayer()
+VertSelector.findIslandsPerLayer(0.05)
 
 
 /* SINGLE VERTICAL PER ISLAND - SELECT */

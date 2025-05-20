@@ -1,5 +1,11 @@
 
 
+
+
+filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
+
+global ISLANDS_SYSTEM
+
 /** Open island sdialog with VISIBLE islands
  *
  */
@@ -11,17 +17,18 @@ icon:	"across:3|height:32"
 (
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandsSystem\IslandsSystem.ms"
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandsSystem\IslandsSystem.ms"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\[FIND ISLANDS].mcr"
 
 		undo off
 		(
 			obj	= selection[1]
 
-			ISLANDS_SYSTEM = IslandsSystem_v(obj)
+			
+			global ISLANDS_SYSTEM = IslandsSystem_v(obj)
 
-            VertSelector = VertSelector_v(obj) --"./../rollout-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
+            VertSelector = VertSelector_v(obj) --"./../rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
 
 			/* DISABLE SLICER MODIFIERS */
 			SLICER_SYSTEM.toggleModifiers false
@@ -52,19 +59,23 @@ icon:	"across:3|height:32"
 
 			VertSelector.setSelection ( lowest_verts as BitArray )
 
-			if ISLANDS_SYSTEM.islands_data.count == 0 then
+			if ISLANDS_SYSTEM.islands_data.count > 0 then
+			(
+	
+				/* SAVE ISlANDS DATA TO OBJECT */
+				setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
+	
+				/* RE ENABLE SLICER MODIFIERS */
+				SLICER_SYSTEM.toggleModifiers true
+	
+	
+				/* CREATE DIALOG */
+				createIslandManagerDialog()
+				
+			)
+			else
 				messageBox "EMPTY ISLANDS DATA" title:"[FIND ISLANDS].mcr"
 
-
-			/* SAVE ISlANDS DATA TO OBJECT */
-			setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
-
-			/* RE ENABLE SLICER MODIFIERS */
-			SLICER_SYSTEM.toggleModifiers true
-
-
-			/* CREATE DIALOG */
-			createIslandManagerDialog()
 		)
 	)
 )
@@ -94,7 +105,7 @@ icon:	"across:3|height:32"
  */
 macroscript	maxtoprint_find_islands
 category:	"_3D-Print"
-buttontext:	"Search Islands"
+buttontext:	"SEARCH Islands"
 toolTip:	"Search islands"
 icon:	"across:3"
 (

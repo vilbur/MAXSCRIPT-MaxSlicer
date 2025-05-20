@@ -8,64 +8,65 @@
 	4) Test if new or old island - in old, then faces exist in all island
 
 
-	layer: 100 of: 999
-	vertex_counter_dev: 4559
-	final_time: 10186
-	per vertex: 2.23426
-	TIMER: 10.186 seconds
-	
-	layer: 200 of: 999
-	vertex_counter_dev: 19535
-	final_time: 12143
-	per vertex: 0.621602
-	TIMER: 12.143 seconds
-	
-	layer: 300 of: 999
-	vertex_counter_dev: 43743
-	final_time: 14660
-	per vertex: 0.335139
-	TIMER: 14.66 seconds
-	
-	layer: 400 of: 999
-	vertex_counter_dev: 48423
-	final_time: 15890
-	per vertex: 0.32815
-	TIMER: 15.89 seconds
-	
-	layer: 500 of: 999
-	vertex_counter_dev: 45820
-	final_time: 14916
-	per vertex: 0.325535
-	TIMER: 14.916 seconds
-	
-	layer: 600 of: 999
-	vertex_counter_dev: 43722
-	final_time: 16434
-	per vertex: 0.375875
-	TIMER: 16.434 seconds
-	
-	layer: 700 of: 999
-	vertex_counter_dev: 31978
-	final_time: 14178
-	per vertex: 0.443367
-	TIMER: 14.178 seconds
-	
-	layer: 800 of: 999
-	vertex_counter_dev: 31074
-	final_time: 15247
-	per vertex: 0.490667
-	TIMER: 15.247 seconds
-	
-	layer: 900 of: 999
-	vertex_counter_dev: 15468
-	final_time: 13429
-	per vertex: 0.868179
-	TIMER: 13.429 seconds
-	
-	------
-	
-	islands_data.count: 1076
-	ALL_LAYERS_TIMER: 138.171 seconds
+layer: 100 of: 999
+vertex_counter_dev: 4559
+final_time: 9402
+per vertex: 2.06229
+TIMER: 9.402 seconds
+
+layer: 200 of: 999
+vertex_counter_dev: 19535
+final_time: 19964
+per vertex: 1.02196
+TIMER: 19.964 seconds
+
+layer: 300 of: 999
+vertex_counter_dev: 43743
+final_time: 34541
+per vertex: 0.789635
+TIMER: 34.541 seconds
+
+layer: 400 of: 999
+vertex_counter_dev: 48423
+final_time: 39250
+per vertex: 0.810565
+TIMER: 39.25 seconds
+
+layer: 500 of: 999
+vertex_counter_dev: 45820
+final_time: 35981
+per vertex: 0.785268
+TIMER: 35.981 seconds
+
+layer: 600 of: 999
+vertex_counter_dev: 43722
+final_time: 37283
+per vertex: 0.852729
+TIMER: 37.283 seconds
+
+layer: 700 of: 999
+vertex_counter_dev: 31978
+final_time: 26743
+per vertex: 0.836294
+TIMER: 26.743 seconds
+
+layer: 800 of: 999
+vertex_counter_dev: 31074
+final_time: 29339
+per vertex: 0.944166
+TIMER: 29.339 seconds
+
+layer: 900 of: 999
+vertex_counter_dev: 15468
+final_time: 15872
+per vertex: 1.02612
+TIMER: 15.872 seconds
+
+------
+
+islands_data.count: 1076
+ALL_LAYERS_TIMER: 257.732 seconds
+
 
 
  */
@@ -90,8 +91,6 @@ struct VertIslandFinder_v
 	islands_cache	= #(),
 	faces_processed	= #{},
 
-	vert_by_face = (),
-	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -173,10 +172,6 @@ struct VertIslandFinder_v
 
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
-			
-		timer__setFaceVerts = timeStamp()
-		this._setFaceVerts()
-		format "_setFaceVerts: % ms\n" (( timeStamp()) - timer__setFaceVerts)
 
 		layers_with_verts = for layer_index = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer_index] ) == BitArray collect layer_index -- layer has not verts if item is integer ( layer number )
 
@@ -194,8 +189,7 @@ struct VertIslandFinder_v
 			--format "layer: %\n" layer
 			--format "\n==============================\nlayer: %\n" layer
 			if mod l 100 == 0 then (
-
-				--gc light:true
+				gc light:true
 
 				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
 				final_time = timeStamp() - layer_timer
@@ -281,9 +275,8 @@ struct VertIslandFinder_v
 		faceverts_processed	= #{}
 
 		new_islands = #()
-		faceverts_in_layer = for face in new_faces_in_layer collect vert_by_face[face] as BitArray
 
-		--faceverts_in_layer = for face in new_faces_in_layer collect polyop.getVertsUsingFace obj #(face)
+		faceverts_in_layer = for face in new_faces_in_layer collect polyop.getVertsUsingFace obj #(face)
 
 		/* SEARCH FOR NEW ISLANDS */
 		for faceverts in faceverts_in_layer do
@@ -466,47 +459,18 @@ struct VertIslandFinder_v
 			false --return
 	),
 
-	--/** Bitarrays match
-	-- */
-	--function _bitsAreSharedSearch haystack needle =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
-	--	found = false
-	--
-	--	for vert in needle while not found where haystack[vert] do found = true
-	--
-	--	found --return
-	--),
 	/** Bitarrays match
 	 */
-	function _hasIntersection haystack needle more_bits_then:0 =
+	function _bitsAreSharedSearch haystack needle =
 	(
 		--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
-		founds = 0
+		found = false
 
-		for vert in needle while not founds > more_bits_then  where haystack[vert] do founds += 1
+		for vert in needle while not found where haystack[vert] do found = true
 
-		founds > more_bits_then --return
+		found --return
 	),
-	
-	/** 
-	  *	
-	  */
-	function _setFaceVerts =
-	(
-		--format "\n"; print "VertIslandFinder_v._setFaceVerts()"
-		face_count = polyop.getNumFaces obj
-		--format "face_count: %\n" face_count
-		this.vert_by_face = #()
-	
-		for f = 1 to face_count do
-			--format "WTF: %\n" ((polyop.getFaceVerts obj f))
-			--append this.vert_by_face (polyop.getFaceVerts obj f)
-			this.vert_by_face[f] = polyop.getFaceVerts obj f
-	),
-	
-	
-	
+	--
 	--/** Test new islands
 	-- */
 	--function _testNewIslands =
@@ -569,26 +533,26 @@ struct VertIslandFinder_v
 		--)
 
 	),
-	--
-	--/** Get first layer
-	-- */
-	--function _getFirstLayerIslands =
-	--(
-	--	format "\n"; print "VertIslandFinder_v._getFirstLayer()"
-	--	for layer = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer] ) == BitArray and not ( verts_in_layer * verts_process ).isEmpty  do -- layer has not verts if item is integer ( layer number )
-	--	(
-	--		faces_in_layer = polyop.getFacesUsingVert obj verts_in_layer
-	--		format "faces_in_layer: %\n" faces_in_layer
-	--		this.faces_processed += faces_in_layer
-	--
-	--
-	--		this.islands_cache = this.getVertexIslands ( polyop.getVertsUsedOnlyByFaces obj faces_in_layer)
-	--		--this.islands_cache = this.getVertexIslands ( polyop.getVertsUsingFace obj faces_in_layer)
-	--
-	--		return layer
-	--	)
-	--
-	--),
+
+	/** Get first layer
+	 */
+	function _getFirstLayerIslands =
+	(
+		format "\n"; print "VertIslandFinder_v._getFirstLayer()"
+		for layer = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer] ) == BitArray and not ( verts_in_layer * verts_process ).isEmpty  do -- layer has not verts if item is integer ( layer number )
+		(
+			faces_in_layer = polyop.getFacesUsingVert obj verts_in_layer
+			format "faces_in_layer: %\n" faces_in_layer
+			this.faces_processed += faces_in_layer
+
+
+			this.islands_cache = this.getVertexIslands ( polyop.getVertsUsedOnlyByFaces obj faces_in_layer)
+			--this.islands_cache = this.getVertexIslands ( polyop.getVertsUsingFace obj faces_in_layer)
+
+			return layer
+		)
+
+	),
 
 	/** Set verts processed
 	 */
@@ -598,49 +562,49 @@ struct VertIslandFinder_v
 		this.islands_cache = this.getVertexIslands (verts)
 	),
 
-	--/** Set verts processed
-	-- */
-	--function getVertexIslands verts =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v.getVertexIslands()"
-	--	--verts_processed = verts
-	--	--
-	--	----faceverts = for face_id in faces_of_verts collect ( polyop.getVertsUsingFace obj face_id )
-	--	--
-	--	--islands_cache = this._sortVertsByIslands( polyop.getFacesUsingVert obj verts_processed
-	--	islands = #()
-	--
-	--	--verts_used = copy verts
-	--	--face_verts = polyop.getVertsUsingFace obj face
-	--
-	--	--vertex_count = getNumVerts obj.mesh
-	--	--format "vertex_count: %\n" vertex_count
-	--	--
-	--	--all_verts = #{1..(vertex_count)}
-	--
-	--	--faces_sel = polyop.getFaceSelection obj
-	--	--format "faces_sel: %\n" faces_sel
-	--	--/*------ SPLIT TO NEW_ISLANDS ------*/
-	--	--verts_sel = polyop.getVertsUsingFace obj faces_sel
-	--	--format "verts_sel: %\n" verts_sel
-	--
-	--	while not verts.isEmpty do
-	--	(
-	--		faces_of_vert = polyop.getFacesUsingVert obj (verts as Array )[1]
-	--
-	--		verts_of_faces = polyop.getVertsUsingFace obj faces_of_vert
-	--		format "verts_of_faces: %\n" verts_of_faces
-	--		verts_of_faces -= this.verts_above
-	--
-	--		append islands verts_of_faces
-	--
-	--		verts -= verts_of_faces
-	--	)
-	--
-	--	this._mergeNewIslandsToCache(islands) --return
-	--
-	--	--islands --return
-	--),
+	/** Set verts processed
+	 */
+	function getVertexIslands verts =
+	(
+		--format "\n"; print "VertIslandFinder_v.getVertexIslands()"
+		--verts_processed = verts
+		--
+		----faceverts = for face_id in faces_of_verts collect ( polyop.getVertsUsingFace obj face_id )
+		--
+		--islands_cache = this._sortVertsByIslands( polyop.getFacesUsingVert obj verts_processed
+		islands = #()
+
+		--verts_used = copy verts
+		--face_verts = polyop.getVertsUsingFace obj face
+
+		--vertex_count = getNumVerts obj.mesh
+		--format "vertex_count: %\n" vertex_count
+		--
+		--all_verts = #{1..(vertex_count)}
+
+		--faces_sel = polyop.getFaceSelection obj
+		--format "faces_sel: %\n" faces_sel
+		--/*------ SPLIT TO NEW_ISLANDS ------*/
+		--verts_sel = polyop.getVertsUsingFace obj faces_sel
+		--format "verts_sel: %\n" verts_sel
+
+		while not verts.isEmpty do
+		(
+			faces_of_vert = polyop.getFacesUsingVert obj (verts as Array )[1]
+
+			verts_of_faces = polyop.getVertsUsingFace obj faces_of_vert
+			format "verts_of_faces: %\n" verts_of_faces
+			verts_of_faces -= this.verts_above
+
+			append islands verts_of_faces
+
+			verts -= verts_of_faces
+		)
+
+		this._mergeNewIslandsToCache(islands) --return
+
+		--islands --return
+	),
 
 	/** Get center of island
 	 */

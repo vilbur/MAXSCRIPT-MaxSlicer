@@ -24,13 +24,17 @@ global DIALOG_island_manager
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
 
+
+--if VertSelector_v == undefined then 
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms" )	--"./content/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
-
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
 
+--if IslandsSystem_v == undefined then 
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"

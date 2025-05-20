@@ -7,66 +7,64 @@
 
 	4) Test if new or old island - in old, then faces exist in all island
 
-
 	layer: 100 of: 999
 	vertex_counter_dev: 4559
-	final_time: 10186
-	per vertex: 2.23426
-	TIMER: 10.186 seconds
+	final_time: 6465
+	per vertex: 1.41807
+	TIMER: 6.465 seconds
 	
 	layer: 200 of: 999
 	vertex_counter_dev: 19535
-	final_time: 12143
-	per vertex: 0.621602
-	TIMER: 12.143 seconds
+	final_time: 8626
+	per vertex: 0.441566
+	TIMER: 8.626 seconds
 	
 	layer: 300 of: 999
 	vertex_counter_dev: 43743
-	final_time: 14660
-	per vertex: 0.335139
-	TIMER: 14.66 seconds
+	final_time: 11087
+	per vertex: 0.253458
+	TIMER: 11.087 seconds
 	
 	layer: 400 of: 999
 	vertex_counter_dev: 48423
-	final_time: 15890
-	per vertex: 0.32815
-	TIMER: 15.89 seconds
+	final_time: 12399
+	per vertex: 0.256056
+	TIMER: 12.399 seconds
 	
 	layer: 500 of: 999
 	vertex_counter_dev: 45820
-	final_time: 14916
-	per vertex: 0.325535
-	TIMER: 14.916 seconds
+	final_time: 11644
+	per vertex: 0.254125
+	TIMER: 11.644 seconds
 	
 	layer: 600 of: 999
 	vertex_counter_dev: 43722
-	final_time: 16434
-	per vertex: 0.375875
-	TIMER: 16.434 seconds
+	final_time: 13274
+	per vertex: 0.3036
+	TIMER: 13.274 seconds
 	
 	layer: 700 of: 999
 	vertex_counter_dev: 31978
-	final_time: 14178
-	per vertex: 0.443367
-	TIMER: 14.178 seconds
+	final_time: 10971
+	per vertex: 0.34308
+	TIMER: 10.971 seconds
 	
 	layer: 800 of: 999
 	vertex_counter_dev: 31074
-	final_time: 15247
-	per vertex: 0.490667
-	TIMER: 15.247 seconds
+	final_time: 11904
+	per vertex: 0.383086
+	TIMER: 11.904 seconds
 	
 	layer: 900 of: 999
 	vertex_counter_dev: 15468
-	final_time: 13429
-	per vertex: 0.868179
-	TIMER: 13.429 seconds
+	final_time: 8426
+	per vertex: 0.544738
+	TIMER: 8.426 seconds
 	
 	------
 	
 	islands_data.count: 1076
-	ALL_LAYERS_TIMER: 138.171 seconds
-
+	ALL_LAYERS_TIMER: 101.476 seconds
 
  */
 struct VertIslandFinder_v
@@ -174,9 +172,9 @@ struct VertIslandFinder_v
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
 			
-		timer__setFaceVerts = timeStamp()
-		this._setFaceVerts()
-		format "_setFaceVerts: % ms\n" (( timeStamp()) - timer__setFaceVerts)
+		--timer__setFaceVerts = timeStamp()
+		--this._setFaceVerts()
+		--format "_setFaceVerts: % ms\n" (( timeStamp()) - timer__setFaceVerts)
 
 		layers_with_verts = for layer_index = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer_index] ) == BitArray collect layer_index -- layer has not verts if item is integer ( layer number )
 
@@ -195,7 +193,7 @@ struct VertIslandFinder_v
 			--format "\n==============================\nlayer: %\n" layer
 			if mod l 100 == 0 then (
 
-				--gc light:true
+				gc light:true
 
 				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
 				final_time = timeStamp() - layer_timer
@@ -249,15 +247,18 @@ struct VertIslandFinder_v
 
 				/* ADD NEW ISLANDS TO OTHER ISLANDS */
 				join islands_cache new_islands
+				--for i = 1 to new_islands.count do islands_cache[islands_cache.count + 1] = new_islands[i]
 
 				/* TRY MERGE ALL ISLANDS - islands can be joined by new faces in layer */
 				this._mergeNewIslandsToCache(layer)
 
 				this._addIslandDataToNewIslands(new_islands)(verts_in_layer)(layer)
 			)
-
-			faces_processed += faces_in_layer
-			verts_processed += verts_in_layer
+			
+			for b in faces_in_layer do faces_processed[b] = true
+			for b in verts_in_layer do verts_processed[b] = true
+			--faces_processed += faces_in_layer
+			--verts_processed += verts_in_layer
 
 			--if mod l 100 == 0 then
 				--format "Takes % seconds to process\n" ((( timeStamp()) - layer_timer) / 1000.0)
@@ -281,8 +282,9 @@ struct VertIslandFinder_v
 		faceverts_processed	= #{}
 
 		new_islands = #()
-		faceverts_in_layer = for face in new_faces_in_layer collect vert_by_face[face] as BitArray
 
+		faceverts_in_layer = for face in new_faces_in_layer collect ( polyop.getFaceVerts obj face ) as BitArray
+		--faceverts_in_layer = for face in new_faces_in_layer collect vert_by_face[face] as BitArray
 		--faceverts_in_layer = for face in new_faces_in_layer collect polyop.getVertsUsingFace obj #(face)
 
 		/* SEARCH FOR NEW ISLANDS */
@@ -300,6 +302,7 @@ struct VertIslandFinder_v
 				merged = true
 
 				islands_cache[y] += faceverts
+				--for b in faceverts do islands_cache[y][b] = true
 			)
 
 			/* ADD FACE AS NEW ISLAND IF NOT MERGED */
@@ -308,9 +311,11 @@ struct VertIslandFinder_v
 				if this._bitsAreShared verts_process faceverts != false then
 					/* ADD NEW ISLAND */
 					append new_islands faceverts
+					--new_islands[new_islands.count +1] = faceverts
 				else
 					/* ADD TO OTHER ISLANDS IF VERTS ARE NOT MEANT TO BE PROCESED - E.g.: if faces are on top side of object */
 					append islands_cache faceverts
+					--islands_cache[islands_cache.count +1] = faceverts
 			)
 		)
 
@@ -328,7 +333,8 @@ struct VertIslandFinder_v
 		--format "\n"; print "VertIslandFinder_v._mergeIslandsBySharedFaces()"
 		--faces_islands = for new_island in new_islands collect polyop.getFacesUsingVert obj (new_island)
 		faces_islands = for new_island in new_islands collect polyop.getFacesUsingVert obj (new_island * verts_in_layer )
-
+		--format "\n"
+		--format "new_islands.count: %\n" new_islands.count
 		for x = faces_islands.count to 1 by -1 do
 		(
 			merged = false
@@ -341,17 +347,6 @@ struct VertIslandFinder_v
 			(
 				merged = true
 
-				--if new_island_x[25] or new_islands[y][25] then
-				--(
-				--	format "\nMERGE ISLANDS\n"
-				--	format "new_island_x: %\n" new_island_x
-				--	format "new_islands[y]: %\n" new_islands[y]
-				--	format "\n"
-				--	format "faces_island_x: %\n" faces_island_x
-				--	format "faces_islands[y]: %\n" faces_islands[y]
-				--
-				--)
-
 
 				faces_islands[y] += faces_island_x
 				new_islands[y]   += new_island_x
@@ -361,6 +356,7 @@ struct VertIslandFinder_v
 			)
 		)
 
+		--format "new_islands.count: %\n" new_islands.count
 		new_islands --return
 	),
 
@@ -370,15 +366,22 @@ struct VertIslandFinder_v
 	 */
 	function _mergeNewIslandsToCache current_layer =
 	(
+		--format "\n"; print "VertSelector_v._collapseNewIslands()"
+		--format "islands_cache.count: %\n" islands_cache.count
+		
+		delete_flags = #{}
+		delete_flags.count = islands_cache.count
+
+		
 		/* LOOP EACH ISLAND */
-		for x = islands_cache.count to 1 by -1 do
+		for x = islands_cache.count to 1 by -1 where not delete_flags[x] do
 		(
 			merged = false
 
 			island_x = islands_cache[x]
 
 			/* MERGE ISLANDS IF ISLAND X SHARE VERTS WITH ISLAND Y */
-			for y = islands_cache.count to 1 by -1 while not merged where x != y and this._bitsAreShared islands_cache[y] island_x more_bits_then:1 != false do
+			for y = islands_cache.count to 1 by -1 while not merged where x != y and not delete_flags[y] and this._bitsAreShared islands_cache[y] island_x more_bits_then:1 != false do
 			(
 				islands_cache[y] += island_x
 
@@ -400,10 +403,18 @@ struct VertIslandFinder_v
 					)
 
 				)
-
-				deleteItem islands_cache x
+				
+				delete_flags[x] = true
+				--format "delete_flags: %\n" delete_flags
+				--deleteItem islands_cache x
 			)
 		)
+		
+		filtered_arr = for i = 1 to islands_cache.count where not delete_flags[i] collect islands_cache[i]
+
+		this.islands_cache = filtered_arr
+		
+		--format "islands_cache.count: %\n" islands_cache.count
 	),
 
 	/** Merge bit arrays wich shared bits
@@ -488,22 +499,22 @@ struct VertIslandFinder_v
 
 		founds > more_bits_then --return
 	),
-	
-	/** 
-	  *	
-	  */
-	function _setFaceVerts =
-	(
-		--format "\n"; print "VertIslandFinder_v._setFaceVerts()"
-		face_count = polyop.getNumFaces obj
-		--format "face_count: %\n" face_count
-		this.vert_by_face = #()
-	
-		for f = 1 to face_count do
-			--format "WTF: %\n" ((polyop.getFaceVerts obj f))
-			--append this.vert_by_face (polyop.getFaceVerts obj f)
-			this.vert_by_face[f] = polyop.getFaceVerts obj f
-	),
+	--
+	--/** 
+	--  *	
+	--  */
+	--function _setFaceVerts =
+	--(
+	--	--format "\n"; print "VertIslandFinder_v._setFaceVerts()"
+	--	face_count = polyop.getNumFaces obj
+	--	--format "face_count: %\n" face_count
+	--	this.vert_by_face = #()
+	--
+	--	for f = 1 to face_count do
+	--		--format "WTF: %\n" ((polyop.getFaceVerts obj f))
+	--		--append this.vert_by_face (polyop.getFaceVerts obj f)
+	--		this.vert_by_face[f] = polyop.getFaceVerts obj f
+	--),
 	
 	
 	

@@ -9,62 +9,62 @@
 
 	layer: 100 of: 999
 	vertex_counter_dev: 4559
-	final_time: 6465
-	per vertex: 1.41807
-	TIMER: 6.465 seconds
+	final_time: 6331
+	per vertex: 1.38868
+	TIMER: 6.331 seconds
 	
 	layer: 200 of: 999
 	vertex_counter_dev: 19535
-	final_time: 8626
-	per vertex: 0.441566
-	TIMER: 8.626 seconds
+	final_time: 8494
+	per vertex: 0.434809
+	TIMER: 8.494 seconds
 	
 	layer: 300 of: 999
 	vertex_counter_dev: 43743
-	final_time: 11087
-	per vertex: 0.253458
-	TIMER: 11.087 seconds
+	final_time: 10664
+	per vertex: 0.243788
+	TIMER: 10.664 seconds
 	
 	layer: 400 of: 999
 	vertex_counter_dev: 48423
-	final_time: 12399
-	per vertex: 0.256056
-	TIMER: 12.399 seconds
+	final_time: 11523
+	per vertex: 0.237965
+	TIMER: 11.523 seconds
 	
 	layer: 500 of: 999
 	vertex_counter_dev: 45820
-	final_time: 11644
-	per vertex: 0.254125
-	TIMER: 11.644 seconds
+	final_time: 11097
+	per vertex: 0.242187
+	TIMER: 11.097 seconds
 	
 	layer: 600 of: 999
 	vertex_counter_dev: 43722
-	final_time: 13274
-	per vertex: 0.3036
-	TIMER: 13.274 seconds
+	final_time: 12402
+	per vertex: 0.283656
+	TIMER: 12.402 seconds
 	
 	layer: 700 of: 999
 	vertex_counter_dev: 31978
-	final_time: 10971
-	per vertex: 0.34308
-	TIMER: 10.971 seconds
+	final_time: 10169
+	per vertex: 0.318
+	TIMER: 10.169 seconds
 	
 	layer: 800 of: 999
 	vertex_counter_dev: 31074
-	final_time: 11904
-	per vertex: 0.383086
-	TIMER: 11.904 seconds
+	final_time: 11319
+	per vertex: 0.36426
+	TIMER: 11.319 seconds
 	
 	layer: 900 of: 999
 	vertex_counter_dev: 15468
-	final_time: 8426
-	per vertex: 0.544738
-	TIMER: 8.426 seconds
+	final_time: 7927
+	per vertex: 0.512477
+	TIMER: 7.927 seconds
 	
 	------
 	
 	islands_data.count: 1076
-	ALL_LAYERS_TIMER: 101.476 seconds
+	ALL_LAYERS_TIMER: 96.53 seconds
 
  */
 struct VertIslandFinder_v
@@ -172,9 +172,6 @@ struct VertIslandFinder_v
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
 			
-		--timer__setFaceVerts = timeStamp()
-		--this._setFaceVerts()
-		--format "_setFaceVerts: % ms\n" (( timeStamp()) - timer__setFaceVerts)
 
 		layers_with_verts = for layer_index = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer_index] ) == BitArray collect layer_index -- layer has not verts if item is integer ( layer number )
 
@@ -193,7 +190,7 @@ struct VertIslandFinder_v
 			--format "\n==============================\nlayer: %\n" layer
 			if mod l 100 == 0 then (
 
-				gc light:true
+				--gc light:true
 
 				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
 				final_time = timeStamp() - layer_timer
@@ -237,9 +234,6 @@ struct VertIslandFinder_v
 				(
 					/* MERGE NEW ISLANDS BY VERTS - new islands can be splitten  */
 					new_islands = this._collapseNewIslands(new_islands)
-
-					--for new_island in new_islands do
-					--	format "new_island: %\n" new_island
 
 					/* MERGE NEW ISLANDS BY FACES  */
 					new_islands = this._mergeIslandsBySharedFaces(new_islands) verts_in_layer
@@ -322,6 +316,35 @@ struct VertIslandFinder_v
 		new_islands --return
 	),
 
+
+	/** Merge bit arrays wich shared bits
+	  *
+	  * @param #( #{} ) bitarrays Array of bittarays
+	 */
+	function _collapseNewIslands bitarrays =
+	(
+		--print "VertSelector_v._collapseNewIslands()"
+
+		to_remove = #{} -- collect indices to remove
+		bitarrays_count = bitarrays.count
+
+		for x = bitarrays_count to 1 by -1 where not to_remove[x]  do
+		(
+			bitarrays_x = bitarrays[x]
+			merged = false
+
+			for y = bitarrays_count to 1 by -1 while not merged where x != y and not to_remove[y] and this._bitsAreShared bitarrays_x bitarrays[y] more_bits_then:1 != false do
+			(
+				join bitarrays[y] bitarrays_x
+				merged = true
+			)
+
+			if merged then
+				to_remove[x] = true
+		)
+		
+		for i = 1 to bitarrays.count where not to_remove[i] collect bitarrays[i] -- return
+	),
 	/** Merge islands by shared faces
 	  *
 	  * FIX:       2 VERTS on one edge problem
@@ -347,7 +370,9 @@ struct VertIslandFinder_v
 			(
 				merged = true
 
-
+				--for b in faces_island_x do faces_islands[y][b] = true
+				--for b in new_island_x do new_islands[y][b] = true
+				
 				faces_islands[y] += faces_island_x
 				new_islands[y]   += new_island_x
 
@@ -367,6 +392,7 @@ struct VertIslandFinder_v
 	function _mergeNewIslandsToCache current_layer =
 	(
 		--format "\n"; print "VertSelector_v._collapseNewIslands()"
+		--format "\n"
 		--format "islands_cache.count: %\n" islands_cache.count
 		
 		delete_flags = #{}
@@ -404,6 +430,7 @@ struct VertIslandFinder_v
 
 				)
 				
+				
 				delete_flags[x] = true
 				--format "delete_flags: %\n" delete_flags
 				--deleteItem islands_cache x
@@ -411,42 +438,10 @@ struct VertIslandFinder_v
 		)
 		
 		filtered_arr = for i = 1 to islands_cache.count where not delete_flags[i] collect islands_cache[i]
+		--format "filtered_arr.count:  %\n" filtered_arr.count
 
 		this.islands_cache = filtered_arr
-		
 		--format "islands_cache.count: %\n" islands_cache.count
-	),
-
-	/** Merge bit arrays wich shared bits
-	  *
-	  * @param #( #{} ) bitarrays Array of bittarays
-	 */
-	function _collapseNewIslands bitarrays =
-	(
-		--format "\n"; print "VertSelector_v._collapseNewIslands()"
-
-		for x = bitarrays.count to 1 by -1 do
-		(
-			--format "x: %\n" x
-			merged = false
-
-			bitarrays_x = bitarrays[x]
-
-			--for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 0 do
-			for y = bitarrays.count to 1 by -1 while not merged where x != y and this._bitsAreShared bitarrays_x bitarrays[y] more_bits_then:1 != false  do
-			(
-				bitarrays[y] += bitarrays[x]
-
-				merged = true
-
-				--gc light:true
-			)
-
-			if merged then
-				deleteItem bitarrays x
-		)
-
-		bitarrays --return
 	),
 
 	/** Add island data to neww islands
@@ -477,17 +472,6 @@ struct VertIslandFinder_v
 			false --return
 	),
 
-	--/** Bitarrays match
-	-- */
-	--function _bitsAreSharedSearch haystack needle =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
-	--	found = false
-	--
-	--	for vert in needle while not found where haystack[vert] do found = true
-	--
-	--	found --return
-	--),
 	/** Bitarrays match
 	 */
 	function _hasIntersection haystack needle more_bits_then:0 =
@@ -499,59 +483,6 @@ struct VertIslandFinder_v
 
 		founds > more_bits_then --return
 	),
-	--
-	--/** 
-	--  *	
-	--  */
-	--function _setFaceVerts =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v._setFaceVerts()"
-	--	face_count = polyop.getNumFaces obj
-	--	--format "face_count: %\n" face_count
-	--	this.vert_by_face = #()
-	--
-	--	for f = 1 to face_count do
-	--		--format "WTF: %\n" ((polyop.getFaceVerts obj f))
-	--		--append this.vert_by_face (polyop.getFaceVerts obj f)
-	--		this.vert_by_face[f] = polyop.getFaceVerts obj f
-	--),
-	
-	
-	
-	--/** Test new islands
-	-- */
-	--function _testNewIslands =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v._testNewIslands()"
-	--	--for x = islands_data.count to 1 by -1 do
-	--	--(
-	--	--	--format "x: %\n" x
-	--	--
-	--	--	island_data = islands_data[x][#NEW_ISLAND]
-	--	--
-	--	--		--format "island_data: %\n" island_data
-	--	--	--if island_data != undefined then
-	--	--
-	--	--
-	--	--		for y = islands_data.count to 1 by -1 where x != y and ( island_data * islands_data[y][#NEW_ISLAND] ).numberSet > 0 do
-	--	--		(
-	--	--			format "\n\n=========================\n"
-	--	--			format "x: % \ny: %\n\n" x y
-	--	--			format "NEW_ISLAND: %\n" islands_data[y][#NEW_ISLAND]
-	--	--		)
-	--	--		--else
-	--	--		--(
-	--	--		--	format "\n\n=========================\n"
-	--	--		--	format "UNDEFINED: %\n" x
-	--	--		--)
-	--	--	gc light:true
-	--	--
-	--	--)
-	--
-	--	for island_data in islands_data do
-	--		format "island_data[#NEW_ISLAND]: %\n" island_data[#NEW_ISLAND]
-	--
-	--),
 
 	/** Set vertex color to new islands
 	 */
@@ -580,26 +511,6 @@ struct VertIslandFinder_v
 		--)
 
 	),
-	--
-	--/** Get first layer
-	-- */
-	--function _getFirstLayerIslands =
-	--(
-	--	format "\n"; print "VertIslandFinder_v._getFirstLayer()"
-	--	for layer = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer] ) == BitArray and not ( verts_in_layer * verts_process ).isEmpty  do -- layer has not verts if item is integer ( layer number )
-	--	(
-	--		faces_in_layer = polyop.getFacesUsingVert obj verts_in_layer
-	--		format "faces_in_layer: %\n" faces_in_layer
-	--		this.faces_processed += faces_in_layer
-	--
-	--
-	--		this.islands_cache = this.getVertexIslands ( polyop.getVertsUsedOnlyByFaces obj faces_in_layer)
-	--		--this.islands_cache = this.getVertexIslands ( polyop.getVertsUsingFace obj faces_in_layer)
-	--
-	--		return layer
-	--	)
-	--
-	--),
 
 	/** Set verts processed
 	 */
@@ -608,50 +519,6 @@ struct VertIslandFinder_v
 		--format "\n"; print "VertIslandFinder_v.setVertsProcessed()"
 		this.islands_cache = this.getVertexIslands (verts)
 	),
-
-	--/** Set verts processed
-	-- */
-	--function getVertexIslands verts =
-	--(
-	--	--format "\n"; print "VertIslandFinder_v.getVertexIslands()"
-	--	--verts_processed = verts
-	--	--
-	--	----faceverts = for face_id in faces_of_verts collect ( polyop.getVertsUsingFace obj face_id )
-	--	--
-	--	--islands_cache = this._sortVertsByIslands( polyop.getFacesUsingVert obj verts_processed
-	--	islands = #()
-	--
-	--	--verts_used = copy verts
-	--	--face_verts = polyop.getVertsUsingFace obj face
-	--
-	--	--vertex_count = getNumVerts obj.mesh
-	--	--format "vertex_count: %\n" vertex_count
-	--	--
-	--	--all_verts = #{1..(vertex_count)}
-	--
-	--	--faces_sel = polyop.getFaceSelection obj
-	--	--format "faces_sel: %\n" faces_sel
-	--	--/*------ SPLIT TO NEW_ISLANDS ------*/
-	--	--verts_sel = polyop.getVertsUsingFace obj faces_sel
-	--	--format "verts_sel: %\n" verts_sel
-	--
-	--	while not verts.isEmpty do
-	--	(
-	--		faces_of_vert = polyop.getFacesUsingVert obj (verts as Array )[1]
-	--
-	--		verts_of_faces = polyop.getVertsUsingFace obj faces_of_vert
-	--		format "verts_of_faces: %\n" verts_of_faces
-	--		verts_of_faces -= this.verts_above
-	--
-	--		append islands verts_of_faces
-	--
-	--		verts -= verts_of_faces
-	--	)
-	--
-	--	this._mergeNewIslandsToCache(islands) --return
-	--
-	--	--islands --return
-	--),
 
 	/** Get center of island
 	 */
@@ -675,18 +542,7 @@ struct VertIslandFinder_v
 	),
 
 
-
 	private
-
-	/** Get face layers
-	 */
-	function getFaceLayers faces_in_layer =
-	(
-		--format "\n"; print "VertIslandFinder_v.getFaceLayers()"
-	),
-
-
-
 
 
 	/**
@@ -697,5 +553,4 @@ struct VertIslandFinder_v
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
-
 )

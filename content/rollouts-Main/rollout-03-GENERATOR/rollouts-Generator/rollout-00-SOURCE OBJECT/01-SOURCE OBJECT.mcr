@@ -17,7 +17,7 @@ icon:	"across:2|control:checkbox|id:CBX_keep_source_minz_z_pos|width:140|height:
 			SourceObjects = SUPPORT_MANAGER.getSourceObjects ( selection as Array ) --get_nodes:true
 			
 			for SourceObject in SourceObjects do
-				SOURCE_OBJECT_TRANSFORM._keepMinZposition(SourceObject.obj) use_current_pos:true
+				SOURCE_OBJECT_TRANSFORM.keepMinZposition(SourceObject.obj) use_current_z_pos:true
 
 			redrawViews()
 
@@ -46,7 +46,7 @@ icon:	"across:2|control:spinner|id:SPIN_z_pos_lock|type:#INTEGER|fieldwidth:24|r
 		(
 			setUserPropVal source_object "Z_POS_LOCK" EventFired.val
 			
-			SOURCE_OBJECT_TRANSFORM._keepMinZposition(source_object)
+			SOURCE_OBJECT_TRANSFORM.keepMinZposition(source_object)
 		)
 		
 		redrawViews()

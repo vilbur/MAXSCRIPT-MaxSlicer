@@ -79,8 +79,8 @@ struct SupportManager_v
 	export_size,
 
 	/* properties */
-    SourceObjects	= Dictionary #STRING, --"./SourceObject/SourceObject.ms"
-    SupportObjects	= Dictionary #STRING,
+    SourceObjects	= Dictionary #STRING,  --"./SourceObject/SourceObject.ms"
+    SupportObjects	= Dictionary #STRING,  --"./SourceObject/SupportObject/SupportObject.ms"
     BeamObjects 	= Dictionary #STRING, --KEY:#POINTER_SUPORT_AxPOINTER_SUPORT_B VALUE:BeamObject_v
 
 	shapes_to_update = #(), -- sore shape for mass updating
@@ -139,7 +139,7 @@ struct SupportManager_v
 		)
 		
 		bindOnObjectDeletedCallback( source_obj )
-		whenSourceObjectSelectionChanges( source_obj )
+		--whenSourceObjectSelectionChanges( source_obj )
 
 		new_nodes --return
 	),
@@ -626,12 +626,12 @@ struct SupportManager_v
 	
 	function isSelectionLocked =
 	(
-		local currentSel = getCurrentSelection()
+		currentSel = getCurrentSelection()
 
 		deselect selection
 
-		local newSel = getCurrentSelection()
-		local locked = (currentSel as string == newSel as string) -- Compare if selection changed
+		newSel = getCurrentSelection()
+		locked = currentSel as string == newSel as string -- Compare if selection changed
 		
 		if not locked then -- If it wasn't locked, reselect what was originally selected
 			select currentSel
@@ -1082,7 +1082,7 @@ struct SupportManager_v
 		/* BIND TO EVENTS */
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 
-		whenSourceObjectSelectionChanges( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
+		--whenSourceObjectSelectionChanges( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 	),
 
 	/** Load supports from scene

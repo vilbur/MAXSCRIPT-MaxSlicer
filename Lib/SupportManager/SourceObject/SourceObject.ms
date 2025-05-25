@@ -38,7 +38,6 @@ struct SourceObject_v
 		-- format "\n"; print "SourceObject_v.generateSupports()"
 		-- format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
-		--this._keepMinZposition()
 		
 		SupportObjectsNew = #()
 

@@ -50,18 +50,17 @@ struct SourceObjectTransformEventBinder_v
 		--when transform binded_objects changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
 		when transform binded_objects changes id:#onSourceObjectTransform obj do
 		(
-			--format "WHEN TRANSFORM BINDED_OBJECTS CHANGES\n"
-			--format "OBJ: %\n" obj
-			--format "keep_source_minz_z_pos: %\n" SUPPORT_OPTIONS.keep_source_minz_z_pos
+			/* KEEP Z POSITION */ 
 			if SUPPORT_OPTIONS.keep_source_minz_z_pos then
-				this._keepMinZposition(obj)
+				this.keepMinZposition(obj)
 			
-
+			/* MARK OBJECT AS TRANSFOMRED */ 
 			appendIfUnique moved_objects obj
 			
+			/* START TIMEOUT */ 
 			if this.delay_timer == undefined then
 			(
-				pauseSupportTransformEvent()
+				pauseSupportTransformEvent() -- pause callback for suports while source object is transormed
 				
 				this._startObjectTransformTimeout()
 			)
@@ -75,18 +74,19 @@ struct SourceObjectTransformEventBinder_v
 	function setTransformData source_obj =
 	(
 		-- format "\n"; print "SourceObjectTransform_v.setTransformData()"
-		--format "source_obj: %\n" source_obj
-		--binded_objects[getHandleByAnim source_obj] = Dictionary #( #OBJECT, source_obj ) #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
 		transform_data[this._getPointer source_obj] = Dictionary #( #POS_Z, source_obj.position.z ) #( #ROTATION, quatToEuler2 source_obj.rotation.controller.value )
 	),
 	
-	/** Keep min zposition
+	/** Lock min z position of source object on transform
+	  * 
+	  * @param boolean use_current_z_pos
 	 */
-	function _keepMinZposition obj use_current_pos:false =
+	function keepMinZposition obj use_current_z_pos:false =
 	(
-		-- format "\n"; print "SourceObjectTransform_v._keepMinZposition()"
-		-- format "use_current_pos: %\n" use_current_pos
-		/* In MaxScript, due to floating-point precision limitations, setting an object's position with very small float values (e.g. less than 0.009) can result in truncation or rounding issues — especially when these values are smaller than the UI display precision or fall below the transformation matrix threshold.
+		 --format "\n"; print "SourceObjectTransform_v.keepMinZposition()"
+		
+		/* In MaxScript, due to floating-point precision limitations
+		*   setting an object's position with very small float values (e.g. less than 0.009) can result in truncation or rounding issues — especially when these values are smaller than the UI display precision or fall below the transformation matrix threshold.
 		*/ 
 		function setObjectPosition node pos =
 		(
@@ -96,26 +96,31 @@ struct SourceObjectTransformEventBinder_v
 			
 			node.transform = t_matrix -- return
 		)
+		
+		bbox_min_z = ( nodeGetBoundingBox obj ( Matrix3 1))[1].z
 
-		z_pos_lock_saved = getUserPropVal obj "Z_POS_LOCK" 
-		
-		bbox = nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-		
-		bbox_min = bbox[1].z
+        /* GET Z POSITION */ 		
+		z_pos_lock = if use_current_z_pos or (z_pos_lock_saved = getUserPropVal obj "Z_POS_LOCK") == undefined then
+			ceil (bbox_min_z / SUPPORT_OPTIONS.layer_height) -- get miz z pos of bounging box
 
-		z_pos_lock = if use_current_pos or z_pos_lock_saved == undefined then ceil (bbox_min / SUPPORT_OPTIONS.layer_height) else z_pos_lock_saved
-		-- format "z_pos_lock: %\n" z_pos_lock
+		else
+			z_pos_lock_saved -- get value from user props
+
+			
+		/* KEEP ABOVE GROUND */ 
+		if z_pos_lock < 0 then z_pos_lock = 0
 		
-		if z_pos_lock < 0 then
-			z_pos_lock = 0
-		
+		/* USE LAYER HEIGHT TO GET MIN Z POSITION */ 
 		min_z_pos = ( SUPPORT_OPTIONS.layer_height * z_pos_lock )
 
-		new_pos = obj.position.z - bbox_min + min_z_pos
+		/* GET POSITION OF PIVOT */ 
+		new_pos = obj.position.z - bbox_min_z + min_z_pos
 		
-		setUserPropVal obj "Z_POS_LOCK" z_pos_lock
-		
+		/* MOVE OBJECT */ 
 		setObjectPosition obj new_pos
+		
+		/* SAVE Z POS */ 
+		setUserPropVal obj "Z_POS_LOCK" z_pos_lock
  	),
 	
 	private

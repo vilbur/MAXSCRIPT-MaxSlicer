@@ -163,8 +163,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		  -- format "\n----------------------------------------------\n"
-		  -- format "\n"; print "SupportObject_v.updateSupport()"
+		   --format "\n----------------------------------------------\n"
+		   --format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		  -- format "direction: %\n" direction
 		 -- format "first_knot_pos: %\n" first_knot_pos
 		-- format "update_raft: %\n" update_raft
@@ -443,14 +443,14 @@ struct SupportObject_v
 	 */
 	function isRaft =
 	(
-		 format "\n"; print "SupportObject_v.isRaft()"
+		 -- format "\n"; print "SupportObject_v.isRaft()"
 		 
 		if isValidNode support_obj then
 			getUserPropVal support_obj "RAFT_KEY" != undefined
 			
 		else
 		(
-			format "\n!!!!!!!!!!!!!!!!!!!!!!!!! isValidNode \n"
+			-- format "\n!!!!!!!!!!!!!!!!!!!!!!!!! isValidNode \n"
 			
 			false --return
 		)

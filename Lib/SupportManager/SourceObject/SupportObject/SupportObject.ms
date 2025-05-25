@@ -30,7 +30,6 @@ struct SupportObject_v
 	hit_leg,
 	
 	/* dependency */
-	--SupportRaft	= SupportRaft_v(this),
 	SupportRaft	= SupportRaft_v(this),
 	SupportLeg	= SupportLeg_v (this),
 	SupportFoot	= SupportFoot_v(this),
@@ -40,7 +39,6 @@ struct SupportObject_v
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
-	--changed_keys = #(),
 
 	direction,
 	dir_vector,
@@ -66,9 +64,7 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	--dir_vector_angle_range = 90,
 	dir_vector_angle_range = 80,
-	--dir_vector_angle_range = 45,
 	
 	private
 
@@ -86,12 +82,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		 -- format "\n===========================================================\n"
-		  -- format "\n"; print "SupportObject_v.generateSupport()"
-		  -- format "first_knot_pos: %\n" first_knot_pos
-		 -- format "dir_vector: %\n" dir_vector
-		 -- format "wirecolor: %\n" wirecolor
-		  -- format "vertex_index: %\n" vertex_index
+		  -- format "\n===========================================================\n"
+		   -- format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
@@ -147,7 +139,7 @@ struct SupportObject_v
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 		else
-			this._enableBoxMode()
+			this.enableBoxMode()
 	),
 	
 	/** 	UPDATE SUPPORTS
@@ -165,10 +157,6 @@ struct SupportObject_v
 	(
 		   --format "\n----------------------------------------------\n"
 		   --format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
-		  -- format "direction: %\n" direction
-		 -- format "first_knot_pos: %\n" first_knot_pos
-		-- format "update_raft: %\n" update_raft
-		 -- format "dir_vector:  %\n" dir_vector
 		
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERSw
@@ -185,8 +173,7 @@ struct SupportObject_v
 		points = #(first_knot_pos, support_obj.pos)
 		
 		this._setRaftLenght update_raft:update_raft
-		--format "dir_vector == undefined: %\n" (dir_vector == undefined)
-		-- format "NORMAL: %\n" (normalize (points[2] - points[1]))
+
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		
 		this._keepVectorDown()
@@ -289,8 +276,8 @@ struct SupportObject_v
 	 */
 	function updateSupportHeight  =
 	(
-		-- format "\n"; print "SupportObject_v.updateSupportHeight()"
-		-- format "support_obj:  %\n" support_obj.name
+		 -- format "\n"; print "SupportObject_v.updateSupportHeight()"
+		 -- format "support_obj:  %\n" support_obj.name
 		function isTallEnough = support_obj.pos.z > min_foot_pos
 		
 		/** Set knot zposition
@@ -478,23 +465,20 @@ struct SupportObject_v
 	
 	/** Disable support by showing it as box
 	 */
-	function _enableBoxMode =
+	function enableBoxMode =
 	(
-		  -- format "\n"; print "SourceObject_v._enableBoxMode()"
+		  -- format "\n"; print "SourceObject_v.enableBoxMode()"
 		support_obj.boxmode = true
 	),
 	
-	/** Has splines
+	/** Is box mode
 	 */
-	function hasSplines =
+	function isBoxMode =
 	(
-		-- format "\n"; print "SupportObject_v.hasSplines()"
-		numSplines support_obj > 0
+		--format "\n"; print "SupportObject_v.isBoxMode()"
+		support_obj.boxmode == true
 	),
-	
-	--private
-	
-	
+		
 	/** Set support line points
 	 */
 	function _setSupportLinePoints =
@@ -585,11 +569,9 @@ struct SupportObject_v
 	 */
 	function vectorIsInRangeCone =
 	(
-		 -- format "\n"; print "SupportObject_v.vectorIsInRangeCone()"
-		-- format "SHIT\n"
-		-- format "normal_world: %\n" normal_world
-		-- format "this.dir_vector: %\n" this.dir_vector
-		-- format "DISTANCE: %\n" (distance normal_world this.dir_vector)
+		-- format "\n"; print "SupportObject_v.vectorIsInRangeCone()"
+		 
+		------if classOf normal_world == point3 and classOf this.dir_vector == point3 then -- DEBUG
 		if distance normal_world this.dir_vector > 0.001 then
 		(
 		-- format "WHOOPS\n"

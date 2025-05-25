@@ -361,7 +361,7 @@ struct SupportManager_v
 		resumeSupportTransformEvent()
 	),
  
-	/** Update all supports and rafts of given source
+	/** UPDATE ALL SUPPORTS, RAFTS AND BEMAS WHEN SOURCE OBJECT HAS BEEN MOVED OR ROTATED
 	  *  
 	  *  This update is fired when source object is transformed
 	  *  
@@ -369,7 +369,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		 -- format "\n"; print "SupportManager_v.updateBySourceObject()"
+		  -- format "\n"; print "SupportManager_v.updateBySourceObject()"
 		-- format "what_to_update: %\n" what_to_update
 		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key

@@ -38,32 +38,44 @@ struct SourceObjectNormals_v
 		-- format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		this._initNormalsLocalArray()
 
+
 		if not this.loadNormalsLocal() then
 			this._updateLocalVertexNormalsByModifier( verts )
+		else
+			this._updateLocalNormals( verts )
 	),
 
 	/** Set world space vertex normals
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		-- format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
-		-- format "verts.numberset : %\n" verts.numberset 
+		  -- format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
+		 -- format "verts: %\n" verts
+		 -- format "verts.numberset : %\n" verts.numberset 
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
 		if normals_world == undefined then
+		(
 			normals_world = deepCopy normals_local
+			
+			verts = #{1..normals_world.count}
+		)
 
-		for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		--for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+		--for normal_world in normals_world do
+		--format "normal_world: %\n" normal_world
+		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 		
+		--for vert in verts where normals_world[vert] != undefined do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
 	
 	/** Load normals local
 	 */
 	function loadNormalsLocal =
 	(
-		--format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
+		-- format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
 			this.normals_local = normals_local_loaded
 
@@ -97,7 +109,7 @@ struct SourceObjectNormals_v
 	 */
 	function _updateLocalVertexNormalsByModifier verts =
 	(
-		-- format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
+		 -- format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
 
 		eMod = Edit_Normals()
 
@@ -119,15 +131,13 @@ struct SourceObjectNormals_v
 		)
 
 		deleteModifier selection eMod
-
-		--vertex_normals --return
 	),
 
 	/** Get verts normals
 	 */
 	function _updateLocalNormals verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
+		-- format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
 
 		obj_mesh = obj.mesh
 
@@ -157,17 +167,12 @@ struct SourceObjectNormals_v
 	function _initNormalsLocalArray =
 	(
 		--format "\n"; print "SourceObjectNormals_v._initNormalsLocalArray()"
-		--if normals_local == undefined or normals_local.count != all_verts.numberSet then
-		--(
-		--)
-		normals_local = this.all_verts as Array
-		--normals_world = this.all_verts as Array
-
-		for i = 1 to normals_local.count do
+		if normals_local == undefined or normals_local.count != all_verts.numberSet then
 		(
-			normals_local[i] = point3 0 0 0
-			
-			--normals_world[i] = point3 0 0 0
+			normals_local = this.all_verts as Array
+	
+			for i = 1 to normals_local.count do
+				normals_local[i] = point3 0 0 0
 		)
 	),
 

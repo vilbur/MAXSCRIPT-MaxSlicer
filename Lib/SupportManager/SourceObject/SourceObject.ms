@@ -133,7 +133,7 @@ struct SourceObject_v
 				append SupportObjectsNew SupportObject
 				
 				--if result == false then
-					--SupportObject._enableBoxMode()
+					--SupportObject.enableBoxMode()
 			)
 		
 		/*------------------------------------------------------------------------------
@@ -285,7 +285,7 @@ struct SourceObject_v
 				DISABLE SUPPORT IF NOT VALID
 			--------------------------------------------------------------------------------*/
 			else 
-				Support._enableBoxMode()
+				Support.enableBoxMode()
 		)
 		
 		free SupportsToUpdate
@@ -307,8 +307,9 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight = 
 	(
-		--format "\n****************************************************\n"
-		--format "\n"; print "SourceObject_v.updateSupportsHeight()" 
+		 -- format "\n****************************************************\n"
+		 -- format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		 --format "Normals.normals_world: %\n" Normals.normals_world
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 		/* GET SUPPORTS TO UPDATE */ 
@@ -321,8 +322,11 @@ struct SourceObject_v
 		
 		for index in Supports.keys where not Supports[index].isRaft() and isValidNode Supports[index].support_obj do
 		(
+			-- format "\n"
+			-- format "index: %\n" index
 			Support = Supports[index]
-			
+			-- format "Support: %\n" Support
+			-- format "NORMAL: %\n" (Normals.normals_world[index].z)
 			
 			if Normals.normals_world[index].z < 0 then
 			(
@@ -330,19 +334,19 @@ struct SourceObject_v
 				
 				dir_vector = this._getDirVector direction index
 
-				if Support.hasSplines() then
+				if not Support.isBoxMode() then
 				(
 					result = Support.updateSupportHeight()
 	
 					if result == false then
-						this._enableBoxMode(Support)
+						Support.enableBoxMode()
 				)
 				else
 					Support.rebulidSupport dir_vector:dir_vector
 				
 			)
 			else
-				Support._enableBoxMode()
+				Support.enableBoxMode()
 		)
 	),
 	

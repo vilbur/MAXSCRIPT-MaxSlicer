@@ -34,16 +34,25 @@ function openVertexColorSubmenu method =
 
 
 	if method != #SET then
+	(
 		Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
+		
+		Menu.separator()
+	)
 
+	Menu.item "&WHITE"	( call_method_by_vertex_color + "white"	)
+	Menu.separator()
+	
 	Menu.item "&RED"	( call_method_by_vertex_color + "red"	)
 	Menu.item "&GREEN"	( call_method_by_vertex_color + "green"	)
 	Menu.item "&BLUE"	( call_method_by_vertex_color + " " + COLOR_NAMES[#BLUE] as string	)
+
+	Menu.separator()
+	
 	Menu.item "&ORANGE"	( call_method_by_vertex_color + " " + COLOR_NAMES[#ORANGE] as string	)
 	Menu.item "&YELLOW"	( call_method_by_vertex_color + "yellow"	)
 	Menu.item "&PINK"	( call_method_by_vertex_color + " " + COLOR_NAMES[#PINK] as string	)
 	Menu.item "&MAGENTA"	( call_method_by_vertex_color + " " + COLOR_NAMES[#MAGENTA] as string	)
-	Menu.item "&WHITE"	( call_method_by_vertex_color + "white"	)
 
 
 	popUpMenu (Menu.create())

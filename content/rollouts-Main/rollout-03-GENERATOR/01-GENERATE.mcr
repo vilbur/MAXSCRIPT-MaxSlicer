@@ -19,7 +19,7 @@ icon:	"ACROSS:5|height:40|width:84|offset:[ 2, 6 ]|tooltip:• GEENERATE SUPPORT
 	on execute do
 		undo "Generate Supports" on
 		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
 			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
 			generateSupportsOrRafts obj_type:#SUPPORT
 		)

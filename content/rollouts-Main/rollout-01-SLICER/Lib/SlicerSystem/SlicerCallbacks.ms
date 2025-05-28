@@ -56,6 +56,8 @@ struct SlicerCallbacks_v
 	),
 
 	/** Plus minus button
+	  
+	  * CTRL: Go next\previous island - if slider dialog is opened
 	 */
 	function onPlusMinusButton increment =
 	(
@@ -72,9 +74,10 @@ struct SlicerCallbacks_v
 
 				vertex_sel	= getVertSelection obj.mesh
 
-				in coordsys world  polyop.getVerts obj vertex_sel node:obj --return vertex positions
+				in coordsys world polyop.getVerts obj vertex_sel node:obj --return vertex positions
 			)
 		)
+		
 		/** Find verts by positions and reselect verts
 		 */
 		function _findAndReselectVerts verts_pos =
@@ -112,12 +115,13 @@ struct SlicerCallbacks_v
 
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 
-
+		shift_island = keyboard.altPressed
+		
 		/*------------------------------------------------------------------------------
 			GET NEXT LAYER INDEX
 		--------------------------------------------------------------------------------*/
 		/* SHIFT: Go 1mm up\down */
-		if not (shift_island = keyboard.altPressed) then
+		if not shift_island then
 		(
 			increment_const = case of
 			(

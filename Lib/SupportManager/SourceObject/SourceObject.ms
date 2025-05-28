@@ -39,7 +39,7 @@ struct SourceObject_v
 		-- format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 		
-		SupportObjectsNew = #()
+		NewSupportObjects = #()
 
 		this.removeDeletedNodes()
 
@@ -52,6 +52,7 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 
 		verts_sel	= getVertSelection obj.mesh
+		
  		supports_exists = Supports.keys as BitArray
 
 		verts_by_colors = this._getVertsByColors()
@@ -130,7 +131,7 @@ struct SourceObject_v
 				/* SET USER DATA TO SUPPORT */
 				--this._saveUserPropsToSupport (SupportObject) (vert) (direction)
 
-				append SupportObjectsNew SupportObject
+				append NewSupportObjects SupportObject
 				
 				--if result == false then
 					--SupportObject.enableBoxMode()
@@ -141,7 +142,7 @@ struct SourceObject_v
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
 		
 		/* RETURN */
-		SupportObjectsNew
+		NewSupportObjects
 	),
 
 	/** Reset supports

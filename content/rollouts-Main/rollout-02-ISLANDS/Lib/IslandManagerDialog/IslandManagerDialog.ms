@@ -162,22 +162,24 @@ function createIslandManagerDialog islands_to_show: =
 	--------------------------------------------------------------------------------*/
 	btn_exit.Event #PRESSED "::IslandsCallbacks_v.destroyIslandsDialog()" border:false tooltip:"Exit slicer"
 
-
+	/* ISOLATE BUTTON */ 
 	btn_isloate.Event #CHANGED    "::IslandsCallbacks_v.isolateSlectedIslands(val)" tooltip:"Show only verts of selected islands"
 	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
 
-
+	/* RADIO BUTTONS  */ 
 	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 
-
+	/* LIST */ 
 	_multilistbox.Event #SELECTIONEND "::IslandsCallbacks_v.onListboxSelectionEnd()"
 	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"  tooltip:"Open submenu.\n\nCTRL+RMB: Select Islands by verts\n\nSHIFT+RMB: Slice on selected island"
 
-	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)"
+	/* SLIDER */ 
+	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)" tooltip:"SHIFT: Select islands"
 	_slider.Event #SLIDE       "::IslandsCallbacks_v.onListboxSelectionEnd()"
 	_slider.Event #RIGHTCLICK  "::IslandsCallbacks_v.toggleSelectIslandMode()"
 
+	/* SPINNERS */ 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 	_size_max.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 

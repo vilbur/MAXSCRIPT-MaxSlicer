@@ -114,9 +114,11 @@ buttontext:	"Zig Zag"
 icon:	"across:4|control:dropdownlist|id:DL_beams_split|width:80|items:#( 'Square', 'Rectangle')|tooltip:Set shape of zig zag pattern of beams"
 (
 	on execute do
+	(
+		format "EventFired	= % \n" EventFired
 		SUPPORT_OPTIONS.beams_split = EventFired.val
+	)
 	
-	--format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 

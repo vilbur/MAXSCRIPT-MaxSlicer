@@ -384,10 +384,14 @@ struct SupportObject_v
 		
 		ray_pos = pos + (0.1 * dir)
 		--ray_pos = pos 
-		
-		
-		-- format "ray_pos: %\n" ray_pos
-		-- format "dir: %\n" dir
+		/*------------------------------------------------------------------------------
+			
+			TODO: ADD INTERSECTION WITH ALL OABJECTS BINDED TO NODE OR GROP OF NODES
+			
+			
+			
+			
+		--------------------------------------------------------------------------------*/
 		
 		if source_obj != undefined then
 		(

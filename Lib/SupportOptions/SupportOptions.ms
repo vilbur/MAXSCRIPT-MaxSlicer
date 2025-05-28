@@ -68,7 +68,7 @@ struct SupportOptions_v
 	beams_count	= 2,	-- count of lines of beam
 	
 	min_height	= 10,	-- generate beams only if support is higher than this number=
-	beams_split	= 20,	-- height of support where beams are splited and mutliplied along support
+	beams_split	= 1,	--1:SQUARE 2:RECTANGLE
 
 
 	/* PINS OPTIONS */
@@ -88,7 +88,7 @@ struct SupportOptions_v
 
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION, #MAX_CONNECTIONS, #BEAMS_COUNT ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #second_point_direction, #max_connections, #beams_count ),
 
 	/** Get value of prop mutated for modifier
 	 */

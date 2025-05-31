@@ -7,7 +7,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/M
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms"
 
 /* UI GLOBALS */
-global DIALOG_content
+global DIALOG_maxslicer
 global DIALOG_slicer_slider
 global ROLLOUT_generator
 global ROLLOUT_slicer
@@ -22,20 +22,23 @@ global SLICER_SYSTEM
 
 global DIALOG_island_manager
 
+if EXPORT_SIZE == undefined then 
+	global EXPORT_SIZE
+
 filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
 
 
 --if VertSelector_v == undefined then 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms" )	--"./content/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms" )	--"./MaxSlicer/rollouts-Main/rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./MaxSlicer/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
 
 --if IslandsSystem_v == undefined then 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./MaxSlicer/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
@@ -61,7 +64,7 @@ try(
 	/** LOAD CONTENT */
 	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") -- WITHOUT INI FILE --DEV
 	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
-	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName()) min_size:[ 400, -1 ] max_size:[400, -1] width:400
+	ContentLoader	= ContentLoader_v path:(current_dir+"\\MaxSlicer") ini:( getSourceFileName()) min_size:[ 400, -1 ] max_size:[400, -1] width:400
 
 
 
@@ -82,7 +85,7 @@ try(
 	/*------------------------------------------------------------------------------
 		INIT GLOBAL CLASSES when ui exists
 	--------------------------------------------------------------------------------*/
-	SUPPORT_OPTIONS = SupportOptions_v (DIALOG_content)
+	SUPPORT_OPTIONS = SupportOptions_v (DIALOG_maxslicer)
 
 	SUPPORT_OPTIONS.getValuesFromUi()
 

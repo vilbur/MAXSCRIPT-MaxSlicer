@@ -24,12 +24,33 @@ icon:	"across:4|control:spinner|fieldwidth:32|range:[ 0.03, 0.1, 0.05 ]|scale:0.
 
 /**
  */
-macroscript	_export_settings_size
+macroscript	_print_set_export_size
 category:	"_Export"
 buttontext:	"Export Size"
 toolTip:	"Export size"
 icon:	"Control:spinner|range:[0.01,100,1]|offset:[16,0]|across:4|align:#left|width:96"
 (
 	format "eventFired	= % \n" eventFired
+	
+	EXPORT_SIZE = eventFired.val
+
+
+	/* FIRED BY MAXSCRIPT ON STARTUP */ 
+	if eventFired == undefined then
+	(
+		if EXPORT_SIZE == undefined then 
+			EXPORT_SIZE = DIALOG_maxslicer.SPIN_export_size.value
+		else
+			DIALOG_maxslicer.SPIN_export_size.value = EXPORT_SIZE
+	)
+	/* FIRED BY CONTROL EVENT  */ 
+	else
+		EXPORT_SIZE = eventFired.val
+
+	/* SYNC WITH MaxSlicer */ 
+	if DIALOG_nodeexporter != undefined then 
+		DIALOG_nodeexporter.SPIN_export_size.value = DIALOG_maxslicer.SPIN_export_size.value
+
+
 )
 

@@ -72,7 +72,8 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 		for SourceObject in SourceObjects do
 		(
 			--format "SourceObject: %\n" SourceObject
-			indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
+			--indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
+			indexes =( for index in SourceObject.Supports.keys where isValidNode ( support_obj = SourceObject.Supports[index].support_obj) and support_obj.isSelected collect index) as BitArray
 
 			format "indexes: %\n" indexes
 

@@ -56,7 +56,10 @@ icon:	""
 			 )
 			 else
 				for obj in selection where (_mod = obj.modifiers[mod_name]) != undefined do
+				(
+					format "deleteModifier obj _mod: %\n" (deleteModifier obj _mod)
 					deleteModifier obj _mod
+				)
 		)
 	)
 )

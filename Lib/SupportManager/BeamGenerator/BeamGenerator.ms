@@ -48,6 +48,7 @@ struct BeamGenerator_v
 
 			--format "BeamObject.beam: %\n" BeamObject.beam
 			BeamObject.beam --return
+			--BeamObject --return
 		--)
 	),
 	

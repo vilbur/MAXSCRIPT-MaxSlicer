@@ -194,12 +194,13 @@ struct VertIslandFinder_v
 
 				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
 				final_time = timeStamp() - layer_timer
-				format "\n"
-				format "layer: % of: %\n" l used_layers_count
-				format "vertex_counter_dev: %\n" vertex_counter_dev
-				format "final_time: %\n" final_time
-				format "per vertex: %\n" ((final_time as float / vertex_counter_dev ) as float)
-				format "TIMER: % seconds\n" ( final_time / 1000.0)
+				--format "\n"
+				format "LAYER: % of: % TIME:\n" l used_layers_count ( final_time / 1000.0)
+				--format "layer: % of: %\n" l used_layers_count
+				--format "vertex_counter_dev: %\n" vertex_counter_dev
+				--format "final_time: %\n" final_time
+				--format "per vertex: %\n" ((final_time as float / vertex_counter_dev ) as float)
+				--format "TIMER: % seconds\n" ( final_time / 1000.0)
 
 				--format "islands_cache.count: %\n" islands_cache.count
 				layer_timer = timeStamp()

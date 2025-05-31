@@ -51,7 +51,7 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 			----PolyToolsSelect.Normal 3 120 true
 			----PolyToolsSelect.Normal 3 170 true
 			if mode == #BOTTOM then
-				PolyToolsSelect.Normal 3 90 true
+				PolyToolsSelect.Normal 3 140 true
 				--PolyToolsSelect.Normal 3 150 true
 			else /* TOP */
 				PolyToolsSelect.Normal 3 90 false

@@ -15,8 +15,8 @@ struct SlicerSystem_v
 	_objects,
 	obj,
 
-	export_size = DIALOG_content.SPIN_export_size.value,
-	layer_height	= DIALOG_content.SPIN_layer_height.value,
+	export_size = DIALOG_maxslicer.SPIN_export_size.value,
+	layer_height	= DIALOG_maxslicer.SPIN_layer_height.value,
 
 	/* properties */
 	layers_count, --
@@ -266,8 +266,8 @@ struct SlicerSystem_v
 		--	default:	1 -- non metric units
 		--)
 
-		--export_size = DIALOG_content.SPIN_export_size.value
-		--layer_height	= DIALOG_content.SPIN_layer_height.value
+		--export_size = DIALOG_maxslicer.SPIN_export_size.value
+		--layer_height	= DIALOG_maxslicer.SPIN_layer_height.value
 		--current_layer = DIALOG_slicer_slider.SPIN_layer_current.value
 
 		pos -= min_z
@@ -482,9 +482,9 @@ struct SlicerSystem_v
 	function _getPlaneZpozition layer_index =
 	(
 		--format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
-		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
+		--volume_height	= (PrinterVolume_v(DIALOG_maxslicer.SPIN_export_size.value)).printer_size.z
 		--format "LAYER_INDEX: %\n" layer_index
-		--layer_height	= DIALOG_content.SPIN_layer_height.value
+		--layer_height	= DIALOG_maxslicer.SPIN_layer_height.value
 		--layer_current	= DIALOG_slicer_slider.SLIDER_slicer.value
 		--slice_count	= volume_height / layer_height
 

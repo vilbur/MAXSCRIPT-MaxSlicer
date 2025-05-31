@@ -196,6 +196,9 @@ struct SupportManager_v
 		(
 			this.updateShapes()
 		
+			--for new_beam in new_beams do 
+				--new_beam.rotatePivotZAlignX() 
+				
 			select new_beams
 		)
 	),
@@ -1012,7 +1015,7 @@ struct SupportManager_v
 	 */
 	function _updateBeamsBySupports support_keys =
 	(
-		-- format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		 format "\n"; print "SupportManager_v._updateBeamsBySupports()"
 		
 		for key in BeamObjects.keys where isValidNode BeamObjects[key].beam and findItem support_keys ( this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()

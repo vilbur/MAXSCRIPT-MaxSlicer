@@ -31,9 +31,9 @@
 </folder>
 <livefolder id="1f6fb6b3-7eb6-42fb-a2cd-eafd6b09c953" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="Lib" url="Lib/">
 </livefolder>
-<livefolder id="641183e0-0d1b-41bf-97e3-0a6881c9cfb4" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="content" url="content/">
-</livefolder>
 <livefolder id="74a24c1c-abd1-4b0e-8c4a-b9b736ebabb1" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="SupportManager" url="Lib/SupportManager/">
+</livefolder>
+<livefolder id="d8834c38-8860-4c4d-913c-c450d788b39e" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="MaxSlicer" url="MaxSlicer/">
 </livefolder>
 <preference-set idref="12089a42-ba37-4a31-ace1-064f036ed6fb" id="project" preftype="project">
   <long id="prefs_version">1</long>

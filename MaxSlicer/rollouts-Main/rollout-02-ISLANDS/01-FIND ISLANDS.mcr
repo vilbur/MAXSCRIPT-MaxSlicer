@@ -2,7 +2,7 @@
 
 
 
-filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
+--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
 
 global ISLANDS_SYSTEM
 
@@ -33,7 +33,7 @@ icon:	"across:3|height:32"
 			/* DISABLE SLICER MODIFIERS */
 			SLICER_SYSTEM.toggleModifiers false
 
-			layer_height = DIALOG_content.SPIN_layer_height.value
+			layer_height = DIALOG_maxslicer.SPIN_layer_height.value
 
 			/* LOAD DATA FROM OBJECT PROPERTIES */
 			islands_data_loaded = getUserPropVal obj "ISLANDS_DATA"

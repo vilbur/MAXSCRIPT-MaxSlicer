@@ -31,10 +31,12 @@ struct BeamObject_v
 
 		this._createBeam()
 
+		this.rotatePivotZAlignX (points_of_lines[1][1] - points_of_lines[2][1] )
+		
 		this._drawLines(points_of_lines)
 
 		this._centerPivot()
-		
+
 		this._lockTransforms()
 
 		bindOnObjectDeletedCallback( beam )
@@ -99,7 +101,7 @@ struct BeamObject_v
 	),
 
 
-	private
+	--private
 
 	/** Lock transforms
 	 */
@@ -353,6 +355,97 @@ struct BeamObject_v
 		this.supports = supports_sorted
 	),
 
+	function rotatePivotZAlignX targetVec =
+	(
+		-- Helper function for clamping a value
+		fn manual_clamp val vMin vMax =
+		(
+			if val < vMin then vMin
+			else if val > vMax then vMax
+			else val
+		)
+	
+		-- Ensure the provided node is valid
+		if not isValidNode beam then
+		(
+			format "Error: Invalid node provided.\n"
+			return false
+		)
+		
+		--pivot_pos = beam.pivot
+		
+		--point_1 = getKnotPoint beam 1 1
+		--point_2 = getKnotPoint beam 2 1
+		--
+		
+		--targetVec = point_1 - point_2
+	
+		-- Ensure targetVec is a vector (Point3 in MAXScript)
+		if not isKindOf targetVec Point3 then
+		(
+			format "Error: targetVec must be a Point3 value.\n"
+			return false
+		)
+	
+		-- Normalize the world target vector
+		local targetVec_world_norm = normalize targetVec
+		if length targetVec_world_norm == 0 then
+		(
+			format "Error: targetVec has zero length.\n"
+			return false
+		)
+	
+		-- Get inverse of the node's world rotation part
+		local nodeRotation_inv = inverse beam.transform.rotationpart
+		
+		-- Transform the target vector into the node's local space
+		local V_target_nodeLocal = normalize (targetVec_world_norm * nodeRotation_inv)
+	
+		-- Get the current objectOffsetRotation
+		local Q_objOffset_current = beam.objectOffsetRot
+		local M_objOffset_current = Q_objOffset_current as matrix3
+	
+		-- Get the current local axes of the pivot
+		local X_c = normalize M_objOffset_current.row1 
+		local Z_c = normalize M_objOffset_current.row3 
+	
+		-- Project target onto pivot's XY plane
+		local V_target_proj_on_XYplane_vec = V_target_nodeLocal - (dot V_target_nodeLocal Z_c) * Z_c
+		
+		if length V_target_proj_on_XYplane_vec < 0.00001 then
+		(
+			format "Warning: Target vector is (nearly) collinear with the pivot's local Z-axis for node \"%\". Cannot uniquely align X-axis.\n" beam.name
+			return false 
+		)
+		local V_target_proj_on_XYplane_norm = normalize V_target_proj_on_XYplane_vec
+	
+		-- Calculate angle and clamp
+		local cos_angle = dot X_c V_target_proj_on_XYplane_norm
+		cos_angle = manual_clamp cos_angle -1.0 1.0 
+		local angle_rad = acos cos_angle
+	
+		-- Determine signed direction
+		local cross_prod_vec = cross X_c V_target_proj_on_XYplane_norm
+		if (dot cross_prod_vec Z_c) < 0.0 then
+		(
+			angle_rad = -angle_rad
+		)
+	
+		-- Create delta rotation quaternion around pivot local Z-axis
+		local Q_delta_Z_intrinsic = quat angle_rad Z_c
+	
+		-- Apply pivot rotation
+		local Q_objOffset_new = Q_objOffset_current * Q_delta_Z_intrinsic
+		beam.objectOffsetRot = Q_objOffset_new
+	
+		-- Rotate the object in world space with inverse to preserve visual orientation
+		local Q_world_inv = inverse Q_delta_Z_intrinsic
+		beam.rotation = Inverse ( Q_world_inv *  beam.rotation )
+	
+		--beam.pivot = pivot_pos
+	
+		--return true -- return
+	),
 
 	/** Add to group
 	 */

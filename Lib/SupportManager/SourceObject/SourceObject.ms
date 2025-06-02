@@ -145,8 +145,8 @@ struct SourceObject_v
 	 */
 	function resetSupports support_nodes =
 	(
-		--format "\n"; print "SourceObject_v.resetSupports()"
-		--format "support_nodes: %\n" support_nodes
+		-- format "\n"; print "SourceObject_v.resetSupports()"
+		format "support_nodes: %\n" support_nodes
 		
 
 		/* GET SUPPORTS TO RESET */ 

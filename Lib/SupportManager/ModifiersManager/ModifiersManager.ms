@@ -14,6 +14,7 @@ struct ModifiersManager_v
 
 	/* properties */
 	SupportModifiers	= Dictionary(), -- KEY: VALUE:
+	--SupportModifiers	= SupportModifiers_v(),
 
 	/* private */
 	/* dependency */
@@ -26,21 +27,19 @@ struct ModifiersManager_v
 	  */
 	function addModifiers _objects obj_type:#SUPPORT objects_exists:#() =
 	(
-		--format "\n-----------------------------------------\n"
-		--format "\n"; print "ModifiersManager_v.addModifiers()"
-		--format "_objects: %\n" _objects
-		format "objects_exists: %\n" objects_exists
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width
-		
+		-- format "\n-----------------------------------------\n"
+		-- format "\n"; print "ModifiersManager_v.addModifiers()"
 		this._objects =	_objects
 
-		if SupportModifiers[#DEFAULT] == undefined then
-			SupportModifiers[#DEFAULT] = SupportModifiers_v()
-
+		/*------------------------------------------------------------------------------
+			CREATE NEW ISTANCES OF MODIFIERS
+		--------------------------------------------------------------------------------*/
 		if objects_exists.count == 0 then
 		(
 			--format "ADD NEW MODIFIERS\n"
 			select _objects
+		
+			SupportModifiers[#DEFAULT] = SupportModifiers_v()
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 
@@ -49,21 +48,66 @@ struct ModifiersManager_v
 		
 			for i = modifiers.count to 1 by -1 do
 				--addModifier _objects modifiers[i]
-					modPanel.addModToSelection ( modifiers[i] ) --ui:on
+				modPanel.addModToSelection ( modifiers[i] ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepProperties (_objects[1])
 		)
+		/*------------------------------------------------------------------------------
+			COPY MODIFIERS
+		--------------------------------------------------------------------------------*/
 		else
-			this._copyModifiers objects_exists[1] _objects ((this._getSupportsWithModfiers(objects_exists))[1].modifiers)
+		(
+			-- format "objects_exists: %\n" objects_exists
+			
+			export_size_new   = getUserPropVal _objects[1]       "EXPORT_SIZE"
+			export_size_exist = getUserPropVal objects_exists[1] "EXPORT_SIZE"
+			-- format "export_size_new: %\n" export_size_new
+			-- format "export_size_exist: %\n" export_size_exist
+			modifiers_of_first_object = (this._getSupportsWithModfiers(objects_exists))[1].modifiers
+			
+			this._copyModifiers objects_exists[1] _objects (modifiers_of_first_object)
+			
+			/*------------------------------------------------------------------------------
+				RESCALE EXISTITNG SUPPORTS
+			--------------------------------------------------------------------------------*/
+			if export_size_new != export_size_exist then
+			(
+				this.rescaleModifeirsByExportSize(modifiers_of_first_object)( export_size_exist /EXPORT_SIZE )
+				
+				SUPPORT_MANAGER.resetSupports (objects_exists)
+				
+				for obj in objects_exists do 
+					setUserPropVal obj "EXPORT_SIZE" (EXPORT_SIZE as float )
+			)
+		)
+	),
 		
+
+	/** Rescale modifeirs by export size
+	 */
+	function rescaleModifeirsByExportSize mods multiplier =
+	(
+		-- format "\n"; print ".rescaleModifeirsByExportSize()"
+		scalable_mods_classes = #( sweep, Face_Extrude, Chamfer )
+		
+		for _mod in mods where findItem scalable_mods_classes ( classOf _mod ) > 0 do
+		(
+			case classOf _mod of
+			(
+				--(sweep):  _mod[#Cylinder_Section].radius = _mod[#Cylinder_Section].radius * multiplier
+				sweep:  _mod[#Cylinder_Section].radius *= multiplier
+				default:  _mod.amount *= multiplier
+				--default: _mod.amount = _mod.amount * multiplier
+			)
+		)
 	),
 
 	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
 	 */
 	function _setSweepProperties obj =
 	(
-		format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		-- format "\n"; print "SupportModifiers_v.setSweepRadius()"
 		--format "BAR_WIDTH: %\n" (SUPPORT_OPTIONS.getModVal #BAR_WIDTH)
 
 		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
@@ -97,9 +141,10 @@ struct ModifiersManager_v
 	function updateModifier _objects prop_key val: =
 	(
 		--format "\n"; print "ModifiersManager_v.updateModifier()"
-		--format "_objects: %\n" _objects
-		--format "prop_key: %\n" prop_key
-		fn compareArrays arr1 arr2 = with PrintAllElements on ( sort(arr1) ) as string == ( sort(arr2) ) as string
+
+		/* COMPARE ARRAYS
+		*/ 
+		fn areAllObjectsSelected arr1 arr2 = with PrintAllElements on ( sort(arr1) ) as string == ( sort(arr2) ) as string
 		
 		this._objects =	_objects
 
@@ -127,13 +172,15 @@ struct ModifiersManager_v
 			
 			source_mod = source_obj.modifiers[mod_name]
 			
+			/* POINTERS OF OBJECTS */ 
 			pointers_objs =  (for obj in _objects collect (getHandleByAnim obj) as string )
 			
+			/* POINTERS OF OBJECTS WITH MODIFIER */ 
 			pointers_mods = ( for obj in refs.dependentNodes(source_mod) where obj.modifiers[mod_name] == source_mod collect (getHandleByAnim obj) as string )
 			
 			
-			/* REINSTANCE MODIIFER */ 
-			if not ( compareArrays (pointers_objs) (pointers_mods) ) then
+			/* CREATE UNIQUE GROUP OF MODIFIERS INSTANCES - if not */ 
+			if not ( areAllObjectsSelected (pointers_objs) (pointers_mods) ) then
 				source_mod = this._reinstanceModifier (source_obj) (for_replace) (source_mod) 
 			
 			
@@ -195,7 +242,7 @@ struct ModifiersManager_v
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
 	(
-		format "\n"; print "ModifiersManager_v.convertSupportType()"
+		-- format "\n"; print "ModifiersManager_v.convertSupportType()"
 		--format "to_type: %\n" to_type
 		--format "modifiers: %\n" modifiers
 		--format "_objects: %\n" _objects
@@ -332,8 +379,8 @@ struct ModifiersManager_v
 				)
 				catch
 				(
-					format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
-					format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+					-- format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+					-- format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
 				)
 			)
 		)
@@ -347,10 +394,10 @@ struct ModifiersManager_v
 	 */
 	function _copyModifiers obj_source objects_target modifiers =
 	(
-		format "\n"; print "SupportModifiers_v._copyModifiers()"
-		format "obj_source: %\n" obj_source
-		format "objects_target: %\n" objects_target
-		format "modifiers: %\n" modifiers
+		-- format "\n"; print "SupportModifiers_v._copyModifiers()"
+		-- format "obj_source: %\n" obj_source
+		-- format "objects_target: %\n" objects_target
+		-- format "modifiers: %\n" modifiers
 
 		max create mode
 
@@ -388,7 +435,6 @@ struct ModifiersManager_v
 		----format "\n"; print "ModifiersManager.onCreate()"
 		--SUPPORT_OPTIONS.getValuesFromUi()
 		
-		SupportModifiers[#DEFAULT] = SupportModifiers_v() -- INIT DEFAULT MODIFIERS
-	)
+ 	)
 
 )

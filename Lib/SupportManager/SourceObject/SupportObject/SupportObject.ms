@@ -82,9 +82,10 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		format "\n===========================================================\n"
-		format "\n"; print "SupportObject_v.generateSupport()"
-		format "EXPORT_SIZE: %\n" EXPORT_SIZE
+		-- format "\n===========================================================\n"
+		-- format "\n"; print "SupportObject_v.generateSupport()"
+		-- format "vertex_index: %\n" vertex_index
+		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
@@ -160,7 +161,7 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined force_set:true update_leg:false direction:undefined dir_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
 		   --format "\n----------------------------------------------\n"
 		   --format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
@@ -179,7 +180,7 @@ struct SupportObject_v
 
 		points = #(first_knot_pos, support_obj.pos)
 		
-		this._setRaftLenght force_set:update_raft
+		this._setRaftLenght update_raft:update_raft
 
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		
@@ -571,7 +572,7 @@ struct SupportObject_v
 	
 	/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
 	  * • AVOID TO FLIP DIR VECTOR TO BACKSIDE
-	  *		  
+	  *		
 	  * 1)Create future dir vetor from OLD FISRT POSITION and new SUPPORT POSITION
 	  *		  
 	  * 2) Test if new vector firs to range of world normal
@@ -638,22 +639,22 @@ struct SupportObject_v
 	),
 	
 
-	/** Get vector of raft from current line or from user props
-	  * 
-	 */
-	function _setDirVector dir_vector force_set:false =
-	(
-		-- format "\n"; print "SupportObject_v._setDirVector()"
-        vector_exist = dir_vector != undefined
-
-		this.dir_vector = case of
-		(
-            (vector_exist):	dir_vector
-            (update_raft):	normalize (points[2] - points[1])
-            default: 		getUserPropVal support_obj "DIR_VECTOR"
-		)
-		
-	),
+--	/** Get vector of raft from current line or from user props
+--	  * 
+--	 */
+--	function _setDirVector dir_vector update_raft:false =
+--	(
+--		-- format "\n"; print "SupportObject_v._setDirVector()"
+--        vector_exist = dir_vector != undefined
+--
+--		this.dir_vector = case of
+--        (
+--            (vector_exist):	dir_vector
+--            (update_raft):	normalize (points[2] - points[1])
+--            default:        getUserPropVal support_obj "DIR_VECTOR"
+--		)
+--		
+--	),
 		
 	/** Set normal lenght
 	  * 
@@ -662,7 +663,7 @@ struct SupportObject_v
 	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
 	  * 
 	 */
-	function _setRaftLenght force_set:false =
+	function _setRaftLenght update_raft:false =
 	(
 		-- format "\n"; print "SupportObject_v._setRaftLenght()"
 		
@@ -699,13 +700,13 @@ struct SupportObject_v
 	 */
 	function _fillThisWithOptionValues =
 	(
-		 format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
+		 -- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
 			setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
 		
-        format "BASE_HEIGHT: %\n" base_height
-		format "BAR_WIDTH:   %\n" bar_width
+        -- format "BASE_HEIGHT: %\n" base_height
+		-- format "BAR_WIDTH:   %\n" bar_width
 
 	),
 	
@@ -822,27 +823,27 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction force_set:true =
 	(
-		 format "\n"; print "SupportObject_v._setMinLimints()"
+		 -- format "\n"; print "SupportObject_v._setMinLimints()"
 		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 		
 		
-			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
+		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
 			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
 	
 	
-			/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
+		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
 			min_raft_length = min_lenght_by_angle + top_width + dilatation -- chmfer is removing length of raft also
 	
 			
-			/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
+		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		if update_minimal_lenght then
 			min_leg_pos = min_lenght_by_angle --+ dilatation 
 	
-			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
+		/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
 		
@@ -850,6 +851,8 @@ struct SupportObject_v
 		if EXPORT_SIZE != 1.0 then
 		(
 			min_foot_pos /= EXPORT_SIZE
+			--min_foot_pos -= base_height
+
 			min_leg_pos /= EXPORT_SIZE
 			min_raft_length /= EXPORT_SIZE
 			min_lenght_by_angle /= EXPORT_SIZE

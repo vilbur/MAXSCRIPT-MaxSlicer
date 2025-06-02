@@ -424,8 +424,8 @@ struct SupportManager_v
 	 */
 	function resetSupports support_nodes =
 	(
-		--format "\n"; print "SupportManager_v.resetSupports()"
-		--format "SUPPORT_NODES: %\n" support_nodes
+		-- format "\n"; print "SupportManager_v.resetSupports()"
+		-- format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 	
@@ -1015,7 +1015,7 @@ struct SupportManager_v
 	 */
 	function _updateBeamsBySupports support_keys =
 	(
-		 format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		 -- format "\n"; print "SupportManager_v._updateBeamsBySupports()"
 		
 		for key in BeamObjects.keys where isValidNode BeamObjects[key].beam and findItem support_keys ( this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()

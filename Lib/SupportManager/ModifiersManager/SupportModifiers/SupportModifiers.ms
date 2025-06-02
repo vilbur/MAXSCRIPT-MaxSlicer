@@ -26,19 +26,19 @@ struct SupportModifiers_v
 		/* SUPPORT MODIFIERS */
 		mods_support[8]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
 		mods_support[7]	= this._volSelectSetup	(Vol__Select	name:"select_base")	(OPTIONS.getMatId  #BASE )
-		mods_support[6]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH )
-		mods_support[5]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE )
+		mods_support[6]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH / EXPORT_SIZE )
+		mods_support[5]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE / EXPORT_SIZE )
 		mods_support[4]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
-		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH )	--selection_option:#ALL  materialoption:#DIFFERENT
+		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH / EXPORT_SIZE )	--selection_option:#ALL  materialoption:#DIFFERENT
 		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
-		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getModVal #EXTEND_TOP )
+		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getModVal #EXTEND_TOP / EXPORT_SIZE )
 
 		
 		/* RAFT MODIFIERS */
 		mods_raft[4]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
-		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
+		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal #TOP_WIDTH / EXPORT_SIZE )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
 		mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_ends")	(OPTIONS.getMatId  #MIDDLE )	invert_sel:true
-		mods_raft[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_END")	(OPTIONS.getModVal #EXTEND_END )
+		mods_raft[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_END")	(OPTIONS.getModVal #EXTEND_END / EXPORT_SIZE )
 	),
 
 	/** SWEEP Modifier
@@ -125,7 +125,7 @@ struct SupportModifiers_v
 		chamfer_mod.limiteffect = true
 
 		/* SET CHAMFER VALUES */
-		chamfer_mod.amount = amount / EXPORT_SIZE
+		chamfer_mod.amount = amount 
 
 		chamfer_mod.segments = 0
 
@@ -158,7 +158,7 @@ struct SupportModifiers_v
 	function _extrudeSetup extrude_mod amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
-		extrude_mod.amount	= amount / EXPORT_SIZE
+		extrude_mod.amount	= amount 
 
 		--extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER
 		

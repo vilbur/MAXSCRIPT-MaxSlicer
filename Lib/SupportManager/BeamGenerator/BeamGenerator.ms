@@ -83,7 +83,7 @@ struct BeamGenerator_v
 		new_beams = #()
 		procesed_supports = #()
 		
-		max_distance = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance
+		max_distance = if SUPPORT_OPTIONS.use_max_distance then SUPPORT_OPTIONS.max_distance / EXPORT_SIZE
 		-- format "max_distance: %\n" max_distance
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		--format "SOURCE_OBJECTS: %\n" source_objects

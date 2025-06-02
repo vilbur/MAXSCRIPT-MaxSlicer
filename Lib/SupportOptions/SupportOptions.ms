@@ -108,6 +108,10 @@ struct SupportOptions_v
 			default: getProperty this ( prop_key as string )
 		)
 		
+		
+		--if superClassOf val == number and EXPORT_SIZE != 1.0 and findItem _DO_NOT_MODIFY_PROPERTIES prop_key == 0 then
+			--val *= EXPORT_SIZE
+		
 		val --return
 	),
 	/** Get controls with option value

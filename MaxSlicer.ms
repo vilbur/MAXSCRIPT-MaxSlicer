@@ -85,8 +85,7 @@ try(
 	/*------------------------------------------------------------------------------
 		INIT GLOBAL CLASSES when ui exists
 	--------------------------------------------------------------------------------*/
-	SUPPORT_OPTIONS = SupportOptions_v (DIALOG_maxslicer)
-
+	SUPPORT_OPTIONS = SupportOptions_v (DIALOG_maxslicer) --"./Lib/SupportOptions/SupportOptions.ms"
 	SUPPORT_OPTIONS.getValuesFromUi()
 
 	MODIFIERS_MANAGER = ModifiersManager_v()
@@ -95,6 +94,10 @@ try(
 
 	SUPPORT_MANAGER = SupportManager_v()
 
+	/* SET GLOBAL VALUES */ 
+	if EXPORT_SIZE == undefined then 
+		EXPORT_SIZE = DIALOG_maxslicer.SPIN_export_size.value
+	
 	/*------------------------------------------------------------------------------
 		RELAUNCH SUB DIALOGS
 	--------------------------------------------------------------------------------*/

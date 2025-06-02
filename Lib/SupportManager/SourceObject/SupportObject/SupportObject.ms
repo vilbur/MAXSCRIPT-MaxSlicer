@@ -20,6 +20,8 @@ struct SupportObject_v
 
 	sync_key,
 	support_key, -- pointer of support`s node -- used for both types: #SUPPORT and #RAFT
+	
+	export_size,
 
 	is_updated_now = false, -- on\off update mode of raft part
 	
@@ -35,7 +37,7 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* SUPPORT PROPERTIES */
-	prop_keys   = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),
+	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND, #EXPORT_SIZE ),
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
@@ -82,13 +84,15 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		  -- format "\n===========================================================\n"
-		   -- format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n===========================================================\n"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
 		
 		/* SET PARAMS */ 		
+		this.export_size = EXPORT_SIZE
+
 		this.direction = direction
 		
 		this.dir_vector = dir_vector
@@ -96,50 +100,51 @@ struct SupportObject_v
 		this.normal_world = normal_world
 		
 		this.points = #( first_knot_pos )
+		--format "this._isFirstPointAboveGround: %\n" (this._isFirstPointAboveGround())
 		
+		/* TEST SUPPORT Z POSITION */ 
+		if not this._isFirstPointAboveGround() then
+			return false
+			
+
 		this._setSupportObject(wirecolor)
 		
 		this._saveUserPropsToSupport(vertex_index)
 		
-		if this._isFirstPointAboveGround() then
-		(
+		this._fillThisWithOptionValues()
+		
+		this._setMinLimints (direction)
+		
+		/*------------------------------------------------------------------------------
+			SET SUPPORT LINE POINTS
+		--------------------------------------------------------------------------------*/
+		
+		this._setSupportLinePoints()
+		
+
+		/*------------------------------------------------------------------------------
+			CREATE SUPPORT
+		--------------------------------------------------------------------------------*/
 				
-			this._fillThisWithOptionValues()
-			
-			this._setMinLimints (direction)
-	
-			
-			/*------------------------------------------------------------------------------
-				SET SUPPORT LINE POINTS
-			--------------------------------------------------------------------------------*/
-			
-			this._setSupportLinePoints()
-			
-	
-			/*------------------------------------------------------------------------------
-				CREATE SUPPORT
-			--------------------------------------------------------------------------------*/
-					
-			this._drawLine()
-	
-			this._setMaterialsToLineSegments()
-			
-			this._setName(vertex_index)
-			
-			this.setPivotToPoint(2)
-			
-			this._alignPivotToRaft()
-	
-			this._isOnGround()
-			
-			this._saveOptionsToUserProps()
-	
-			this._lockRotationAndScaleTransforms()
-			
-			SUPPORT_MANAGER.updateShapeAdd (support_obj)
-		)
-		else
-			this.enableBoxMode()
+		this._drawLine()
+
+		this._setMaterialsToLineSegments()
+		
+		this._setName(vertex_index)
+		
+		this.setPivotToPoint(2)
+		
+		this._alignPivotToRaft()
+
+		this._isOnGround()
+		
+		this._saveOptionsToUserProps()
+
+		this._lockRotationAndScaleTransforms()
+		
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+
+		true --return
 	),
 	
 	/** 	UPDATE SUPPORTS
@@ -560,8 +565,8 @@ struct SupportObject_v
 	--function _isFirstPointAboveGround first_knot_pos dir_vector =
 	function _isFirstPointAboveGround =
 	(
-		 -- format "\n"; print "SupportObject_v._isFirstPointAboveGround()"
-		points[1].z > 0
+		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()"
+		points[1].z > 0.0
 	),
 	
 	/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
@@ -671,18 +676,21 @@ struct SupportObject_v
 	 */
 	function _saveUserPropsToSupport vert =
 	(
+		-- format "\n"; print "SupportObject_v._saveUserPropsToSupport()"
 		--support_obj = SupportObject.support_obj
 		
 		--support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
-		key_prop = if obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
+		support_or_raft = if obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
 		--support_key_val  = (getHandleByAnim support_obj) as string
 		--setUserPropVal support_obj "WIRECOLOR" SupportObject.wirecolor
 	
 		setUserPropVal support_obj "SYNC_KEY" sync_key
 		
-		setUserPropVal support_obj key_prop support_key
+		setUserPropVal support_obj support_or_raft support_key
 		
 		setUserPropVal support_obj "INDEX" vert
+		
+		setUserPropVal support_obj "EXPORT_SIZE" export_size
 	 ),
 
 	/** Fill props of this with data from options
@@ -709,12 +717,12 @@ struct SupportObject_v
 	 */
 	function _saveOptionsToUserProps =
 	(
-		-- format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
-		for prop_key in prop_keys + option_keys do
+		 --format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
+		for prop_key in this_props +option_keys do
 		(
 			key = toUpper ( prop_key as string )
 			val = getProperty this prop_key
-			
+
 			if val != undefined and val != unsupplied then 
 			setUserPropVal support_obj key val
 		)
@@ -727,7 +735,7 @@ struct SupportObject_v
 	function _loadUserPropsFromNode =
 	(
 		-- format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
-		for prop_key in prop_keys + option_keys do
+		for prop_key in this_props +option_keys do
 			setProperty this prop_key ( getUserPropVal support_obj ( toUpper ( prop_key as string )) )
 	),
 

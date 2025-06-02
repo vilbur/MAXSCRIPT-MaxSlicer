@@ -116,25 +116,21 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
-				result = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector normal_world:Normals.normals_world[vert] wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
-		
-				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
-				--if SupportObject.support_obj != undefined then
-				--format "\n%: %\n" vert SupportObject
-				
-				/* ADD TO ARRAYS */
-				this.Supports[vert] = SupportObject
-	
-				/* LINK SUPPORT TO SOURCE OBJECT */ 
-				SupportObject.support_obj.parent = obj
-	
-				/* SET USER DATA TO SUPPORT */
-				--this._saveUserPropsToSupport (SupportObject) (vert) (direction)
+				success = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector normal_world:Normals.normals_world[vert] wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
 
-				append NewSupportObjects SupportObject
-				
-				--if result == false then
-					--SupportObject.enableBoxMode()
+				if success then
+				(
+					/* ADD TO ARRAYS */
+					this.Supports[vert] = SupportObject
+		
+					/* LINK SUPPORT TO SOURCE OBJECT */ 
+					SupportObject.support_obj.parent = obj
+		
+					/* ADD TO SUPPORTS */ 
+					append NewSupportObjects SupportObject
+				)
+				else
+					(format "\n";	print ("! VERTEX "+vert as string +" IS BELLOW GROUND - SUPPORT IS NOT CREATED"))
 			)
 		
 		/*------------------------------------------------------------------------------

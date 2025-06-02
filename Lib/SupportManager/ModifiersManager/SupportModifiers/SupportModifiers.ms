@@ -125,7 +125,7 @@ struct SupportModifiers_v
 		chamfer_mod.limiteffect = true
 
 		/* SET CHAMFER VALUES */
-		chamfer_mod.amount 	 = amount
+		chamfer_mod.amount = amount / EXPORT_SIZE
 
 		chamfer_mod.segments = 0
 
@@ -158,7 +158,7 @@ struct SupportModifiers_v
 	function _extrudeSetup extrude_mod amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
-		extrude_mod.amount	= amount
+		extrude_mod.amount	= amount / EXPORT_SIZE
 
 		--extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER
 		

@@ -74,7 +74,7 @@ struct ModifiersManager_v
 		max modify mode
 
 		try(
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getModVal #BAR_WIDTH
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = (SUPPORT_OPTIONS.getModVal #BAR_WIDTH / EXPORT_SIZE)
 			
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
@@ -141,10 +141,11 @@ struct ModifiersManager_v
 			if val == unsupplied then
 				val = SUPPORT_OPTIONS.getModVal prop_key
 			
+			val /= EXPORT_SIZE
 			
 			case (classOf source_mod) of
 			(
-				(sweep):	source_mod[#Cylinder_Section].radius	= SUPPORT_OPTIONS.getModVal #BAR_WIDTH
+				(sweep):	source_mod[#Cylinder_Section].radius	= val
 			
 				(Chamfer ):	source_mod.amount	= val
 				(Face_Extrude ):	source_mod.amount	= val
@@ -155,7 +156,7 @@ struct ModifiersManager_v
 		)
 		--format "_objects: %\n" _objects
 		
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		/* UPDATE #TOP_WIDTH ALSO IF #BAR_WIDTH IS UPDATED */ 
 		if prop_key == #BAR_WIDTH then
 			this.updateModifier this._objects #TOP_WIDTH
 		

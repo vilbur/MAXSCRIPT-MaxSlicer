@@ -23,7 +23,7 @@ struct SupportFoot_v
 	(
 		--format "\n"; print "SupportFoot_v.createFoot()"
 		
-		this._alignKnotToPreviousKnot index:3 pos_z:Support.base_height
+		this._alignKnotToPreviousKnot index:3 pos_z:( Support.base_height / EXPORT_SIZE )
 
 		this._alignKnotToPreviousKnot index:4 pos_z:0
 		

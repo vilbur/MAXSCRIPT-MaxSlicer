@@ -21,8 +21,6 @@ struct SupportObject_v
 	sync_key,
 	support_key, -- pointer of support`s node -- used for both types: #SUPPORT and #RAFT
 	
-	export_size,
-
 	is_updated_now = false, -- on\off update mode of raft part
 	
 	/* generate properties */
@@ -37,7 +35,7 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* SUPPORT PROPERTIES */
-	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND, #EXPORT_SIZE ),
+	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
@@ -84,15 +82,16 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
 	(
-		--format "\n===========================================================\n"
-		--format "\n"; print "SupportObject_v.generateSupport()"
+		format "\n===========================================================\n"
+		format "\n"; print "SupportObject_v.generateSupport()"
+		format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
 		function isLegPointAboveMinimalLimit leg_point = ( leg_point as string ) as float >= ( min_leg_pos as string ) as float
 		
 		
-		/* SET PARAMS */ 		
-		this.export_size = EXPORT_SIZE
-
+		/*------------------------------------------------------------------------------
+			SET PARAMS
+		--------------------------------------------------------------------------------*/
 		this.direction = direction
 		
 		this.dir_vector = dir_vector
@@ -106,6 +105,9 @@ struct SupportObject_v
 		if not this._isFirstPointAboveGround() then
 			return false
 			
+		/*------------------------------------------------------------------------------
+			GENERATE
+		--------------------------------------------------------------------------------*/
 
 		this._setSupportObject(wirecolor)
 		
@@ -125,7 +127,7 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
-				
+
 		this._drawLine()
 
 		this._setMaterialsToLineSegments()
@@ -158,7 +160,7 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
+	function updateSupport first_knot_pos:undefined force_set:true update_leg:false direction:undefined dir_vector:undefined =
 	(
 		   --format "\n----------------------------------------------\n"
 		   --format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
@@ -177,7 +179,7 @@ struct SupportObject_v
 
 		points = #(first_knot_pos, support_obj.pos)
 		
-		this._setRaftLenght update_raft:update_raft
+		this._setRaftLenght force_set:update_raft
 
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		
@@ -194,9 +196,7 @@ struct SupportObject_v
 
 		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
 			
-		set_min_limits = update_raft == true or min_raft_length == undefined
-		
-		this._setMinLimints(direction) update_raft:set_min_limits
+		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
@@ -302,7 +302,7 @@ struct SupportObject_v
 		
 		
 		if  min_raft_length == undefined then
-			this._setMinLimints(direction) update_raft:true
+			this._setMinLimints(direction) force_set:true
 		
 		if is_on_ground then
 		(
@@ -641,7 +641,7 @@ struct SupportObject_v
 	/** Get vector of raft from current line or from user props
 	  * 
 	 */
-	function _setDirVector dir_vector update_raft:false =
+	function _setDirVector dir_vector force_set:false =
 	(
 		-- format "\n"; print "SupportObject_v._setDirVector()"
         vector_exist = dir_vector != undefined
@@ -662,7 +662,7 @@ struct SupportObject_v
 	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
 	  * 
 	 */
-	function _setRaftLenght update_raft:false =
+	function _setRaftLenght force_set:false =
 	(
 		-- format "\n"; print "SupportObject_v._setRaftLenght()"
 		
@@ -699,18 +699,14 @@ struct SupportObject_v
 	 */
 	function _fillThisWithOptionValues =
 	(
-		-- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
+		 format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
 			setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
 		
-        --bar_width     = SUPPORT_OPTIONS.getModVal #BAR_WIDTH
-        --base_height   = SUPPORT_OPTIONS.getModVal #BASE_HEIGHT
-        --normal_length = SUPPORT_OPTIONS.getModVal #NORMAL_LENGTH
-        --foot_enabled  = SUPPORT_OPTIONS.getModVal #FOOT_ENABLED
-        --top_width	  = SUPPORT_OPTIONS.getModVal #TOP_WIDTH
-		
-		--top_width   = SUPPORT_OPTIONS.getChamferBarValue()
+        format "BASE_HEIGHT: %\n" base_height
+		format "BAR_WIDTH:   %\n" bar_width
+
 	),
 	
 	/** Save user props to node
@@ -824,13 +820,13 @@ struct SupportObject_v
 		support - 135° > remove 45% of bar with
 		support - 180° > remove 0%  of bar with
 	 */
-	function _setMinLimints direction update_raft:true =
+	function _setMinLimints direction force_set:true =
 	(
-		-- format "\n"; print "SupportObject_v._setMinLimints()"
-		update_minimal_lenght  = update_raft or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
-        update_min_raft_length = update_raft or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
-        update_min_foot_pos    = update_raft or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
-	
+		 format "\n"; print "SupportObject_v._setMinLimints()"
+		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
+        update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
+        update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
+		
 		
 			/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
@@ -846,10 +842,18 @@ struct SupportObject_v
 		if update_minimal_lenght then
 			min_leg_pos = min_lenght_by_angle --+ dilatation 
 	
-			
 			/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
+		
+		
+		if EXPORT_SIZE != 1.0 then
+		(
+			min_foot_pos /= EXPORT_SIZE
+			min_leg_pos /= EXPORT_SIZE
+			min_raft_length /= EXPORT_SIZE
+			min_lenght_by_angle /= EXPORT_SIZE
+		)
 	),
 	
 	/** Get points positions from line

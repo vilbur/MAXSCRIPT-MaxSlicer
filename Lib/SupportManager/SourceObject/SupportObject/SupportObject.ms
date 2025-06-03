@@ -36,7 +36,7 @@ struct SupportObject_v
 	
 	/* SUPPORT PROPERTIES */
 	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),
-	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
+	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
 	
 	changed_props = Dictionary(),
 
@@ -48,6 +48,7 @@ struct SupportObject_v
 	bar_width,
 	normal_length,
 	base_height,
+	base_width,
 	top_width,
 	
 	/* minimal dimensions */ 

@@ -75,7 +75,8 @@ struct ModifiersManager_v
 			(
 				this.rescaleModifeirsByExportSize(modifiers_of_first_object)( export_size_exist /EXPORT_SIZE )
 				
-				SUPPORT_MANAGER.resetSupports (objects_exists)
+				--SUPPORT_MANAGER.resetSupports (objects_exists)
+				SUPPORT_MANAGER.updateSupports objects_exists update_raft:true
 				
 				for obj in objects_exists do 
 					setUserPropVal obj "EXPORT_SIZE" (EXPORT_SIZE as float )

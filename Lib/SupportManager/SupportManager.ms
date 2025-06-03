@@ -427,8 +427,7 @@ struct SupportManager_v
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 	
 		for sync_key in supports_by_source.keys do
-			--for support_node in supports_by_source[sync_key] do
-				SourceObjects[sync_key].resetSupports(supports_by_source[sync_key])
+			SourceObjects[sync_key].resetSupports(supports_by_source[sync_key])
 	
 		-- format "supports_by_source.keys: %\n" supports_by_source.keys
 		/* UPDATE ALL BEAMS OF SUPPORTS */
@@ -436,7 +435,6 @@ struct SupportManager_v
 	
 		this.updateShapes()
 	),
-
 
 	/** Update modifiers by control value
 	 */

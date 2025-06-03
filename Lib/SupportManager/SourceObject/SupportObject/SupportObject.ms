@@ -82,8 +82,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world:undefined wirecolor: =
 	(
-		-- format "\n===========================================================\n"
-		-- format "\n"; print "SupportObject_v.generateSupport()"
+		 format "\n===========================================================\n"
+		 format "\n"; print "SupportObject_v.generateSupport()"
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
@@ -118,6 +118,7 @@ struct SupportObject_v
 		this._saveUserPropsToSupport(vertex_index)
 		
 		this._fillThisWithOptionValues()
+		--format "BAR_WIDTH: %\n" bar_width
 		
 		this._setMinLimints (direction)
 		
@@ -199,7 +200,7 @@ struct SupportObject_v
 		this._disbaleBoxMode()
 
 		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-			
+		--format "CHANGED_PROPS: %\n" changed_props
 		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
 		
 		/*------------------------------------------------------------------------------
@@ -605,20 +606,13 @@ struct SupportObject_v
 	(
 		  --format "\n"; print "SupportObject_v._findVectorByAngle()"
 		dir_x = normal_world -- Create orthonormal basis in the plane
-		--try(
+
 		/*  Remove projection of vector2 on dir_x to get perpendicular direction */ 
 		proj = (dot vector2 dir_x) * dir_x
 		dir_y = normalize (vector2 - proj)
-		-- format "RESULT: %\n" ((cos _angle) * dir_x + (sin _angle) * dir_y)
+
 		/* Compute vector using _angle in plane */ 
 		(cos _angle) * dir_x + (sin _angle) * dir_y
-			
-		--	
-		--	)catch(
-		--	format "ERROR\n"
-		--	format "dir_x: %\n" dir_x
-		--	
-		--)
 	),
 
 	/** Create new support object or get existing and delete spline subobject
@@ -692,7 +686,8 @@ struct SupportObject_v
 		 -- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
-			setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
+			--setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
+			setProperty this prop_key ( SUPPORT_OPTIONS.getProp prop_key )
 	),
 	
 	/** Save user props to node
@@ -706,7 +701,7 @@ struct SupportObject_v
 			val = getProperty this prop_key
 
 			if val != undefined and val != unsupplied then 
-			setUserPropVal support_obj key val
+				setUserPropVal support_obj key val
 		)
 
         --setUserPropVal support_obj "DIR_VECTOR" dir_vector

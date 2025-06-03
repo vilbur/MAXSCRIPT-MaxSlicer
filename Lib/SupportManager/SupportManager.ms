@@ -76,7 +76,7 @@ filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManag
 struct SupportManager_v
 (
 	/* construct */
-	export_size,
+	--export_size,
 
 	/* properties */
     SourceObjects	= Dictionary #STRING,  --"./SourceObject/SourceObject.ms"
@@ -168,17 +168,16 @@ struct SupportManager_v
 		/* FILTER VALID SUPPORTS */ 
 		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
 		
+		
 		/*------------------------------------------------------------------------------
-			
 			GENERTATE BEAMS
-			
 		--------------------------------------------------------------------------------*/
 
-		/*
-		   DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
-		*/
 		if supports.count > 0 then
-			new_beams = if sort_mode == undefined or supports.count == 2
+		(
+			bar_width	= getUserPropVal supports[1] "BAR_WIDTH"  / EXPORT_SIZE 
+			
+			new_beams = if sort_mode == undefined or supports.count == 2 -- DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected
 						
 						then /* FORCE CONNECT 2 SUPPORTS - if beam does not exists */
 							for i = 1 to supports.count - 1 collect
@@ -187,17 +186,12 @@ struct SupportManager_v
 						else /* CONNECT MORE 3 AND MORE SUPPORTS */ 
 							case sort_mode of
 		 					(
-								(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports)
+								(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports (supports) min_distance:( bar_width * SUPPORT_OPTIONS.min_distance_beams )
 								(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports)
 								----default:
 							)
-
-		if new_beams.count > 0 then
-		(
+			
 			this.updateShapes()
-		
-			--for new_beam in new_beams do 
-				--new_beam.rotatePivotZAlignX() 
 				
 			select new_beams
 		)

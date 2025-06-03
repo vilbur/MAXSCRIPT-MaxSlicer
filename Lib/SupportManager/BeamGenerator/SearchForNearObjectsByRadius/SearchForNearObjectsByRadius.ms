@@ -6,21 +6,22 @@ struct SearchForNearObjectsByRadius_v
 	radius, 
 	--cell_size = 100.0,
 	cell_size = 10.0,
+	min_distance = 0.0,
 	
 	pair_matrix = #(),
 	checked_pairs = #(),
 	supports = #(),
-
 	--radius = SUPPORT_OPTIONS.max_distance,
 	--cell_size = radius * 2,
 
     /** 
     * Main function: Find closest pairs of supports
     */
-    function findClosestPairs supports =
+    function findClosestPairs supports  =
     (
- 		-- format "\n"; print "SearchForNearObjectsByRadius_v.findClosestPairs()"
+ 		 format "\n"; print "SearchForNearObjectsByRadius_v.findClosestPairs()"
 		-- format "radius: %\n" radius
+		format "min_distance: %\n" min_distance
 		/** 
 		* Compare two distances for sorting
 		*/
@@ -39,7 +40,6 @@ struct SearchForNearObjectsByRadius_v
 			is_duplicate --return
 		)
 		
-		
 		max_connections_per_object = SUPPORT_OPTIONS.max_connections
 
         distance_matrix = for i = 1 to supports.count collect #()
@@ -53,23 +53,25 @@ struct SearchForNearObjectsByRadius_v
 
 			_grid = this.buildSpatialGrid supports
 		 )
-		-- format "_GRID: %\n" _grid
+
         for i = 1 to supports.count do
         (
             support = supports[i]
-			-- format "\n------------------------------------\n"
-			-- format "support.name: %\n" support.name
 			
+			/* GET SUPPORTS TO COMPARE DISTANCE */ 
             other_supports = if radius != undefined then  this.getObjectsInRadius _grid support.position radius else supports
-			-- format "OTHER_SUPPORTS: %\n" other_supports
-            --other_supports = supports
 
+			/* GET DISTANCES */ 
             distances = for j = 1 to other_supports.count where other_supports[j] != support collect #((distance support.position other_supports[j].position), other_supports[j])
 
+			/* SORT DISTANCES */ 
             qsort distances compareDistanceAsc
 
-            for k = 1 to ( amin max_connections_per_object distances.count ) do
+			/* GET CLOSEST DISTANCES */ 
+            --for k = 1 to ( amin max_connections_per_object distances.count ) where distances[k][1] > min_distance do
+            for k = 1 to ( amin max_connections_per_object distances.count ) where distances[k][1] > min_distance do
             (
+               
                 closest_obj = distances[k][2]
 
 				pair = #(support, closest_obj)
@@ -83,7 +85,6 @@ struct SearchForNearObjectsByRadius_v
 					--append distance_matrix (distance pair[1].position pair[2].position)
 					append distance_matrix distances[k][1]
 				)
-			
             )
         )
 
@@ -208,8 +209,14 @@ struct SearchForNearObjectsByRadius_v
     (
         (existing_pair[1] == pair[1] and existing_pair[2] == pair[2]) or \
         (existing_pair[1] == pair[2] and existing_pair[2] == pair[1])
-    )
+    ),
 	
+	/**
+	*/
+	on create do
+	(
+		
+	)
 )
 
 -- Create instance

@@ -75,7 +75,7 @@ struct BeamGenerator_v
 
 	/** Generate beams to closest supports
 	 */
-	function generateBeamsToClosestSupports _objects only_ground:true =
+	function generateBeamsToClosestSupports _objects min_distance:0 only_ground:true =
 	(
 		-- format "\n"; print "BeamGenerator_v.generateBeamsToClosestSupports()"
 		--format "_objects: %\n" _objects.count
@@ -101,19 +101,22 @@ struct BeamGenerator_v
 		/* USE ONLY SUPPORTS TOUCHING GROUND - dont use rafts and supports without foot */
 		this._filterOnlyGroundedSupports(&supports_to_connect)
 
-		bbox	= nodeGetBoundingBox supports_to_connect[1] ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-		-- format "CELL SIZE: %\n" ((( bbox[1].z - bbox[2].z ) * 3 ))
-		--SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v radius:max_distance cell_size:(( bbox[1].z - bbox[2].z ) * 3 )
-		SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v radius:max_distance --cell_size:(( bbox[1].z - bbox[2].z ) * 3 )
+		/*------------------------------------------------------------------------------
+			SEARCH FOR CLOSEST SUPPORTS
+		--------------------------------------------------------------------------------*/
+
+		SearchForNearObjectsByRadius = SearchForNearObjectsByRadius_v radius:max_distance min_distance:min_distance --cell_size:(( bbox[1].z - bbox[2].z ) * 3 )
 
 		closest_pairs = SearchForNearObjectsByRadius.findClosestPairs(supports_to_connect)
 		
-		-- format "CLOSEST_PAIRS: %\n" closest_pairs.count
+		
+		/*------------------------------------------------------------------------------
+			GENERATE BEAMS FOR EACH PAIR OF SUPPORTS
+		--------------------------------------------------------------------------------*/
 		
 		for pair in closest_pairs do
 			if (new_beam = this.generateBeam pair[1] pair[2] ) != undefined then
 				append new_beams new_beam
-
 
 		new_beams --return
 	),

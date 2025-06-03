@@ -71,30 +71,30 @@ struct BeamObject_v
 		--function isTallEnough = (amin support_A.pos.z support_B.pos.z ) - support_A.min.z > SUPPORT _OPTIONS.min_height
 		function isTallEnough height_of_beam = height_of_beam > SUPPORT_OPTIONS.min_height
 
-		/* VALIDATE SUPPORTS */ 
-		--supports_are_valid = numKnots support_A > 0 and numKnots support_B > 0
-		supports_are_valid = not support_A.boxmode and not support_B.boxmode
-		--format "supports_are_valid: %\n" supports_are_valid
-		
 		/* REMOVE OLD LINE */ 
 		for i = numSplines beam to 1 by -1 do
 			deleteSpline beam i
 
-		--if supports_are_valid and isTallEnough() then
+
 		/* SET POINTS */ 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "points_of_lines: %\n" points_of_lines
 	
 		height_of_beam = getHeightOfBeam (points_of_lines)
-		width_of_beam = getWidthOfBeam (points_of_lines)
+		width_of_beam  = getWidthOfBeam (points_of_lines)
 		
 		ratio = height_of_beam / width_of_beam
-		--format "ratio: %\n" ratio
+		--format "RATIO: %\n" ratio
 		
+		min_distance	= getUserPropVal support_A "BAR_WIDTH" * SUPPORT_OPTIONS.min_distance_beams
 		
 		/* DRAW LINE */
-		if supports_are_valid and isTallEnough(height_of_beam) and ratio >= 0.5 then
-			this._drawLines(points_of_lines)
+		if (not support_A.boxmode and not support_B.boxmode) \
+			and width_of_beam >= min_distance \
+			and isTallEnough(height_of_beam) \
+			and ratio >= 1
+				then 
+					this._drawLines(points_of_lines)
 
 		
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
@@ -137,15 +137,17 @@ struct BeamObject_v
 	  * 
 	  * @return
 	 */
-	function _getBeamsEndPoints =
+	function _getBeamsEndPoints beams_split_count: =
 	(
 		 --format "\n"; print "BeamObject_v.getBeamEndPoints()"
 		/** Get posiotion of point on line
 		 */
 		function getPosOnLine pos vector offset = pos	+ ( offset	* vector * -1 )
 		
-
 		beams_created = #()
+		
+		if beams_split_count == unsupplied then
+			beams_split_count = SUPPORT_OPTIONS.beams_split
 
 
 		point_data_A = this._getSegmentEndPoints(support_A)
@@ -174,7 +176,10 @@ struct BeamObject_v
 		support_height = distance bottom_A top_A
 		support_dist   = distance bottom_A bottom_B
 
-		segments_count = ceil (support_height / (support_dist * SUPPORT_OPTIONS.beams_split ) )
+		/*------------------------------------------------------------------------------
+			SPLIT SUPPORT TO BEAM SEGMENTS
+		--------------------------------------------------------------------------------*/
+		segments_count = ceil (support_height / (support_dist * beams_split_count ) )
 		--format "segments_count: %\n" segments_count
 
 		segment_height = support_height / segments_count
@@ -201,14 +206,19 @@ struct BeamObject_v
 		points_of_beams = deepCopy points_on_supports
 		--format "points_on_supports[1].count: %\n" points_on_supports[1].count
 		
+		/*------------------------------------------------------------------------------
+			GET EACH LINE OF BEAM
+		--------------------------------------------------------------------------------*/
 		for support = 1 to SUPPORT_OPTIONS.beams_count do
 		(
-			--format "\n"
-			--format "support: %\n" support
+			/*------------------------------------------------------------------------------
+				LOOP EACH POINT ON SUPPORT
+			--------------------------------------------------------------------------------*/
 			for point_i = 1 to points_on_supports[1].count do
 			(
-				--format "point_i: %\n" point_i	
-				/* GET ZIG ZAG PATTERN */
+				/*------------------------------------------------------------------------------
+					GET ZIG ZAG PATTERN
+				--------------------------------------------------------------------------------*/
 				
 				even_pos = ( mod point_i 2 ) == 0
 

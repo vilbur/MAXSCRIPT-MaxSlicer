@@ -43,7 +43,7 @@ struct SupportOptions_v
 	live_update_max_objects_count = 1,
 
 	/* SUPPORT MODIFIERS */
-	bar_width 	= 1.4, -- default width is 1.5mm
+	bar_width 	= 1.4, -- default width is 1.4mm
 
 	base_height	= 1.0,
 	base_width	= 10.0,
@@ -63,6 +63,7 @@ struct SupportOptions_v
 	/* BEAMS OPTIONS */
 	use_max_distance	= true,
 	only_ground	= true,
+	min_distance_beams	= 1.5,	-- beams_min_distance * bar_width = minimal distance of supports to generate beam
 	max_distance	= 20,	-- max distance between supports
 	max_connections	= 2,	-- max number of beams connected to single support
 	beams_count	= 2,	-- count of lines of beam
@@ -117,7 +118,14 @@ struct SupportOptions_v
 		val --return
 	),
 	
-
+	/** Get value of this.property
+	 */
+	function getProp prop_key =
+	(
+		--format "\n"; print "SupportOptions_v.getProp()"
+		getProperty this ( prop_key as string )
+	),
+	
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 
 	  * CONTROL ID >>> PROPERTY NAME 		E.G.: Rollout.BTN_prop_name >>> SupportOptions.prop_name

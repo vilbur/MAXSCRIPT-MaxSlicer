@@ -5,7 +5,7 @@ function generateSupportsOrRafts obj_type: =
 (
 	-- format "\n"; print ".generateSupportsOrRafts()"
 	-- format "obj_type: %\n" obj_type
-	 format "generateSupportsOrRafts: %\n" obj_type
+	 --format "generateSupportsOrRafts: %\n" obj_type
 
 	_selection = for obj in selection collect obj
 

@@ -52,8 +52,8 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
-		--format "\n..........................................................................\n"
-		--format "\n"; print "BeamObject_v.updateBeam()"
+		-- format "\n..........................................................................\n"
+		-- format "\n"; print "BeamObject_v.updateBeam()"
 		--format "beam: %\n" beam
 
 		
@@ -139,15 +139,11 @@ struct BeamObject_v
 	 */
 	function _getBeamsEndPoints =
 	(
-		-- format "\n"; print "BeamObject_v.getBeamEndPoints()"
+		 --format "\n"; print "BeamObject_v.getBeamEndPoints()"
 		/** Get posiotion of point on line
 		 */
-		function getPosOnLine pos vector offset =
-		(
-			--dir = if direction == #BOTTOM then -1 else 1
-
-			pos	+ ( offset	* vector * -1 )
-		)
+		function getPosOnLine pos vector offset = pos	+ ( offset	* vector * -1 )
+		
 
 		beams_created = #()
 
@@ -216,12 +212,13 @@ struct BeamObject_v
 				
 				even_pos = ( mod point_i 2 ) == 0
 
-				points_of_beams[support][point_i] =	if (support == 1 and even_pos) or (support == 2 and even_pos)
+				point_pos =	if (support == 1 and even_pos) or (support == 2 and even_pos)
 					then
 						points_on_supports[if support == 1 then 2 else 1][point_i]
 					else
 						points_on_supports[support][point_i]
-
+						
+				points_of_beams[support][point_i] = point_pos
 			)
 		)
 
@@ -368,7 +365,7 @@ struct BeamObject_v
 		-- Ensure the provided node is valid
 		if not isValidNode beam then
 		(
-			format "Error: Invalid node provided.\n"
+			-- format "Error: Invalid node provided.\n"
 			return false
 		)
 		
@@ -383,7 +380,7 @@ struct BeamObject_v
 		-- Ensure targetVec is a vector (Point3 in MAXScript)
 		if not isKindOf targetVec Point3 then
 		(
-			format "Error: targetVec must be a Point3 value.\n"
+			-- format "Error: targetVec must be a Point3 value.\n"
 			return false
 		)
 	
@@ -391,7 +388,7 @@ struct BeamObject_v
 		local targetVec_world_norm = normalize targetVec
 		if length targetVec_world_norm == 0 then
 		(
-			format "Error: targetVec has zero length.\n"
+			-- format "Error: targetVec has zero length.\n"
 			return false
 		)
 	
@@ -414,7 +411,7 @@ struct BeamObject_v
 		
 		if length V_target_proj_on_XYplane_vec < 0.00001 then
 		(
-			format "Warning: Target vector is (nearly) collinear with the pivot's local Z-axis for node \"%\". Cannot uniquely align X-axis.\n" beam.name
+			-- format "Warning: Target vector is (nearly) collinear with the pivot's local Z-axis for node \"%\". Cannot uniquely align X-axis.\n" beam.name
 			return false 
 		)
 		local V_target_proj_on_XYplane_norm = normalize V_target_proj_on_XYplane_vec

@@ -330,8 +330,8 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes update_raft:true direction:undefined =
 	(
-		   -- format "\n===========================================================\n"
-		  -- format "\n"; print "SupportManager_v.updateSupports()"
+		-- format "\n===========================================================\n"
+	   --format "\n"; print "SupportManager_v.updateSupports()"
 		--format "update_raft: %\n" update_raft
 		--format "direction: %\n" direction
 		--format "what_to_update: %\n" what_to_update
@@ -342,19 +342,17 @@ struct SupportManager_v
 		
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
-		--for sync_key in supports_by_source.keys do
-		--	for support_node in supports_by_source[sync_key] do
-		--		SourceObjects[sync_key].updateSupport(support_node) direction:direction
-
+	
 		for sync_key in supports_by_source.keys do
 			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
 			
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(supports_by_source.keys)
-
+		--this._updateBeamsBySupports(supports_by_source.keys)
+		this._updateBeamsBySupports( this._flatternDictionary(supports_by_source))
+		
+		/* UPDATE ALL SHAPES */ 
 		this.updateShapes()
-		-- format "SupportObjects: %\n" (this._getSupportObjectsByNodes support_nodes )
-		--format "SupportObjects: %\n" (this.getSupportAndRaftObjects support_nodes )
+
 		/*	IMPORTANT PREVENT CRASH: setPivotToPoint(2) -- MUST BE AFTER updateShape */ 
 		for SupportObject in this.getSupportAndRaftObjects support_nodes do
 			SupportObject.setPivotToPoint(2)
@@ -375,7 +373,10 @@ struct SupportManager_v
 		  -- format "\n"; print "SupportManager_v.updateBySourceObject()"
 		-- format "what_to_update: %\n" what_to_update
 		
+		updated_supports = #()
+		
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
+		
 		
 		/* UPDATE SUPPORTS - for each SourceObject */
 		for sync_key in sync_keys do
@@ -389,13 +390,15 @@ struct SupportManager_v
 				#ROTATION:   SourceObject.updateSupports update_knot_1:false update_raft:false update_leg:true update_normals:true
 				#POSITION_Z: SourceObject.updateSupportsHeight()
 			)
+			
+			for key in SourceObject.Supports.keys do updated_supports += SourceObject.Supports[key].support_obj
 		)	
 				
 				
 		this.updateShapes()
 
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(sync_keys)
+		this._updateBeamsBySupports (updated_supports )
 		
 		this.updateShapes()
 	),
@@ -424,7 +427,7 @@ struct SupportManager_v
 	 */
 	function resetSupports support_nodes =
 	(
-		-- format "\n"; print "SupportManager_v.resetSupports()"
+		 --format "\n"; print "SupportManager_v.resetSupports()"
 		-- format "SUPPORT_NODES: %\n" support_nodes
 	
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -433,9 +436,9 @@ struct SupportManager_v
 			--for support_node in supports_by_source[sync_key] do
 				SourceObjects[sync_key].resetSupports(supports_by_source[sync_key])
 	
-
+		-- format "supports_by_source.keys: %\n" supports_by_source.keys
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		this._updateBeamsBySupports(supports_by_source.keys)
+		this._updateBeamsBySupports( this._flatternDictionary(supports_by_source))
 	
 		this.updateShapes()
 	),
@@ -1013,12 +1016,25 @@ struct SupportManager_v
 			UPDATE BEAMS by supports
 	  
 	 */
-	function _updateBeamsBySupports support_keys =
+	function _updateBeamsBySupports support_nodes =
 	(
-		 -- format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		-- format "\n"; print "SupportManager_v._updateBeamsBySupports()"
+		-- format "support_nodes: %\n" support_nodes
+
+		/** Beam belongs to support
+		 */
+		function beamBelongsToSupport BeamObject support_nodes = findItem support_nodes ( BeamObject.support_A ) > 0 or findItem support_nodes ( BeamObject.support_B ) > 0
 		
-		for key in BeamObjects.keys where isValidNode BeamObjects[key].beam and findItem support_keys ( this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
+		
+		/* GET BEAMS BY SUPPORTS */ 
+		beams_to_update = for key in BeamObjects.keys \
+							where isValidNode BeamObjects[key].beam \
+							and beamBelongsToSupport BeamObjects[key] support_nodes \
+								collect BeamObjects[key]
+		-- format "beams_to_update: %\n" beams_to_update
+		/* UPDATE BEAMS */ 
+		for beam_to_update in makeUniqueArray beams_to_update do 
+			beam_to_update.updateBeam()
 	),
 	
 	/** Get supports
@@ -1051,6 +1067,23 @@ struct SupportManager_v
 		supports_by_source --return
 	),
 	
+
+	/** Flattern dictionary arrays
+	  * 
+	  * @return array of joinded dictonary values
+	 */
+	function _flatternDictionary dict =
+	(
+		--format "\n"; print "SupportManager_v._flatternDictionary()"
+		
+        flattern_arrays = #()
+		
+		for key in dict.keys do
+			for arr in dict[key] do
+				flattern_arrays += arr
+		
+		flattern_arrays --return
+	),
 
 	/*------------------------------------------------------------------------------
 	
@@ -1213,6 +1246,18 @@ struct SupportManager_v
 		obj_key --return
 	),
 
+	/** Get support or raft key
+	 */
+	function _getSupportOrRaftKey obj =
+	(
+		--format "\n"; print "SupportManager_v.getSupportOrRaftKey()"
+		
+		if doesUserPropExist obj "SUPPORT_KEY" then
+			getUserPropVal obj "SUPPORT_KEY" asString:true
+			
+		else if doesUserPropExist obj "RAFT_KEY" then
+			getUserPropVal obj "RAFT_KEY" asString:true
+	),
 
 	/** Get source object
 	 */

@@ -98,7 +98,7 @@ try(
 	if EXPORT_SIZE == undefined then 
 		EXPORT_SIZE = DIALOG_maxslicer.SPIN_export_size.value
 	
-	format "EXPORT_SIZE: %\n" EXPORT_SIZE
+	--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 	/*------------------------------------------------------------------------------
 		RELAUNCH SUB DIALOGS
 	--------------------------------------------------------------------------------*/

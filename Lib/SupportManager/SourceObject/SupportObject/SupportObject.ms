@@ -80,7 +80,7 @@ struct SupportObject_v
 	  * @param #DOWN|point3	direction	dir_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world: wirecolor: =
+	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world:undefined wirecolor: =
 	(
 		-- format "\n===========================================================\n"
 		-- format "\n"; print "SupportObject_v.generateSupport()"
@@ -95,11 +95,14 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		this.direction = direction
 		
-		this.dir_vector = dir_vector
-		
-		this.normal_world = normal_world
-		
 		this.points = #( first_knot_pos )
+		--this.dir_vector = dir_vector
+		
+		if dir_vector != undefined then  this.dir_vector = dir_vector
+		
+		if normal_world != undefined then  this.normal_world = normal_world
+		
+		
 		--format "this._isFirstPointAboveGround: %\n" (this._isFirstPointAboveGround())
 		
 		/* TEST SUPPORT Z POSITION */ 
@@ -163,8 +166,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		   --format "\n----------------------------------------------\n"
-		   --format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
+		-- format "\n----------------------------------------------\n"
+		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERSw
@@ -173,7 +176,7 @@ struct SupportObject_v
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
-		-- format "first_knot_pos: %\n" first_knot_pos
+
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
@@ -188,10 +191,10 @@ struct SupportObject_v
 
 		if not this._isFirstPointAboveGround() then
 			return false
-		
+
 		if not this.vectorIsInRangeCone() then
 			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
-		
+			
 			
 		this._disbaleBoxMode()
 
@@ -581,15 +584,11 @@ struct SupportObject_v
 	(
 		-- format "\n"; print "SupportObject_v.vectorIsInRangeCone()"
 		 
-		------if classOf normal_world == point3 and classOf this.dir_vector == point3 then -- DEBUG
 		if distance normal_world this.dir_vector > 0.001 then
 		(
-		-- format "WHOOPS\n"
 			dot_product = dot (normalize normal_world) (normalize this.dir_vector)
 			
 			theAngle = acos(dot_product)
-			
-			--format "theAngle: %\n" theAngle
 			
 			theAngle < dir_vector_angle_range --return
 		)
@@ -597,22 +596,29 @@ struct SupportObject_v
 			true --return true if vectors are equal
 	),
 	
-	/*
-		Finds a vector at a given angle in the plane defined by two vectors.
+	/* Finds a vector at a given angle in the plane defined by two vectors.
 		
 		vector1 and vector2 define the plane.
 		angle is in degrees.
 	*/
 	function _findVectorByAngle vector2 _angle =
 	(
-		 -- format "\n"; print "SupportObject_v._findVectorByAngle()"
+		  --format "\n"; print "SupportObject_v._findVectorByAngle()"
 		dir_x = normal_world -- Create orthonormal basis in the plane
-		-- Remove projection of vector2 on dir_x to get perpendicular direction
+		--try(
+		/*  Remove projection of vector2 on dir_x to get perpendicular direction */ 
 		proj = (dot vector2 dir_x) * dir_x
 		dir_y = normalize (vector2 - proj)
 		-- format "RESULT: %\n" ((cos _angle) * dir_x + (sin _angle) * dir_y)
 		/* Compute vector using _angle in plane */ 
 		(cos _angle) * dir_x + (sin _angle) * dir_y
+			
+		--	
+		--	)catch(
+		--	format "ERROR\n"
+		--	format "dir_x: %\n" dir_x
+		--	
+		--)
 	),
 
 	/** Create new support object or get existing and delete spline subobject
@@ -639,23 +645,6 @@ struct SupportObject_v
 	),
 	
 
---	/** Get vector of raft from current line or from user props
---	  * 
---	 */
---	function _setDirVector dir_vector update_raft:false =
---	(
---		-- format "\n"; print "SupportObject_v._setDirVector()"
---        vector_exist = dir_vector != undefined
---
---		this.dir_vector = case of
---        (
---            (vector_exist):	dir_vector
---            (update_raft):	normalize (points[2] - points[1])
---            default:        getUserPropVal support_obj "DIR_VECTOR"
---		)
---		
---	),
-		
 	/** Set normal lenght
 	  * 
 	  * 1) Get normal length from options if new support is created
@@ -704,10 +693,6 @@ struct SupportObject_v
 
 		for prop_key in option_keys do
 			setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
-		
-        -- format "BASE_HEIGHT: %\n" base_height
-		-- format "BAR_WIDTH:   %\n" bar_width
-
 	),
 	
 	/** Save user props to node

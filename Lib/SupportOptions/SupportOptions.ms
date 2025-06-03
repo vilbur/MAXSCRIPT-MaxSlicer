@@ -86,6 +86,8 @@ struct SupportOptions_v
 
 	quiet_mode = false,
 
+	load_value_control_types = #( #SpinnerControl, #CheckBoxControl, #RadioControl, #RadioControl, #ComboBoxControl ),
+	
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
 	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #second_point_direction, #max_connections, #beams_count ),
@@ -114,25 +116,8 @@ struct SupportOptions_v
 		
 		val --return
 	),
-	/** Get controls with option value
-	 */
-	function getControlsWithOptionValue roll &controls =
-	(
-		/** Is value control
-		 */
-		function isValueControl ctrl = findItem #( #SpinnerControl, #CheckBoxControl, #RadioControl, #RadioControl ) (((classOf ctrl) as string ) as name ) > 0
-		
-		for ctrl in roll.controls do
-			if ( classOf_ctrl = classOf ctrl ) == SubRollout then
-				for subroll in ctrl.rollouts do
-					this.getControlsWithOptionValue (subroll) (controls)
-					
-			else if isValueControl(ctrl) then
-				append controls ctrl
-				
-		controls --return
-	),
 	
+
 	/** FILL PROPERTIES of THIS STRUCT WITH DATA FROM UI
 	  * 
 	  * CONTROL ID >>> PROPERTY NAME 		E.G.: Rollout.BTN_prop_name >>> SupportOptions.prop_name
@@ -140,22 +125,14 @@ struct SupportOptions_v
 	  */
 	function getValuesFromUi =
 	(
-		-- format "\n"; print "SupportOptions_v.getValuesFromUi()"
+		 --format "\n"; print "SupportOptions_v.getValuesFromUi()"
 
 		
 		/** get property key from control id E.G.: "SPIN_prop_key" >>> "prop_key"
 		  * 
 		  * @return string|undefined 
 		 */
-		function getPropertyKeyFromControlId ctrl_name =
-		(
-			--format "\n"; print "SupportOptions_v.ifcontrolIdIsOptionProperty()"
-			function regExReplace _string search = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) ""
-			
-			control_type_to_fetch_values = "SPIN|CBX|RB|DL"
-
-			regExReplace ctrl_name ("^("+control_type_to_fetch_values+")_")
-		)
+		function getPropertyKeyFromControlId ctrl_name = substring ctrl_name (( findString ctrl_name "_" ) +1) -1
 		
 		controls = this.getControlsWithOptionValue (main_rollout) #()
 
@@ -173,11 +150,30 @@ struct SupportOptions_v
 				RadioCOntrol:    ctrl.state
 				default:         ctrl.value
 			)
-
+			--format "%: %\n" prop_key control_value
 			this.setOptionValue (prop_key) (control_value)
 		)
 	),
-
+	
+	/** Get controls with option value
+	 */
+	function getControlsWithOptionValue roll &controls =
+	(
+		/** Is value control
+		 */
+		function isValueControl ctrl = findItem load_value_control_types (((classOf ctrl) as string ) as name ) > 0
+		
+		for ctrl in roll.controls do
+			if ( classOf_ctrl = classOf ctrl ) == SubRollout then
+				for subroll in ctrl.rollouts do
+					this.getControlsWithOptionValue (subroll) (controls)
+					
+			else if isValueControl(ctrl) then
+				append controls ctrl
+				
+		controls --return
+	),
+	
 	/** Init
 	  *
 	  */

@@ -141,10 +141,10 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key val: =
 	(
-		-- format "\n"; print "ModifiersManager_v.updateModifier()"
-		-- format "_objects: %\n" _objects
-		-- format "prop_key: %\n" prop_key
-		-- format "val: %\n" val
+		 -- format "\n"; print "ModifiersManager_v.updateModifier()"
+		 --format "_objects: %\n" _objects
+		 -- format "prop_key: %\n" prop_key
+		 -- format "val: %\n" val
 
 		/* COMPARE ARRAYS
 		*/ 
@@ -237,19 +237,22 @@ struct ModifiersManager_v
 		)
 		
 		/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
-		for bar_width in objs_by_bar_width.keys do
+		for bar_width_key in objs_by_bar_width.keys do
 		(
 			--_objects = objs_by_bar_width[bar_width]
 			
-			--bar_width = (bar_width as float * 2) / EXPORT_SIZE
+			bar_width = (bar_width_key as float * 2) * EXPORT_SIZE
 			
 			
-			/* GET CHAMFER VALUE */ 
-			chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
+			/* GET CHAMFER VALUE */
+			--chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
+			chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:bar_width top_width:top_width
 			-- format "chamfer_val: %\n" chamfer_val
 
 			/* UPDATE CHAMFER VALUE */ 
-			this.updateModifier objs_by_bar_width[bar_width] #TOP_WIDTH val:chamfer_val
+			this.updateModifier objs_by_bar_width[bar_width_key] #TOP_WIDTH val:chamfer_val
+			
+			
 		)
 	),
 	

@@ -101,7 +101,7 @@ icon:	"width:72|align:#RIGHT"
 	(
 		all_or_sel = if selection.count > 0 then "SELECTED" else "VISIBLE"
 		
-		if queryBox ("RESCALE "+all_or_sel+" SUPPORTS ?\n\nEXPORT_SIZE: "+EXPORT_SIZE as string ) title:"RESCALE SUPPORTS" then
+		--if queryBox ("RESCALE "+all_or_sel+" SUPPORTS ?\n\nEXPORT_SIZE: "+EXPORT_SIZE as string ) title:"RESCALE SUPPORTS" then
 		undo "RESCALE SUPPORTS" on
 		(
 			--clearListener(); print("Cleared in:\n"+getSourceFileName())
@@ -182,8 +182,8 @@ icon:	"width:72|align:#RIGHT"
 					mod_value_scaled = mod_value / EXPORT_SIZE
 					
 					--format "EXPORT_SIZE:      %\n" EXPORT_SIZE
-					--format "mod_value:        %\n" mod_value
-					--format "mod_value_scaled: %\n" mod_value_scaled
+					format "mod_value:        %\n" mod_value
+					format "mod_value_scaled: %\n" mod_value_scaled
 					
 					/* SET VALUE TO MODIFIER */ 
 					case classOf _mod of

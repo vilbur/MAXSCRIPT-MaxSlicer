@@ -107,18 +107,21 @@ struct VertexColors_v
 	  *
 	  * @return BitArray of vertex indexes
 	 */
-	function getColoredVerts exclude:#() =
+	function getColoredVerts verts:#{} exclude:#() =
 	(
-		--format "\n"; print "VertexColors_v.getColoredVerts()"
+		format "\n"; print "VertexColors_v.getColoredVerts()"
 
 		appendIfUnique exclude ( white as string )
 
+		if verts.numberSet == 0 then
+			verts = #{1..(getNumVerts obj_mesh)}
+		
 		this._setVertsByColors (verts) exclude:exclude
 
 		colored_verts = #{}
 
-		for vertex_color in verts_by_colors.keys where indItem exclude ( vertex_color as string )  do colored_verts +=  verts_by_colors[vertex_color]
-
+		for vertex_color in verts_by_colors.keys where findItem exclude ( vertex_color as string ) == 0 do colored_verts +=  verts_by_colors[vertex_color]
+		format "colored_verts: %\n" colored_verts
 		colored_verts --return
 	),
 

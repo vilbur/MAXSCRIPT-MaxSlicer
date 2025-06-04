@@ -141,7 +141,10 @@ struct ModifiersManager_v
 	 */
 	function updateModifier _objects prop_key val: =
 	(
-		--format "\n"; print "ModifiersManager_v.updateModifier()"
+		-- format "\n"; print "ModifiersManager_v.updateModifier()"
+		-- format "_objects: %\n" _objects
+		-- format "prop_key: %\n" prop_key
+		-- format "val: %\n" val
 
 		/* COMPARE ARRAYS
 		*/ 
@@ -167,11 +170,11 @@ struct ModifiersManager_v
 		/* IF OBJECTS WITH MODIFIER EXISTS */ 
 		if _objects.count > 0 then
 		(			
-			source_obj	= _objects[1]
+			source_obj_mod	= _objects[1]
 			
 			for_replace = deleteItem _objects 1
 			
-			source_mod = source_obj.modifiers[mod_name]
+			source_mod = source_obj_mod.modifiers[mod_name]
 			
 			/* POINTERS OF OBJECTS */ 
 			pointers_objs =  (for obj in _objects collect (getHandleByAnim obj) as string )
@@ -182,25 +185,26 @@ struct ModifiersManager_v
 			
 			/* CREATE UNIQUE GROUP OF MODIFIERS INSTANCES - if not */ 
 			if not ( areAllObjectsSelected (pointers_objs) (pointers_mods) ) then
-				source_mod = this._reinstanceModifier (source_obj) (for_replace) (source_mod) 
+				source_mod = this._reinstanceModifier (source_obj_mod) (for_replace) (source_mod) 
 			
 			
 			/* UPDATE MODIFIER VALUE */ 
 			if val == unsupplied then
 				val = SUPPORT_OPTIONS.getModVal prop_key
 			
-			val /= EXPORT_SIZE
+			val_scaled = val / EXPORT_SIZE
 			
 			case (classOf source_mod) of
 			(
-				(sweep):	source_mod[#Cylinder_Section].radius	= val
+				(sweep):	source_mod[#Cylinder_Section].radius	= val_scaled
 			
-				(Chamfer ):	source_mod.amount	= val
-				(Face_Extrude ):	source_mod.amount	= val
+				(Chamfer ):	source_mod.amount	= val_scaled
+				(Face_Extrude ):	source_mod.amount	= val_scaled
 			
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" prop_key -- this should never happen
 			)
 			
+	
 		)
 		--format "_objects: %\n" _objects
 		
@@ -213,9 +217,11 @@ struct ModifiersManager_v
 	
 	/** Udpate top width
 	 */
-	function udpateTopWidth _objects =
+	function udpateTopWidth _objects top_width =
 	(
-		--format "\n"; print "ModifiersManager_v.udpateTopWidth()"
+		-- format "\n"; print "ModifiersManager_v.udpateTopWidth()"
+		
+		--top_width /= EXPORT_SIZE
 		
 		objs_by_bar_width	= Dictionary #STRING -- KEY:"Value of BAR_WIDTH" VALUE:#( objects )
 		
@@ -224,14 +230,23 @@ struct ModifiersManager_v
 		(
 			sweep_radius = obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius as string
 			
-			if objs_by_bar_width[sweep_radius] == undefined then objs_by_bar_width[sweep_radius] = #(obj) else append objs_by_bar_width[sweep_radius] obj
+			if objs_by_bar_width[sweep_radius] == undefined then
+				objs_by_bar_width[sweep_radius] = #(obj)
+			else
+				append objs_by_bar_width[sweep_radius] obj
 		)
 		
 		/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
 		for bar_width in objs_by_bar_width.keys do
 		(
+			--_objects = objs_by_bar_width[bar_width]
+			
+			--bar_width = (bar_width as float * 2) / EXPORT_SIZE
+			
+			
 			/* GET CHAMFER VALUE */ 
-			chamfer_val = SUPPORT_OPTIONS.getChamferBarValue (bar_width)
+			chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
+			-- format "chamfer_val: %\n" chamfer_val
 
 			/* UPDATE CHAMFER VALUE */ 
 			this.updateModifier objs_by_bar_width[bar_width] #TOP_WIDTH val:chamfer_val

@@ -12,7 +12,7 @@ function openVertexColorSubmenu method =
 
 
 	/* FIRST ITEM */
-	item_title = case method of
+	first_item_title = case method of
 	(
 		--#SET:	"Set &Color"
 		#SELECT:	"&Select By Selection"
@@ -35,10 +35,19 @@ function openVertexColorSubmenu method =
 
 	if method != #SET then
 	(
-		Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
+		Menu.item first_item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
 		
 		Menu.separator()
 	)
+	
+
+	if method == #UNHIDE or method == #ISOLATE then
+	(
+		Menu.item "&ALL COLORS"	( call_method_by_vertex_color + "undefined"	)
+		
+		Menu.separator()
+	)	
+	
 
 	Menu.item "&WHITE"	( call_method_by_vertex_color + "white"	)
 	Menu.separator()

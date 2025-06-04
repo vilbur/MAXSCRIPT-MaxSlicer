@@ -15,12 +15,13 @@ function callMethodByVertexColor method _color =
 
 	VertexColorProcessor = VertexColorProcessor_v(obj)
 
-	vertex_sel	= getVertSelection obj.mesh
-
 
 	if method == #SET then
+	(
+		vertex_sel	= getVertSelection obj.mesh
+		
 		VertexColorProcessor.setVertexColor vertex_sel VERTEX_COLOR_PARAM
-
+	)
 	else
 		VertexColorProcessor.byColor method VERTEX_COLOR_PARAM
 )

@@ -29,7 +29,7 @@ global SPIN_CHAMFER_BAR_LAST_VALUE
 
 /** BAR WIDTH
  */
-macroscript	_print_platform_generator_bar_width
+macroscript	_print_platform_generator_set_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	""
@@ -37,10 +37,11 @@ icon:	"ACROSS:3|control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 
 (
 	on execute do
 	(
+		--format "EventFired: %\n" EventFired
 		--format "(EventFired.control.range).z: %\n" (EventFired.control.range).z
 		--format "EventFired.val == (EventFired.control.range).x: %\n" (EventFired.val == (EventFired.control.range).x)
 		--format "not EventFired.inspin: %\n" (not EventFired.inspin)
-		
+		--
 		/* RICKGLICK: RESET DO RECOEMNDED VALUE */ 
 		if EventFired.val == (EventFired.control.range).x and not EventFired.inspin then
 			EventFired.val = EventFired.control.value = (SupportOptions_v()).bar_width

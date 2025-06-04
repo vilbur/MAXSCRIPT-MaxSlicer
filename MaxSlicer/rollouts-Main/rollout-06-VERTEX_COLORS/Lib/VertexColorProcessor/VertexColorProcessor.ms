@@ -97,6 +97,7 @@ struct VertexColorProcessor_v
 
 	/** Process operation on verts by vertex color
 	  *
+	  * @param color|#(color)|undefined colors to manipulate - USE ALL COLORED IF UNDEFINED
 	  * @param name method #SELECT|#HIDE|#UNHIDE|#ISOLATE
 	 */
 	function byColor method colors =
@@ -106,13 +107,21 @@ struct VertexColorProcessor_v
 		--format "colors: %\n" colors
 		verts_by_colors = #{}
 
-		all_verts_by_colors = VertexColors.getVertsAndColors()
-
-		if classOf colors != Array then colors = #(colors)
-
-		for clr in colors where (verts_of_color = all_verts_by_colors[ clr as string ]) != undefined do
-			verts_by_colors += verts_of_color
-
+		/* GET VERTS BY COLORS */ 
+		if colors != undefined then
+		(
+			if classOf colors != Array then colors = #(colors)
+			
+			all_verts_by_colors = VertexColors.getVertsAndColors()
+	
+			for clr in colors where (verts_of_color = all_verts_by_colors[ clr as string ]) != undefined do
+				verts_by_colors += verts_of_color
+			
+		)
+		/* GET ALL COLORED VERTS */ 
+		else
+			verts_by_colors = VertexColors.getColoredVerts()
+			
 		this._callMethod (method) (verts_by_colors)
 	),
 

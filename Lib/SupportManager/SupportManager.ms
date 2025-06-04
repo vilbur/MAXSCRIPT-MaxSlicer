@@ -440,7 +440,7 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		--format "\n"; print "SupportManager_v.updateModifiers()"
+		-- format "\n"; print "SupportManager_v.updateModifiers()"
 		--format "EventFired: %\n" EventFired
 		
 		/** Get string after underscore E.G.: "ROLLOUT_supports" >>> "supports"
@@ -457,24 +457,34 @@ struct SupportManager_v
 
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
 		obj_type = ( trimRight obj_type "Ss" ) as name
-		--format "OBJ_TYPE: %\n" obj_type
+		-- format "OBJ_TYPE: %\n" obj_type
 		--format "PROP_KEY: %\n" prop_key
 		
 		--objects_by_type = makeUniqueArray(this._getObjectsForUpdate obj_type)
 		objects_by_type = this._getObjectsForUpdate obj_type
-		
+		-- format "objects_by_type: %\n" objects_by_type
 		if objects_by_type != undefined then
 		(
 			SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 			
 			SUPPORT_OPTIONS.init()
 			
-			/* UPDATE MODIFIER */
+			val = if prop_key == #BAR_WIDTH then EventFired.val / 2 else EventFired.val
 			
+			/* UPDATE USER PROPS */
+			prop_key_string = toUpper (prop_key as string )
+			
+			for obj in objects_by_type do 
+				setUserPropVal obj prop_key_string EventFired.val
+				
+			/* UPDATE MODIFIER */
 			if prop_key != #TOP_WIDTH then
-				MODIFIERS_MANAGER.updateModifier( objects_by_type )( prop_key )
+				MODIFIERS_MANAGER.updateModifier( objects_by_type )( prop_key ) val:val
 			else
-				MODIFIERS_MANAGER.udpateTopWidth( objects_by_type )
+				MODIFIERS_MANAGER.udpateTopWidth( objects_by_type )( val )
+				
+
+			
 		)
 	),
 
@@ -838,8 +848,8 @@ struct SupportManager_v
 			--format "GET BY SUPPORTS\n"
 			--format "HIERARCHY: %\n" HIERARCHY
 
-			--supports_and_rafts = if type == #SUPPORT then supports else rafts
-			supports_and_rafts = supports + rafts
+			supports_and_rafts = if type == #SUPPORT then supports else rafts
+			--supports_and_rafts = supports + rafts
 
 			--objects_by_type =  deepCopy supports_and_rafts
 			objects_by_type = if type == #SUPPORT or type == #RAFT then deepCopy supports_and_rafts else #()

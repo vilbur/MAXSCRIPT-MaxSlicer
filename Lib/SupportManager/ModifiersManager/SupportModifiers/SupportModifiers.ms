@@ -114,7 +114,36 @@ struct SupportModifiers_v
 	function _chamferSetup chamfer_mod amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
 	(
 		--format "\n"; print "SupportModifiers_v._chamfer()"
+		/** Add custom attributes
+		 */
+		function addCustomAttributesTest chamfer_mod =
+		(
+				format "\n"; print "ModifiersManager_v.addCustomAttributesTest()"
+			test_data = attributes MaxSlicerParameters
+			(
+				parameters main rollout:params
+				(
+					top_width type: #float ui:top_width_spinner default:0.5
+				)
+				rollout params "MaxSlicer Parameters"
+				( 
+					 spinner top_width_spinner "Top Width" type: #float
+					 
+					 on top_width_spinner changed val do
+					 (
+		                obj = (refs.dependentNodes this)[1]
 
+						obj.modifiers[#TOP_WIDTH].amount.controller.update()
+					 )
+				)
+			)
+				
+			custAttributes.add chamfer_mod test_data
+		)
+		
+		if chamfer_mod.name as name == #TOP_WIDTH then
+			addCustomAttributesTest chamfer_mod
+			
 		chamfer_mod.selectionoption = case selection_option of
 		(
 			#STACK:	0 -- from stack
@@ -158,6 +187,7 @@ struct SupportModifiers_v
 	function _extrudeSetup extrude_mod amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
+
 		extrude_mod.amount	= amount 
 
 		--extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER

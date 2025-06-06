@@ -150,11 +150,34 @@ struct SupportObject_v
 
 		this._lockRotationAndScaleTransforms()
 		
+		--this._addCustomAttributes()
+
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		true --return
 	),
 	
+	--/** Add custom attributes
+	-- */
+	--function _addCustomAttributes =
+	--(
+	--		--format "\n"; print "ModifiersManager_v._addCustomAttributes()"
+	--	test_data = attributes MaxSlicerParameters
+	--	(
+	--		parameters main rollout:params
+	--		(
+	--			top_width type: #float ui:top_width_spinner default:0.5
+	--		)
+	--		rollout params "MaxSlicer Parameters"
+	--		( 
+	--			 spinner top_width_spinner "Top Width" type: #float
+	--		)
+	--		
+	--	)
+	--		
+	--	custAttributes.add support_obj test_data
+	--),
+
 	/** 	UPDATE SUPPORTS
 	  * 
 	  * 	first_knot_pos: undefined	-- GET POS FROM LINE,	WHEN SOURCE OBJECT HAS BEEN ROTATED

@@ -51,7 +51,9 @@ struct ModifiersManager_v
 				modPanel.addModToSelection ( modifiers[i] ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-			this._setSweepProperties (_objects[1])
+			this._setSweepProperties (_objects[1] )
+			
+			this.connenctBarAndToprWidths _objects[1]
 		)
 		/*------------------------------------------------------------------------------
 			COPY MODIFIERS
@@ -83,7 +85,6 @@ struct ModifiersManager_v
 			)
 		)
 	),
-		
 
 	/** Rescale modifeirs by export size
 	 */
@@ -295,6 +296,46 @@ struct ModifiersManager_v
 		this._setSweepProperties (_objects[1])
 	),
 
+
+
+	/** Connenct bar and topr widths
+	 */
+	function connenctBarAndToprWidths obj =
+	(
+		format "\n"; print "ModifiersManager_v.connenctBarAndToprWidths()"
+		
+		--code = "Radius - ( getUserPropVal $ \"TOP_WIDTH\" / 2 )"
+		--code = "Radius / 2.0"
+		code = "( getUserPropVal $ \"TOP_WIDTH\" / 2 )"
+		
+		
+		_float_script = float_script ()
+		
+		--obj.modifiers[#TOP_WIDTH].addTarget "top_width" <value>Target Offset:<time> Owner:<value>
+		--obj.modifiers[#TOP_WIDTH].amount.controller "bar_width" obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius
+
+		obj.modifiers[#TOP_WIDTH].amount.controller = _float_script
+		_float_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+
+		--_float_script.addNode "obj" obj
+		--_float_script.script = "((bar_width.radius * 2.0) - (getUserPropVal obj \"TOP_WIDTH\" ) ) / 2"
+
+		_float_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
+		_float_script.script = "((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2"
+
+	
+		--_float_script.addTarget "top_width" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters.top_width.controller
+		--_float_script.script = "((bar_width.radius * 2.0) - top_width) / 2"
+	
+		--_float_script.script = "((bar_width.radius * 2.0) - obj.top_width) / 2"
+		
+
+		--obj.modifiers[#TOP_WIDTH].amount.controller  obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius  Owner:
+		
+		--paramWire.connect obj.modifiers[#BAR_WIDTH][#Cylinder_Section][#Radius] obj.modifiers[#TOP_WIDTH][#Amount] code 
+
+		
+	),
 
 	private
 	

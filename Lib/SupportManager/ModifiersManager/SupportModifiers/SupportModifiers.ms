@@ -187,7 +187,38 @@ struct SupportModifiers_v
 	function _extrudeSetup extrude_mod amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
+		/** Add custom attributes
+		 */
+		function addCustomAttributesTest extrude_mod =
+		(
+			format "\n"; print "ModifiersManager_v.addCustomAttributesTest()"
+			
+			test_data = attributes MaxSlicerParameters
+			(
+				parameters main rollout:params
+				(
+					base_width type: #float ui:base_width_spinner default:10
+				)
+				rollout params "MaxSlicer Parameters"
+				( 
+					 spinner base_width_spinner "Base Width" type: #float
+					 
+					 on base_width_spinner changed val do
+					 (
+		                obj = (refs.dependentNodes this)[1]
 
+						obj.modifiers[#BASE_WIDTH].amount.controller.update()
+					 )
+				)
+			)
+				
+			custAttributes.add extrude_mod test_data
+		)
+		
+		if extrude_mod.name as name == #BASE_WIDTH then
+			addCustomAttributesTest extrude_mod
+		
+			
 		extrude_mod.amount	= amount 
 
 		--extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER

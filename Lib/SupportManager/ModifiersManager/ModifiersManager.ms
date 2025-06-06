@@ -309,25 +309,33 @@ struct ModifiersManager_v
 		code = "( getUserPropVal $ \"TOP_WIDTH\" / 2 )"
 		
 		
-		_float_script = float_script ()
+		top_width_script = float_script ()
 		
-		--obj.modifiers[#TOP_WIDTH].addTarget "top_width" <value>Target Offset:<time> Owner:<value>
-		--obj.modifiers[#TOP_WIDTH].amount.controller "bar_width" obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius
+		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
+		top_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+		top_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
 
-		obj.modifiers[#TOP_WIDTH].amount.controller = _float_script
-		_float_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-
-		--_float_script.addNode "obj" obj
-		--_float_script.script = "((bar_width.radius * 2.0) - (getUserPropVal obj \"TOP_WIDTH\" ) ) / 2"
-
-		_float_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
-		_float_script.script = "((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2"
+		--top_width_script.script = "((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2"
+		top_width_script.script = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2) / EXPORT_SIZE"
 
 	
-		--_float_script.addTarget "top_width" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters.top_width.controller
-		--_float_script.script = "((bar_width.radius * 2.0) - top_width) / 2"
+		
+		base_width_script = float_script ()
+		
+		obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
+		base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+		base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
+
+		--base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 )"
+
+		base_width_script.script = "val = (( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 )"
 	
-		--_float_script.script = "((bar_width.radius * 2.0) - obj.top_width) / 2"
+		base_width_script.script += "\nval"
+	
+		--top_width_script.addTarget "top_width" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters.top_width.controller
+		--top_width_script.script = "((bar_width.radius * 2.0) - top_width) / 2"
+	
+		--top_width_script.script = "((bar_width.radius * 2.0) - obj.top_width) / 2"
 		
 
 		--obj.modifiers[#TOP_WIDTH].amount.controller  obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius  Owner:

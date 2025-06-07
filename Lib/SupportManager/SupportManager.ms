@@ -413,7 +413,7 @@ struct SupportManager_v
 			
 			this.updateShapes()
 	
-			MODIFIERS_MANAGER.updateModifier( support_nodes )( #chamfer_base ) val:(SUPPORT_OPTIONS.getModVal #CHAMFER_BASE )
+			MODIFIERS_MANAGER.updateModifier( support_nodes )( #CHAMFER_BASE ) val:(SUPPORT_OPTIONS.getModVal #CHAMFER_BASE )
 		)
 	),
 

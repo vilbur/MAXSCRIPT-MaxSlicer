@@ -357,7 +357,12 @@ struct SourceObject_v
 		
 		--for key in SupportsToUpdate.keys where SupportsToUpdate[key].is_on_ground do
 		for key in SupportsToUpdate.keys do
-			SupportsToUpdate[key].updateBaseHeight()
+		(
+			SupportsToUpdate[key].base_height = SUPPORT_OPTIONS.base_height
+			
+			SupportsToUpdate[key].updateSupport update_raft:false update_leg:true
+		)
+			--SupportsToUpdate[key].updateBaseHeight()
 			
 		free SupportsToUpdate
 	),

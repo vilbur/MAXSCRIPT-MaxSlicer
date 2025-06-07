@@ -18,39 +18,39 @@ struct SupportLeg_v
 	/** Generate leg - Make lione between LEG and BASE knots
 	  *
 	 */
-	function createLeg pos_z =
+	function createLeg bottom_point_pos_z =
 	(
 		--format "\n"; print "SupportLeg_v.createLeg()"
-		--format "pos_z: %\n" pos_z
+		--format "bottom_point_pos_z: %\n" bottom_point_pos_z
 		
 		hit_leg = this._testHitOfSourceObject()
 		
-		Support.points[3] = if hit_leg != undefined then hit_leg.pos else this._getBasePointPos (pos_z)
+		Support.points[3] = if hit_leg != undefined then hit_leg.pos else this._getBasePointPos (bottom_point_pos_z)
 	),
 
 	private
 	
 	/** Get base point
 	 */
-	function _getBasePointPos pos_z =
+	function _getBasePointPos bottom_point_pos_z =
 	(
 		--format "\n"; print "SupportLeg_v._getBasePointPos()"
 		
 		base_point_pos = copy Support.points[2]
 		
-		base_point_pos.z = pos_z
+		base_point_pos.z = bottom_point_pos_z
 		
 		base_point_pos --return
 	),
 	
 	/** Align next knot bellow
 	 */
-	function _alignKnotToPreviousKnot index: pos_z: =
+	function _alignKnotToPreviousKnot index: bottom_point_pos_z: =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
 		pos = copy Support.points[index - 1]
 		
-		pos.z = pos_z
+		pos.z = bottom_point_pos_z
 		
 		Support.points[index] = pos
 	),

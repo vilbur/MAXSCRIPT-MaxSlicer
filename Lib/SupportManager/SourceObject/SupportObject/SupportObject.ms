@@ -150,65 +150,11 @@ struct SupportObject_v
 
 		this._lockRotationAndScaleTransforms()
 		
-		--this._addCustomAttributes()
-
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 		true --return
 	),
 	
-	/** Add custom attributes
-	 */
-	function _addCustomAttributes =
-	(
-		-- format "\n"; print "ModifiersManager_v._addCustomAttributes()"
-		test_data = attributes MaxSlicerParameters
-		(
-			fn findOwnerNodeOfBaseObjectCA ca_instance =
-			(
-				ca_found = undefined
-				
-				for n in shapes where (ca_count = custAttributes.count n.baseObject ) > 0 do
-					for i = 1 to ca_count while ca_found == undefined do
-					(
-						-- format "CA: %\n" (custAttributes.get n.baseObject i)
-
-						if ca_instance == (custAttributes.get n.baseObject i) then
-							ca_found = n -- return
-					)
-					
-				ca_found --return
-			)
-			
-			
-			parameters main rollout:params
-			(
-				base_width type:#float ui:base_width_spinner default:10
-				top_width  type:#float ui:top_width_spinner  default:0.5
-				
-			)
-			
-			rollout params "MaxSlicer"
-			( 
-				spinner top_width_spinner  "Top Width"  type:#float
-				spinner base_width_spinner "Base Width" type:#float
-				 
-				on base_width_spinner changed val do
-				(
-				   obj = findOwnerNodeOfBaseObjectCA this
-					-- format "obj: %\n" obj
-					-- format "obj.modifiers: %\n" obj.modifiers
-				   --obj.modifiers[#BASE_WIDTH].amount.controller.update()
-				)
-				
-				 
-			)
-			
-		)
-			
-		custAttributes.add support_obj test_data 
-	),
-
 	/** 	UPDATE SUPPORTS
 	  * 
 	  * 	first_knot_pos: undefined	-- GET POS FROM LINE,	WHEN SOURCE OBJECT HAS BEEN ROTATED
@@ -222,7 +168,8 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		-- format "\n----------------------------------------------\n"
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--format "\n----------------------------------------------\n"
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		
 		/*------------------------------------------------------------------------------
@@ -254,7 +201,7 @@ struct SupportObject_v
 			
 		this._disbaleBoxMode()
 
-		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+		--this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
 
 		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
 		
@@ -404,6 +351,29 @@ struct SupportObject_v
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
 	),
+
+	--/** Update base height
+	-- */
+	--function updateBaseHeight =
+	--(
+	--	-- format "\n"; print "SupportObject_v.updateBaseHeight()"
+	--	 format "support_obj: %\n" support_obj.name
+	--	if this.is_on_ground then
+	--	(
+	--		ground_knot = numKnots support_obj spline_1
+	--		base_knot   = ground_knot - 1
+	--		
+	--		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
+	--		base_knot_pos.z = SUPPORT_OPTIONS.base_height
+	--		
+	--		setKnotPoint support_obj spline_1 base_knot base_knot_pos
+	--		
+	--		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
+	--	
+	--		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+	--	)
+	--),
+	
 	
 	/** TEST COLLISION WITH SOURCE OBJECT
 	 */
@@ -548,27 +518,45 @@ struct SupportObject_v
 		support_obj.boxmode == true
 	),
 		
+	/** Set pivot to position
+	  *
+	  *	IMPORTANT PREVENT CRASH:
+	  *		NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
+	  *
+	 */
+	function setPivotToPoint index =
+	(
+		 --format "\n"; print "SupportObject_v.setPivotToPoint()"
+		--support_obj.pivot = getKnotPoint support_obj spline_1 2
+		support_obj.pivot = points[index]
+	),
+	
+	private
+
 	/** Set support line points
 	 */
 	function _setSupportLinePoints =
  	(
-		  -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
-		
+		 format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		-- format "obj_type: %\n" obj_type
 		/* CREATE RAFT */ 
-		SupportRaft.createRaft()
-		  -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		SupportRaft.createRaft() --"./SupportRaft/SupportRaft.ms"
+		   -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
-		
-			SupportLeg.createLeg( if foot_exists then min_leg_pos else 0 )
-			  --format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
+			-- format "foot_exists: %\n" foot_exists
+			-- format "min_leg_pos: %\n" min_leg_pos
+			-- format "base_height: %\n" base_height
+			
+			SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
+			-- format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
 			
 			/* CREATE FOOT */ 
 			if SupportLeg.hit_leg == undefined and foot_exists then 
-				SupportFoot.createFoot()
+				SupportFoot.createFoot() --"./SupportFoot/SupportFoot.ms"
 		)
 
 		this._setFootExists()
@@ -869,22 +857,22 @@ struct SupportObject_v
         min_length_for_chamfer = (bar_width - top_width ) / 2
 		
 		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
-		if update_minimal_lenght then
+		--if update_minimal_lenght then
 			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
 
 		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
-		if update_min_raft_length then
+		--if update_min_raft_length then
 			min_raft_length = min_lenght_by_angle + min_length_for_chamfer + dilatation -- chmfer is removing length of raft also
 
 		-- format "min_raft_length: %\n" min_raft_length
 	
 		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
-		if update_minimal_lenght then
+		--if update_minimal_lenght then
 			min_leg_pos = min_lenght_by_angle --+ dilatation 
 	
 		/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
-		if update_min_foot_pos then
+		--if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
 		
 		
@@ -1099,19 +1087,6 @@ struct SupportObject_v
 		--support_obj.pivot = p1
 	),
 
-	/** Set pivot to position
-	  *
-	  *	IMPORTANT PREVENT CRASH:
-	  *		NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
-	  *
-	 */
-	function setPivotToPoint index =
-	(
-		 --format "\n"; print "SupportObject_v.setPivotToPoint()"
-		--support_obj.pivot = getKnotPoint support_obj spline_1 2
-		support_obj.pivot = points[index]
-	),
-	
 	/** Set materials to line segments
 	 */
 	function _setMaterialsToLineSegments =

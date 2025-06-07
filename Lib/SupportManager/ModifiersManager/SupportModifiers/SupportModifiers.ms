@@ -114,35 +114,10 @@ struct SupportModifiers_v
 	function _chamferSetup chamfer_mod amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
 	(
 		--format "\n"; print "SupportModifiers_v._chamfer()"
-		/** Add custom attributes
-		 */
-		function addCustomAttributesTest chamfer_mod =
-		(
-				format "\n"; print "ModifiersManager_v.addCustomAttributesTest()"
-			test_data = attributes MaxSlicerParameters
-			(
-				parameters main rollout:params
-				(
-					top_width type: #float ui:top_width_spinner default:SUPPORT_OPTIONS.top_width
-				)
-				rollout params "MaxSlicer Parameters"
-				( 
-					 spinner top_width_spinner "Top Width" type: #float
-					 
-					 on top_width_spinner changed val do
-					 (
-		                obj = (refs.dependentNodes this)[1]
-
-						obj.modifiers[#TOP_WIDTH].amount.controller.update()
-					 )
-				)
-			)
-				
-			custAttributes.add chamfer_mod test_data
-		)
 		
 		if chamfer_mod.name as name == #TOP_WIDTH then
-			addCustomAttributesTest chamfer_mod
+			this._addCustomAttributes chamfer_mod "TOP_WIDTH" "Top Width" SUPPORT_OPTIONS.top_width
+			--this._addCustomAttributesToChamfer chamfer_mod
 			
 		chamfer_mod.selectionoption = case selection_option of
 		(
@@ -187,45 +162,51 @@ struct SupportModifiers_v
 	function _extrudeSetup extrude_mod amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
-		/** Add custom attributes
-		 */
-		function addCustomAttributesTest extrude_mod =
-		(
-			format "\n"; print "ModifiersManager_v.addCustomAttributesTest()"
-			
-			test_data = attributes MaxSlicerParameters
+		
+		if extrude_mod.name as name == #BASE_WIDTH then
+			this._addCustomAttributes extrude_mod "BASE_WIDTH" "Base Width" SUPPORT_OPTIONS.base_width
+			--this._addCustomAttributesToExtrude extrude_mod
+		
+		extrude_mod.amount	= amount 
+
+		extrude_mod --return
+	),
+	
+	/** Add custom attributes
+	 */
+	function _addCustomAttributes _mod param_name _label default_val =
+	(
+		--format "\n"; print "SupportModifiers_v._addCustomAttributes()"
+	
+		ctrl_name = "spn_" + param_name
+	
+		ca_def_string =
+			"attributes MaxSlicerParameters
 			(
 				parameters main rollout:params
 				(
-					base_width type: #float ui:base_width_spinner default:SUPPORT_OPTIONS.base_width
+					" + param_name + " type:#float ui:" +ctrl_name+ " default:"+ default_val as string +"
 				)
-				rollout params "MaxSlicer Parameters"
-				( 
-					 spinner base_width_spinner "Base Width" type: #float
-					 
-					 on base_width_spinner changed val do
-					 (
-		                obj = (refs.dependentNodes this)[1]
-
-						obj.modifiers[#BASE_WIDTH].amount.controller.update()
-					 )
-				)
-			)
 				
-			custAttributes.add extrude_mod test_data
-		)
-		
-		if extrude_mod.name as name == #BASE_WIDTH then
-			addCustomAttributesTest extrude_mod
-		
+				rollout params \"MaxSlicer\"
+				(
+					spinner " + ctrl_name + " \"" + _label + "\" type:#float range:[ 0.1, 100, 1 ]
+				)
+				
+				on "+ctrl_name+" changed val do
+				(
+				   obj = (refs.dependentNodes this)[1]
+
+				   obj.modifiers[#"+param_name+"].amount.controller.update()
+				)
+
+			)"
+	
+		--format "CA_DEF_STRING: %\n" ca_def_string
 			
-		extrude_mod.amount	= amount 
-
-		--extrude_mod.extrude_center = [0,0,-1000] -- HIDE DUMMY OF MODIFIER
-		
-		extrude_mod --return
+		custAttributes.add _mod (execute ca_def_string)
 	),
-
+	
 	/**
 	 */
 	on create do

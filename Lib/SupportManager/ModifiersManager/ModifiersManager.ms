@@ -109,7 +109,7 @@ struct ModifiersManager_v
 	 */
 	function _setSweepProperties obj =
 	(
-		-- format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		 --format "\n"; print "SupportModifiers_v.setSweepRadius()"
 		--format "BAR_WIDTH: %\n" (SUPPORT_OPTIONS.getModVal #BAR_WIDTH)
 
 		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
@@ -125,8 +125,9 @@ struct ModifiersManager_v
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
 		)catch(
-			--format "****************\n"
-			
+			format "**********************************************\n"
+			format "\n"; print "SupportModifiers_v.setSweepRadius()"
+			format "ERROR: SET SWEEP RADIUS FAILED on obj: %\n" obj.name
 		)
 	),
 	
@@ -210,52 +211,52 @@ struct ModifiersManager_v
 		--format "_objects: %\n" _objects
 		
 		/* UPDATE #TOP_WIDTH ALSO IF #BAR_WIDTH IS UPDATED */ 
-		if prop_key == #BAR_WIDTH then
-			this.updateModifier this._objects #TOP_WIDTH
+		--if prop_key == #BAR_WIDTH then
+			--this.updateModifier this._objects #TOP_WIDTH
 		
 		SetCommandPanelTaskMode mode:current_panel
 	),
 	
-	/** Udpate top width
-	 */
-	function udpateTopWidth _objects top_width =
-	(
-		-- format "\n"; print "ModifiersManager_v.udpateTopWidth()"
-		
-		--top_width /= EXPORT_SIZE
-		
-		objs_by_bar_width	= Dictionary #STRING -- KEY:"Value of BAR_WIDTH" VALUE:#( objects )
-		
-		/* SORT OBJECTS BY BAR WIDTH */ 
-		for obj in _objects do
-		(
-			sweep_radius = obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius as string
-			
-			if objs_by_bar_width[sweep_radius] == undefined then
-				objs_by_bar_width[sweep_radius] = #(obj)
-			else
-				append objs_by_bar_width[sweep_radius] obj
-		)
-		
-		/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
-		for bar_width_key in objs_by_bar_width.keys do
-		(
-			--_objects = objs_by_bar_width[bar_width]
-			
-			bar_width = (bar_width_key as float * 2) * EXPORT_SIZE
-			
-			
-			/* GET CHAMFER VALUE */
-			--chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
-			chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:bar_width top_width:top_width
-			-- format "chamfer_val: %\n" chamfer_val
-
-			/* UPDATE CHAMFER VALUE */ 
-			this.updateModifier objs_by_bar_width[bar_width_key] #TOP_WIDTH val:chamfer_val
-			
-			
-		)
-	),
+	--/** Udpate top width
+	-- */
+	--function udpateTopWidth _objects top_width =
+	--(
+	--	-- format "\n"; print "ModifiersManager_v.udpateTopWidth()"
+	--	
+	--	--top_width /= EXPORT_SIZE
+	--	
+	--	objs_by_bar_width	= Dictionary #STRING -- KEY:"Value of BAR_WIDTH" VALUE:#( objects )
+	--	
+	--	/* SORT OBJECTS BY BAR WIDTH */ 
+	--	for obj in _objects do
+	--	(
+	--		sweep_radius = obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius as string
+	--		
+	--		if objs_by_bar_width[sweep_radius] == undefined then
+	--			objs_by_bar_width[sweep_radius] = #(obj)
+	--		else
+	--			append objs_by_bar_width[sweep_radius] obj
+	--	)
+	--	
+	--	/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
+	--	for bar_width_key in objs_by_bar_width.keys do
+	--	(
+	--		--_objects = objs_by_bar_width[bar_width]
+	--		
+	--		bar_width = (bar_width_key as float * 2) * EXPORT_SIZE
+	--		
+	--		
+	--		/* GET CHAMFER VALUE */
+	--		--chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
+	--		chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:bar_width top_width:top_width
+	--		-- format "chamfer_val: %\n" chamfer_val
+	--
+	--		/* UPDATE CHAMFER VALUE */ 
+	--		this.updateModifier objs_by_bar_width[bar_width_key] #TOP_WIDTH val:chamfer_val
+	--		
+	--		
+	--	)
+	--),
 	
 	
 	/** Convert obj type
@@ -302,47 +303,36 @@ struct ModifiersManager_v
 	 */
 	function connenctBarAndToprWidths obj =
 	(
-		format "\n"; print "ModifiersManager_v.connenctBarAndToprWidths()"
-		
-		--code = "Radius - ( getUserPropVal $ \"TOP_WIDTH\" / 2 )"
-		--code = "Radius / 2.0"
-		code = "( getUserPropVal $ \"TOP_WIDTH\" / 2 )"
-		
-		
+		--format "\n"; print "ModifiersManager_v.connenctBarAndToprWidths()"
+		/** Add bar width variable
+		 */
+		--function addBarWidthVariable obj _float_script = _float_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
 		top_width_script = float_script ()
-		
-		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
-		top_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-		top_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
-
-		--top_width_script.script = "((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2"
-		top_width_script.script = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width) / 2) / EXPORT_SIZE"
-
-	
-		
 		base_width_script = float_script ()
 		
+		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
 		obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
+		
+		
+		--addBarWidthVariable obj top_width_script
+		--addBarWidthVariable obj base_width_script
+		top_width_script.addTarget  "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
 		base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+		
+		
+		top_width_script.addTarget "MaxSlicerParameters"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
 		base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
-
-		--base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 )"
-
-		base_width_script.script = "val = (( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 )"
-	
-		base_width_script.script += "\nval"
-	
-		--top_width_script.addTarget "top_width" obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters.top_width.controller
-		--top_width_script.script = "((bar_width.radius * 2.0) - top_width) / 2"
-	
-		--top_width_script.script = "((bar_width.radius * 2.0) - obj.top_width) / 2"
 		
-
-		--obj.modifiers[#TOP_WIDTH].amount.controller  obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius  Owner:
 		
-		--paramWire.connect obj.modifiers[#BAR_WIDTH][#Cylinder_Section][#Radius] obj.modifiers[#TOP_WIDTH][#Amount] code 
-
+		top_width_script.script  = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		
+		--top_width_script.addNode "obj"  obj
+		--base_width_script.addNode "obj" obj
+		--
+		--
+		--top_width_script.script  = "(((bar_width.radius * 2.0) - obj.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		--base_width_script.script = "(( obj.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 	),
 
 	private

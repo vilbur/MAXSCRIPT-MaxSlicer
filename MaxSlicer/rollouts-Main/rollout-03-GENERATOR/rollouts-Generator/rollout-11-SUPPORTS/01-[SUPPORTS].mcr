@@ -62,6 +62,7 @@ icon:	"ACROSS:3|control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 
 		
 		/* UPDATE VALUE */ 
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
+		--SUPPORT_MANAGER.updateModifierCustomAttribute ( EventFired )
 	)
 )
 

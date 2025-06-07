@@ -83,8 +83,8 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world:undefined wirecolor: =
 	(
-		 format "\n===========================================================\n"
-		 format "\n"; print "SupportObject_v.generateSupport()"
+		 -- format "\n===========================================================\n"
+		 -- format "\n"; print "SupportObject_v.generateSupport()"
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
@@ -157,26 +157,57 @@ struct SupportObject_v
 		true --return
 	),
 	
-	--/** Add custom attributes
-	-- */
-	--function _addCustomAttributes =
-	--(
-	--		--format "\n"; print "ModifiersManager_v._addCustomAttributes()"
-	--	test_data = attributes MaxSlicerParameters
-	--	(
-	--		parameters main rollout:params
-	--		(
-	--			top_width type: #float ui:top_width_spinner default:0.5
-	--		)
-	--		rollout params "MaxSlicer Parameters"
-	--		( 
-	--			 spinner top_width_spinner "Top Width" type: #float
-	--		)
-	--		
-	--	)
-	--		
-	--	custAttributes.add support_obj test_data
-	--),
+	/** Add custom attributes
+	 */
+	function _addCustomAttributes =
+	(
+		-- format "\n"; print "ModifiersManager_v._addCustomAttributes()"
+		test_data = attributes MaxSlicerParameters
+		(
+			fn findOwnerNodeOfBaseObjectCA ca_instance =
+			(
+				ca_found = undefined
+				
+				for n in shapes where (ca_count = custAttributes.count n.baseObject ) > 0 do
+					for i = 1 to ca_count while ca_found == undefined do
+					(
+						-- format "CA: %\n" (custAttributes.get n.baseObject i)
+
+						if ca_instance == (custAttributes.get n.baseObject i) then
+							ca_found = n -- return
+					)
+					
+				ca_found --return
+			)
+			
+			
+			parameters main rollout:params
+			(
+				base_width type:#float ui:base_width_spinner default:10
+				top_width  type:#float ui:top_width_spinner  default:0.5
+				
+			)
+			
+			rollout params "MaxSlicer"
+			( 
+				spinner top_width_spinner  "Top Width"  type:#float
+				spinner base_width_spinner "Base Width" type:#float
+				 
+				on base_width_spinner changed val do
+				(
+				   obj = findOwnerNodeOfBaseObjectCA this
+					-- format "obj: %\n" obj
+					-- format "obj.modifiers: %\n" obj.modifiers
+				   --obj.modifiers[#BASE_WIDTH].amount.controller.update()
+				)
+				
+				 
+			)
+			
+		)
+			
+		custAttributes.add support_obj test_data 
+	),
 
 	/** 	UPDATE SUPPORTS
 	  * 
@@ -224,7 +255,7 @@ struct SupportObject_v
 		this._disbaleBoxMode()
 
 		this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
-		--format "CHANGED_PROPS: %\n" changed_props
+
 		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
 		
 		/*------------------------------------------------------------------------------
@@ -827,22 +858,27 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction force_set:true =
 	(
-		 -- format "\n"; print "SupportObject_v._setMinLimints()"
+		-- format "\n"; print "SupportObject_v._setMinLimints()"
+		-- format "bar_width: %\n" bar_width
+		-- format "top_width: %\n" top_width
+
 		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
-		
+
+        min_length_for_chamfer = (bar_width - top_width ) / 2
 		
 		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		if update_minimal_lenght then
 			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
-	
-	
+
+		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		if update_min_raft_length then
-			min_raft_length = min_lenght_by_angle + top_width + dilatation -- chmfer is removing length of raft also
+			min_raft_length = min_lenght_by_angle + min_length_for_chamfer + dilatation -- chmfer is removing length of raft also
+
+		-- format "min_raft_length: %\n" min_raft_length
 	
-			
 		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		if update_minimal_lenght then
 			min_leg_pos = min_lenght_by_angle --+ dilatation 
@@ -1097,10 +1133,9 @@ struct SupportObject_v
 	 */
 	function _getMinLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfalse */=
 	(
-		-- format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
+		 -- format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
 		-- format "first_knot_pos:  %\n" first_knot_pos
 		-- format "second_knot_pos: %\n" second_knot_pos
-		
 		/** Get percentage of bar with by angle of corner
 		  *
 		  *    • IF ANGLE is 180° then 0%   of bar with is added
@@ -1112,7 +1147,7 @@ struct SupportObject_v
 		(
 			-- format "\n"; print "SupportObject_v.getPercentageByAngle()"
 			angle_of_leg -= 90
-			-- format "angle_of_leg: %\n" angle_of_leg
+			 -- format "angle_of_leg: %\n" angle_of_leg
 			( angle_of_leg / 90 * 100.0 )
 		)
 	
@@ -1121,17 +1156,21 @@ struct SupportObject_v
 		dir_vector = normalize ( dir_vector * -1 )
 		
 		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
-		-- format "angle_of_leg:    %\n" angle_of_leg
+		 -- format "angle_of_leg:    %\n" angle_of_leg
 		percentage_by_angle = getPercentageByAngle(angle_of_leg)
 
+		-- format "percentage_by_angle: %\n" percentage_by_angle
 		
+		--width_by_angle = ( bar_width / 2.0) * (percentage_by_angle / 100.0)
+		width_by_angle = ( bar_width ) * (percentage_by_angle / 100.0)
+		-- format "width_by_angle: %\n" width_by_angle
+		--length_by_angle = ( bar_width / 2.0) - width_by_angle
+		length_by_angle = ( bar_width ) - width_by_angle
+		length_by_angle /= 2.0
+		length_by_angle *= EXPORT_SIZE  --return
 		
-		width_by_angle = ( bar_width/2.0) * (percentage_by_angle / 100.0)
-
-		length_by_angle = ( bar_width/2.0) - width_by_angle
-		-- format "length_by_angle: %\n" length_by_angle
-
-		length_by_angle --return
+		 -- format "length_by_angle: %\n" length_by_angle
+		 length_by_angle --return
 	),
 	
 	/** Lock objects transforms
@@ -1170,7 +1209,7 @@ struct SupportObject_v
 	 */
 	on create do
 	(
-		-- format "\n"; print "SupportObject.onCreate()"
+		 -- format "\n"; print "SupportObject.onCreate()"
 		--this._setSupportRaftUpdater()
 		if support_obj != undefined then
 			this._loadUserPropsFromNode()

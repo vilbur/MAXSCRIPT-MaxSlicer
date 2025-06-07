@@ -123,7 +123,7 @@ struct SupportModifiers_v
 			(
 				parameters main rollout:params
 				(
-					top_width type: #float ui:top_width_spinner default:0.5
+					top_width type: #float ui:top_width_spinner default:SUPPORT_OPTIONS.top_width
 				)
 				rollout params "MaxSlicer Parameters"
 				( 
@@ -197,7 +197,7 @@ struct SupportModifiers_v
 			(
 				parameters main rollout:params
 				(
-					base_width type: #float ui:base_width_spinner default:10
+					base_width type: #float ui:base_width_spinner default:SUPPORT_OPTIONS.base_width
 				)
 				rollout params "MaxSlicer Parameters"
 				( 

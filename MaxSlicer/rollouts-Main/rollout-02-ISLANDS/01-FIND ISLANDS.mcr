@@ -1,9 +1,4 @@
 
-
-
-
---filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
-
 global ISLANDS_SYSTEM
 
 /** Open island sdialog with VISIBLE islands
@@ -17,9 +12,6 @@ icon:	"across:3|height:32"
 (
 	on execute do
 	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandsSystem\IslandsSystem.ms"
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\Lib\IslandManagerDialog\IslandManagerDialog.ms"
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-02-ISLANDS\[FIND ISLANDS].mcr"
 
 		undo off
 		(
@@ -95,7 +87,7 @@ icon:	"across:3|height:32"
 		undo off
 		(
 			if DIALOG_island_manager != undefined then
-				createIslandManagerDialog islands_to_show:#{}
+				createIslandManagerDialog islands_to_show:#{} --"./Lib/IslandManagerDialog/createIslandManagerDialog.ms"
 		)
 	)
 )

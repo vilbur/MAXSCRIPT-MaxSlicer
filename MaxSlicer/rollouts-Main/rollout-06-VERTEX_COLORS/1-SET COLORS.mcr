@@ -2,7 +2,9 @@
 
 
 /*==============================================================================
-	Color Set
+	
+	COLOR_NAMES --"./../../../Lib/COLOR_NAMES/COLOR_NAMES.ms"
+	
 ================================================================================*/
 
 
@@ -27,7 +29,7 @@ macroscript	epoly_vertex_color_set_red
 category:	"_Epoly-Vertex-Color"
 buttonText:	"RED"
 toolTip:	"Set vertex color to selected verts"
-icon:	"MENU:Set &RED|across:4|width:84|height:26"
+icon:	"MENU:Set &RED|across:3|width:84|height:26"
 (
 	on isVisible return subObjectLevel != 0
 
@@ -91,6 +93,7 @@ icon:	"MENU:Set &ORANGE"
 		callMethodByVertexColor #SET COLOR_NAMES[#ORANGE]
 	--callMethodByVertexColor #SET orange
 )
+
 /**
   */
 macroscript	epoly_vertex_color_set_yellow
@@ -104,6 +107,7 @@ icon:	"MENU:Set &YELLOW"
 	on execute do
 		callMethodByVertexColor #SET yellow
 )
+
 /**
   */
 macroscript	epoly_vertex_color_set_pink
@@ -130,4 +134,18 @@ icon:	"MENU:Set &MAGENTA"
 
 	on execute do
 		callMethodByVertexColor #SET COLOR_NAMES[#MAGENTA]
+)
+
+/**
+  */
+macroscript	epoly_vertex_color_set_gray
+category:	"_Epoly-Vertex-Color"
+buttonText:	"GRAY"
+toolTip:	"Set vertex color to selected verts"
+icon:	"MENU:Set &GRAY"
+(
+	on isVisible return subObjectLevel != 0
+
+	on execute do
+		callMethodByVertexColor #SET gray
 )

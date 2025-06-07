@@ -64,7 +64,7 @@ icon:	""
 
 /**
   */
-macroscript	_maxtoprint_slice_se_slice_materia
+macroscript	_maxtoprint_slice_set_slice_material
 category:	"_3D-Print"
 buttontext:	"Material"
 tooltip:	"Toggle ID multimaterial on selected object"
@@ -120,137 +120,75 @@ icon:	""
 )
 
 
---/** Get layer number to move
--- */
---function getLayerNumberToMove direction =
---(
---	--format "\n"; print ".getLayerNumberToMove()"
---	ctrl	= keyboard.controlPressed
---	shift 	= keyboard.shiftPressed
---	alt 	= keyboard.altPressed
---
---
---	mod_keys_count = (for mod_value in #( ctrl, shift, alt ) where mod_value collect true).count
---	format "mod_keys_count: %\n" mod_keys_count
---	increment_val = case mod_keys_count of
---	(
---		(3):	100
---		(2):	25
---		(1):	10
---		default: 1
---	)
---
---	if direction == #MINUS then
---		increment_val *= -1
---
---	increment_val --return
---)
---
---/**
---  */
---macroscript	_maxtoprint_slice_increment_plus
---category:	"_3D-Print"
---buttontext:	"+ \ -"
---tooltip:	"Shift layer UP"
---icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
---(
---	--on execute do
---		--updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
---)
---
---/**
---  */
---macroscript	_maxtoprint_slice_increment_minus
---category:	"_3D-Print"
---buttontext:	"+ \ -"
---tooltip:	"RMB: Shift layer DOWN"
---icon:	""
---(
---	--on execute do
---		--updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
---)
+
+/** Colorize verts per layer
+  */
+macroscript	_maxtoprint_slice_set_stripes_per_layers
+category:	"_3D-Print"
+buttontext:	"Show Layers"
+tooltip:	"Select verts per each 1mm of height"
+icon:	""
+(
+	filein @"c:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
+	on execute do
+	if ( obj = selection[1] ) != undefined then 
+	(
+		--stripe_height = 20 -- number of layers in stripe
+		stripe_height = ( 1 / DIALOG_maxslicer.SPIN_layer_height.value ) as integer -- get number of layers per 1mm
+		
+		first_layer = 0
+		counter     = 0
+		
+		stripes = #{} -- verts in stripes
+		
+		add_verts = true
+		
+		verts_all = #{1..(getNumVerts obj.mesh)}
+		
+		VertIslandFinder = VertIslandFinder_v(obj)
+		
+		VertIslandFinder.verts_all = verts_all
+		
+		VertIslandFinder.verts_process = verts_all
+		
+		
+		verts_layers = VertIslandFinder.sortVertsToLayers()
+	
+		for i = 1 to verts_layers.count while classOf verts_layers[i] != BitArray do  
+			first_layer = i + 1
+
+		format "FIRST_LAYER: %\n" first_layer
+	
+		for i = first_layer to verts_layers.count do
+		(
+			counter += 1
+
+            /* ADD ONLY EVENT SET OF LAYERS */ 			
+			if classOf verts_layers[i] == BitArray and add_verts then
+				stripes += verts_layers[i]
+			
+			--format "%: %\n" i verts_layers[i]
+			
+			
+			if counter == stripe_height then
+			(
+				add_verts = not add_verts
+				
+				counter = 0
+			)
+			
+		)
+		
+		max modify mode
+
+		subobjectLevel = 1
+
+		obj.EditablePoly.SetSelection #Vertex #{}
+		obj.EditablePoly.SetSelection #Vertex stripes
+	)
+	else
+		messageBox "NOTHING SELECTED" title:"Colorize Layers"
+	
+)
 
 
-/*------------------------------------------------------------------------------
-
-	CHECKBOXES
-
---------------------------------------------------------------------------------*/
---/**
---  *
---  */
---macroscript	_maxtoprint_slice_select_volume
---category:	"_3D-Print"
---buttontext:	"Select"
---tooltip:	"Select verts in sliced layer"
---icon:	"control:checkbox|id:#CBX_slice_select_plane|autorun:false|across:4|height:32|offset:[ 26, 0 ]"
---(
---	on execute do
---		(
---			format "EventFired	= % \n" EventFired
---			if EventFired.val then
---				updateSlicePlaneSystem(undefined)
---
---			else
---				for obj in objects where ( _modifier = obj.modifiers[#SELECT_BY_PRINT_LAYER] ) != undefined do
---					deleteModifier obj _modifier
---		)
---)
---
---/**
---  *
---  */
---macroscript	_maxtoprint_slice_plane_top
---category:	"_3D-Print"
---buttontext:	"Slice Top"
---tooltip:	"Slice plane top"
---icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 10, 0 ]"
---(
---	on execute do
---	(
---		format "EventFired	= % \n" EventFired
---
---		if EventFired.val then
---			updateSlicePlaneSystem(undefined)
---
---		else
---			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined do
---				deleteModifier obj _modifier
---	)
---)
---
---
---/**
---  *
---  */
---macroscript	_maxtoprint_slice_plane_bottom
---category:	"_3D-Print"
---buttontext:	"Slice Bottom"
---tooltip:	"Slice plane bottom"
---icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 4, 0 ]"
---(
---	on execute do
---	(
---		format "EventFired	= % \n" EventFired
---
---		if EventFired.val then
---		updateSlicePlaneSystem(undefined)
---
---		else
---			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_BOTTOM] ) != undefined do
---				deleteModifier obj _modifier
---	)
---)
---
---/**
---  *
---  */
---macroscript	_maxtoprint_slice_plane_cap
---category:	"_3D-Print"
---buttontext:	"Cap Slice"
---tooltip:	"Cap Slice plane"
---icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 12, 0 ]"
---(
---	on execute do
---		updateSlicePlaneSystem(undefined)
---)

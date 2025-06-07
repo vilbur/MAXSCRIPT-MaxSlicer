@@ -1,7 +1,7 @@
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/islandsRcMenu.ms" )	--"./../IslandManagerDialog/islandsRcMenu.ms"
 filein( getFilenamePath(getSourceFileName()) + "/IslandsCallbacks.ms" )	--"./IslandsCallbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/islandsRcMenuCallbacks.ms" )	--"./../IslandManagerDialog/islandsRcMenuCallbacks.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/IslandManagerDialog.ms" )	--"./../IslandManagerDialog/IslandManagerDialog.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/createIslandManagerDialog.ms" )	--"./../IslandManagerDialog/createIslandManagerDialog.ms"
 
 
 /** Islands system

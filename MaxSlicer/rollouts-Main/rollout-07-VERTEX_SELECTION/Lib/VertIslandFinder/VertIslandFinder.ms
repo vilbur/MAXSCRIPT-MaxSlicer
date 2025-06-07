@@ -4,67 +4,7 @@
 	2) Get verts in each layer
 	3) Find how many mesh island exsits
 
-
 	4) Test if new or old island - in old, then faces exist in all island
-
-	layer: 100 of: 999
-	vertex_counter_dev: 4559
-	final_time: 6331
-	per vertex: 1.38868
-	TIMER: 6.331 seconds
-	
-	layer: 200 of: 999
-	vertex_counter_dev: 19535
-	final_time: 8494
-	per vertex: 0.434809
-	TIMER: 8.494 seconds
-	
-	layer: 300 of: 999
-	vertex_counter_dev: 43743
-	final_time: 10664
-	per vertex: 0.243788
-	TIMER: 10.664 seconds
-	
-	layer: 400 of: 999
-	vertex_counter_dev: 48423
-	final_time: 11523
-	per vertex: 0.237965
-	TIMER: 11.523 seconds
-	
-	layer: 500 of: 999
-	vertex_counter_dev: 45820
-	final_time: 11097
-	per vertex: 0.242187
-	TIMER: 11.097 seconds
-	
-	layer: 600 of: 999
-	vertex_counter_dev: 43722
-	final_time: 12402
-	per vertex: 0.283656
-	TIMER: 12.402 seconds
-	
-	layer: 700 of: 999
-	vertex_counter_dev: 31978
-	final_time: 10169
-	per vertex: 0.318
-	TIMER: 10.169 seconds
-	
-	layer: 800 of: 999
-	vertex_counter_dev: 31074
-	final_time: 11319
-	per vertex: 0.36426
-	TIMER: 11.319 seconds
-	
-	layer: 900 of: 999
-	vertex_counter_dev: 15468
-	final_time: 7927
-	per vertex: 0.512477
-	TIMER: 7.927 seconds
-	
-	------
-	
-	islands_data.count: 1076
-	ALL_LAYERS_TIMER: 96.53 seconds
 
  */
 struct VertIslandFinder_v

@@ -537,7 +537,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
  	(
-		 format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		 --format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		-- format "obj_type: %\n" obj_type
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft() --"./SupportRaft/SupportRaft.ms"

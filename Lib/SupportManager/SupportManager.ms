@@ -1271,23 +1271,22 @@ struct SupportManager_v
 	function _getSourceObject source_obj =
 	(
 		--format "\n"; print "SupportManager_v._getSourceObject()"
-		pointer = (getHandleByAnim source_obj) as string
 
 		sync_key = getUserPropVal source_obj "SOURCE_KEY"
 
 		if sync_key == undefined then
 		(
-			sync_key = pointer
+			sync_key = (getHandleByAnim source_obj) as string
 
 			setUserPropVal source_obj "SOURCE_KEY" sync_key asString:true
 		)
 
-
+		
 		if SourceObjects[sync_key] == undefined then
 		(
 			SourceObjects[sync_key] = SourceObject_v(source_obj) (sync_key)
 
-			SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent (source_obj)
+			----SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent (source_obj)
 		)
 
 		SourceObjects[sync_key] --return

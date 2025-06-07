@@ -10,8 +10,6 @@ icon:	"across:3|height:32|tooltip:FIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-01-SLICER\Lib\SlicerSystem\createSlicerDialog.ms"
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-01-SLICER\Lib\SlicerSystem\SlicerSystem.ms"
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
 
 		SLICER_SYSTEM.setObjectsBySelection()
 

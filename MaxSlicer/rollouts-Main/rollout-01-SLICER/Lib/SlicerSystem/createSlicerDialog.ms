@@ -89,19 +89,19 @@ function createSlicerDialog =
 	
 	/* EXIT BUTTON */ 
 	btn_exit.Event #PRESSED    "macros.run @_3D-Print@ @print_create_slicerdialog@ " tooltip:"SLICE CURRENT SELECTED OBJECT"
-	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialogAndDeleteModifiers()" tooltip:"EXIT SLICE MODE"
+	btn_exit.Event #RIGHTCLICK "(SlicerCallbacks_v()).desroySliderDialogAndDeleteModifiers()" tooltip:"EXIT SLICE MODE"
 
 	/* SLIDER */ 
-	_slider.Event #CHANGED     "::SlicerCallbacks_v.onSliderChanged(val)"
+	_slider.Event #CHANGED     "(SlicerCallbacks_v()).onSliderChanged(val)"
 	_slider.Event #BUTTONDOWN	"flagForeground SLICER_SYSTEM.obj true"
 	_slider.Event #BUTTONUP	"flagForeground SLICER_SYSTEM.obj false"
 
 	/* SPINNER */ 
-	_spinner.Event #CHANGED "::SlicerCallbacks_v.onSpinnerChanged(val)"
+	_spinner.Event #CHANGED "(SlicerCallbacks_v()).onSpinnerChanged(val)"
 
 	/* PLUS \ MINUS BUTTON  */ 
-	btn_plus_minus.Event #PRESSED    "::SlicerCallbacks_v.onPlusMinusButton( 1 )"
-	btn_plus_minus.Event #RIGHTCLICK "::SlicerCallbacks_v.onPlusMinusButton( -1 )"
+	btn_plus_minus.Event #PRESSED    "(SlicerCallbacks_v()).onPlusMinusButton( 1 )"
+	btn_plus_minus.Event #RIGHTCLICK "(SlicerCallbacks_v()).onPlusMinusButton( -1 )"
 
 	--_dropdown.Event #CHANGED "SLICER_SYSTEM.changeSliderSnamps"
 

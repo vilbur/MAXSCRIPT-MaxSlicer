@@ -27,9 +27,9 @@ struct SlicerCallbacks_v
 
 		layer_index = slice_index + SLICER_SYSTEM.slice_start
 
-		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
+		
 
-		if shift_mode == #LAYERS then
+		if (shift_mode = this._getShiftMode()) == #LAYERS then
 		(
 			slice_modes = SLICER_SYSTEM.slice_modes
 	
@@ -43,37 +43,7 @@ struct SlicerCallbacks_v
 			
 		)
 		else if shift_mode == #VERTS then
-		(
-			--format "SHIFT VERTS\n"
-			--format "SLICER_SYSTEM.verts_layers: %\n" SLICER_SYSTEM.verts_layers
-			SLICER_SYSTEM.deleteModifiers()
-			
-			if ( SLICER_SYSTEM.verts_layers ) == undefined then 
-				SLICER_SYSTEM.setVertsLayers()
-			
-			obj = SLICER_SYSTEM.obj
-			
-			max modify mode
-	
-			subobjectLevel = 1
-	
-			obj.EditablePoly.SetSelection #Vertex #{}
-			
-			verts_in_layer = SLICER_SYSTEM.verts_layers[layer_index]
-			--format "verts_in_layer: %\n" verts_in_layer
-			
-			if classOf verts_in_layer == BitArray then
-			(
-				EpolyVertsSelector = EpolyVertsSelector_v( obj )
-				
-				/* ISOLATE */ 
-				EpolyVertsSelector.isolateVerts verts_in_layer
-				
-				/* SELECT */ 
-				EpolyVertsSelector.setSelection verts_in_layer
-				
-			)
-		)
+			this._showVertsInLayer(layer_index)
 		
 		/* SYNC SPINNER VALUE */
 		SLICER_SYSTEM.setSpinnerValue(layer_index)
@@ -85,14 +55,15 @@ struct SlicerCallbacks_v
 	(
 		--format "\n"; print "SlicerCallbacks_v.spinnerChanged()"
 		--format "layer_index: %\n" layer_index
+		if (shift_mode = this._getShiftMode()) == #LAYERS then
+			/* UPDATE MODIFIER */
+			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
 
-		/* UPDATE MODIFIER */
-		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
-
-		--slice_index = layer_index - SLICER_SYSTEM.slice_start
+		else if shift_mode == #VERTS then
+			this._showVertsInLayer(layer_index)
+			
 		/* SYNC SLIDER VALUE */
 		SLICER_SYSTEM.setSliderValue(layer_index)
-
 	),
 
 	/** Plus minus button
@@ -152,8 +123,8 @@ struct SlicerCallbacks_v
 
 		layer_current	= DIALOG_slicer_slider.SPIN_layer_current.value
 
-		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
-
+		--shift_mode	= this._getShiftMode()
+		
 		shift_island = keyboard.altPressed
 		
 		
@@ -184,59 +155,106 @@ struct SlicerCallbacks_v
 			layer_next = layer_current + increment
 
 			
-			
-		
-		/*==============================================================================
-
-			UPDATE LAYER
-
-		================================================================================*/
-		if layer_next > 0 and layer_next >= SLICER_SYSTEM.slice_start then
+		if (shift_mode = this._getShiftMode()) == #LAYERS then
 		(
-			if not shift_island then
-				vertex_sel_pos = _getPositionsOfSelectedVerts()
-			--format "layer_next: %\n" layer_next
-			--format "slice_start: %\n" SLICER_SYSTEM.slice_start
-
-			with redraw off
+			/*==============================================================================
+	
+				UPDATE LAYER
+	
+			================================================================================*/
+			
+			if layer_next > 0 and layer_next >= SLICER_SYSTEM.slice_start then
 			(
-				/*------------------------------------------------------------------------------
-					UPDATE SLICE MODIFIER
-				--------------------------------------------------------------------------------*/
-				SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
-
-				_findAndReselectVerts(vertex_sel_pos)
-
-				/*------------------------------------------------------------------------------
-					SYNC SLIDER VALUE
-				--------------------------------------------------------------------------------*/
-				SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
-
-				/*------------------------------------------------------------------------------
-					SYNC SPINNER VALUE
-				--------------------------------------------------------------------------------*/
-				SLICER_SYSTEM.setSpinnerValue(layer_next)
-
-				/*------------------------------------------------------------------------------
-					UPDATE ISLAND MANAGER
-				--------------------------------------------------------------------------------*/
-				if shift_island and DIALOG_island_manager != undefined then
+				if not shift_island then
+					vertex_sel_pos = _getPositionsOfSelectedVerts()
+				--format "layer_next: %\n" layer_next
+				--format "slice_start: %\n" SLICER_SYSTEM.slice_start
+	
+				with redraw off
 				(
-					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
-				
-					if subObjectLevel != undefined and subObjectLevel > 0 then
+					/*------------------------------------------------------------------------------
+						UPDATE SLICE MODIFIER
+					--------------------------------------------------------------------------------*/
+					SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
+	
+					_findAndReselectVerts(vertex_sel_pos)
+
+					/*------------------------------------------------------------------------------
+						UPDATE ISLAND MANAGER
+					--------------------------------------------------------------------------------*/
+					if shift_island and DIALOG_island_manager != undefined then
 					(
-						selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
-						format "Selected Islands: %\n" selected_islands
-				
-						ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+						ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+					
+						if subObjectLevel != undefined and subObjectLevel > 0 then
+						(
+							selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+							format "Selected Islands: %\n" selected_islands
+					
+							ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+						)
 					)
 				)
 			)
-
 		)
+		else if shift_mode == #VERTS then
+			this._showVertsInLayer(layer_next)
+	
+		/*------------------------------------------------------------------------------
+			SYNC SLIDER VALUE
+		--------------------------------------------------------------------------------*/
+		SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
+
+		/*------------------------------------------------------------------------------
+			SYNC SPINNER VALUE
+		--------------------------------------------------------------------------------*/
+		SLICER_SYSTEM.setSpinnerValue(layer_next)
 	),
 
+	/** Show verts in layer
+	 */
+	function _showVertsInLayer layer_index =
+	(
+		--format "\n"; print "SlicerCallbacks_v._showVertsInLayer()"
+		--format "SHIFT VERTS\n"
+		--format "SLICER_SYSTEM.verts_layers: %\n" SLICER_SYSTEM.verts_layers
+		SLICER_SYSTEM.deleteModifiers()
+		
+		if ( SLICER_SYSTEM.verts_layers ) == undefined then 
+			SLICER_SYSTEM.setVertsLayers()
+		
+		obj = SLICER_SYSTEM.obj
+		
+		max modify mode
+
+		subObjectLevel = 1
+
+		obj.EditablePoly.SetSelection #Vertex #{}
+		
+		verts_in_layer = SLICER_SYSTEM.verts_layers[layer_index]
+		--format "verts_in_layer: %\n" verts_in_layer
+		
+		if classOf verts_in_layer == BitArray then
+		(
+			EpolyVertsSelector = EpolyVertsSelector_v( obj )
+			
+			/* ISOLATE */ 
+			EpolyVertsSelector.isolateVerts verts_in_layer
+			
+			/* SELECT */ 
+			EpolyVertsSelector.setSelection verts_in_layer
+			
+		)
+	),
+	
+	/** Get shift mode
+	 */
+	function _getShiftMode =
+	(
+		--format "\n"; print "SlicerCallbacks_v._getShiftMode()"
+		#( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
+	),
+	
 	/** Desroy slider dialog and delete modifiers
 	 */
 	function desroySliderDialogAndDeleteModifiers =
@@ -247,6 +265,8 @@ struct SlicerCallbacks_v
 
 		SLICER_SYSTEM.deleteModifiers()
 	),
+	
+	
 
 	/**
 	 */

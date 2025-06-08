@@ -12,6 +12,7 @@ struct EpolyVertsSelector_v
 	/* properties */
 	obj_snapshot, -- store snapshot
 	sub_object_level,
+	vertex_count,
 	
 	/* private */
 	/* dependency */
@@ -186,7 +187,11 @@ struct EpolyVertsSelector_v
 	function _getAllVerts =
 	(
 		--format "\n"; print "EpolyVertsSelector_v._getAllVerts()"
-		#{1..(this._getVertexCount())} --return
+		
+		if vertex_count == undefined then 
+			vertex_count = this._getVertexCount()
+		
+		#{1..vertex_count} --return
 	),
 	
 	/** Get vertex count

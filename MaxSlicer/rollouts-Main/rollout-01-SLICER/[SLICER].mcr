@@ -130,6 +130,26 @@ tooltip:	"Select verts per each 1mm of height"
 icon:	""
 (
 	filein @"c:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
+	
+	/** Get bottom verts
+	 */
+	function getBottomVerts obj =
+	(
+		--format "\n"; print ".getBottomVerts()"
+		PolyToolsSelect.Normal 3 120 true
+
+		if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
+		(
+			subObjectLevel = 1
+			
+			selected_verts = _mod.getSelection #VERTEX
+			
+		)
+		else if classOf _mod  == Editable_Poly then
+			_mod.getSelection #VERTEX
+		
+	)
+	
 	on execute do
 	if ( obj = selection[1] ) != undefined then 
 	(
@@ -145,20 +165,24 @@ icon:	""
 		
 		verts_all = #{1..(getNumVerts obj.mesh)}
 		
+		bottom_verts = getBottomVerts(obj)
+		--format "bottom_verts: %\n" bottom_verts
+		/* SORT VERTS TO LAYERS */ 
 		VertIslandFinder = VertIslandFinder_v(obj)
 		
 		VertIslandFinder.verts_all = verts_all
 		
-		VertIslandFinder.verts_process = verts_all
+		VertIslandFinder.verts_process = bottom_verts
 		
-		
-		verts_layers = VertIslandFinder.sortVertsToLayers()
+		verts_layers = VertIslandFinder.sortVertsToLayers only_verts_process:true
 	
+		/* SERACH FOR INDEX OF FIRST LAYER */ 
 		for i = 1 to verts_layers.count while classOf verts_layers[i] != BitArray do  
 			first_layer = i + 1
 
-		format "FIRST_LAYER: %\n" first_layer
+		--format "FIRST_LAYER: %\n" first_layer
 	
+		/* GET "LAYERS" OF LAYERS */ 
 		for i = first_layer to verts_layers.count do
 		(
 			counter += 1
@@ -167,16 +191,12 @@ icon:	""
 			if classOf verts_layers[i] == BitArray and add_verts then
 				stripes += verts_layers[i]
 			
-			--format "%: %\n" i verts_layers[i]
-			
-			
 			if counter == stripe_height then
 			(
 				add_verts = not add_verts
 				
 				counter = 0
 			)
-			
 		)
 		
 		max modify mode

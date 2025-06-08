@@ -15,9 +15,9 @@ global SET_slicer
 /** Create slicer dialog
   *
   */
-function createSlicerSliderDialog =
+function createSlicerDialog =
 (
-	format "\n"; print "createslicerSliderDialog()"
+	format "\n"; print "createSlicerDialog()"
 
 
 	--getViewportHeight()
@@ -26,7 +26,8 @@ function createSlicerSliderDialog =
 
 	SlicerCallbacks = "::SlicerCallbacks_v"
 
-	controls_height = 86
+	--controls_height = 86
+	controls_height = 96
 
 	--slider_height = SLICER_SYSTEM.viewport_height - ( mod SLICER_SYSTEM.viewport_height 10 ) - 70 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
 	slider_height = SLICER_SYSTEM.viewport_height - controls_height -- round viewport height to ceil 10 E.G.: 1789 >>> 1780

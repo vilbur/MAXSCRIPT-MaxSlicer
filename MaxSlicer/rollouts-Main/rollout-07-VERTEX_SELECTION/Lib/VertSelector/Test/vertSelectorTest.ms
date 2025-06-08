@@ -4,7 +4,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../VertSelector.ms" )	--"./../V
 
 /**
   */
-function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted_pivot:false obj:#PLANE vertex_color: =
+function createSourceMesh obj_type:#BOX segments:8 size:20 vertex_selection:#{}  add_edit_poly:false test_shifted_pivot:false obj:#PLANE vertex_color: =
 (
 	format "\n"; print "MeshVertexGetterTest.ms.createSourceMesh()"
 	delete objects
@@ -13,9 +13,9 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 
 	--obj = Plane length:( segment_size * segments ) width:( segment_size * segments ) pos:[ 0, 0, 300 ] widthsegs:segments lengthsegs:segments backfacecull: off
 
-	--obj = Sphere radius:radius pos:[0,0, 50 ] segments:segments --showVertexColors:true	vertexColorsShaded:true -- diameter 3 cm
+	--obj = Sphere size:size pos:[0,0, 50 ] segments:segments --showVertexColors:true	vertexColorsShaded:true -- diameter 3 cm
 
-	obj = Plane width:20 length:20 pos:[ 50, 20, 50 ] widthsegs:4 lengthsegs:4
+	--obj = Plane width:20 length:20 pos:[ 50, 20, 50 ] widthsegs:4 lengthsegs:4
 
 	--obj = Plane width:60 length:30 pos:[ 50, 20, 50 ] widthsegs:10 lengthsegs:10
 	--obj = Plane width:40 length:30 pos:[ 50, 20, 50 ] widthsegs:40 lengthsegs:30
@@ -31,11 +31,19 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 	--obj = Plane width:30 length:30 pos:[ 50, 20, 50 ] widthsegs:10 lengthsegs:10
 	--obj = Plane width:20 length:20 pos:[ 50, 20, 50 ] widthsegs:4 lengthsegs:4
 
+	obj = case obj_type of
+	(
+		#SPHERE: Sphere pos:[ 0, 0, 50 ] size:size  segments:segments --showVertexColors:true	vertexColorsShaded:true -- diameter 3 cm
+		#PLANE:  Plane  pos:[ 50,20,50 ] width:size length:size widthsegs:segments lengthsegs:segments
+		#BOX:    Box    pos:[ 0, 0, 0  ] width:size length:size height:size widthsegs:segments lengthsegs:segments heightsegs:segments
+	)
+	
+	
 	select obj
 
 	if classOf obj == Plane then
 	(
-		noise_val = radius / 3
+		noise_val = size / 3
 
 		modPanel.addModToSelection (Noisemodifier scale:8 strength:[ noise_val, noise_val, noise_val] ) ui:on
 
@@ -43,12 +51,14 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 
 	)
 
-
-	modPanel.addModToSelection (smooth ()) ui:on
+	--modPanel.addModToSelection (smooth ()) ui:on
 
 	macros.run "Modifier Stack" "Convert_to_Poly"
 
-	if vertex_selection.count > 0 then
+	if add_edit_poly then
+		modPanel.addModToSelection (Edit_Poly ()) ui:on
+	
+	if vertex_selection.count > 0 and not add_edit_poly then
 	(
 		subObjectLevel = 1
 
@@ -61,7 +71,6 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 		obj.EditablePoly.SetSelection #Vertex vertex_selection
 	)
 
-	--modPanel.addModToSelection (Edit_Poly ()) ui:on
 )
 
 
@@ -77,8 +86,10 @@ if selection.count == 0 then
 
 	--createSourceMesh segments:4
 	--createSourceMesh segments:8
+	createSourceMesh segments:8 add_edit_poly:true
+	
 	--createSourceMesh vertex_color:orange segments:16
-	createSourceMesh vertex_color:orange segments:32
+	--createSourceMesh vertex_color:orange segments:32
 	--createSourceMesh vertex_color:orange segments:64
 
 	--createSourceMesh vertex_color:orange segments:128
@@ -98,9 +109,9 @@ if selection.count == 0 then
 
 
 
-/*------------------------------------------------------------------------------
+/*==============================================================================
 	SET CLASS INSTANCE
---------------------------------------------------------------------------------*/
+================================================================================*/
 VertSelector 	= VertSelector_v( selection[1] ) --resolution:10
 
 
@@ -110,35 +121,28 @@ VertSelector 	= VertSelector_v( selection[1] ) --resolution:10
 --VertSelector.resolution = 10
 --VertSelector.resolution = 20
 
---for points_in_square in VertSelector.points_grid do
---	format "points_in_square: %\n" points_in_square
+/*------------------------------------------------------------------------------
+	SELECT VERS
+--------------------------------------------------------------------------------*/
 
+VertSelector.setSelection #{1..10} isolate:true
+--VertSelector.setSelection #{1..10}
 
-
+/*------------------------------------------------------------------------------
+	ISLANDS
+--------------------------------------------------------------------------------*/
 
 --/* LOWEST VERTS - SELECT */
-VertSelector.findIslandsPerLayer(0.05)
+--VertSelector.findIslandsPerLayer(0.05)
 
 
 /* SINGLE VERTICAL PER ISLAND - SELECT */
---VertSelector.getSingleVertPerFaceIsland() -- LOW RESOLUTION FOR TEST THIS WORKS BETTER. VertSelector.resolution = 3
+--VertSelector.selectSingleVertPerFaceIsland() -- LOW RESOLUTION FOR TEST THIS WORKS BETTER. VertSelector.resolution = 3
 
 
-
---/* VERTS BY NORMAL - SELECT */
---VertSelector.getVertsByNormalLimit()
-
-
-/*  */
--- VertSelector.selectMiddleVertsInGrid resolution:5
-
-
-/* CHECKBOARD PATTERN - good method for testing of grid  */
---VertSelector.selectChecker --  mode:#2D is default
-
---VertSelector.selectChecker mode:#3D
-
-
+/*------------------------------------------------------------------------------
+	CONVEXITY
+--------------------------------------------------------------------------------*/
 --timer_CONVEXITY = timeStamp()
 
 /* GET CONVEX VERTICES - try find best points for 3D print support  */
@@ -154,6 +158,19 @@ VertSelector.findIslandsPerLayer(0.05)
 --VertSelector.getConvexVerts mode:#CORNER
 --format "\n getConvexVerts: % ms\n" (( timeStamp()) - timer_CONVEXITY)
 
+
+/*------------------------------------------------------------------------------
+	GRID
+--------------------------------------------------------------------------------*/
+
+/*  */
+-- VertSelector.selectMiddleVertsInGrid resolution:5
+
+
+/* CHECKBOARD PATTERN - good method for testing of grid  */
+--VertSelector.selectChecker --  mode:#2D is default
+
+--VertSelector.selectChecker mode:#3D
 
 /*------------------------------------------------------------------------------
 

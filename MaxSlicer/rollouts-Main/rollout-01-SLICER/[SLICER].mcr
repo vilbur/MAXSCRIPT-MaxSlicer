@@ -18,7 +18,7 @@ icon:	"across:3|height:32|tooltip:FIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n
 		SLICER_SYSTEM.whenSelectionChange()
 
 		/* CREATE SLICE DIALOG */
-		createslicerSliderDialog()
+		createSlicerDialog() --"./Lib/SlicerSystem/createSlicerDialog.ms"
 
 		SLICER_SYSTEM.setSliderByModifier()
 

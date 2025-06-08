@@ -37,6 +37,8 @@ struct VertIslandFinder_v
 	--layer_height,
 
 	/** Find points
+	  * 
+	  * @return Matrix #( #{3..8}, 2 ) vertex numbers in layer, if layer is empty, then layer index is stored
 	 */
 	function sortVertsToLayers =
 	(

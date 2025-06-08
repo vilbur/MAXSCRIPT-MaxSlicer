@@ -25,6 +25,8 @@ struct SlicerSystem_v
 
 	min_z,
 
+	verts_layers,
+	
 	/* private */
 	slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false ),
 
@@ -35,8 +37,6 @@ struct SlicerSystem_v
 	/* dependency */
 	/* reference */
 	/* inhered */
-
-
 
 
 	/** Set slice plane modifier
@@ -74,6 +74,14 @@ struct SlicerSystem_v
 
 		redrawViews()
 
+	),
+	
+	/** Set spinner value
+	 */
+	function setSpinnerValue layer_index =
+	(
+		if DIALOG_slicer_slider != undefined then
+			DIALOG_slicer_slider.SPIN_layer_current.value = layer_index
 	),
 
 	/** Move slider
@@ -160,35 +168,35 @@ struct SlicerSystem_v
 		)
 	),
 
-	--/** Delete modifiers
-	-- */
-	--function deleteModifiers =
-	--(
-	--	format "\n"; print "SlicerSystem_v.deleteModifiers()"
-	--	for key in slice_modifiers.keys do
-	--	(
-	--		slice_modifier = slice_modifiers[key]
-	--
-	--		/* GET OBJECTS WITH MODIFIER INS */
-	--		if (objects_with_modifier = refs.dependentNodes slice_modifiers[key]).count > 0 then
-	--			for obj in objects_with_modifier do
-	--			deleteModifier obj slice_modifiers[key]
-	--	)
-	--
-	--	for obj in objects \
-	--		where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
-	--		or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT_VERTS]) != undefined do
-	--		(
-	--			format "obj.name: %\n" obj.name
-	--			format "poly_select_mod: %\n" poly_select_mod
-	--			format "edit_poly_mod: %\n" edit_poly_mod
-	--			if poly_select_mod != undefined then
-	--				deleteModifier obj poly_select_mod
-	--			
-	--			if edit_poly_mod != undefined then
-	--				deleteModifier obj edit_poly_mod				
-	--		)
-	--),
+	/** Delete modifiers
+	 */
+	function deleteModifiers =
+	(
+		--format "\n"; print "SlicerSystem_v.deleteModifiers()"
+		for key in slice_modifiers.keys do
+		(
+			slice_modifier = slice_modifiers[key]
+	
+			/* GET OBJECTS WITH MODIFIER INS */
+			if (objects_with_modifier = refs.dependentNodes slice_modifiers[key]).count > 0 then
+				for obj in objects_with_modifier do
+				deleteModifier obj slice_modifiers[key]
+		)
+	
+		for obj in objects \
+			where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
+			or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT_VERTS]) != undefined do
+			(
+				--format "obj.name: %\n" obj.name
+				--format "poly_select_mod: %\n" poly_select_mod
+				--format "edit_poly_mod: %\n" edit_poly_mod
+				if poly_select_mod != undefined then
+					deleteModifier obj poly_select_mod
+				
+				if edit_poly_mod != undefined then
+					deleteModifier obj edit_poly_mod				
+			)
+	),
 
 	/** Toggle slice_modifiers
 	 */
@@ -380,15 +388,6 @@ struct SlicerSystem_v
 		this.setSliderValue(layer_index - SLICER_SYSTEM.slice_start)
 	),
 
-	/** Set spinner value
-	 */
-	function setSpinnerValue layer_index =
-	(
-		if DIALOG_slicer_slider != undefined then
-			DIALOG_slicer_slider.SPIN_layer_current.value = layer_index
-	),
-
-
 	/** Dialog exists
 	 */
 	function dialogExists =
@@ -398,6 +397,24 @@ struct SlicerSystem_v
 		GetDialogPos DIALOG_slicer_slider != [0,0]
 	),
 
+	/** Set verts layers
+	 */
+	function setVertsLayers =
+	(
+		format "\n"; print "SlicerSystem_v.setVertsLayers()"
+		format "obj: %\n" obj
+		verts_all = #{1..(getNumVerts obj.mesh)}
+		
+		VertIslandFinder = VertIslandFinder_v(obj)
+		
+		VertIslandFinder.verts_all = verts_all
+		
+		VertIslandFinder.verts_process = verts_all
+		
+		verts_layers = VertIslandFinder.sortVertsToLayers()
+		format "verts_layers: %\n" verts_layers
+	),
+	
 	private
 
 	/** Save edit poly verts visibily

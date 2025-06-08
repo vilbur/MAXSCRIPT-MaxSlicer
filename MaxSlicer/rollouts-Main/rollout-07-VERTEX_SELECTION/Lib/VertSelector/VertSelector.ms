@@ -359,10 +359,11 @@ struct VertSelector_v
 
 	/** Select final selection
 	 */
-	function setSelection sel_bitarray subobject:#VERTEX =
+	function setSelection sel_bitarray subobject:#VERTEX isolate:false =
 	(
-		--format "\n"; print "VertSelector_v.setSelection()"
-		--format "sel_bitarray: %\n" sel_bitarray
+		format "\n"; print "VertSelector_v.setSelection()"
+		format "sel_bitarray: %\n" sel_bitarray
+		format "subobject: %\n" subobject
 
 		--/** Pass vertex selection to editable poly
 		--  *
@@ -396,7 +397,7 @@ struct VertSelector_v
 
 		_mod = modPanel.getCurrentObject()
 
-		setSelectionLevel obj subobject
+		setSelectionLevel _mod subobject
 		--_mod.SetSelection subobject #{}
 
 		if classOf _mod == Edit_Poly then
@@ -407,9 +408,22 @@ struct VertSelector_v
 			--(
 			--	sel_bitarray = getVertsByBaseobject(obj)(sel_bitarray)
 			--)
-			--format "SEL_BITARRAY: %\n" sel_bitarray
-
-			_mod.Select subobject sel_bitarray
+			
+			
+			if isolate and subobject == #VERTEX then
+			(
+				_mod.ButtonOp #UnhideAllVertex
+			
+				_mod.SetSelection #VERTEX #{}
+			
+				_mod.Select #VERTEX sel_bitarray
+			
+				_mod.ButtonOp #HideUnselectedVertex	
+				
+			)
+			else
+				_mod.Select subobject sel_bitarray
+			
 
 		)
 		else if classOf _mod  == Editable_Poly then

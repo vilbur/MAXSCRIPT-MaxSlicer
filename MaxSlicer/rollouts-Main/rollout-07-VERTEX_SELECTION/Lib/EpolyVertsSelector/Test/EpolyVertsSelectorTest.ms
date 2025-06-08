@@ -30,6 +30,8 @@ if selection.count == 0 then
 	
 )
 
+
+
 verts = #{1..4}
 
 obj	= selection[1]
@@ -55,3 +57,5 @@ EpolyVertsSelector.isolateVerts #{1..4}
 
 /* SELECT */ 
 EpolyVertsSelector.setSelection #{1..2}
+
+

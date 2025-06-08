@@ -128,7 +128,7 @@ struct EpolyVertsSelector_v
 	 */
 	function isolateVerts verts =
 	(
-		--format "\n"; print "EpolyVertsSelector_v.isolateVerts()"
+		format "\n"; print "EpolyVertsSelector_v.isolateVerts()"
 		all_verts = this._getAllVerts()
 		
 		this.unhideVerts verts
@@ -160,18 +160,8 @@ struct EpolyVertsSelector_v
 			_mod.ButtonOp #UnhideAllVertex
 			
 			this.hideVerts hidden_verts
-			--format "hidden_verts: %\n" hidden_verts
-			--
-			--
-			--_mod.SetSelection #VERTEX #{}
-			--
-			--_mod.Select #VERTEX hidden_verts
-			
-			--_mod.ButtonOp #HideVertex
-			--
-			--_mod.Select #VERTEX selected_verts
-			
-			delete obj_snapshot
+
+			this.deleteSnapshot()
 
 		)
 		else if classOf _mod  == Editable_Poly then
@@ -191,15 +181,25 @@ struct EpolyVertsSelector_v
 	 */
 	function getHiddenVerts =
 	(
-		format "\n"; print "EpolyVertsSelector_v.hideVerts()"
+		format "\n"; print "EpolyVertsSelector_v.getHiddenVerts()"
 		
 		hidden_verts = this._getHiddenVerts()
 
-		delete obj_snapshot
+		this.deleteSnapshot()
 			
 		hidden_verts --return
 	),
 
+	/** Delete snapshot
+	 */
+	function deleteSnapshot =
+	(
+		--format "\n"; print "EpolyVertsSelector_v.deleteSnapshot()"
+		format "DELETE SNAPSHOT\n"
+
+		delete obj_snapshot
+	),
+	
 	private
 
 	/** Get all verts
@@ -214,7 +214,8 @@ struct EpolyVertsSelector_v
 	 */
 	function _getVertexCount =
 	(
-		--format "\n"; print "EpolyVertsSelector_v._getVertexCount()"
+		format "\n"; print "EpolyVertsSelector_v._getVertexCount()"
+		format "COUNT\n"
 		if classOf _mod == Edit_Poly then
 		(
 			show_end_result = showEndResult 
@@ -254,6 +255,7 @@ struct EpolyVertsSelector_v
 	function _snapshotObjAsEditablePoly =
 	(
 		--format "\n"; print "EpolyVertsSelector_v._snapshotObjAsEditablePoly()"
+		format "SNAPSHOT\n"
 		obj_snapshot = snapshot obj
 	
 		convertTo obj_snapshot PolyMeshObject

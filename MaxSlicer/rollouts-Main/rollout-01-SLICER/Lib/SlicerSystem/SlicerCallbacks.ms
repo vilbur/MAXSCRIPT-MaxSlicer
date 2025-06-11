@@ -218,7 +218,7 @@ struct SlicerCallbacks_v
 		--format "\n"; print "SlicerCallbacks_v._showVertsInLayer()"
 		--format "SHIFT VERTS\n"
 		--format "SLICER_SYSTEM.verts_layers: %\n" SLICER_SYSTEM.verts_layers
-		SLICER_SYSTEM.deleteModifiers()
+		--SLICER_SYSTEM.deleteModifiers()
 		
 		if ( SLICER_SYSTEM.verts_layers ) == undefined then 
 			SLICER_SYSTEM.setVertsLayers()

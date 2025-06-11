@@ -50,7 +50,8 @@ function createSlicerDialog =
 	--------------------------------------------------------------------------------*/
 	min_size = [ 42, -1 ]
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider width:min_size.x min_size:min_size --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    --Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider width:min_size.x min_size:min_size --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider width:min_size.x min_size:min_size ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
@@ -78,7 +79,7 @@ function createSlicerDialog =
 	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:tooltip_btn
 
 
-	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:46 type:#integer offset:[ -6, 0 ]
+	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:46 type:#integer offset:[ -6, 0 ] ini:false
 
 	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
 

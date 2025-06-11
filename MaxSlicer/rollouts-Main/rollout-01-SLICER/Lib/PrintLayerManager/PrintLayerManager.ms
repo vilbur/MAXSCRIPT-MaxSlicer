@@ -1,5 +1,5 @@
-/** Print layer manager
- */
+/*
+*/ 
 struct PrintLayerManager_v
 (
 	/* construct */
@@ -9,7 +9,7 @@ struct PrintLayerManager_v
 	
 
 	/* properties */
-	
+	countour_height = 1, -- height of contour
 
 	/* private */
 	/* dependency */
@@ -22,13 +22,13 @@ struct PrintLayerManager_v
 	(
 		format "\n"; print "PrintLayerManager_v.getLayerContours()"
 
-		--stripe_height = 20 -- number of layers in stripe
-		stripe_height = ( 1 / DIALOG_maxslicer.SPIN_layer_height.value ) as integer -- get number of layers per 1mm
+		--layers_per_contour = 20 -- number of layers in stripe
+		layers_per_contour = ( countour_height / DIALOG_maxslicer.SPIN_layer_height.value ) as integer -- get number of layers per 1mm
 		
 		first_layer = 0
 		counter     = 0
 		
-		stripes = #{} -- verts in stripes
+		contours = #{} -- verts in contours
 		
 		add_verts = true
 		
@@ -58,9 +58,9 @@ struct PrintLayerManager_v
 
 			/* ADD ONLY EVENT SET OF LAYERS */ 
 			if classOf verts_layers[i] == BitArray and add_verts then
-				stripes += verts_layers[i]
+				contours += verts_layers[i]
 			
-			if counter == stripe_height then
+			if counter == layers_per_contour then
 			(
 				add_verts = not add_verts
 				
@@ -73,7 +73,7 @@ struct PrintLayerManager_v
 		subobjectLevel = 1
 
 		obj.EditablePoly.SetSelection #Vertex #{}
-		obj.EditablePoly.SetSelection #Vertex stripes
+		obj.EditablePoly.SetSelection #Vertex contours
 
 		
 		
@@ -86,7 +86,7 @@ struct PrintLayerManager_v
 	function _getBottomVerts obj =
 	(
 		--format "\n"; print "._getBottomVerts()"
-		PolyToolsSelect.Normal 3 120 true
+		PolyToolsSelect.Normal 3 150 true
 
 		if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
 		(

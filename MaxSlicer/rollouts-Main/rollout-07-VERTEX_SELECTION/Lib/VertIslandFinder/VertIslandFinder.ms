@@ -43,7 +43,7 @@ struct VertIslandFinder_v
 	function sortVertsToLayers only_verts_process:false =
 	(
 		format "\n"; print "VertIslandFinder_v.sortVertsToLayers()"
-		format "VERTS_PROCESS: %\n" verts_process
+		--format "VERTS_PROCESS: %\n" verts_process
 
 		verts_pos = in coordsys world meshop.getVerts obj.mesh verts_all node:obj
 

@@ -114,10 +114,10 @@ struct SupportModifiers_v
 	function _chamferSetup chamfer_mod amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
 	(
 		--format "\n"; print "SupportModifiers_v._chamfer()"
-		
+
 		if chamfer_mod.name as name == #TOP_WIDTH then
 			this._addCustomAttributes chamfer_mod "TOP_WIDTH" "Top Width" SUPPORT_OPTIONS.top_width
-			--this._addCustomAttributesToChamfer chamfer_mod
+			
 			
 		chamfer_mod.selectionoption = case selection_option of
 		(
@@ -176,8 +176,8 @@ struct SupportModifiers_v
 	 */
 	function _addCustomAttributes _mod param_name _label default_val =
 	(
-		--format "\n"; print "SupportModifiers_v._addCustomAttributes()"
-	
+		format "\n"; print "SupportModifiers_v._addCustomAttributes()"
+		format "_MOD.NAME: %\n" _mod.name
 		ctrl_name = "spn_" + param_name
 	
 		ca_def_string =
@@ -191,19 +191,20 @@ struct SupportModifiers_v
 				rollout params \"MaxSlicer\"
 				(
 					spinner " + ctrl_name + " \"" + _label + "\" type:#float range:[ 0.1, 100, 1 ]
-				)
-				
-				on "+ctrl_name+" changed val do
-				(
-				   obj = (refs.dependentNodes this)[1]
-
-				   obj.modifiers[#"+param_name+"].amount.controller.update()
+					
+					on "+ctrl_name+" changed val do
+					(
+						obj = (refs.dependentNodes this)[1]
+					
+						--format \"obj: %\\n\" obj
+						
+						--obj.modifiers[#"+param_name+"].amount.controller.update()
+					)
 				)
 
 			)"
 	
-		--format "CA_DEF_STRING: %\n" ca_def_string
-			
+		format "CA_DEF_STRING: %\n" ca_def_string
 		custAttributes.add _mod (execute ca_def_string)
 	),
 	

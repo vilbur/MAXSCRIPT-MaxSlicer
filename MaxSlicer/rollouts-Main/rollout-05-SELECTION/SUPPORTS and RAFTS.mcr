@@ -56,7 +56,7 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 	function selectVertsBySupports =
 	(
 		format "\n"; print ".selectVertsBySupports()"
-
+		
 		_objects = selection as Array
 		
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
@@ -92,6 +92,8 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 		if SourceObjects.count == 1 then
 		(
 			select SourceObjects[1].obj
+			
+			max modify mode
 
 			subObjectLevel = 1
 		)

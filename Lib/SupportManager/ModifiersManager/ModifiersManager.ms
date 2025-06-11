@@ -307,32 +307,32 @@ struct ModifiersManager_v
 		/** Add bar width variable
 		 */
 		--function addBarWidthVariable obj _float_script = _float_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+		
+		/* CONNECT MODIFIERS OF SUPPORT AND RAFT */ 
 		top_width_script = float_script ()
-		base_width_script = float_script ()
 		
 		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
-		obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
 		
-		
-		--addBarWidthVariable obj top_width_script
-		--addBarWidthVariable obj base_width_script
 		top_width_script.addTarget  "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-		base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-		
 		
 		top_width_script.addTarget "MaxSlicerParameters"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
-		base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
-		
 		
 		top_width_script.script  = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
-		base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		
-		--top_width_script.addNode "obj"  obj
-		--base_width_script.addNode "obj" obj
-		--
-		--
-		--top_width_script.script  = "(((bar_width.radius * 2.0) - obj.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
-		--base_width_script.script = "(( obj.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		
+		/* CONNECT MODIFIERS ONLY OF SUPPORT */ 
+		if obj.modifiers[#BASE_WIDTH] != undefined then
+		(
+			base_width_script = float_script ()
+			
+			obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
+			
+			base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+			
+			base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
+			
+			base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		)
 	),
 
 	private

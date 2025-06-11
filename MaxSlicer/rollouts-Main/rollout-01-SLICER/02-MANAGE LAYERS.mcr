@@ -8,13 +8,13 @@ buttontext:	"Show Layers"
 tooltip:	"Select verts per each 1mm of height"
 icon:	""
 (
-	filein @"c:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
+	--filein @"c:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
+	on execute do
+	(
+        PrintLayerManager = PrintLayerManager_v( selection[1] )
 	
-
-	
-	--on execute do
-	
-
+        PrintLayerManager.getLayerContours()
+	)
 )
 
 

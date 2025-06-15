@@ -38,9 +38,6 @@ struct VertexColorProcessor_v
 			if not polyop.getMapSupport obj 0 then
 				polyop.setMapSupport obj 0 true
 
-			--if classOf curr_mod != Editable_Poly then
-				--this.obj = obj.baseobject
-
 			true --return
 		)
 		else
@@ -55,41 +52,23 @@ struct VertexColorProcessor_v
 	 */
 	function setVertexColor verts clr =
 	(
-		--format "4) --------------- SET VERTEX COLOR\n"
-
 		--format "\n"; print "VertexColorProcessor_v.setVertexColor()"
-		--format "obj: %\n" obj
-		--format "verts: %\n" verts
-		--format "clr: %\n" clr
-		--format "VertexColors: %\n" VertexColors
+
 		VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
 
 		verts_base = this._getBaseObjectVerts(verts)
-		--format "VERTS_BASE: %\n" verts_base
-
-		start_map_verts = timeStamp()
-		--format "start_map_verts()\n"
 
 
 		vertex_count	= getNumVerts obj.mesh
 		CPV_verts 	= getNumCPVVerts obj.mesh
 
-		--format "vertex_count: %\n" vertex_count
-		--format "CPV_verts: %\n" CPV_verts
-
 		 if getNumVerts obj.baseobject.mesh != getNumCPVVerts obj.baseobject.mesh then
 			this.resetCPVVerts()
 
-		--map_verts = (VertexColors.MeshVertToColorVertexConvert.meshVertsToMapVerts (verts_base) flat:true )
-
-		--start_update_chache = timeStamp()
 		this._updateCache(verts_base)(clr as string )
-		--format "update_chache: % ms\n" (( timeStamp()) - start_update_chache)
 
-		--start_setVertColor = timeStamp()
 		polyop.setVertColor obj 0 verts_base (clr)
-		--format "setVertColor: % ms\n" (( timeStamp()) - start_setVertColor)
-
+		
 		/* REDRAW VIEWPORT - redrawViews() is hiding verts */
 		subObjectLevel = 0
 		subObjectLevel = 1
@@ -103,8 +82,7 @@ struct VertexColorProcessor_v
 	function byColor method colors =
 	(
 		--format "\n"; print "VertexColorProcessor_v.byColor()"
-		--format "method: %\n" method
-		--format "colors: %\n" colors
+
 		verts_by_colors = #{}
 
 		/* GET VERTS BY COLORS */ 
@@ -132,8 +110,6 @@ struct VertexColorProcessor_v
 	function byVerts method verts =
 	(
 		--format "\n"; print "VertexColorProcessor_v.byVerts()"
-		--format "method: %\n" method
-		--format "3: %\n" verts
 
 		verts_by_colors = #{}
 
@@ -151,7 +127,7 @@ struct VertexColorProcessor_v
 	function resetCPVVerts =
 	(
 		--format "\n"; print "VertexColorProcessor_v.resetCPVVerts()"
-		--format "\n----------\nRESET CPV VERTS\n"
+
 		/* GET ALL VERTS SORTED BY COLORS */
 		colors = VertexColors.getVertsAndColors()
 
@@ -190,19 +166,11 @@ struct VertexColorProcessor_v
 	(
 		format "\n"; print "VertexColorProcessor_v.selectVerts()"
 		format "verts_baseobject: %\n" verts_baseobject
-		--format "classOf curr_mod: %\n" (classOf curr_mod)
-		--max modify mode
-		--subObjectLevel = 1
 
 		curr_mod.SetSelection #VERTEX #{}
 
 		if classOf curr_mod == Edit_Poly then
 			curr_mod.Select #VERTEX (this._getEditPolyVerts (verts_baseobject))
-		--(
-		--	edit_poly_verts = this._getEditPolyVerts (verts_baseobject)
-		--	format "edit_poly_verts: %\n" edit_poly_verts
-		--	curr_mod.Select #VERTEX (edit_poly_verts)
-		--)
 
 		else if classOf curr_mod  == Editable_Poly then
 			curr_mod.SetSelection #VERTEX verts_baseobject

@@ -30,6 +30,8 @@ struct VertexColors_v
 
 	/* required */
 	/* properties */
+	obj_snapshot,
+	
 	obj_mesh = obj.baseobject.mesh,
 
 	verts_by_colors	= Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
@@ -83,7 +85,7 @@ struct VertexColors_v
 		if verts.numberSet == 0 then
 			verts = #{1..(getNumVerts obj_mesh)}
 
-		this._setVertsByColors (verts) exclude:exclude
+		this._getVertsByColors (verts) exclude:exclude
 		
 		if flat then
 		(
@@ -116,7 +118,7 @@ struct VertexColors_v
 		if verts.numberSet == 0 then
 			verts = #{1..(getNumVerts obj_mesh)}
 		
-		this._setVertsByColors (verts) exclude:exclude
+		this._getVertsByColors (verts) exclude:exclude
 
 		colored_verts = #{}
 
@@ -132,7 +134,7 @@ struct VertexColors_v
 		--format "\n"; print "VertexColors_v.getVertsWithSameColors()"
 		verts_by_colors_flat = #{}
 
-		this._setVertsByColors (verts)
+		this._getVertsByColors (verts)
 
 		for color_verts in verts_by_colors do verts_by_colors_flat += color_verts.value
 
@@ -146,7 +148,6 @@ struct VertexColors_v
 		--format "\n"; print "VertexColors_v._getVertColor()"
 
 		--format "verts_by_colors: %\n" verts_by_colors
-		--map_verts_of_mesh_vert = makeUniqueArray (MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true )
 		map_verts_of_mesh_vert = MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true
 
 		color_of_vert = this._searchNewVertexColor (verts_by_colors) (map_verts_of_mesh_vert)
@@ -184,7 +185,6 @@ struct VertexColors_v
 				color_of_vert = this._searchNewVertexColor (colors) (map_verts_of_mesh_vert)
 
 				mesh_verts_by_color = meshop.getVertsByColor obj_mesh color_of_vert 0.01 0.01 0.01 	-- get all verts by that color
-				--mesh_verts_by_color = meshop.getVertsByColor obj_mesh color_of_vert 10 10 10  	-- get all verts by that color
 
 				colors[ color_of_vert as string ] = mesh_verts_by_color
 
@@ -204,48 +204,28 @@ struct VertexColors_v
 
 	/** Get colors of verts
 	 */
-	function _setVertsByColors verts_get_colors exclude: =
+	function _getVertsByColors verts_get_colors exclude: =
 	(
-		-- format "\n"; print "VertexColors_v._setVertsByColors()"
+		-- format "\n"; print "VertexColors_v._getVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
-		--format "pointer: %\n" pointer
-		--format "VERTEX_COLORS_CACHE: %\n" VERTEX_COLORS_CACHE
 
 		colors = VERTEX_COLORS_CACHE[pointer]
-
-		--format "-------------\nCACHE\n"
-		--if colors != undefined then
-			--for colors_data in colors do format "COLOR: %	VERTS: %\n" colors_data.key colors_data.value
 
 		all_verts_empty = #{1..obj_mesh.numverts}
 
 		all_verts_empty *= #{}
 
-
 		if colors == undefined then
 			colors = VERTEX_COLORS_CACHE[pointer] = this.getAllVertsAndColors()
 
-		--format "-------------\nCOLORS\n"
-		--for colors_data in colors do format "COLOR: %	VERTS: %\n" colors_data.key colors_data.value
+		verts_by_colors = Dictionary #STRING
 
+		for colors_data in colors where not (verts_of_color = (colors_data.value * verts_get_colors)).isEmpty do
+			if findItem exclude colors_data.key == 0 then
+				verts_by_colors[ colors_data.key ] = (all_verts_empty + verts_of_color)
 
-		--if verts_get_colors.numberSet != obj_mesh.numverts  then
-		--(
-			verts_by_colors = Dictionary #STRING
-
-			for colors_data in colors where not (verts_of_color = (colors_data.value * verts_get_colors)).isEmpty do
-				if findItem exclude colors_data.key == 0 then
-					verts_by_colors[ colors_data.key ] = (all_verts_empty + verts_of_color)
-
-
-		--format "-------------\nCACHE UPDATED\n"
-		--for colors_data in colors do format "COLOR: %	VERTS: %\n" colors_data.key colors_data.value
-
-			verts_by_colors --return
-		--)
-		--else
-		--	colors --return
+		verts_by_colors --return
 	),
 
 	/** Loop map verts of single mesh vert
@@ -257,9 +237,6 @@ struct VertexColors_v
 	function _searchNewVertexColor colors map_verts =
 	(
 		--format "\n"; print "VertexColors_v._searchNewVertexColor()"
-		--format "map_verts: %\n" map_verts
-		--format "this.colors: %\n" this.colors
-		--format "COLOR: %\n" (getvertcolor obj_mesh map_verts[1])
 		local color_of_vert
 
 		i = 1
@@ -274,14 +251,21 @@ struct VertexColors_v
 	 */
 	function whiteVertsExists colors = hasDictValue colors ( white as string ),
 
-
 	/**
 	 */
 	on create do
 	(
 		--format "2) --------------- VERTEXCOLORS\n"
 		--format "\n"; print "VertexColors_v.onCreate()"
-		--ConvexVertFinder	= ConvexVertFinder_v(obj)
+		--format "obj: %\n" obj
+		
+		if classOf obj.baseobject != Editable_Poly then
+		(
+			obj_snapshot = obj
+			
+			obj = snapshot obj
+		)
+		
 		MeshVertToColorVertexConvert	= MeshVertToColorVertexConvertor_v(obj)
 	)
 )

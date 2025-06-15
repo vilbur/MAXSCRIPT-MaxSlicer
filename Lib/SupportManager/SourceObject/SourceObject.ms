@@ -596,6 +596,8 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject.onCreate()"
 		--format "obj: %\n" obj
+		
+		
 		VertexColors = VertexColors_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
@@ -603,6 +605,6 @@ struct SourceObject_v
 		this._saveObjectRotation()
 
 		Normals = SourceObjectNormals_v(obj)
-		--this._initNormalsLocalArray()
+
 	)
 )

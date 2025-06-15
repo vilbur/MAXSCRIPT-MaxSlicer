@@ -5,7 +5,7 @@
 /** Prepare object
  */
 	
-function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefined =
+function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefined collapse_object:true  =
 (
 	--format "\n"; print ".createTestObjectPackman()"
 	/** Set verts colors
@@ -56,7 +56,9 @@ function createTestObjectPackman radius:50 pos_z:undefined verts_colors:undefine
 	
 	addModifier obj ( meshsmooth sepBySmGroups:true )
 	
-	convertTo obj PolyMeshObject
+	
+	if collapse_object then
+		convertTo obj PolyMeshObject
 	
 	setVertsColors(obj)(verts_colors)
 	

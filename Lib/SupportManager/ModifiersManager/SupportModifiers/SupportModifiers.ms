@@ -176,8 +176,8 @@ struct SupportModifiers_v
 	 */
 	function _addCustomAttributes _mod param_name _label default_val =
 	(
-		format "\n"; print "SupportModifiers_v._addCustomAttributes()"
-		format "_MOD.NAME: %\n" _mod.name
+		-- format "\n"; print "SupportModifiers_v._addCustomAttributes()"
+		-- format "_MOD.NAME: %\n" _mod.name
 		ctrl_name = "spn_" + param_name
 	
 		ca_def_string =
@@ -204,7 +204,7 @@ struct SupportModifiers_v
 
 			)"
 	
-		format "CA_DEF_STRING: %\n" ca_def_string
+		-- format "CA_DEF_STRING: %\n" ca_def_string
 		custAttributes.add _mod (execute ca_def_string)
 	),
 	

@@ -139,7 +139,7 @@ obj = if selection.count != 0 then selection[1] else
 	SET RANDOM VERTEX SELECTION, IF NOT SET BU USER
 --------------------------------------------------------------------------------*/
 --
-vertex_count	= getNumVerts obj.mesh
+--vertex_count	= getNumVerts obj.mesh
 --vertex_sel	= getVertSelection obj.mesh
 --
 --verts_first = random 1 vertex_count
@@ -158,7 +158,7 @@ vertex_count	= getNumVerts obj.mesh
 /*--------------------------------------------------------------------
 	SET EXACT VERTEX COLORS
 --------------------------------------------------------------------------------*/
-setVertsColors()
+--setVertsColors()
 
 /*==============================================================================
 		RUN TESTS

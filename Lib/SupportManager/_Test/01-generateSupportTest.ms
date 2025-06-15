@@ -35,7 +35,9 @@ verts_colors[ "green"	] = #{ 42 }
 verts_colors[ "gray"	] = #{ 32 }
 verts_colors[ clr_cyan	] = #{ 59 }
 
-/* CREATE TEST OBJECT */
+/*==============================================================================
+	CREATE TEST OBJECT
+================================================================================*/
 obj = $PackMan
 
 pos_z = 0.2 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
@@ -51,7 +53,7 @@ pos_z = 10
 (
 	delete objects
 	
-	obj = createTestObjectPackman pos_z:pos_z verts_colors:verts_colors
+	obj = createTestObjectPackman pos_z:pos_z verts_colors:verts_colors collapse_object:false
 )
 
 
@@ -69,9 +71,9 @@ select_verts += verts_colors["orange"]
 if select_verts.numberSet > 0 then
 	obj.EditablePoly.SetSelection #Vertex select_verts
 
-/*------------------------------------------------------------------------------
+/*==============================================================================
 	SET GENERATOR OPTIONS
-------------------------------------------------------------------------------*/
+================================================================================*/
 SUPPORT_OPTIONS	= SupportOptions_v()
 
 
@@ -120,9 +122,9 @@ SUPPORT_OPTIONS.lock_normal_length = false
 /* FOOT ENABLED */
 -- SUPPORT_OPTIONS.foot_enabled = false
 
-/*------------------------------------------------------------------------------
+/*==============================================================================
 	GENERATE SUPPORTS
---------------------------------------------------------------------------------*/
+================================================================================*/
 
 MODIFIERS_MANAGER	= ModifiersManager_v()
 SUPPORT_MANAGER	= SupportManager_v()
@@ -150,12 +152,18 @@ generateSupportsOrRafts obj_type:obj_type
 
 
 
-/*------------------------------------------------------------------------------
 
+
+
+
+
+
+
+/*==============================================================================
+	
 	POST TEST
-
---------------------------------------------------------------------------------*/
-
+	
+================================================================================*/
 -- move $ ( [2.04037e-06,-14.1112,2.17744] - $.pos )
 
 --all_supports = $'*-support-*'

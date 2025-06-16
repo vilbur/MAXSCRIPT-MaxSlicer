@@ -36,8 +36,6 @@ struct VertexPaintMod_v
 		this.paint_layer_mod = PaintLayerMod()
 
 		addModifier this.obj this.paint_layer_mod
-		
-		this.obj.showVertexColors = on
 	),
 	
 	/** Set paint layer mod
@@ -49,38 +47,22 @@ struct VertexPaintMod_v
 	 */
 	function setPaintLayerMod =
 	(
-		format "\n"; print "VertexPaintMod_v.setPaintLayerMod()"
-		format "paint_layer_mod: %\n" this.paint_layer_mod
-		for _mod in this.obj.modifiers do 
-			format "classOf _mod: %\n" (classOf _mod)
-		
+		--format "\n"; print "VertexPaintMod_v.setPaintLayerMod()"
 		for _mod in this.obj.modifiers where classOf _mod == PaintLayerMod do
 			this.paint_layer_mod = _mod
-		--for l in _mod.modifiers where classof l == PaintLayerMod do
-		(
-			-- return first found layer
-			--this.paint_layer_mod =l -- return
-		)
-		format "paint_layer_mod: %\n" this.paint_layer_mod
-
 	),
 	
-	/* 
-	Acquire paint state from modifier on node
-	Returns paint state object
+	/*  Acquire paint state from modifier on node
+		Returns paint state object
 	*/
 	function setPaintState =
 	(
-		format "\n"; print "VertexPaintMod_v.setPaintState()"
-		format "this.obj: %\n" this.obj
-		format "this.paint_layer_mod: %\n" this.paint_layer_mod
+		--format "\n"; print "VertexPaintMod_v.setPaintState()"
+		--format "this.obj: %\n" this.obj
+		completeRedraw() -- WITHOUT THIS LINE AcquirePaintState returns undefined
+		--max modify mode
 		this.paint_state = this.paint_layer_mod.AcquirePaintState this.obj -- return
-		--wtf = this.paint_layer_mod.AcquirePaintState this.obj -- return
-		--format "wtf: %\n" wtf
-		--this.paint_state = wtf
-		
 	),
-		
 	
 	/* Set raw color by 1-based index, then apply to object
 	*/
@@ -109,6 +91,8 @@ struct VertexPaintMod_v
 	*/
 	function setVertexColor vertex_index color =
 	(
+		this.obj.showVertexColors = on
+		
 		this.paint_state.SetVertColor vertex_index ( color as Point4 )
 		
 		paint_layer_mod.ApplyPaintState this.obj paint_state

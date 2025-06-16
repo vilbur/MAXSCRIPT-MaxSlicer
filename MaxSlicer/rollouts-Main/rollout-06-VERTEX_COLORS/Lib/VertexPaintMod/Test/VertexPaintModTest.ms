@@ -4,19 +4,64 @@ filein( getFilenamePath(getSourceFileName()) + "/../VertexPaintMod.ms" )	--"./..
 
 delete objects
 
-obj = Box showVertexColors:true
+obj1 = Box()
 
-paint_layer_mod = PaintLayerMod()
+/* PaintLayerMod MODIFIER MUST BE ADDED - VertexPaint modifier doesn't work */ 
+VertexPaintMod = VertexPaintMod_v(obj1)
+--VertexPaintMod = VertexPaintMod_v(Box())
 
-addModifier obj paint_layer_mod
+VertexPaintMod.addPaintLayerMod()
+VertexPaintMod.setPaintState()
 
--- Example usage:
-VertexPaintMod = VertexPaintMod_v(obj)(paint_layer_mod)
 format "VertexPaintMod: %\n" VertexPaintMod
 
 VertexPaintMod.setVertexColor 1 red
  
-_vertex_color = VertexPaintMod.getVertexAverageColor 1
+--_vertex_color = VertexPaintMod.getVertexAverageColor 1
+--VertexPaintMod.setVertexColor 1 red
 
-format "_vertex_color: %\n" (_vertex_color as color ) 
+format "\n===================================\n"
 
+obj2 = Sphere showVertexColors:true isSelected:on
+--convertToPoly obj2
+_paint_layer_mod = PaintLayerMod()
+addModifier obj2 _paint_layer_mod
+
+_VertexPaintMod = VertexPaintMod_v(obj2)
+--_VertexPaintMod.paint_layer_mod = _paint_layer_mod
+
+_VertexPaintMod.setPaintLayerMod()
+_VertexPaintMod.setPaintState()
+--
+format "_VertexPaintMod: %\n" _VertexPaintMod
+
+_VertexPaintMod.setVertexColor 1 red
+
+--format "\n===================================\n"
+--
+--
+--VertexPaintMod = VertexPaintMod_v()
+--
+--VertexPaintMod.createVertexPaintBox()
+--VertexPaintMod.setPaintState()
+--
+--format "VertexPaintMod: %\n" VertexPaintMod
+----
+----
+--VertexPaintMod.setVertexColor 1 red
+
+--
+--obj = $Sphere001
+----_paint_layer_mod = PaintLayerMod()
+----addModifier obj2 _paint_layer_mod
+--
+--_VertexPaintMod = VertexPaintMod_v(obj2)
+----_VertexPaintMod.paint_layer_mod = _paint_layer_mod
+--
+--_VertexPaintMod.setPaintLayerMod()
+--_VertexPaintMod.setPaintState()
+----
+--format "_VertexPaintMod: %\n" _VertexPaintMod
+--
+--_VertexPaintMod.setVertexColor 1 red
+--_VertexPaintMod.setVertexColor 2 green

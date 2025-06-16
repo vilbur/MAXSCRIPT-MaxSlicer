@@ -17,16 +17,70 @@ struct VertexPaintMod_v
 	/* dependency */
 	/* reference */
 	/* inhered */
-	
+		/*  Create geometry object with VertexPaint modifier and enable vertex colors
+		Returns tuple #(node, modifier)
+	*/
+	function createVertexPaintBox =
+	(
+		--this.obj = this.obj
+		this.obj = box()
 
+		this.addPaintLayerMod()
+	),
+	
+	/** Add paint layer mod
+	 */
+	function addPaintLayerMod = 
+	(
+		--format "\n"; print "for.addPaintLayerMod()"
+		this.paint_layer_mod = PaintLayerMod()
+
+		addModifier this.obj this.paint_layer_mod
+		
+		this.obj.showVertexColors = on
+	),
+	
+	/** Set paint layer mod
+	  * IMPORTATNT:
+	  *   1) PaintLayerMod MODIFIER MUST BE ADDED
+	  *   2) VertexPain    MODIFIER DOESN'T WORK - EVEN IF classOf(PaintLayerMod()) == classOf(VertexPaint())
+	  *   
+
+	 */
+	function setPaintLayerMod =
+	(
+		format "\n"; print "VertexPaintMod_v.setPaintLayerMod()"
+		format "paint_layer_mod: %\n" this.paint_layer_mod
+		for _mod in this.obj.modifiers do 
+			format "classOf _mod: %\n" (classOf _mod)
+		
+		for _mod in this.obj.modifiers where classOf _mod == PaintLayerMod do
+			this.paint_layer_mod = _mod
+		--for l in _mod.modifiers where classof l == PaintLayerMod do
+		(
+			-- return first found layer
+			--this.paint_layer_mod =l -- return
+		)
+		format "paint_layer_mod: %\n" this.paint_layer_mod
+
+	),
+	
 	/* 
 	Acquire paint state from modifier on node
 	Returns paint state object
 	*/
 	function setPaintState =
 	(
-		this.paint_state = paint_layer_mod.AcquirePaintState obj -- return
+		format "\n"; print "VertexPaintMod_v.setPaintState()"
+		format "this.obj: %\n" this.obj
+		format "this.paint_layer_mod: %\n" this.paint_layer_mod
+		this.paint_state = this.paint_layer_mod.AcquirePaintState this.obj -- return
+		--wtf = this.paint_layer_mod.AcquirePaintState this.obj -- return
+		--format "wtf: %\n" wtf
+		--this.paint_state = wtf
+		
 	),
+		
 	
 	/* Set raw color by 1-based index, then apply to object
 	*/
@@ -34,7 +88,7 @@ struct VertexPaintMod_v
 	(
 		paint_state.SetRawColor raw_index ( color as Point4 )
 		
-		paint_layer_mod.ApplyPaintState obj paint_state
+		paint_layer_mod.ApplyPaintState this.obj paint_state
 	),
 
 	/* Set raw color by 1-based index, then apply to object
@@ -57,7 +111,7 @@ struct VertexPaintMod_v
 	(
 		this.paint_state.SetVertColor vertex_index ( color as Point4 )
 		
-		paint_layer_mod.ApplyPaintState obj paint_state
+		paint_layer_mod.ApplyPaintState this.obj paint_state
 	),
 
 	/* Get average color of a vertex from paint state
@@ -73,7 +127,7 @@ struct VertexPaintMod_v
 	(
 		paint_state.SetFaceColor face_index ( color as Point4 )
 		
-		paint_layer_mod.ApplyPaintState obj paint_state
+		paint_layer_mod.ApplyPaintState this.obj paint_state
 	),
 
 	/* Get average color of a face from paint state
@@ -93,7 +147,7 @@ struct VertexPaintMod_v
 		
 		paint_state.SetRawColor raw_index color_mapped
 		
-		paint_layer_mod.ApplyPaintState obj paint_state
+		paint_layer_mod.ApplyPaintState this.obj paint_state
 	),
 
 	/* Capture existing vertex colors into VertexPaint modifier using specific map channel
@@ -102,16 +156,17 @@ struct VertexPaintMod_v
 	(
 		paint_layer_mod.mapChannel = map_channel
 		
-		paint_layer_mod.MergeVertexColors obj
+		paint_layer_mod.MergeVertexColors this.obj
 		
-		paint_layer_mod.AcquirePaintState obj -- return
+		paint_layer_mod.AcquirePaintState this.obj -- return
 	),
 
 	on create do
 	(
-		format "paint_layer_mod: %\n" paint_layer_mod
-		format "obj: %\n" obj
-		--this.state = this.setPaintState paint_layer_mod obj
-		this.setPaintState()
+		this.setPaintLayerMod()
+
+		if this.paint_layer_mod != undefined then
+			this.setPaintState()
 	)
 )
+

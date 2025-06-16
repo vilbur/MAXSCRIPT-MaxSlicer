@@ -1,4 +1,4 @@
-clearListener(); print("Cleared in:\n"+getSourceFileName())
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 /*  Struct for managing VertexPaint modifier and paint states
 	Provides public functions for various color manipulations

@@ -1,11 +1,11 @@
---clearListener(); print("Cleared in:\n"+getSourceFileName())
---filein( getFilenamePath(getSourceFileName()) + "/../VertexColorProcessor.ms" )	--"./../VertexColorProcessor.ms"
+clearListener(); print("Cleared in:\n"+getSourceFileName())
+filein( getFilenamePath(getSourceFileName()) + "/../VertexColorProcessor.ms" )	--"./../VertexColorProcessor.ms"
 
 
 
 /**
   */
-function createSourceMesh segments:8 add_modifiers:false =
+function createSourceMesh segments:8 =
 (
 	format "\n"; print "MeshVertexGetterTest.ms.createSourceMesh()"
 	delete objects
@@ -19,13 +19,6 @@ function createSourceMesh segments:8 add_modifiers:false =
 	obj.showVertexColors	= true
 	obj.vertexColorsShaded	= true
 
-	--if add_modifiers then
-	(
-		--addModifier obj (meshsmooth())
-
-		addModifier obj (Edit_Poly())
-	)
-
 
 	obj --return
 )
@@ -38,9 +31,12 @@ function createSourceMesh segments:8 add_modifiers:false =
 
 obj = if selection.count == 0 then
 (
+	delete objects
+	
 	--createSourceMesh()
-	createSourceMesh segments:16
-	--createSourceMesh segments:16 add_modifiers:true
+	--createSourceMesh segments:16
+	--createSourceMesh segments:16 add_Edit_Poly:true
+	createSourceMesh segments:16 add_vertex_paint:true
 	--createSourceMesh segments:64
 	--createSourceMesh segments:128
 	--createSourceMesh segments:1024
@@ -52,6 +48,12 @@ else
 	selection[1]
 
 
+/*------------------------------------------------------------------------------
+	ADD MODIFIERS 
+--------------------------------------------------------------------------------*/
+
+addModifier obj (Edit_Poly())
+addModifier obj (PaintLayerMod())
 
 
 /*------------------------------------------------------------------------------
@@ -63,7 +65,7 @@ else
 
 ColorProcessor = VertexColorProcessor_v(obj)
 
-ColorProcessor.setVertexColor #{1..3} red
+--ColorProcessor.setVertexColor #{1..3} red
 --ColorProcessor.setVertexColor #{4..6} green
 --ColorProcessor.setVertexColor #{7..9} blue
 
@@ -90,6 +92,6 @@ ColorProcessor.setVertexColor #{1..3} red
 
 
 /* ISOLATE VERTS */
-ColorProcessor.byColor #ISOLATE white
+--ColorProcessor.byColor #ISOLATE white
 --ColorProcessor.byColor #ISOLATE #( red, blue )
 --ColorProcessor.byVerts #ISOLATE #{1,4,7}

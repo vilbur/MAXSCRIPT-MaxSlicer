@@ -1,3 +1,6 @@
+filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../VertexPaintMod/VertexPaintMod.ms" )	--"./../VertexPaintMod/VertexPaintMod.ms"
+
 /** Manage verts and their vertex colors
   * 
   * Set vertex COlor
@@ -21,32 +24,12 @@ struct VertexColorProcessor_v
 	/* private */
 	/* dependency */
 	VertexColors,
-	--MeshVertToColorVertexConvert,
+	VertexPaintMod,
 
 	/* reference */
 	/* inhered */
 
-	/** Test map verts
-	 */
-	function _initObject =
-	(
-		--format "\n"; print "VertexColorProcessor_v._initObject()"
-		--format "TEST: %\n" ( polyop.getMapSupport obj 0)
 
-		if obj != undefined or classOf obj.baseobject != Editable_Poly then
-		(
-			if not polyop.getMapSupport obj 0 then
-				polyop.setMapSupport obj 0 true
-
-			true --return
-		)
-		else
-		(
-			messageBox "Select Editable Poly Object" title:"VertexColorProcessor"
-
-			false --return
-		)
-	),
 
 	/** Set vertex color
 	 */
@@ -363,16 +346,22 @@ struct VertexColorProcessor_v
 	(
 		format "\n"; print "IslandsSystem.VertexColorProcessor_v()"
 
-		format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-		--messageBox "Yupiii" title:"Title"  beep:false
 		curr_mod	= modPanel.getCurrentObject()
-		--format "curr_mod: %\n" curr_mod
-
-		if this._initObject() then
+		/*------------------------------------------------------------------------------
+			SET this.VertexPaintMod
+		--------------------------------------------------------------------------------*/
+		for _mod in this.obj.modifiers where classOf _mod == PaintLayerMod do
+		     this.VertexPaintMod = VertexPaintMod_v(this.obj) paint_layer_mod:_mod
+		
+		/*------------------------------------------------------------------------------
+			SET this.VertexColors
+		--------------------------------------------------------------------------------*/
+		if classOf obj.baseobject == Editable_Poly then
+		(
 			VertexColors	= VertexColors_v(obj)
-
-		--MeshVertToColorVertexConvert	= MeshVertToColorVertexConvertor_v(obj)
-
-		--VertexColors.MeshVertToColorVertexConvert = MeshVertToColorVertexConvert
+			
+			if not polyop.getMapSupport obj 0 then
+				polyop.setMapSupport obj 0 true
+		)
 	)
 )

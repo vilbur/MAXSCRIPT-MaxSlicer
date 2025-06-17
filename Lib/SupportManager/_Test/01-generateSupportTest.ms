@@ -6,7 +6,8 @@ global MODIFIERS_MANAGER
 global SUPPORT_OPTIONS	
 global SUPPORT_MANAGER	
 
-filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../../MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../../MaxSlicer/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportManager.ms" )	--"./../SupportManager.ms"
 
@@ -53,7 +54,7 @@ pos_z = 10
 (
 	delete objects
 	
-	obj = createTestObjectPackman pos_z:pos_z verts_colors:verts_colors collapse_object:false
+	obj = createTestObjectPackman pos_z:pos_z verts_colors:verts_colors collapse_object:true
 )
 
 
@@ -134,7 +135,7 @@ obj_type = #SUPPORT
 -- obj_type = #RAFT
 
 /* GENERATE */
-generateSupportsOrRafts obj_type:obj_type
+--generateSupportsOrRafts obj_type:obj_type
 
 
 --format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width

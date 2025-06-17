@@ -169,14 +169,12 @@ VertexColors = VertexColors_v(obj)
 
 
 /* GET ALL VERTS SORTED BY COLORS */
---all_verts_by_colors = VertexColors.getVertsAndColors()
-
-/* print result */ 
---for color_data in all_verts_by_colors do format "COLOR: %	VERTS: %\n" color_data.key color_data.value
+all_verts_by_colors = VertexColors.getVertsAndColors()
+for color_data in all_verts_by_colors do format "COLOR: %	VERTS: %\n" color_data.key color_data.value
 
 /* GET COLORS OF ALL VERTS SORTED BY VERT */
-all_verts_by_colors_flat = VertexColors.getVertsAndColors flat:true
-format "all_verts_by_colors_flat: %\n" all_verts_by_colors_flat
+--all_verts_by_colors_flat = VertexColors.getVertsAndColors flat:true
+--format "all_verts_by_colors_flat: %\n" all_verts_by_colors_flat
 
 
 ----/* GET ALL VERTS SORTED BY COLORS OF SELECTED VERTS */

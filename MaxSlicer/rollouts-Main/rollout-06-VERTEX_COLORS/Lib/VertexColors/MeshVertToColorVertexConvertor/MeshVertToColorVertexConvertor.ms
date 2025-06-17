@@ -32,7 +32,8 @@ struct MeshVertToColorVertexConvertor_v
 	(
 		--format "\n"; print "MeshVertToColorVertexConvertor_v.meshVertsToMapVerts()"
 
-		obj_mesh = obj.baseobject.mesh
+		--obj_mesh = obj.baseobject.mesh
+		obj_mesh = if classOf obj != TriMesh then obj.baseobject.mesh else obj
 
 		/** Get map vert from face
 		 */

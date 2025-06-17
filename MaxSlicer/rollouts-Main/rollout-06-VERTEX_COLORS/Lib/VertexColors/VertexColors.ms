@@ -32,7 +32,7 @@ struct VertexColors_v
 	/* properties */
 	obj_snapshot,
 	
-	obj_mesh = obj.baseobject.mesh,
+	--obj.mesh,
 
 	verts_by_colors	= Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
 	/* private */
@@ -49,7 +49,7 @@ struct VertexColors_v
 	(
 		--format "\n"; print "VertexColors_v.getVertexColorsOfSelkection()"
 
-		vertex_sel	= getVertSelection obj_mesh
+		vertex_sel	= getVertSelection obj.mesh
 
 		verts_by_colors =  this.getVertsAndColors verts:vertex_sel
 
@@ -78,12 +78,13 @@ struct VertexColors_v
 	  */
 	function getVertsAndColors verts:#{} exclude:#() flat:false =
 	(
-		-- format "\n"; print "VertexColors_v.getVertsByColor()"
+		 --format "\n"; print "VertexColors_v.getVertsAndColors()"
+		 --format "obj: %\n" obj
 		--format "verts: %\n" verts
 		--format "flat: %\n" flat
 		--format "verts.numberSet: %\n" verts.numberSet
 		if verts.numberSet == 0 then
-			verts = #{1..(getNumVerts obj_mesh)}
+			verts = #{1..(getNumVerts obj.mesh)}
 
 		this._getVertsByColors (verts) exclude:exclude
 		
@@ -116,7 +117,7 @@ struct VertexColors_v
 		appendIfUnique exclude ( white as string )
 
 		if verts.numberSet == 0 then
-			verts = #{1..(getNumVerts obj_mesh)}
+			verts = #{1..(getNumVerts obj.mesh)}
 		
 		this._getVertsByColors (verts) exclude:exclude
 
@@ -159,13 +160,10 @@ struct VertexColors_v
 	 */
 	function getAllVertsAndColors =
 	(
-		--format "\n"; print "VertexColors_v.getAllVertsAndColors()"
+		format "\n"; print "VertexColors_v.getAllVertsAndColors()"
 		local color_of_vert
-
-		vertex_count	= getNumVerts obj_mesh
-		CPV_verts 	= getNumCPVVerts obj_mesh
-
-		verts_get_colors = #{1..obj_mesh.numverts}
+			
+		verts_get_colors = #{1..obj.mesh.numverts}
 
 		colors = Dictionary #STRING
 
@@ -174,23 +172,28 @@ struct VertexColors_v
 		MeshVertToColorVertexConvert.get_single_vert = true
 
 		/* IF VERTEX COLORS EXISTS */
-		if  (getNumCPVVerts obj_mesh != 0) then
+		if  getNumCPVVerts obj.mesh != 0 then
 		(
+	--format "\n===================================\n"
 			while not verts_get_colors.isEmpty do
 			(
+				format "\n"
+				
 				mesh_vert = ( verts_get_colors as Array )[1]
-
+				
+				verts_get_colors[mesh_vert] = false
+				
 				map_verts_of_mesh_vert = makeUniqueArray (MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true )
-
+	
 				color_of_vert = this._searchNewVertexColor (colors) (map_verts_of_mesh_vert)
-
-				mesh_verts_by_color = meshop.getVertsByColor obj_mesh color_of_vert 0.01 0.01 0.01 	-- get all verts by that color
-
+	
+				mesh_verts_by_color = meshop.getVertsByColor obj.mesh color_of_vert 0.01 0.01 0.01 	-- get all verts by that color
+	
 				colors[ color_of_vert as string ] = mesh_verts_by_color
-
+	
 				verts_get_colors -= mesh_verts_by_color
 			)
-
+	
 			/* REMOVE MULTI COLORED VERTS FROM WHITE - (if one of vert colors is not white, then vert is not white) */
 			if this.whiteVertsExists(colors) then
 				for clr in colors.keys  where clr != white_clr do
@@ -206,13 +209,13 @@ struct VertexColors_v
 	 */
 	function _getVertsByColors verts_get_colors exclude: =
 	(
-		-- format "\n"; print "VertexColors_v._getVertsByColors()"
+		 format "\n"; print "VertexColors_v._getVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
 
 		colors = VERTEX_COLORS_CACHE[pointer]
 
-		all_verts_empty = #{1..obj_mesh.numverts}
+		all_verts_empty = #{1..obj.mesh.numverts}
 
 		all_verts_empty *= #{}
 
@@ -241,7 +244,7 @@ struct VertexColors_v
 
 		i = 1
 
-		while map_verts[i] != undefined and hasDictValue colors ( (color_of_vert = getvertcolor obj_mesh map_verts[i]) as string )  do
+		while map_verts[i] != undefined and hasDictValue colors ( (color_of_vert = getvertcolor obj.mesh map_verts[i]) as string )  do
 			i += 1
 
 		color_of_vert --return
@@ -256,16 +259,14 @@ struct VertexColors_v
 	on create do
 	(
 		--format "2) --------------- VERTEXCOLORS\n"
-		--format "\n"; print "VertexColors_v.onCreate()"
-		--format "obj: %\n" obj
-		
+
 		if classOf obj.baseobject != Editable_Poly then
 		(
 			obj_snapshot = obj
 			
-			obj = snapshot obj
+			this.obj = snapshotAsMesh obj
 		)
 		
-		MeshVertToColorVertexConvert	= MeshVertToColorVertexConvertor_v(obj)
+		MeshVertToColorVertexConvert	= MeshVertToColorVertexConvertor_v(this.obj)
 	)
 )

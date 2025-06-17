@@ -56,17 +56,20 @@ struct SourceObject_v
  		supports_exists = Supports.keys as BitArray
 
 		verts_by_colors = this._getVertsByColors()
-
+		format "VERTS_BY_COLORS: %\n" verts_by_colors
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		--format "colored_verts: %\n" colored_verts
+		format "COLORED_VERTS: %\n" colored_verts
 
+		/* GEt SELECTED or COLORED verts */ 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-		--format "VERTS_PROCESS: %\n" verts_process
-		--format "VERTS_PROCESS: %\n" verts_process.numberSet
 		
 		
 		if verts_process.isEmpty then
-			messageBox "No selected or colored verts found" title:"MISSING VERTICES" 
+		(
+			messageBox "Selected or colored verts NOT FOUND" title:"MISSING VERTICES" 
+			
+			return NewSupportObjects
+		)
 		
 		/*------------------------------------------------------------------------------
 			NORMALS OF VERTS
@@ -81,18 +84,6 @@ struct SourceObject_v
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
 		
-		
-		/*------------------------------------------------------------------------------
-			SORT VERTS BY COLORS
-		--------------------------------------------------------------------------------*/
-		
-		verts_by_colors_process = Dictionary #STRING
-		
-		for vertex_color in verts_by_colors.keys do
-			verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
-		
-		--format "verts_by_colors.keys: %\n" verts_by_colors.keys
-		--format "verts_by_colors: %\n" verts_by_colors
 			
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS
@@ -101,12 +92,23 @@ struct SourceObject_v
 		verts_pos = this.getVertsPositions(verts_process)
 		
 		
+		
+		/*------------------------------------------------------------------------------
+			SORT VERTS BY COLORS
+		--------------------------------------------------------------------------------*/
+		
+		--verts_by_colors_process = Dictionary #STRING
+		
+		for vertex_color in verts_by_colors.keys do
+			verts_by_colors[vertex_color] *= verts_process
+			--verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
+		
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
 		
-		for vertex_color in verts_by_colors_process.keys do
-			for vert in verts_by_colors_process[vertex_color] where not supports_exists[vert]  do
+		for vertex_color in verts_by_colors.keys do
+			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
 				--format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
@@ -517,9 +519,13 @@ struct SourceObject_v
 	 */
 	function _getVertsByColors =
 	(
-		-- format "\n"; print "SourceObject_v._getVertsByColors()"
+		 --format "\n"; print "SourceObject_v._getVertsByColors()"
+		 
+		if VertexColors == undefined then 
+			VertexColors = VertexColors_v(obj)
+
 		verts_by_colors = VertexColors.getVertsAndColors()
-		--format "verts_by_colors: %\n" verts_by_colors
+		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
 		verts_by_colors[ obj.wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
@@ -597,8 +603,7 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject.onCreate()"
 		--format "obj: %\n" obj
 		
-		
-		VertexColors = VertexColors_v(obj)
+		--VertexColors = VertexColors_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
 

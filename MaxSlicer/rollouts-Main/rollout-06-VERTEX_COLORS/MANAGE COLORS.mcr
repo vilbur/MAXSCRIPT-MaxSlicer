@@ -29,7 +29,7 @@ icon:	"across:3|MENU:true"
 			for obj in selection do
 			(
 				obj.showVertexColors = state
-				obj.vertexColorsShaded = on
+				obj.vertexColorsShaded = false
 				obj.vertexColorType = 0
 			)
 		)

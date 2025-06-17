@@ -35,26 +35,39 @@ struct VertexColorProcessor_v
 	 */
 	function setVertexColor verts clr =
 	(
-		--format "\n"; print "VertexColorProcessor_v.setVertexColor()"
+		format "\n"; print "VertexColorProcessor_v.setVertexColor()"
+		if VertexPaintMod != undefined then
+		(
+			format "VertexPaintMod: %\n" VertexPaintMod
+			
+			VertexPaintMod.setVertexColor verts clr
 
-		VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
-
-		verts_base = this._getBaseObjectVerts(verts)
-
-
-		vertex_count	= getNumVerts obj.mesh
-		CPV_verts 	= getNumCPVVerts obj.mesh
-
-		 if getNumVerts obj.baseobject.mesh != getNumCPVVerts obj.baseobject.mesh then
-			this.resetCPVVerts()
-
-		this._updateCache(verts_base)(clr as string )
-
-		polyop.setVertColor obj 0 verts_base (clr)
+		)
+		else
 		
-		/* REDRAW VIEWPORT - redrawViews() is hiding verts */
-		subObjectLevel = 0
-		subObjectLevel = 1
+		if VertexColors != undefined then
+		(
+			format "VertexColors: %\n" VertexColors
+			VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
+	
+			verts_base = this._getBaseObjectVerts(verts)
+	
+	
+			vertex_count	= getNumVerts obj.mesh
+			CPV_verts 	= getNumCPVVerts obj.mesh
+	
+			 if getNumVerts obj.baseobject.mesh != getNumCPVVerts obj.baseobject.mesh then
+				this.resetCPVVerts()
+	
+			this._updateCache(verts_base)(clr as string )
+	
+			polyop.setVertColor obj 0 verts_base (clr)
+			
+			/* REDRAW VIEWPORT - redrawViews() is hiding verts */
+			subObjectLevel = 0
+			subObjectLevel = 1
+			
+		)
 	),
 
 	/** Process operation on verts by vertex color

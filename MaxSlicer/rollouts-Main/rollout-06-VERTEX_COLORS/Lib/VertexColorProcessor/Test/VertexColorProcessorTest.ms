@@ -28,10 +28,11 @@ function createSourceMesh segments:8 =
 /*--------------------------------------------------------------------
 	CREATE TEST OBJECTS
 --------------------------------------------------------------------------------*/
+delete objects
 
-obj = if selection.count == 0 then
+--obj = if selection.count == 0 then
+obj = 
 (
-	delete objects
 	
 	--createSourceMesh()
 	--createSourceMesh segments:16
@@ -44,30 +45,34 @@ obj = if selection.count == 0 then
 	--createSourceMesh segments:64 vertex_selection:#{1..32} vertex_color:red
 	--createSourceMesh segments:8 vertex_selection:#{1..8} vertex_color:red
 )
-else
-	selection[1]
+--else
+	--selection[1]
 
+/*==============================================================================
+	CONFIGURE OBJECT
+================================================================================*/
 
+--convertTo obj PolyMeshObject
 /*------------------------------------------------------------------------------
 	ADD MODIFIERS 
 --------------------------------------------------------------------------------*/
 
-addModifier obj (Edit_Poly())
+--addModifier obj (meshsmooth())
+--addModifier obj (Edit_Poly())
 addModifier obj (PaintLayerMod())
 
 
-/*------------------------------------------------------------------------------
+/*==============================================================================
 
-	RUN VERTEX COLROS METHODS
+		RUN VERTEX COLORS TEST
 
---------------------------------------------------------------------------------*/
-
+================================================================================*/
 
 ColorProcessor = VertexColorProcessor_v(obj)
 
---ColorProcessor.setVertexColor #{1..3} red
---ColorProcessor.setVertexColor #{4..6} green
---ColorProcessor.setVertexColor #{7..9} blue
+ColorProcessor.setVertexColor #{1..3} red
+ColorProcessor.setVertexColor #{4..6} green
+ColorProcessor.setVertexColor #{7..9} blue
 
 
 /* SELECT VERTS */

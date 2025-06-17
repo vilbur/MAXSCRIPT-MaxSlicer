@@ -89,11 +89,16 @@ struct VertexPaintMod_v
 
 	/* Set color on vertex index (affects all entries of vertex), apply to object
 	*/
-	function setVertexColor vertex_index color =
+	function setVertexColor vertex_indexes color =
 	(
 		this.obj.showVertexColors = on
 		
-		this.paint_state.SetVertColor vertex_index ( color as Point4 )
+		if superClassOf vertex_indexes == Number then
+			vertex_indexes = #{vertex_indexes}
+		
+		for vertex_index in vertex_indexes do 
+			this.paint_state.SetVertColor vertex_index ( color as Point4 )
+		
 		
 		paint_layer_mod.ApplyPaintState this.obj paint_state
 	),
@@ -102,9 +107,36 @@ struct VertexPaintMod_v
 	*/
 	function getVertexAverageColor vertex_index =
 	(
+		
 		paint_state.GetVertAverageColor vertex_index -- return
 	),
-
+	
+	/** Get verts and colors
+	 */
+	function getVertsAndColors =
+	(
+		format "\n"; print "for.getVertsAndColors()"
+		verts_by_colors	= Dictionary #STRING -- KEY:color as string VALUE:#{ verts of color }
+		vertex_count = getNumVerts obj.mesh
+--format "vertex_count: %\n" vertex_count
+		for v = 1 to vertex_count do
+		(
+			vertex_color = ((this.getVertexAverageColor v) as color ) as string
+			
+			if verts_by_colors[vertex_color] == undefined then 
+				verts_by_colors[vertex_color] = #{}
+			
+			verts_by_colors[vertex_color][v] = true
+			--format "vertex_color: %\n" (vertex_color as color )
+		)
+		
+		
+		--colors_num = this.getNumRawColors()
+		
+		--format "colors_num: %\n" colors_num
+		verts_by_colors --return
+	),
+	
 	/* Set color on a face (affects all entries of face), apply to object
 	*/
 	function setFaceColor face_index color =

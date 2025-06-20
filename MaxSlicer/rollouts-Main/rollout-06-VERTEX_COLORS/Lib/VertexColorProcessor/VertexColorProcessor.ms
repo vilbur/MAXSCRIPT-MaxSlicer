@@ -35,19 +35,30 @@ struct VertexColorProcessor_v
 	 */
 	function setVertexColor verts clr =
 	(
-		format "\n"; print "VertexColorProcessor_v.setVertexColor()"
+		-- format "\n"; print "VertexColorProcessor_v.setVertexColor()"
+		--format "VertexPaintMod: %\n" VertexPaintMod
+		--format "VertexColors:   %\n" VertexColors
+		if VertexPaintMod == undefined and VertexColors == undefined  then
+		(
+			VertexPaintMod = VertexPaintMod_v(obj)
+			
+			VertexPaintMod.addPaintLayerMod()
+			
+			VertexPaintMod.setPaintState()
+		)
+
+
 		if VertexPaintMod != undefined then
 		(
-			format "VertexPaintMod: %\n" VertexPaintMod
+			--format "VertexPaintMod: %\n" VertexPaintMod
 			
 			VertexPaintMod.setVertexColor verts clr
-
 		)
 		else
 		
 		if VertexColors != undefined then
 		(
-			format "VertexColors: %\n" VertexColors
+			--format "VertexColors: %\n" VertexColors
 			VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
 	
 			verts_base = this._getBaseObjectVerts(verts)
@@ -77,8 +88,22 @@ struct VertexColorProcessor_v
 	 */
 	function byColor method colors =
 	(
-		--format "\n"; print "VertexColorProcessor_v.byColor()"
+		 -- format "\n"; print "VertexColorProcessor_v.byColor()"
+		 -- format "colors: %\n" colors
+		 --format "obj: %\n" obj
+		
+		if VertexColors == undefined then
+			VertexColors	= VertexColors_v(obj)
 
+		
+		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
+		(
+			curr_mod = Edit_Poly()
+
+			addModifier obj (curr_mod)
+		)
+			
+			
 		verts_by_colors = #{}
 
 		/* GET VERTS BY COLORS */ 
@@ -86,8 +111,11 @@ struct VertexColorProcessor_v
 		(
 			if classOf colors != Array then colors = #(colors)
 			
-			all_verts_by_colors = VertexColors.getVertsAndColors()
-	
+			--all_verts_by_colors = VertexColors.getVertsAndColors()
+			all_verts_by_colors = VertexColors.getAllVertsAndColors()
+			 --format "all_verts_by_colors: %\n" all_verts_by_colors
+			 --format "all_verts_by_colors.keys: %\n" all_verts_by_colors.keys
+			 
 			for clr in colors where (verts_of_color = all_verts_by_colors[ clr as string ]) != undefined do
 				verts_by_colors += verts_of_color
 			
@@ -107,6 +135,18 @@ struct VertexColorProcessor_v
 	(
 		--format "\n"; print "VertexColorProcessor_v.byVerts()"
 
+		if VertexColors == undefined then
+			VertexColors	= VertexColors_v(obj)
+
+		
+		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
+		(
+			curr_mod = Edit_Poly()
+
+			addModifier obj (curr_mod)
+		)
+		
+		
 		verts_by_colors = #{}
 
 		all_verts_by_colors = VertexColors.getVertsAndColors()
@@ -160,14 +200,15 @@ struct VertexColorProcessor_v
 	 */
 	function _selectVerts verts_baseobject =
 	(
-		format "\n"; print "VertexColorProcessor_v.selectVerts()"
-		format "verts_baseobject: %\n" verts_baseobject
-
+		-- format "\n"; print "VertexColorProcessor_v.selectVerts()"
+		-- format "verts_baseobject: %\n" verts_baseobject
+		-- format "curr_mod: %\n" curr_mod
 		curr_mod.SetSelection #VERTEX #{}
-
+		
 		if classOf curr_mod == Edit_Poly then
-			curr_mod.Select #VERTEX (this._getEditPolyVerts (verts_baseobject))
-
+			curr_mod.Select #VERTEX (verts_baseobject)
+			--curr_mod.Select #VERTEX (this._getEditPolyVerts (verts_baseobject))
+		
 		else if classOf curr_mod  == Editable_Poly then
 			curr_mod.SetSelection #VERTEX verts_baseobject
 	),
@@ -176,15 +217,18 @@ struct VertexColorProcessor_v
 	 */
 	function _hideVerts verts =
 	(
-		--format "\n"; print "VertexColorProcessor_v._HideVerts()"
+		-- format "\n"; print "VertexColorProcessor_v._hideVerts()"
+		-- format "verts: %\n" verts
 
 		if classOf curr_mod == Edit_Poly then
 		(
-			curr_mod.SetSelection #VERTEX #{}
+			original_selection	= curr_mod.GetSelection #Vertex
 
-			curr_mod.Select #VERTEX verts
+			this._selectVertsEditablePoly verts
 
 			curr_mod.ButtonOp #HideVertex
+			
+			this._selectVertsEditablePoly original_selection
 		)
 		else if classOf curr_mod  == Editable_Poly then
 			polyop.setHiddenVerts curr_mod verts
@@ -195,12 +239,14 @@ struct VertexColorProcessor_v
 	 */
 	function _unhideVerts verts_unhide =
 	(
-		format "\n"; print "VertexColorProcessor_v._unhideVerts()"
+		-- format "\n"; print "VertexColorProcessor_v._unhideVerts()"
 
 		if classOf curr_mod == Edit_Poly then
 		(
 			verts_mesh_all	= #{1..( getNumVerts obj.mesh)}
 
+			original_selection	= curr_mod.GetSelection #Vertex
+			
 			curr_mod.SetSelection #VERTEX verts_mesh_all
 
 			visible_verts	= curr_mod.GetSelection #Vertex
@@ -209,13 +255,11 @@ struct VertexColorProcessor_v
 
 			curr_mod.ButtonOp #UnhideAllVertex
 
-			curr_mod.SetSelection #VERTEX #{}
-
-			curr_mod.SetSelection #VERTEX hidden_verts
+			this._selectVertsEditablePoly hidden_verts
 
 			curr_mod.ButtonOp #HideVertex
 
-			curr_mod.Select #VERTEX visible_verts
+			this._selectVertsEditablePoly original_selection
 		)
 		else if classOf curr_mod  == Editable_Poly then
 		(
@@ -228,6 +272,16 @@ struct VertexColorProcessor_v
 
 			polyop.setHiddenVerts obj ( hidden_verts - verts_unhide )
 		)
+	),
+	
+	/** Select verts editable poly
+	 */
+	function _selectVertsEditablePoly verts =
+	(
+		--format "\n"; print "VertexColorProcessor_v.selectVertsEditablePoly()"
+		curr_mod.SetSelection #VERTEX #{}
+
+		curr_mod.SetSelection #VERTEX verts
 	),
 
 	/**  hide verts
@@ -264,9 +318,9 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		format "\n"; print "VertexColorProcessor_v._getBaseObjectVerts()"
-		format "verts: %\n" verts
-		format "classof curr_mod: %\n" (classof curr_mod)
+		-- format "\n"; print "VertexColorProcessor_v._getBaseObjectVerts()"
+		-- format "verts: %\n" verts
+		-- format "classof curr_mod: %\n" (classof curr_mod)
 
 
 		if classof curr_mod == Edit_Poly and verts.numberSet > 0 and ( vertex_count_mesh = getNumVerts obj.mesh ) != ( vertex_count_baseobject = polyop.getNumVerts obj.baseobject) then
@@ -277,18 +331,18 @@ struct VertexColorProcessor_v
 
 			timer_verts_positions = timeStamp()
 			verts_positions = in coordsys world polyop.getVerts obj verts node:obj
-			format "verts_positions: % ms\n" (( timeStamp()) - timer_verts_positions)
+			-- format "verts_positions: % ms\n" (( timeStamp()) - timer_verts_positions)
 
 			timer_verts_pos_baseobjects = timeStamp()
 			verts_pos_baseobjects = in coordsys world  polyop.getVerts obj.baseobject verts_base_all node:obj
-			format "verts_pos_baseobjects: % ms\n" (( timeStamp()) - timer_verts_pos_baseobjects)
+			-- format "verts_pos_baseobjects: % ms\n" (( timeStamp()) - timer_verts_pos_baseobjects)
 
 
 			timer_loop = timeStamp()
 			for vert_pos in verts_positions where (vert = findItem verts_pos_baseobjects (vert_pos)) > 0 do
 				verts_baseobject[vert] = true
 
-			format "loop: % ms\n" (( timeStamp()) - timer_loop)
+			-- format "loop: % ms\n" (( timeStamp()) - timer_loop)
 
 			verts_baseobject --return
 		)
@@ -302,7 +356,7 @@ struct VertexColorProcessor_v
 	 */
 	function _getEditPolyVerts verts_baseobject  =
 	(
-		format "\n"; print "VertexColorProcessor_v._getEditPolyVerts()"
+		-- format "\n"; print "VertexColorProcessor_v._getEditPolyVerts()"
 		verts_edit_poly = #()
 
 		verts_mesh_all = #{1..( getNumVerts obj.mesh)}
@@ -357,9 +411,15 @@ struct VertexColorProcessor_v
 	 */
 	on create do
 	(
-		format "\n"; print "IslandsSystem.VertexColorProcessor_v()"
+		-- format "\n"; print "IslandsSystem.VertexColorProcessor_v()"
 
+		/*------------------------------------------------------------------------------
+			SET this.curr_mod
+		--------------------------------------------------------------------------------*/
+		max modify mode
+		
 		curr_mod	= modPanel.getCurrentObject()
+		
 		/*------------------------------------------------------------------------------
 			SET this.VertexPaintMod
 		--------------------------------------------------------------------------------*/

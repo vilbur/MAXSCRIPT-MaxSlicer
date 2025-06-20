@@ -13,12 +13,9 @@ function createSourceMesh segments:8 =
 	--if  obj == unsupplied then
 	obj = Sphere radius:15 pos:[0,0, 50 ] segments:16 isSelected:on --showVertexColors:true	vertexColorsShaded:true -- diameter 3 cm
 
-	macros.run "Modifier Stack" "Convert_to_Poly"
-
 	/* VERTEX COLORS */
 	obj.showVertexColors	= true
-	obj.vertexColorsShaded	= true
-
+	obj.vertexColorsShaded	= false
 
 	obj --return
 )
@@ -60,6 +57,8 @@ obj =
 --addModifier obj (meshsmooth())
 --addModifier obj (Edit_Poly())
 addModifier obj (PaintLayerMod())
+--addModifier obj (Edit_Poly())
+--addModifier obj (Poly_Select())
 
 
 /*==============================================================================
@@ -69,27 +68,27 @@ addModifier obj (PaintLayerMod())
 ================================================================================*/
 
 ColorProcessor = VertexColorProcessor_v(obj)
-
+--
 ColorProcessor.setVertexColor #{1..3} red
 ColorProcessor.setVertexColor #{4..6} green
-ColorProcessor.setVertexColor #{7..9} blue
-
-
-/* SELECT VERTS */
---ColorProcessor.byColor #SELECT green
---ColorProcessor.byColor #SELECT #( red, blue )
+--ColorProcessor.setVertexColor #{7..9} blue
+--
+--
+--/* SELECT VERTS */
+ColorProcessor.byColor #SELECT #( red, green )
+--ColorProcessor.byColor #SELECT blue
 --ColorProcessor.byVerts #SELECT #{1,4,7}
 
 
 /* HIDE VERTS */
---ColorProcessor.byColor #HIDE white
---ColorProcessor.byColor #HIDE #( red, blue )
+ColorProcessor.byColor #HIDE white
+--ColorProcessor.byColor #HIDE #( red, green )
 --ColorProcessor.byVerts #HIDE #{1,4,7}
 
 
 
 /* UNHIDE VERTS */
---ColorProcessor.byColor #UNHIDE white
+ColorProcessor.byColor #UNHIDE white
 --ColorProcessor.byColor #UNHIDE #( red, blue )
 --ColorProcessor.byVerts #UNHIDE #{1,4,7}
 
@@ -97,6 +96,6 @@ ColorProcessor.setVertexColor #{7..9} blue
 
 
 /* ISOLATE VERTS */
---ColorProcessor.byColor #ISOLATE white
+ColorProcessor.byColor #ISOLATE white
 --ColorProcessor.byColor #ISOLATE #( red, blue )
 --ColorProcessor.byVerts #ISOLATE #{1,4,7}

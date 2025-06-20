@@ -37,7 +37,7 @@ icon:	"across:3|height:32"
 					ISLANDS_SYSTEM.fitZpozitions( islands_data_loaded )(layer_height)
 
 				else /* GET NEW ISALNDS DATA */
-					VertSelector.findIslandsPerLayer(layer_height)
+					VertSelector.findIslandsPerLayer(layer_height) #LowestVertIslandFinder
 
 
 
@@ -51,6 +51,7 @@ icon:	"across:3|height:32"
 
 			VertSelector.setSelection ( lowest_verts as BitArray )
 
+			
 			if ISLANDS_SYSTEM.islands_data.count > 0 then
 			(
 	

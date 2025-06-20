@@ -5,6 +5,15 @@
 	3) Find how many mesh island exsits
 
 	4) Test if new or old island - in old, then faces exist in all island
+	
+	
+	islands_data[#LOWEST_VERT]	-- 
+	islands_data[#LOWEST_VERT]	-- first lowest vertex of new island
+	islands_data[#NEW_ISLAND]	-- all verts of island in layer when new siland found
+	islands_data[#BOTTOM]	-- layer where new island found
+	islands_data[#TOP]	-- layer where new is merged to other islands
+	islands_data[#WHOLE_ISLAND]	-- all verts of island when its merged to other silands
+
 
  */
 struct VertIslandFinder_v
@@ -24,7 +33,8 @@ struct VertIslandFinder_v
 	verts_above	= #{},	-- store verts above last layer, or not yet iterated layers
 	verts_processed	= #{},
 
-	islands_data	= #(),
+	                       
+	islands_data	= #(), -- #LOWEST_VERT|#NEW_ISLAND|#BOTTOM|#TOP|#WHOLE_ISLAND|#SIZE 
 	islands_cache	= #(),
 	faces_processed	= #{},
 
@@ -71,7 +81,7 @@ struct VertIslandFinder_v
 				this.verts_layers[layer] = #{vert} -- set first vert in layer
 		)
 
-		verts_layers --return --return
+		verts_layers --return
 	),
 
 	/** GET NEW NEW_ISLANDS PER LAYER
@@ -117,14 +127,14 @@ struct VertIslandFinder_v
 				--gc light:true
 
 				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
-				final_time = timeStamp() - layer_timer
+				time_stamp = timeStamp() - layer_timer
 				--format "\n"
-				format "LAYER: % of: % TIME:\n" l used_layers_count ( final_time / 1000.0)
+				format "LAYER: % of: % TIME:\n" l used_layers_count ( time_stamp / 1000.0)
 				--format "layer: % of: %\n" l used_layers_count
 				--format "vertex_counter_dev: %\n" vertex_counter_dev
-				--format "final_time: %\n" final_time
-				--format "per vertex: %\n" ((final_time as float / vertex_counter_dev ) as float)
-				--format "TIMER: % seconds\n" ( final_time / 1000.0)
+				--format "time_stamp: %\n" time_stamp
+				format "per vertex: %\n" ((time_stamp as float / vertex_counter_dev ) as float )
+				--format "TIMER: % seconds\n" ( time_stamp / 1000.0)
 
 				--format "islands_cache.count: %\n" islands_cache.count
 				layer_timer = timeStamp()

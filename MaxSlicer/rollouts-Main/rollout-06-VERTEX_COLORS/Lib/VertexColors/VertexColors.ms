@@ -112,7 +112,7 @@ struct VertexColors_v
 	 */
 	function getColoredVerts verts:#{} exclude:#() =
 	(
-		format "\n"; print "VertexColors_v.getColoredVerts()"
+		-- format "\n"; print "VertexColors_v.getColoredVerts()"
 
 		appendIfUnique exclude ( white as string )
 
@@ -124,7 +124,7 @@ struct VertexColors_v
 		colored_verts = #{}
 
 		for vertex_color in verts_by_colors.keys where findItem exclude ( vertex_color as string ) == 0 do colored_verts +=  verts_by_colors[vertex_color]
-		format "colored_verts: %\n" colored_verts
+		-- format "colored_verts: %\n" colored_verts
 		colored_verts --return
 	),
 
@@ -160,7 +160,7 @@ struct VertexColors_v
 	 */
 	function getAllVertsAndColors =
 	(
-		format "\n"; print "VertexColors_v.getAllVertsAndColors()"
+		-- format "\n"; print "VertexColors_v.getAllVertsAndColors()"
 		local color_of_vert
 			
 		verts_get_colors = #{1..obj.mesh.numverts}
@@ -177,7 +177,7 @@ struct VertexColors_v
 	--format "\n===================================\n"
 			while not verts_get_colors.isEmpty do
 			(
-				format "\n"
+				--format "\n"
 				
 				mesh_vert = ( verts_get_colors as Array )[1]
 				
@@ -209,7 +209,7 @@ struct VertexColors_v
 	 */
 	function _getVertsByColors verts_get_colors exclude: =
 	(
-		 format "\n"; print "VertexColors_v._getVertsByColors()"
+		 -- format "\n"; print "VertexColors_v._getVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
 

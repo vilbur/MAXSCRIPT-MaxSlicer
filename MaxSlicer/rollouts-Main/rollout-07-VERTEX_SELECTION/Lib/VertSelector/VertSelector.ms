@@ -42,21 +42,21 @@ struct VertSelector_v
 
 	/* reference */
 	/* inhered */
+	
+	
 	/** Find islands per layer
+	  * 
+	  * @param #VertIslandFinder|#LowestVertIslandFinder
 	 */
-	function findIslandsPerLayer layer_height =
+	function findIslandsPerLayer layer_height method =
 	(
 		--format "\n"; print "VertSelector_v.findIslandsPerLayer()"
 		--format "VertexLayers: %\n" VertexLayers
-
+		timer_findIslandsPerLayer = timeStamp()
+		--method = #LowestVertIslandFinder
 		vertex_count = getNumVerts obj.mesh
 
 		verts_all = #{1..(vertex_count)}
-
-		/* GET VERTS WITH NORMAL POINTING DOWN */
-		--bottom_verts = this.getBottom()
-		/* GET ONLY CONVEX VERTS */
-		--convex_verts = this.selectConvex()
 
 		visible_verts = -( polyop.getHiddenVerts obj)
 
@@ -64,12 +64,31 @@ struct VertSelector_v
 
 		verts_process *= visible_verts
 
-		VertIslandFinder.verts_all	= verts_all
-		VertIslandFinder.verts_process	= verts_process
+		/* GET VERTS WITH NORMAL POINTING DOWN */
+		max modify mode
+
+		subObjectLevel = 1
+
+		PolyToolsSelect.Normal 3 140 true
+		
+		verts_normal_down = obj.getSelection #Vertex
+		
+		/* GET ONLY CONVEX VERTS */
+		PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
+
+		verts_convex = obj.getSelection #Vertex
+		
+		verts_to_process = (verts_normal_down * verts_convex) * verts_to_process 
+		
 
 
-		--if ( VertIslandFinder.findVertsOfNewIslands()) != undefined then
+		if method == #VertIslandFinder then
 		(
+			VertIslandFinder 	= VertIslandFinder_v(obj)
+			
+			VertIslandFinder.verts_all	= verts_all
+			VertIslandFinder.verts_process	= verts_process
+
 			VertIslandFinder.sortVertsToLayers()
 
 			 --for layer_index = 1 to VertIslandFinder.verts_layers.count where classOf ( verts_in_layer = VertIslandFinder.verts_layers[layer_index] ) == BitArray do
@@ -84,7 +103,7 @@ struct VertSelector_v
 			(
 				island_data = VertIslandFinder.islands_data[i]
 
-				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this.getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
 
 				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
 
@@ -101,15 +120,30 @@ struct VertSelector_v
 					VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
 				)
 			)
+			
+			format "findIslandsPerLayer: % ms\n" (( timeStamp()) - timer_findIslandsPerLayer)
+			VertIslandFinder.islands_data --return
 		)
+		else
+		(
+			
+			
+			
+			LowestVertIslandFinder 	= LowestVertIslandFinder_v(obj)
+			
+			LowestVertIslandFinder.verts_all	= verts_all
+			--LowestVertIslandFinder.verts_process	= verts_process
 
-		VertIslandFinder.islands_data --return
+			LowestVertIslandFinder.getLowestVertsOfIslands(verts_to_process)
+			
+		)
+		
 	),
 
 	/** Get lowest verts in grid
 	 */
 	function selectLowestVertsInGrid resolution:10 =
-	(
+	( 
 		format "\n"; print "VertSelector_v.selectLowestVertsInGrid()"
 		VertexGridGetter.resolution = resolution
 
@@ -176,7 +210,7 @@ struct VertSelector_v
 			/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
 			if verts.numberSet > 0 then
 			(
-				if ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+				if ( lowest_vert = this.getLowestVertOnZaxis(verts) ) != undefined then
 					this.sel_modified[lowest_vert] = true
 				else
 					this.sel_modified[(verts as Array )[1] ] = true
@@ -225,7 +259,7 @@ struct VertSelector_v
 			--format "verts: %\n" verts
 			--lowest_verts += verts
 
-			lowest_verts[this._getLowestVertOnZaxis(verts)] = true
+			lowest_verts[this.getLowestVertOnZaxis(verts)] = true
 		)
 
 		lowest_verts --return
@@ -431,6 +465,36 @@ struct VertSelector_v
 
 	),
 
+	/** Get vert with min z pos
+	  *
+	  * @param BitArray verts
+	 */
+	function getLowestVertOnZaxis verts =
+	(
+		--format "\n"; print "VertSelector_v.getLowestVertOnZaxis()"
+		--format "verts: %\n" verts
+		verts_arr = verts as Array
+
+		if verts_pos == undefined then
+			this.verts_pos = this._setVertsPositions(verts)
+
+
+		/* GET LOWEST POINT IN CELL */
+		if verts_arr.count > 1 then
+		(
+			z_positions = for vert in verts collect verts_pos[vert].z
+			--format "Z_POSITIONS: %\n" z_positions
+			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
+
+			if ( index = findItem z_positions (amin z_positions) ) > 0 then
+				verts_arr[index] --return
+		)
+		else
+			verts_arr[1] --return
+
+			--verts_arr[1] --return
+	),
+	
 	private
 
 	/**  Left only single lowest vert of verts
@@ -441,7 +505,7 @@ struct VertSelector_v
 		/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
 		if verts.numberSet > 0 then
 		(
-			if ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+			if ( lowest_vert = this.getLowestVertOnZaxis(verts) ) != undefined then
 				this.sel_modified[lowest_vert] = true
 			else
 				this.sel_modified[(verts as Array )[1] ] = true
@@ -510,7 +574,7 @@ struct VertSelector_v
 	--	--format "verts: %\n" verts
 	--
 	----	/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
-	--	if verts.numberSet > 0 and ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+	--	if verts.numberSet > 0 and ( lowest_vert = this.getLowestVertOnZaxis(verts) ) != undefined then
 	--		this.sel_modified[lowest_vert] = true
 	--
 	--	lowest_vert --return
@@ -520,35 +584,6 @@ struct VertSelector_v
 	--		--this.sel_modified[vert] = false
 	--),
 
-	/** Get vert with min z pos
-	  *
-	  * @param BitArray verts
-	 */
-	function _getLowestVertOnZaxis verts =
-	(
-		--format "\n"; print "VertSelector_v._getLowestVertOnZaxis()"
-		--format "verts: %\n" verts
-		verts_arr = verts as Array
-
-		if verts_pos == undefined then
-			this.verts_pos = this._setVertsPositions(verts)
-
-
-		/* GET LOWEST POINT IN CELL */
-		if verts_arr.count > 1 then
-		(
-			z_positions = for vert in verts collect verts_pos[vert].z
-			--format "Z_POSITIONS: %\n" z_positions
-			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
-
-			if ( index = findItem z_positions (amin z_positions) ) > 0 then
-				verts_arr[index] --return
-		)
-		else
-			verts_arr[1] --return
-
-			--verts_arr[1] --return
-	),
 
 	/** Select and return mofified selection
 	 */
@@ -655,7 +690,6 @@ struct VertSelector_v
 
 		--VertexLayers 	= VertexLayers_v( obj )
 		VertexGrid 	= VertexGrid_v( obj )
-		VertIslandFinder 	= VertIslandFinder_v(obj)
 		VertexGridGetter 	= VertexGridGetter_v( obj )
 
 	)

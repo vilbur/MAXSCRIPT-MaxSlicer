@@ -5,44 +5,14 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/openVertexColorSubmenu/open
 /*==============================================================================
 	ROW 1
 ================================================================================*/
-
-/**
-  */
-macroscript	epoly_vertex_color_property_toggle
-category:	"_Epoly-Vertex-Color"
-buttonText:	"S H O W"
-toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
-icon:	"across:3|MENU:true"
-(
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
-
-	on execute do
-	undo "Show Vertex Colors" on
-	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLORS\VERTEX COLOR.mcr"
-
-		if selection.count > 0 then
-		(
-			state = not selection[1].showVertexColors
-
-			for obj in selection do
-			(
-				obj.showVertexColors = state
-				obj.vertexColorsShaded = false
-				obj.vertexColorType = 0
-			)
-		)
-	)
-)
-
 /**
   */
 macroscript	epoly_vertex_color_set_by_last_color
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage-Set"
 buttonText:	"S E T"
 toolTip:	"Set vertex color to selected vertex.\n\nVertex can be selected in modifiers like:\nEdit Poly|Poly Select\n\nLMB: Green\nCTRL:#RED"
-icon:	"MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
+icon:	"across:3|MENU:SET &Color|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
+--icon:	"tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
 (
 	on isVisible return subObjectLevel != 0
 
@@ -68,7 +38,7 @@ icon:	"MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PRO
 /**
   */
 macroscript	epoly_vertex_color_select_by_selection
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"S E L E C T"
 toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELECTED, then select ALL COLORED verts"
 --icon:	"MENU:&Select Color"
@@ -97,7 +67,7 @@ toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELEC
 /**
   */
 macroscript	epoly_vertex_color_select_submenu
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"S E L E C T"
 toolTip:	"Open Select Vrtex Color Menu"
 icon:	"MENU:&SELECT Color"
@@ -109,6 +79,38 @@ icon:	"MENU:&SELECT Color"
 )
 
 
+
+/**
+  */
+macroscript	epoly_vertex_color_property_toggle
+category:	"Vertex-Color-Manage"
+buttonText:	"S H O W"
+toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
+icon:	"across:3|MENU:true"
+(
+	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+
+	on execute do
+	undo "Show Vertex Colors" on
+	(
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLORS\VERTEX COLOR.mcr"
+
+		if selection.count > 0 then
+		(
+			state = not selection[1].showVertexColors
+
+			for obj in selection do
+			(
+				obj.showVertexColors = state
+				obj.vertexColorsShaded = false
+				obj.vertexColorType = 0
+			)
+		)
+	)
+)
+
+
 /*==============================================================================
 	ROW 2
 ================================================================================*/
@@ -116,10 +118,10 @@ icon:	"MENU:&SELECT Color"
 /**
   */
 macroscript	epoly_vertex_color_hide_by_selection
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"HIDE"
 toolTip:	"Hide verts with same color as selected verts.\n\nHIDE ONLY WHITE IF VERTEX IS NOT SELECTED"
-icon:	"across:3"
+--icon:	"across:3"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
@@ -145,7 +147,7 @@ icon:	"across:3"
 /**
   */
 macroscript	epoly_vertex_color_hide_submenu
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"HIDE"
 toolTip:	"Open Hide By Color Menu"
 icon:	"MENU:&HIDE Color"
@@ -161,7 +163,7 @@ icon:	"MENU:&HIDE Color"
 /**
   */
 macroscript	epoly_vertex_color_unhide_by_selection
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"UNHIDE"
 toolTip:	"Unhide verts with same color as selected verts"
 --icon:	"MENU:&UNHIDE Color"
@@ -185,7 +187,7 @@ toolTip:	"Unhide verts with same color as selected verts"
 /**
   */
 macroscript	epoly_vertex_color_unhide_submenu
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"UNHIDE"
 toolTip:	"Open Unhide By Color Menu"
 icon:	"MENU:&UNHIDE Color"
@@ -200,7 +202,7 @@ icon:	"MENU:&UNHIDE Color"
 /**
   */
 macroscript	epoly_vertex_color_isolate_by_selection
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"ISOLATE"
 toolTip:	"Hide verts by vertex color of selected verts.White color is used, if nothing selected.\n\nCTRL: ISOLATE MODE (Show all verts of selected colors ).\n\nQUICK SCRIPT, TESTED ONLY ON EDITABLE POLY"
 icon:	""
@@ -222,7 +224,7 @@ icon:	""
 /**
   */
 macroscript	epoly_vertex_color_isolate_submenu
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Manage"
 buttonText:	"ISOLATE"
 toolTip:	"Open Isolate By Color Menu"
 icon:	"MENU:&ISOLATE Color"
@@ -234,12 +236,11 @@ icon:	"MENU:&ISOLATE Color"
 )
 
 
-
 --/**
 --  *
 --  */
 --macroscript	epoly_vertex_color_unhide_submenu
---category:	"_Epoly-Vertex-Color"
+--category:	"Vertex-Color-Manage"
 --buttonText:	"Menu"
 --toolTip:	""
 --icon:	"MENU:&Hide Color"
@@ -255,7 +256,7 @@ icon:	"MENU:&ISOLATE Color"
 --  *
 --  */
 --macroscript	epoly_vertex_color_reset
---category:	"_Epoly-Vertex-Color"
+--category:	"Vertex-Color-Manage"
 --buttonText:	"RESET Color"
 --toolTip:	"Hide verts by vertex color of selected verts.White color is used, if nothing selected.\n\nCTRL: ISOLATE MODE (Show all verts of selected colors ).\n\nQUICK SCRIPT, TESTED ONLY ON EDITABLE POLY"
 --icon:	"across:4|MENU:true"

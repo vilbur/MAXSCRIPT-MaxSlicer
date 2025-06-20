@@ -2,6 +2,28 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Te
 
 /**  
  */
+macroscript	_create_test_object_wave_box
+category:	"_maxslicer"
+buttontext:	"Create WaveBox"
+toolTip:	"Create WaveBox Object"
+--icon:	"#(path, index)"
+(
+	on execute do
+	(
+		--filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms"
+
+		Box length:100 width:100 height:10 pos:[ 0, 0, 50] isSelected:on backfacecull:off lengthsegs:50 widthsegs:50 heightsegs:1
+		--Plane length:100 width:100 pos:[ 0, 0, 50] isSelected:on backfacecull:off lengthsegs:2 widthsegs:2
+		
+		rotate $ ( AngleAxis 180 [1,0,0] )
+		
+		modPanel.addModToSelection (Noisemodifier scale:30 strength:[0,0,20] ) ui:on
+	)
+)
+
+
+/**  
+ */
 macroscript	_create_test_object_pack_man
 category:	"_maxslicer"
 buttontext:	"Create PackMan"

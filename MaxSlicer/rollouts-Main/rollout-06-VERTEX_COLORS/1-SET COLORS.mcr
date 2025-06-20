@@ -12,7 +12,7 @@
 --  *
 --  */
 --macroscript	epoly_vertex_color_set_submenu
---category:	"_Epoly-Vertex-Color"
+--category:	"Vertex-Color-Set"
 --buttonText:	"Color Set"
 --toolTip:	""
 --icon:	"MENU:&Color Set"
@@ -26,7 +26,7 @@
 /**
   */
 macroscript	epoly_vertex_color_set_red
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"RED"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &RED|across:3|width:84|height:26"
@@ -40,7 +40,7 @@ icon:	"MENU:Set &RED|across:3|width:84|height:26"
 /**
   */
 macroscript	epoly_vertex_color_set_green
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"GREEN"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &GREEN"
@@ -54,7 +54,7 @@ icon:	"MENU:Set &GREEN"
 /**
   */
 macroscript	epoly_vertex_color_set_blue
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"BLUE"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &BLUE"
@@ -68,7 +68,7 @@ icon:	"MENU:Set &BLUE"
 /**
   */
 macroscript	epoly_vertex_color_set_white
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"WHITE"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &WHITE"
@@ -82,7 +82,7 @@ icon:	"MENU:Set &WHITE"
 /**
   */
 macroscript	epoly_vertex_color_set_orange
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"ORANGE"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &ORANGE"
@@ -97,7 +97,7 @@ icon:	"MENU:Set &ORANGE"
 /**
   */
 macroscript	epoly_vertex_color_set_yellow
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"YELLOW"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &YELLOW"
@@ -111,7 +111,7 @@ icon:	"MENU:Set &YELLOW"
 /**
   */
 macroscript	epoly_vertex_color_set_pink
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"PINK"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &PINK"
@@ -125,7 +125,7 @@ icon:	"MENU:Set &PINK"
 /**
   */
 macroscript	epoly_vertex_color_set_magenta
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"MAGENTA"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &MAGENTA"
@@ -139,7 +139,7 @@ icon:	"MENU:Set &MAGENTA"
 /**
   */
 macroscript	epoly_vertex_color_set_gray
-category:	"_Epoly-Vertex-Color"
+category:	"Vertex-Color-Set"
 buttonText:	"GRAY"
 toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &GRAY"

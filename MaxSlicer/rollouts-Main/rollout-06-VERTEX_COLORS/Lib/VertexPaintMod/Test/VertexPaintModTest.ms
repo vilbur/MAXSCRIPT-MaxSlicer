@@ -46,10 +46,10 @@ function useExistingVertexPaintModifier =
 	
 	
 	verts_by_colors = VertexPaintMod.getVertsAndColors()
-	
 	format "verts_by_colors: %\n" verts_by_colors
-	--_vertex_color = VertexPaintMod.getVertexAverageColor 1
-	--format "_vertex_color: %\n" (_vertex_color as color )
+	
+	_vertex_color = VertexPaintMod.getVertexAverageColor 1
+	format "_vertex_color: %\n" (_vertex_color as color )
 )
 
 

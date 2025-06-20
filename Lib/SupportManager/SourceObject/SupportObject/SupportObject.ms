@@ -406,6 +406,9 @@ struct SupportObject_v
 			-- Apply shift
 			origin_point + (perp_vector * shift_distance) -- return
 		)
+	    
+	
+		local _ray
 		
 		local hit
 
@@ -413,30 +416,38 @@ struct SupportObject_v
 
 		local pos_shifted
 		
+		local closest_hit 
+		
+		hits = #()
+		
+		closest_dist = 1e9
+		
 		planes = #( #XY, #XY, #XZ, #XZ )
 		
 		half_of_bar_width = this.bar_width / 2
 		
 		ray_pos = pos + (0.1 * dir)
-		--ray_pos = pos 
+		
+		_ray = ( Ray ray_pos dir )
+
 		/*------------------------------------------------------------------------------
 			
-			TODO: ADD INTERSECTION WITH ALL OABJECTS BINDED TO NODE OR GROP OF NODES
-			
-			
-			
+			GET VISIBLE NOT FROZEN OBJECTS WHICH ARE NOT SUPPORTS FOR TEST HIST
 			
 		--------------------------------------------------------------------------------*/
 		
-		if source_obj != undefined then
+		objs_check_hits = for obj in geometry where superClassOf obj == GeometryClass and not ( obj.isHidden or obj.isFrozen ) and getUserProp obj "SYNC_KEY" == undefined collect obj
+		
+		
+		for source_obj in objs_check_hits do
 		(
-			hit = intersectRay source_obj ( Ray ray_pos dir )
+			hit = intersectRay source_obj _ray
 			
 			-- format "HIT: %\n" hit
 			/*------------------------------------------------------------------------------
 				TRY HIT ON CENTER OF SUPPORT
 			------------------------------------------------------------------------------*/
-			if ( hit = intersectRay source_obj ( Ray ray_pos dir) ) == undefined then
+			if (hit = intersectRay source_obj _ray) == undefined then
 			(
 				
 				/*------------------------------------------------------------------------------
@@ -448,8 +459,9 @@ struct SupportObject_v
 					
 					pos_shifted = shiftPointPerpendicularOnPlane ray_pos dir shift_distance planes[i]
 					
+					_ray = ( Ray pos_shifted dir )
 					/* GET DISTANCE TO HIT */ 
-					if ( hit = intersectRay source_obj ( Ray pos_shifted dir) ) != undefined then 
+					if ( hit = intersectRay source_obj _ray ) != undefined then 
 						hit_distance = distance ray_pos hit.pos
 				)
 			)
@@ -460,9 +472,24 @@ struct SupportObject_v
 			/* GET HIT POSITION DIR VECTOR */ 
 			if hit_distance != undefined then
 				hit.pos = pos + ( hit_distance * dir )
+				
+			if hit != undefined then 
+				append hits #( _ray, hit )
  		)
+		
+		/* GET CLOSLOSEST HIT */ 
+		for ray_hit in hits do
+		(
+            dist = distance ray_hit[1].pos ray_hit[2].pos
+            
+			if dist < closest_dist then
+            (
+                closest_dist = dist
+                closest_hit = hit
+            )			
+		)
 
-		hit --return
+		closest_hit --return
 	),
 
 	/** Is raft

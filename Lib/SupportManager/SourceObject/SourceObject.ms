@@ -56,9 +56,9 @@ struct SourceObject_v
  		supports_exists = Supports.keys as BitArray
 
 		verts_by_colors = this._getVertsByColors()
-		format "VERTS_BY_COLORS: %\n" verts_by_colors
+		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		format "COLORED_VERTS: %\n" colored_verts
+		--format "COLORED_VERTS: %\n" colored_verts
 
 		/* GEt SELECTED or COLORED verts */ 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
@@ -68,28 +68,34 @@ struct SourceObject_v
 		(
 			messageBox "Selected or colored verts NOT FOUND" title:"MISSING VERTICES" 
 			
-			return NewSupportObjects
+			return #()
 		)
 		
 		/*------------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
+		timer_Normals = timeStamp()
 		Normals.setLocalVertexNormals(verts_process)
+		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		Normals.saveNormalsToUserProps()
+		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 
 		Normals.setWorldSpaceVertexNormals(verts_process)
-
+		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
+		timer_verts_process = timeStamp()
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
+		format "verts_process: % ms\n" (( timeStamp()) - timer_verts_process)
 		
 			
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS
 		--------------------------------------------------------------------------------*/
-		
+		timer_verts_pos = timeStamp()
 		verts_pos = this.getVertsPositions(verts_process)
+		format "verts_pos: % ms\n" (( timeStamp()) - timer_verts_pos)
 		
 		
 		
@@ -106,7 +112,7 @@ struct SourceObject_v
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
-		
+		timer_generate = timeStamp()
 		for vertex_color in verts_by_colors.keys do
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
@@ -135,6 +141,7 @@ struct SourceObject_v
 					(format "\n";	print ("! VERTEX "+vert as string +" IS BELLOW GROUND - SUPPORT IS NOT CREATED"))
 			)
 		
+		format "generate: % ms\n" (( timeStamp()) - timer_generate)
 		/*------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------*/
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )

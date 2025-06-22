@@ -50,7 +50,7 @@ function createIslandManagerDialog islands_to_show: =
 
 
 	/*------------------------------------------------------------------------------
-		GET ITEMS
+		GET LSIBOX ITEMS
 	--------------------------------------------------------------------------------*/
 	--selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
 
@@ -62,9 +62,13 @@ function createIslandManagerDialog islands_to_show: =
 
 	else
 		islands_to_show
+		
+	format "islands: %\n" islands
 
-
-	items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands[i] collect  getItemTitile (i)
+	islands = islands as Array
+	
+	--items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands[i] collect  getItemTitile (i)
+	items = for i = islands.count to 1 by -1  collect getItemTitile (islands[i])
 
 
 	/*------------------------------------------------------------------------------
@@ -93,7 +97,8 @@ function createIslandManagerDialog islands_to_show: =
 
 	label_text = if islands_to_show != unsupplied and islands_to_show.numberSet > 0 then islands_to_show.numberSet as string +"\\"+ ISLANDS_SYSTEM.islands_data.count as string else ISLANDS_SYSTEM.islands_data.count as string + " Islands"
 
-	width_listbox = (max_item_length * 10 ) + 16
+	--width_listbox = (max_item_length * 10 ) + 16
+	width_listbox = max_item_length * 10
 
 	slider_width = 32
 
@@ -150,11 +155,11 @@ function createIslandManagerDialog islands_to_show: =
 
 
 	/*------ RADIOBUTTONS ------*/
-	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("   ↓   ","   ↑   ") params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
+	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("   ↓   ","   ↑   ") params:#( #UNSELECT, true ) across:1 offset:[ -10, 2 ] --align:#center  --width:96
 
 	/*------ SPINNER ------*/
-	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2] width:48 offset:[ -10, 0]
-	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
+	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2] width:40 offset:[ -20, 0]
+	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:40 offset:[ -20, 0]
 
 
 	/*------------------------------------------------------------------------------

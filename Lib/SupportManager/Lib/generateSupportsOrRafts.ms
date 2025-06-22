@@ -3,7 +3,7 @@
  */
 function generateSupportsOrRafts obj_type: =
 (
-	-- format "\n"; print ".generateSupportsOrRafts()"
+	 format "\n"; print ".generateSupportsOrRafts()"
 	-- format "obj_type: %\n" obj_type
 	 --format "generateSupportsOrRafts: %\n" obj_type
 

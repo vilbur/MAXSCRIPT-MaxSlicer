@@ -37,8 +37,7 @@ filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout
 
 filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./MaxSlicer/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
 
---if IslandsSystem_v == undefined then 
-filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./MaxSlicer/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./MaxSlicer/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 

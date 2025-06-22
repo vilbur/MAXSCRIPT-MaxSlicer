@@ -26,7 +26,8 @@ struct SupportRaft_v
 	function createRaft =
 	(
 		--format "\n----------------------------------------------\n"
-		--format "\n"; print "SupportRaft_v.createRaft()"
+		-- format "\n"; print "SupportRaft_v.createRaft()"
+		-- format "Support.obj_type: %\n" Support.obj_type
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
 
@@ -46,49 +47,79 @@ struct SupportRaft_v
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    hit_raft = this._testHitOfSourceObject( normal_length )
-		-- format "HIT_RAFT: %\n" hit_raft
+		 -- format "HIT_RAFT: %\n" hit_raft
 		/*------------------------------------------------------------------------------
-			MODIFY RAFT LENGHT ABOVE GROUND
+			IF LEG EXISTS
 		--------------------------------------------------------------------------------*/
 
 		if hit_raft == undefined then
 		(
-			/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
-			if not raftHasFullLenght() then
-				this._extendSecondPoint( normal_length )
 			
-			/* SHORTEN REAFT IF ITS TOO LONG and goes under min size of leg ( foot can not be created ) */ 
-			if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
-				this._shortenRaftOnDirection( Support.min_foot_pos )
-				--this._shortenRaftOnDirection( Support.min_foot_pos + 0.1 )
-
-			/* IF RAFT IS TOO SHORT ( small support without foot ) */ 
-			if not raftHasMinLenght() then
+			if Support.obj_type == #SUPPORT then
 			(
-				/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
-				this._extendSecondPoint( normal_length )
+				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
+				if not raftHasFullLenght() then
+					this._extendSecondPoint( normal_length )
 				
-				/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
-				if Support.points[2].z < Support.min_leg_pos then
-					this._shortenRaftOnDirection( Support.min_leg_pos )
+				/* SHORTEN REAFT IF ITS TOO LONG and goes under min size of leg ( foot can not be created ) */ 
+				if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
+					this._shortenRaftOnDirection( Support.min_foot_pos )
+					--this._shortenRaftOnDirection( Support.min_foot_pos + 0.1 )
+	
+				/* IF RAFT IS TOO SHORT ( small support without foot ) */ 
+				if not raftHasMinLenght() then
+				(
+					/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
+					this._extendSecondPoint( normal_length )
+					
+					/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
+					if Support.points[2].z < Support.min_leg_pos then
+						this._shortenRaftOnDirection( Support.min_leg_pos )
+				)
+				
+				/* SUPPORT MINIMAL MODE - only 2 points straight to ground - if support has not minimla height */ 
+				if Support.points[2].z > Support.points[1].z then
+				(
+					--format "NOT SPACE FOR RAFT AND LEG\n"
+					pos = copy Support.points[1]
+					
+					pos.z = 0
+					
+					Support.points[2] = pos
+				)
 			)
-			
-			/* SUPPORT MINIMAL MODE - only 2 points straight to ground - if support has not minimla height */ 
-			if Support.points[2].z > Support.points[1].z then
-			(
-				--format "NOT SPACE FOR RAFT AND LEG\n"
-				pos = copy Support.points[1]
-				
-				pos.z = 0
-				
-				Support.points[2] = pos
-			)
+			else
+				this._shortenRaftOnDirection( 0 )
 		)
 		/*------------------------------------------------------------------------------
 			GET POSITION OF HIT
 		--------------------------------------------------------------------------------*/
 		else
+		(
 			Support.points[2] = hit_raft.pos
+			-- format "not raftHasMinLenght(): %\n" (not raftHasMinLenght())
+		
+			if Support.obj_type == #RAFT and not raftHasMinLenght() then
+			(
+				-- format "Support.min_raft_length: %\n" Support.min_raft_length
+				-- format "Support.points[2]: %\n" Support.points[2]
+				--add_to_min_distance = Support.min_raft_length - distance Support.points[1] Support.points[2]
+				add_to_min_distance = (Support.min_raft_length * 1.5 ) - distance Support.points[1] Support.points[2]
+				
+				-- format "add_to_min_distance: %\n" add_to_min_distance
+				
+				--line_vector = Support.dir_vector
+				line_vector = normalize (Support.points[2] - Support.points[1])
+				--format "line_vector.z: %\n" line_vector.z
+				
+				--if line_vector.z < 0 then
+				Support.points[2] = Support.points[2] + ( add_to_min_distance * line_vector )
+				
+				-- format "distance: %\n" (distance Support.points[1] Support.points[2])
+				-- format "Support.points[2]: %\n" Support.points[2]
+			
+			)
+		)
 	
 	
 		

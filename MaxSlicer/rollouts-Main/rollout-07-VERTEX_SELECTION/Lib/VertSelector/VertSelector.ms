@@ -1,6 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGrid/VertexGrid.ms" )	--"./../VertexGrid/VertexGrid.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGridGetter/VertexGridGetter.ms" )	--"./../VertexGridGetter/VertexGridGetter.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../VertIslandFinder/VertIslandFinder.ms" )	--"./../VertIslandFinder/VertIslandFinder.ms"
+
 
 /** Get lowest verts in grid
 
@@ -38,107 +38,13 @@ struct VertSelector_v
 	--MeshDataGetter,
 	VertexGridGetter,
 	--VertexLayers,
-	VertIslandFinder,
+	IslandPerLayerFinder,
 
 	/* reference */
 	/* inhered */
 	
 	
-	/** Find islands per layer
-	  * 
-	  * @param #VertIslandFinder|#LowestVertIslandFinder
-	 */
-	function findIslandsPerLayer layer_height method =
-	(
-		--format "\n"; print "VertSelector_v.findIslandsPerLayer()"
-		--format "VertexLayers: %\n" VertexLayers
-		timer_findIslandsPerLayer = timeStamp()
-		--method = #LowestVertIslandFinder
-		vertex_count = getNumVerts obj.mesh
 
-		verts_all = #{1..(vertex_count)}
-
-		visible_verts = -( polyop.getHiddenVerts obj)
-
-		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
-
-		verts_process *= visible_verts
-
-		/* GET VERTS WITH NORMAL POINTING DOWN */
-		max modify mode
-
-		subObjectLevel = 1
-
-		PolyToolsSelect.Normal 3 140 true
-		
-		verts_normal_down = obj.getSelection #Vertex
-		
-		/* GET ONLY CONVEX VERTS */
-		PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
-
-		verts_convex = obj.getSelection #Vertex
-		
-		verts_to_process = (verts_normal_down * verts_convex) * verts_to_process 
-		
-
-
-		if method == #VertIslandFinder then
-		(
-			VertIslandFinder 	= VertIslandFinder_v(obj)
-			
-			VertIslandFinder.verts_all	= verts_all
-			VertIslandFinder.verts_process	= verts_process
-
-			VertIslandFinder.sortVertsToLayers()
-
-			 --for layer_index = 1 to VertIslandFinder.verts_layers.count where classOf ( verts_in_layer = VertIslandFinder.verts_layers[layer_index] ) == BitArray do
-				--format "%: %\n" layer_index verts_in_layer
-
-			--format "VertIslandFinder.verts_layers: %\n" VertIslandFinder.verts_layers
-
-			VertIslandFinder.getNewIslandsPerLayer()
-
-			/* ADD ISLAND DATA */
-			for i = 1 to VertIslandFinder.islands_data.count do
-			(
-				island_data = VertIslandFinder.islands_data[i]
-
-				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this.getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
-
-				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
-
-				if island_data[#WHOLE_ISLAND] != undefined then
-				(
-					x_positions = for vert in verts_get_size collect verts_pos[vert].x
-					y_positions = for vert in verts_get_size collect verts_pos[vert].y
-
-
-					x_length = (amax x_positions) - (amin x_positions)
-					y_length = (amax y_positions) - (amin y_positions)
-
-
-					VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
-				)
-			)
-			
-			format "findIslandsPerLayer: % ms\n" (( timeStamp()) - timer_findIslandsPerLayer)
-			VertIslandFinder.islands_data --return
-		)
-		else
-		(
-			
-			
-			
-			LowestVertIslandFinder 	= LowestVertIslandFinder_v(obj)
-			
-			LowestVertIslandFinder.verts_all	= verts_all
-			--LowestVertIslandFinder.verts_process	= verts_process
-
-			LowestVertIslandFinder.getLowestVertsOfIslands(verts_to_process)
-			
-		)
-		
-	),
 
 	/** Get lowest verts in grid
 	 */

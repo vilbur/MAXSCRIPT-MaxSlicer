@@ -1,8 +1,8 @@
+filein( getFilenamePath(getSourceFileName()) + "/IslandFinder/IslandFinder.ms" )	--"./IslandFinder/IslandFinder.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/islandsRcMenu.ms" )	--"./../IslandManagerDialog/islandsRcMenu.ms"
 filein( getFilenamePath(getSourceFileName()) + "/IslandsCallbacks.ms" )	--"./IslandsCallbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/islandsRcMenuCallbacks.ms" )	--"./../IslandManagerDialog/islandsRcMenuCallbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/createIslandManagerDialog.ms" )	--"./../IslandManagerDialog/createIslandManagerDialog.ms"
-
 
 /** Islands system
  */
@@ -266,8 +266,8 @@ struct IslandsSystem_v
 	 */
 	function getBaseObjectVerts verts =
 	(
-		format "\n"; print "IslandsSystem_v._getBaseObjectVerts()"
-		format "verts: %\n" verts
+		-- format "\n"; print "IslandsSystem_v._getBaseObjectVerts()"
+		-- format "verts: %\n" verts
 
 
 		max modify mode
@@ -321,7 +321,7 @@ struct IslandsSystem_v
 	 */
 	function selectIslandByLayerInListbox layer_indexes =
 	(
-		format "\n"; print "IslandsSystem_v.selectIslandByLayerInListbox()"
+		-- format "\n"; print "IslandsSystem_v.selectIslandByLayerInListbox()"
 		if classOf layer_indexes != BitArray then
 			layer_indexes = #{layer_indexes}
 
@@ -352,7 +352,7 @@ struct IslandsSystem_v
 	 */
 	function getIslandsOfSelectedItems =
 	(
-		format "\n"; print ".getIslandsOfSelectedItems()"
+		-- format "\n"; print ".getIslandsOfSelectedItems()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
 		selected_items = for i in _listbox.selection collect _listbox.items[i]
@@ -379,13 +379,14 @@ struct IslandsSystem_v
 	 */
 	function fitZpozitions islands_data layer_height =
 	(
-		format "\n"; print "IslandsSystem_v.fitZpozitions()"
+		-- format "\n"; print "IslandsSystem_v.fitZpozitions()"
+		-- format "islands_data: %\n" islands_data
 		first_island = islands_data[1]
 
 		bottom_layer = first_island[#BOTTOM]
 		lowest_vert  = first_island[#LOWEST_VERT]
-		format "bottom_layer: %\n" bottom_layer
-		format "lowest_vert: %\n" lowest_vert
+		-- format "bottom_layer: %\n" bottom_layer
+		-- format "lowest_vert: %\n" lowest_vert
 
 		vert_pos = (in coordsys world meshop.getVerts obj.baseobject.mesh lowest_vert node:obj)[1]
 		--format "vert_pos.z: %\n" vert_pos.z

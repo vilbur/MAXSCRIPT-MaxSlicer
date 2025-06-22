@@ -56,61 +56,79 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 	function selectVertsBySupports =
 	(
 		format "\n"; print ".selectVertsBySupports()"
+		format "selection.count: %\n" selection.count
 		
 		_objects = selection as Array
-		
+		format "_objects.count: %\n" _objects.count
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
-
+		
 		format "source_objects: %\n" source_objects
-
+		
 		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-
+		
+		format "\n"
+		for support in supports do 
+			format "support.name: %\n" support.name
+		format "\n"
+		
 		format "supports: %\n" supports
-
+		format "supports.count: %\n" supports.count
+		
 		SourceObjects = SUPPORT_MANAGER.getSourceObjects source_objects
-
+		format "SourceObjects: %\n" SourceObjects
 		for SourceObject in SourceObjects do
 		(
 			--format "SourceObject: %\n" SourceObject
 			--indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
 			indexes =( for index in SourceObject.Supports.keys where isValidNode ( support_obj = SourceObject.Supports[index].support_obj) and support_obj.isSelected collect index) as BitArray
+		
+			--format "indexes: %\n" indexes
+			epoly = SourceObject.obj.baseobject
+		
+			select SourceObject.obj
 
-			format "indexes: %\n" indexes
 
-			obj = SourceObject.obj.baseobject
-
-			verts_hidden = polyop.getHiddenVerts obj
-
-			polyop.unHideAllVerts obj
-
-			polyop.setHiddenVerts obj ( verts_hidden - indexes )
-
-			obj.SetSelection #VERTEX indexes
-
-		)
-
-		if SourceObjects.count == 1 then
-		(
-			select SourceObjects[1].obj
-			
+			verts_hidden = polyop.getHiddenVerts epoly
+		
+			polyop.unHideAllVerts epoly
+		
+			--polyop.setHiddenVerts epoly ( verts_hidden - indexes )
+		
+			epoly.SetSelection #VERTEX indexes
 			max modify mode
-
 			subObjectLevel = 1
+		
 		)
-		else if SourceObjects.count > 1 then
-			select ( 	for SourceObject in SourceObjects collect SourceObject.obj )
+
+		--format "SourceObjects.count: %\n" SourceObjects.count
+		--if SourceObjects.count == 1 then
+		--(
+		--	select SourceObjects[1].obj
+		--	
+		--	max modify mode
+		--
+		--	subObjectLevel = 1
+		--)
+		--else if SourceObjects.count > 1 then
+		--	select ( 	for SourceObject in SourceObjects collect SourceObject.obj )
 	)
 
 	on execute do
 	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
-		max modify mode
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-05-SELECTION\SUPPORTS and RAFTS.mcr"
+		
+		format "selection.count: %\n" selection.count
+		
+		--max modify mode
+		format "selection.count: %\n" selection.count
 
-		if subObjectLevel == 0 then
-			selectVertsBySupports()
-
-		else if subObjectLevel == 1 then
+		
+		
+		if GetCommandPanelTaskMode() == #MODIFY and subObjectLevel == 1 then
 			selectSupportsByVerts()
+
+		else
+			selectVertsBySupports()
 	)
 )
 

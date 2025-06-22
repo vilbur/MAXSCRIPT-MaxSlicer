@@ -43,10 +43,16 @@ struct IslandsRcMenuCallbacks_v
 		--format "verts_baseobject: %\n" verts_baseobject
 
 		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_baseobject ).isEmpty collect i) as BitArray
+		--islands_of_verts = ( for i = 1 to islands_data.count where verts_baseobject[islands_data[i][#LOWEST_VERT]] collect i) as BitArray
+		
+		
 		--format "islands_of_verts: %\n" islands_of_verts
 
 		for index in islands_of_verts do
 			verts_of_islands += islands_data[index][#NEW_ISLAND]
+			
+			
+			
 		--format "verts_of_islands: %\n" verts_of_islands
 		--format "listbox.items.count: %\n" DIALOG_island_manager.ML_island_listbox.items.count
 

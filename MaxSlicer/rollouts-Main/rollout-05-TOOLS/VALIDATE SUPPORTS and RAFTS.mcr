@@ -28,8 +28,8 @@ function searchInvalidSupports type: =
 	_selection = ( if selection.count > 0 then selection else objects ) as Array
 
 	--supports = SUPPORT_MANAGER.getObjectsByType _selection type:#SUPPORT
-	supports = SUPPORT_MANAGER.getSupportsAndRafts ( selection as Array )
 
+		
 	invalid_supports = Dictionary #( #ANGLE, #() ) #( #SHORT, #() ) #( #CHAMFER, #() ) #( #WIDTH, #() )
 
 	limit_angle = 90

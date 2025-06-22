@@ -168,8 +168,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
 	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--format "\n----------------------------------------------\n"
+		-- format "\n----------------------------------------------\n"
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		
 		/*------------------------------------------------------------------------------
@@ -210,7 +209,7 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		this._setSupportLinePoints()
-		
+
 		/*------------------------------------------------------------------------------
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
@@ -564,7 +563,7 @@ struct SupportObject_v
 	 */
 	function _setSupportLinePoints =
  	(
-		 --format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		-- format "obj_type: %\n" obj_type
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft() --"./SupportRaft/SupportRaft.ms"
@@ -877,6 +876,12 @@ struct SupportObject_v
 		-- format "bar_width: %\n" bar_width
 		-- format "top_width: %\n" top_width
 
+		/*  roundFloat 123.456 -2 >>> 100.0
+			roundFloat 123.456  0 >>> 123.0
+			roundFloat 123.456  2 >>> 123.46
+		*/
+		fn roundFloat val decimal_palces = ( local mult = 10.0 ^ decimal_palces; (floor ((val * mult) + 0.5)) / mult )
+		
 		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
@@ -891,6 +896,8 @@ struct SupportObject_v
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		--if update_min_raft_length then
 			min_raft_length = min_lenght_by_angle + min_length_for_chamfer + dilatation -- chmfer is removing length of raft also
+			
+		min_raft_length = roundFloat min_raft_length 2
 
 		-- format "min_raft_length: %\n" min_raft_length
 	
@@ -909,7 +916,7 @@ struct SupportObject_v
 			--min_foot_pos -= base_height
 
 			min_leg_pos /= EXPORT_SIZE
-			min_raft_length /= EXPORT_SIZE
+			min_raft_length = roundFloat (min_raft_length / EXPORT_SIZE) 2
 			min_lenght_by_angle /= EXPORT_SIZE
 		)
 	),

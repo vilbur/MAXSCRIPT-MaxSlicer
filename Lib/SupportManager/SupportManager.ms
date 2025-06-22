@@ -101,7 +101,7 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		--format "\n"; print "SupportManager_v.generateSupports()"
+		format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
 		--this._removeDeletedNodes()
 
@@ -736,7 +736,7 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		   -- format "\n"; print "SupportManager_v.getObjectsByType()"
+		    -- format "\n"; print "SupportManager_v.getObjectsByType()"
 		 -- format "type: %\n" type
         objects_by_type = #()
 
@@ -774,7 +774,7 @@ struct SupportManager_v
 
 		--format "\n\n"
 		--format "SOURCE_KEYS: %\n" source_keys
-		--format "SUPPORTS: %\n" supports
+		-- format "SUPPORTS: %\n" supports
 		--format "RAFTS: %\n" rafts
 		--format "BEAMS: %\n" beams
 		--format "DRAINS: %\n" drains
@@ -850,15 +850,16 @@ struct SupportManager_v
 		else if supports.count > 0 or rafts.count > 0 then
 		(
 			--format "\n"
-			--format "GET BY SUPPORTS\n"
+			-- format "GET BY SUPPORTS\n"
 			--format "HIERARCHY: %\n" HIERARCHY
 
 			supports_and_rafts = if type == #SUPPORT then supports else rafts
-			--supports_and_rafts = supports + rafts
+			-- format "supports_and_rafts: %\n" supports_and_rafts
 
 			--objects_by_type =  deepCopy supports_and_rafts
 			objects_by_type = if type == #SUPPORT or type == #RAFT then deepCopy supports_and_rafts else #()
-			
+			-- format "objects_by_type: %\n" objects_by_type
+
 			/* GET BEAMS OF SUPPORTS OR RAFTS */
 			if hierarchy or type == #BEAM  then
 				for beam_key in BeamObjects.keys where findItem supports_and_rafts BeamObjects[beam_key].support_A > 0 or findItem supports_and_rafts BeamObjects[beam_key].support_B > 0 do

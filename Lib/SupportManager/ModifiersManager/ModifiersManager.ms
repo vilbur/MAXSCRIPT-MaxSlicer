@@ -27,8 +27,10 @@ struct ModifiersManager_v
 	  */
 	function addModifiers _objects obj_type:#SUPPORT objects_exists:#() =
 	(
-		-- format "\n-----------------------------------------\n"
-		-- format "\n"; print "ModifiersManager_v.addModifiers()"
+		 format "\n-----------------------------------------\n"
+		 format "\n"; print "ModifiersManager_v.addModifiers()"
+		 format "objects_exists: %\n" objects_exists
+		 
 		this._objects =	_objects
 
 		/*------------------------------------------------------------------------------
@@ -43,6 +45,9 @@ struct ModifiersManager_v
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 
+			for _mod in modifiers do
+			format "_mod: %\n" _mod
+			
 			max modify mode
 			--max create mode
 		

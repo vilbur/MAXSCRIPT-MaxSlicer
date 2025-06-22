@@ -4,7 +4,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Te
  */
 macroscript	_create_test_object_wave_box
 category:	"_maxslicer"
-buttontext:	"Create WaveBox"
+buttontext:	"WaveBox"
 toolTip:	"Create WaveBox Object"
 --icon:	"#(path, index)"
 (
@@ -26,7 +26,7 @@ toolTip:	"Create WaveBox Object"
  */
 macroscript	_create_test_object_pack_man
 category:	"_maxslicer"
-buttontext:	"Create PackMan"
+buttontext:	"PackMan"
 toolTip:	"Create PackMan Object"
 --icon:	"#(path, index)"
 (

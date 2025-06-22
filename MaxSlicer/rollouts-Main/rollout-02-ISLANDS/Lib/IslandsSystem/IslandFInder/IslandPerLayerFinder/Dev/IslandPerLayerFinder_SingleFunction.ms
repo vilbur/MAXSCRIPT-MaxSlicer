@@ -4,9 +4,9 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 /** Vert island finder fn
  */
-function vertIslandFinderFn obj =
+function islandPerLayerFinderFn obj =
 (
-	--format "\n"; print ".vertIslandFinderFn()"
+	--format "\n"; print ".islandPerLayerFinderFn()"
 
 	if verts_above.isEmpty then
 		verts_above = copy verts_all
@@ -88,4 +88,4 @@ function vertIslandFinderFn obj =
 
 
 
-vertIslandFinderFn( selection[1] )
+islandPerLayerFinderFn( selection[1] )

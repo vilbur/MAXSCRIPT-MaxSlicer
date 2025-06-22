@@ -35,7 +35,7 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		-- format "\n"; print "SourceObject_v.generateSupports()"
+		 format "\n"; print "SourceObject_v.generateSupports()"
 		-- format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 		
@@ -54,10 +54,12 @@ struct SourceObject_v
 		verts_sel	= getVertSelection obj.mesh
 		
  		supports_exists = Supports.keys as BitArray
+		timer_color = timeStamp()
 
 		verts_by_colors = this._getVertsByColors()
 		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		colored_verts = this._getColoredVerts(verts_by_colors)
+		format "color: % ms\n" (( timeStamp()) - timer_color)
 		--format "COLORED_VERTS: %\n" colored_verts
 
 		/* GEt SELECTED or COLORED verts */ 
@@ -78,9 +80,11 @@ struct SourceObject_v
 		Normals.setLocalVertexNormals(verts_process)
 		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 		
+		timer_Normals = timeStamp()
 		Normals.saveNormalsToUserProps()
 		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 
+		timer_Normals = timeStamp()
 		Normals.setWorldSpaceVertexNormals(verts_process)
 		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
 		

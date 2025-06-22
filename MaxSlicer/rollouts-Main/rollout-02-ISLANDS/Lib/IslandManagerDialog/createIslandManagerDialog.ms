@@ -68,7 +68,9 @@ function createIslandManagerDialog islands_to_show: =
 	islands = islands as Array
 	
 	--items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands[i] collect  getItemTitile (i)
-	items = for i = islands.count to 1 by -1  collect getItemTitile (islands[i])
+	
+	--items = for i = islands.count to 1 by -1  collect getItemTitile (islands[i])
+	items = for i = islands.count to 1 by -1  collect islands[i] as string
 
 
 	/*------------------------------------------------------------------------------

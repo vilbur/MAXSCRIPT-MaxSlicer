@@ -2,11 +2,18 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 
 /** Grid of nodes_v
+  
+  
+  Create grid of supports under target_objects where support is missing
+  
+  SCREEN: --"./Doc/select-verts-up-down.gif"
+  
  */
 struct GridSupportSeeder_v
 (
 	/* construct */
 	target_objects,
+	grid_objects,
 	cell_size = 50,
 
 	/* required */
@@ -15,7 +22,7 @@ struct GridSupportSeeder_v
 	/* properties */
 	grid_origin = [0,0],
 	matrix,
-	empty_cells = #(),
+	hits = #(),
 	
 	num_cols,
 	num_rows,
@@ -24,6 +31,38 @@ struct GridSupportSeeder_v
 	/* reference */
 	/* inhered */
 
+	
+	/** Set grid
+	 */
+	function initGrid grid_objects =
+	(
+		--format "\n"; print "GridSupportSeeder_v.initGrid()"
+		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
+		
+		min_x = 1e9
+		min_y = 1e9
+		max_x = -1e9
+		max_y = -1e9
+
+		for node in this.grid_objects where isProperty node #position do
+		(
+			pos = node.position
+			
+			if node.min.x < min_x then min_x = node.min.x
+			if node.min.y < min_y then min_y = node.min.y
+			if node.max.x > max_x then max_x = node.max.x
+			if node.max.y > max_y then max_y = node.max.y
+		)
+		
+		this.grid_origin = [ min_x, min_y ]
+		-- format "grid_origin: %\n" grid_origin
+		
+		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
+		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
+		
+		/* Initialize matrix */ 
+		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
+	),
 	
 	/* 
 	Sorts array of nodes into 2D matrix based on node position.x and position.y 
@@ -51,100 +90,184 @@ struct GridSupportSeeder_v
 		matrix
 	),
 	
-	/** Set grid
+	/** Get closest verts of empty cells
 	 */
-	function initGrid grid_objects =
+	function getClosestVertsOfEmptyCells =
 	(
-		--format "\n"; print "GridSupportSeeder_v.initGrid()"
-		if classOf grid_objects != Array then grid_objects = #(grid_objects)
+		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		closest_verts = #{}
+		closest_verts_pos = #()
 		
-		min_x = 1e9
-		min_y = 1e9
-		max_x = -1e9
-		max_y = -1e9
+		empty_cells = this.getEmptyCells()
 
-		for node in target_objects where isProperty node #position do
+		this._convertTargetsToMeshSnapshots()
+		
+		for cell_pos in empty_cells do
 		(
-			pos = node.position
-			
-			if node.min.x < min_x then min_x = node.min.x
-			if node.min.y < min_y then min_y = node.min.y
-			if node.max.x > max_x then max_x = node.max.x
-			if node.max.y > max_y then max_y = node.max.y
-		)
-		
-		this.grid_origin = [ min_x, min_y ]
-		-- format "grid_origin: %\n" grid_origin
-		
-		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
-		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
-		
-		/* Initialize matrix */ 
-		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
-	),
+			format "\n"
+			hit_data = this.intersectRayWithObjects ( Ray cell_pos [0,0,1])
+				format "HIT_DATA: %\n" hit_data
+			if hit_data != undefined then
+				closest_vert_pos = this._getClosestVert hit_data[1] hit_data[2] hit_data[3]
 
-	function formatMatrixWithXYIndexes =
+			--closest_verts[closest_vert] = true
+			if closest_vert_pos != undefined then 
+			append closest_verts_pos closest_vert_pos
+		)
+
+		this._removeSnapshots()
+		
+		closest_verts_pos --return
+	),
+	
+	/** Get closest vert
+	 */
+	function _getClosestVert hitted_object hit_pos hitted_face =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v.formatMatrixWithXYIndexes()"
-		result = ""
-		-- format "matrix: %\n" matrix
+		format "\n"; print "GridSupportSeeder_v._getClosestVert()"
+		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
+	
+		closest_vert = -1
+		closest_dist = 1e9
+		closest_pos  = undefined
+	
+		for v in verts_of_face do
+		(
+			vpos = getVert hitted_object v
+			
+			dist = distance vpos hit_pos
+			
+			if dist < closest_dist then
+			(
+				closest_dist = dist
+				closest_vert = v
+				closest_pos  = vpos
+			)
+		)
+		format "closest_pos: %\n" closest_pos
+		closest_pos -- return
+	),
+	
+	/** 
+	  *	
+	  */
+	function getEmptyCells =
+	(
+		 -- format "\n"; print "GridSupportSeeder_v.getEmptyCells()"
+		--for i = 1 to target_objects.count do
+		--target_objects[i] = snapshotAsMesh target_objects[i]
+		
+		empty_cells	= #()
+		
 		for y = 1 to matrix.count do
 		(
 			row = matrix[y]
 			
 			for x = 1 to row.count do
 			(
-				val = row[x]
+				objects_in_row = row[x]
 				
 				x_pos = grid_origin.x + ((x - 1) * cell_size) -- + (cell_size/2)
 				y_pos = grid_origin.y + ((y - 1) * cell_size) -- + (cell_size/2)
 				
-				cell_pos = [ x_pos, y_pos, 0 ]
+				cell_center = [ x_pos, y_pos, 0 ]
 				
-				if val.count == 0 then
+				
+				close_to_center_found = false
+				
+				--format "\n"
+				for obj in grid_objects while not close_to_center_found do
 				(
-					hit = this.intersectRayWithObjects ( Ray cell_pos [0,0,1])
-					-- format "hit: %\n" hit
-					
-					if hit != undefined then
-						append empty_cells cell_pos
+					_distance = distance cell_center obj.pos
+
+					if _distance < cell_size / 2.5 then
+						close_to_center_found = true
 				)
+
+				if not close_to_center_found then
+					append empty_cells cell_center					
 			)
 		)
-		
-		empty_cells
+
+		empty_cells --return
 	),
 	
-	/*
-	  Intersect ray only with specific objects.
-	  Finds the closest intersection point with any of them.
+	/* Intersect ray only with specific objects.
+	   Finds the closest intersection point with any of them.
+	  
+	  return #( Hitted object, postion of hit, hitted face )
+	  
 	*/
-	
 	function intersectRayWithObjects ray =
 	(
-		closest_dist = 1e9
-		closest_hit = undefined
+		closest_dist  = 1e9
+		closest_hit   = undefined
+		result = undefined
 	
-		for obj in target_objects where isProperty obj #mesh and obj.mesh != undefined do
+		--for obj in target_objects where isProperty obj #mesh and obj.mesh != undefined do
+		for obj in target_objects do
 		(
-			hit = intersectRay obj ray
-	
+			hitted_object = obj
+
+			pointer = (getHandleByAnim obj) as string
+			
+			hit = IntersectRayEx obj ray
+			--hit = intersectRay obj ray
+			format "HIT: %\n" hit
+			
 			if hit != undefined then
 			(
-				dist = distance ray.pos hit.pos
+				dist = distance ray.pos hit[1].pos
+				
 				if dist < closest_dist then
 				(
 					closest_dist = dist
+					
 					closest_hit = hit
 				)
 			)
+			--format "closest_hit: %\n" closest_hit
+			
+			if closest_hit != undefined then 
+			result = #( obj, closest_hit[1].pos, closest_hit[2] )
 		)
 	
-		closest_hit -- return
+		result -- return
 	),
 
 
 	private
+	
+	/** Convert targets to mesh
+	 */
+	function _convertTargetsToMeshSnapshots =
+	(
+		--format "\n"; print "GridSupportSeeder_v._convertTargetsToMeshSnapshots()"
+		for i = 1 to target_objects.count where classOf target_objects[i] != Editable_mesh do
+		(
+			mesh_node = copy target_objects[i]
+			
+			collapseStack mesh_node
+			
+			convertToMesh mesh_node
+			
+			setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
+			
+			target_objects[i] = mesh_node
+		)
+	),
+	
+	/** Remove snapshots
+	 */
+	function _removeSnapshots =
+	(
+		--format "\n"; print "GridSupportSeeder_v._removeSnapshots()"
+		for i = target_objects.count to 1 by -1 do
+		format "target_objects[i]: %\n" target_objects[i]
+		--for i = target_objects.count to 1 by -1 where getUserProperty target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
+		--for i = 1 to target_objects.count where getUserProperty target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
+			--delete target_objects[i]
+	),
 	
 	/**
 	 */

@@ -299,34 +299,34 @@ function getLowestVerts obj search_verts =
 			for f in faces do
 				adj_verts += ( polyop.getFaceVerts obj f) as BitArray
 			
-			--is_lowest = true
-			--
-			--for adj in adj_verts while is_lowest do
-			--(
-			--	adj_pos = verts_pos[adj]
-			--
-			--	if adj_pos.z < v_pos.z then is_lowest = false
-			--	
-			--	verts_to_process[adj] = false
-			--)
-			--
-			--if is_lowest then result[v] = true
+			is_lowest = true
 			
-			lower_found = false
-			
-			for adj in adj_verts while not lower_found do
+			for adj in adj_verts while is_lowest do
 			(
 				adj_pos = verts_pos[adj]
 			
-				if adj_pos.z < v_pos.z then
+				if adj_pos.z < v_pos.z then is_lowest = false
 				
-					lower_found = true
-				else
-					verts_to_process[adj] = false
-				
+				verts_to_process[adj] = false
 			)
 			
-			if not lower_found then result[v] = true
+			if is_lowest then result[v] = true
+			
+			--lower_found = false
+			--
+			--for adj in adj_verts while not lower_found do
+			--(
+			--	adj_pos = verts_pos[adj]
+			--
+			--	if adj_pos.z < v_pos.z then
+			--	
+			--		lower_found = true
+			--	else
+			--		verts_to_process[adj] = false
+			--	
+			--)
+			--
+			--if not lower_found then result[v] = true
 			
 			
 		)

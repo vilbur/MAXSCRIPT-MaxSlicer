@@ -25,6 +25,8 @@ function createBoxAndCylinders =
 		flat_box --return
 	)
 	
+	num_cylinders = 60
+
 	flat_box1 = createBox 100 100 20 [ 0, 0, 80 ]
 	flat_box2 = createBox 80  80  10  [ 50, 0, 90 ]
 	
@@ -33,13 +35,11 @@ function createBoxAndCylinders =
 
 	bbox	= nodeGetBoundingBox flat_box1 ( Matrix3 1) -- return array of min\max positions E.G.: bbox[1].z | bbox[2].z
 	
-	format "bbox: %\n" bbox
 	
-	-- create 20 random cylinders below the box
-	--num_cylinders = 20
-	num_cylinders = 30
-	cyl_height = flat_box1.pos.z - 40
-	cyl_radius = 1
+	/* create 20 random cylinders below the box */ 
+	cyl_height = flat_box1.pos.z 
+	cyl_radius = 1		--num_cylinders = 20
+
 	min_z = flat_box1.pos.z - 80
 	max_z = flat_box1.pos.z - cyl_height - 5
 	
@@ -48,14 +48,17 @@ function createBoxAndCylinders =
 		x = random bbox[1].x bbox[2].x
 		y = random bbox[1].y bbox[2].y
 		
-		cyl = cylinder radius:cyl_radius height:cyl_height wirecolor:green
+		cyl = cylinder radius:cyl_radius height:cyl_height wirecolor:gray
 		cyl.position = [x, y, 0 ]
 	)
 )
 
-
 /* PREPARE SCENE */ 
 delete objects
+
+closest_verts = undefined 
+hit_positions = undefined 
+
 
 createBoxAndCylinders() -- run
 
@@ -74,9 +77,23 @@ GridSupportSeeder.initGrid(boxes)
 
 GridSupportSeeder.sortNodesToMatrix (cylinders)
 
-closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes)
+
+
+format "\n-------------------------------------------------------\n"
+--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes) #VERTS
+
+if closest_verts != undefined then
+	for key in closest_verts.keys do
+		for closest_vert_pos in closest_verts[key] do 
+			Sphere pos:closest_vert_pos radius:1 wirecolor:(getAnimByHandle ( key as IntegerPtr )).wirecolor
 
 
 
-for closest_vert_pos in closest_verts_pos do
-	Sphere pos:closest_vert_pos radius:1 wirecolor:red
+format "\n-------------------------------------------------------\n"
+
+hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes) #HITS
+
+if hit_positions != undefined then 
+	for key in hit_positions.keys do
+		for closest_vert_pos in hit_positions[key] do 
+			Sphere pos:closest_vert_pos radius:1 wirecolor:red

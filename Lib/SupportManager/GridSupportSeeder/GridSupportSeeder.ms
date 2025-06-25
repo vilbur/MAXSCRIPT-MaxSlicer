@@ -12,18 +12,22 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 struct GridSupportSeeder_v
 (
 	/* construct */
-	target_objects,
-	snapshot_sources = #(),
 	grid_objects,
-	cell_size = 50,
+	cell_objects,
+	target_objects,
+	intersect_objs,
+	
 
+	cell_size = 50,
 	/* required */
 	
 
 	/* properties */
 	grid_origin = [0,0],
 	matrix,
-	hits = #(),
+	
+	--snapshot_sources = #(),
+	closest_verts_pos,
 	
 	num_cols,
 	num_rows,
@@ -68,17 +72,17 @@ struct GridSupportSeeder_v
 	/* 
 	Sorts array of nodes into 2D matrix based on node position.x and position.y 
 	*/
-	function sortNodesToMatrix nodes =
+	function sortNodesToMatrix cell_objects =
 	(
 		 -- format "\n"; print "GridSupportSeeder_v.sortNodesToMatrix()"
 		 -- format "nodes: %\n" nodes
-		-- Create dictionary to hold cells
+		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 		
 		cell_dict = #()
 		
 		-- format "grid_origin: %\n" grid_origin
 
-		for node in nodes do
+		for node in cell_objects do
 		(
 			col = 1 + floor (( node.position.x - grid_origin.x) / cell_size )
 			row = 1 + floor (( node.position.y - grid_origin.y) / cell_size )
@@ -92,15 +96,32 @@ struct GridSupportSeeder_v
 	),
 	
 	/** Get closest verts of empty cells
+	  
+		@param #VERTS|#HITS mode
+	  
 	 */
-	function getClosestVertsOfEmptyCells target_objects =
+	function getClosestVertsOfEmptyCells target_objects mode =
 	(
 		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		/** Append closest vert
+		 */
+		function appendClosestVert grid_object vert_or_pos =
+		(
+			--format "\n"; print "GridSupportSeeder_v.appendClosestVert()"
+			if vert_or_pos != undefined then 
+			(
+				pointer = (getHandleByAnim grid_object) as string
+	
+				if this.closest_verts_pos[pointer] == undefined then
+					this.closest_verts_pos[pointer] = #()
+					
+				append this.closest_verts_pos[pointer] vert_or_pos
+			)
+		)
+		
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
 
-		
-		closest_verts = #{}
-		closest_verts_pos = #()
+		closest_verts_pos = Dictionary #STRING
 		
 		empty_cells = this.getEmptyCells()
 		
@@ -108,28 +129,27 @@ struct GridSupportSeeder_v
 		
 		for cell_pos in empty_cells do
 		(
-			closest_vert_pos = undefined
-			hit_data = this.intersectRayWithObjects ( Ray cell_pos [0,0,1])
-				 
+			hit_data = this._intersectRayWithObjects ( Ray cell_pos [0,0,1] )
+			
 			if hit_data != undefined then
 			(
-				closest_vert_pos = this._getClosestVert hit_data[1] hit_data[2] hit_data[3]
 				
-				if closest_vert_pos != undefined then 
-					append closest_verts_pos closest_vert_pos
+				grid_object = grid_objects[findItem intersect_objs hit_data[1]]
+				
+				appendClosestVert( grid_object )( if mode == #HITS then hit_data[2] else this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3] )
 			)
 		)
 		
 		this._removeSnapshots()
-		
+
 		closest_verts_pos --return
 	),
 	
 	/** Get closest vert
 	 */
-	function _getClosestVert hitted_object hit_pos hitted_face =
+	function _getClosestVertToHit hitted_object hit_pos hitted_face =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._getClosestVert()"
+		-- format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
 		closest_vert = -1
@@ -165,7 +185,7 @@ struct GridSupportSeeder_v
 		empty_cells	= #()
 		
 		for y = 1 to matrix.count do
-		(
+ 		(
 			row = matrix[y]
 			
 			for x = 1 to row.count do
@@ -181,7 +201,7 @@ struct GridSupportSeeder_v
 				close_to_center_found = false
 				
 				--format "\n"
-				for obj in grid_objects while not close_to_center_found do
+				for obj in cell_objects while not close_to_center_found do
 				(
 					_distance = distance cell_center obj.pos
 
@@ -196,21 +216,24 @@ struct GridSupportSeeder_v
 
 		empty_cells --return
 	),
+
+
+	private
 	
 	/* Intersect ray only with specific objects.
 	   Finds the closest intersection point with any of them.
 	  
-	  return #( Hitted object, postion of hit, hitted face )
+	  return #( pointer of hitted object, postion of hit, hitted face )
 	  
 	*/
-	function intersectRayWithObjects ray =
+	function _intersectRayWithObjects ray =
 	(
 		closest_dist  = 1e9
 		closest_hit   = undefined
 		hit_obj   = undefined
 		result = undefined
 	
-		for obj in target_objects do
+		for obj in intersect_objs do
 		(
 			hit = IntersectRayEx obj ray
 			
@@ -236,31 +259,42 @@ struct GridSupportSeeder_v
 		result -- return
 	),
 
-
-	private
-	
 	/** Convert targets to mesh
 	 */
 	function _convertTargetsToMeshSnapshots =
 	(
 		-- format "\n"; print "GridSupportSeeder_v._convertTargetsToMeshSnapshots()"
-		for i = 1 to target_objects.count where classOf target_objects[i] != Editable_mesh do
-		(
-			append snapshot_sources target_objects[i]
-			
-			target_objects[i].isHidden = true
-			
-			--format "target_objects[i]: %\n" target_objects[i]
-			mesh_node = copy target_objects[i]
-			
-			collapseStack mesh_node
-			
-			convertToMesh mesh_node
-			
-			setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
-			
-			target_objects[i] = mesh_node
-		)
+		this.intersect_objs = #()
+
+		format "GRID_OBJECTS X: %\n" grid_objects
+		format "TARGET_OBJECTS X: %\n" target_objects
+			format "\n"
+
+		for i = 1 to this.target_objects.count do
+			if classOf this.target_objects[i] != Editable_mesh then
+			(
+				--append this.snapshot_sources this.target_objects[i]
+				
+				this.target_objects[i].isHidden = true
+				--format "OBJ: %\n" (target_objects[i])
+				--format "this.target_objects[i]: %\n" this.target_objects[i]
+				--mesh_node = copy this.target_objects[i]
+				mesh_node = snapshot this.target_objects[i]
+				--format "mesh_node: %\n" mesh_node.name
+				--collapseStack mesh_node
+				
+				convertToMesh mesh_node
+				
+				setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
+				
+				this.intersect_objs[i] = mesh_node
+			)
+			else
+				this.intersect_objs[i] = target_objects[i]
+
+		--format "GRID_OBJECTS Y: %\n" grid_objects
+		--format "TARGET_OBJECTS Y: %\n" target_objects
+
 	),
 	
 	/** Remove snapshots
@@ -268,12 +302,13 @@ struct GridSupportSeeder_v
 	function _removeSnapshots =
 	(
 		/* DELETE SNAPSHOT OBJECTS */ 
-		for i = target_objects.count to 1 by -1 where getUserPropVal target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
-			delete target_objects[i]
-		
+		for i = intersect_objs.count to 1 by -1 where getUserPropVal intersect_objs[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
+			delete intersect_objs[i]
+				
 		/* SHOW SOURCE OBJECTS OF SNAPSHOTS */ 
-		for snapshot_source in snapshot_sources do 
-			snapshot_source.isHidden = false
+		for target_object in target_objects do
+			target_object.isHidden = false
+				
 	),
 	
 	/**

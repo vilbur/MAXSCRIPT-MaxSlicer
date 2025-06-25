@@ -27,6 +27,7 @@ struct GridSupportSeeder_v
 	
 	closest_verts_pos,
 	search_treshold = 1.5, -- how far from cell center is searched for grid object 
+	--search_treshold = 2.0, -- how far from cell center is searched for grid object 
 	
 	num_cols,
 	num_rows,
@@ -99,21 +100,7 @@ struct GridSupportSeeder_v
 	function getClosestVertsOfEmptyCells target_objects mode =
 	(
 		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
-		/** Append closest vert
-		 */
-		function appendClosestVert grid_object vert_or_pos =
-		(
-			--format "\n"; print "GridSupportSeeder_v.appendClosestVert()"
-			if vert_or_pos != undefined then 
-			(
-				pointer = (getHandleByAnim grid_object) as string
-	
-				if this.closest_verts_pos[pointer] == undefined then
-					this.closest_verts_pos[pointer] = #()
-					
-				appendIfUnique this.closest_verts_pos[pointer] vert_or_pos
-			)
-		)
+
 		
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
 
@@ -123,22 +110,120 @@ struct GridSupportSeeder_v
 		
 		this._convertTargetsToMeshSnapshots()
 		
-		for cell_pos in empty_cells do
+		/* LOOP EMPTY CELLS */ 
+		for cell_center in empty_cells do
 		(
-			hit_data = this._intersectRayWithObjects ( Ray cell_pos [0,0,1] )
-			
-			if hit_data != undefined then
-			(
-				
-				grid_object = grid_objects[findItem intersect_objs hit_data[1]]
-				
-				appendClosestVert( grid_object )( if mode == #HITS then hit_data[2] else this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3] )
-			)
+			--format "\n"
+			/* TEST CENTER OF CELL */ 
+			hit_data = this._testHit cell_center mode
+
+			if hit_data == undefined then
+				this._testPositionsAroundCenterOfCell(cell_center)(mode)
 		)
 		
 		this._removeSnapshots()
 
 		closest_verts_pos --return
+	),
+	
+	/** Test positions in cicrles around center of cell
+	 */
+	function _testPositionsAroundCenterOfCell cell_center mode =
+	(
+		--format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
+		--increment = 60
+		
+		--radiuses = #( cell_size / 2 / 3, cell_size / 2 / 1.5 )
+		ratios = #( 3.0, 1.2 )
+		
+		
+		/*------------------------------------------------------------------------------
+			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
+		--------------------------------------------------------------------------------*/
+		--for radius in radiuses while hit_data == undefined do 
+		for ratio in ratios while hit_data == undefined do 
+		(
+			radius = cell_size / 2 / ratio	
+			
+			point_pos = cell_center + [ radius, 0, 0 ]
+			
+			--increment_count = increment / ratio
+			increment = if ratio == 3 then 60 else 30 -- add more test if radius is bigger
+
+			/*------------------------------------------------------------------------------
+				TEST EACH ANGLE
+			--------------------------------------------------------------------------------*/
+			for i = 1 to 360 / increment while hit_data == undefined do
+			(
+				rotate_about = increment * i
+				
+				moved_pos = this.movePointOnCircleDeg cell_center radius point_pos rotate_about
+				--format "moved_pos: %\n" moved_pos
+				--Sphere pos:moved_pos radius:0.1 wirecolor:orange
+				
+				hit_data = this._testHit moved_pos mode
+			)
+		)
+		
+	),
+	
+	
+	/** Test hit
+	 */
+	function _testHit pos mode =
+	(
+		--format "\n"; print "GridSupportSeeder_v._testHit()"
+		
+		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		
+		if hit_data != undefined then
+		(
+			grid_object = grid_objects[findItem intersect_objs hit_data[1]]
+			
+			this.appendClosestVert( grid_object )( if mode == #HITS then hit_data[2] else this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3] )
+		)
+		
+		 hit_data--return
+	),
+	
+	/** Append closest vert
+	 */
+	function appendClosestVert grid_object vert_or_pos =
+	(
+		--format "\n"; print "GridSupportSeeder_v.appendClosestVert()"
+		if vert_or_pos != undefined then 
+		(
+			pointer = (getHandleByAnim grid_object) as string
+
+			if this.closest_verts_pos[pointer] == undefined then
+				this.closest_verts_pos[pointer] = #()
+				
+			appendIfUnique this.closest_verts_pos[pointer] vert_or_pos
+		)
+	),
+	
+	/** 
+	Move point along a circle by rotation angle using only degrees
+	*/
+	function movePointOnCircleDeg center_pos radius point_pos angle_deg =
+	(
+		-- Vector from center to point
+		vec = point_pos - center_pos
+	
+		-- Get current angle in degrees
+		current_angle = atan2 vec.y vec.x * 180 / pi
+	
+		-- Add rotation in degrees
+		new_angle = current_angle + angle_deg
+	
+		-- Convert to position using degrees
+		new_x = cos(new_angle) * radius
+		new_y = sin(new_angle) * radius
+	
+		-- Final position on circle
+		new_pos = center_pos + [new_x, new_y, 0]
+	
+		new_pos -- return
 	),
 	
 	/** Get closest vert

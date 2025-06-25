@@ -28,7 +28,7 @@ function createBoxAndCylinders =
 	num_cylinders = 60
 
 	flat_box1 = createBox 100 100 20 [ 0, 0, 80 ]
-	flat_box2 = createBox 80  80  10  [ 50, 0, 90 ]
+	flat_box2 = createBox 80  80  10  [ 45, 5, 90 ]
 	
 	
 	rotate flat_box1 (angleaxis 45 [0,0,1])
@@ -53,7 +53,9 @@ function createBoxAndCylinders =
 	)
 )
 
-/* PREPARE SCENE */ 
+/*------------------------------------------------------------------------------
+	PREPARE SCENE
+--------------------------------------------------------------------------------*/
 delete objects
 
 closest_verts = undefined 
@@ -71,7 +73,8 @@ cylinders = ( $'Cylinder*' as Array )
 --------------------------------------------------------------------------------*/
 GridSupportSeeder = GridSupportSeeder_v()
 
-GridSupportSeeder.cell_size = 15
+GridSupportSeeder.cell_size = 10
+--GridSupportSeeder.cell_size = 5
 
 GridSupportSeeder.initGrid(boxes)
 
@@ -79,8 +82,9 @@ GridSupportSeeder.sortNodesToMatrix (cylinders)
 
 
 
-format "\n-------------------------------------------------------\n"
---closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes) #VERTS
+format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
+
+closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes) #VERTS
 
 if closest_verts != undefined then
 	for key in closest_verts.keys do
@@ -89,7 +93,7 @@ if closest_verts != undefined then
 
 
 
-format "\n-------------------------------------------------------\n"
+format "\n------------------------ PALCE TO POSITION OF HITS -------------------------------\n"
 
 hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes) #HITS
 

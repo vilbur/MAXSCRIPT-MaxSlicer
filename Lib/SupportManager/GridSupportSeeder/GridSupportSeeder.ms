@@ -17,7 +17,6 @@ struct GridSupportSeeder_v
 	target_objects,
 	intersect_objs,
 	
-
 	cell_size = 50,
 	/* required */
 	
@@ -26,11 +25,12 @@ struct GridSupportSeeder_v
 	grid_origin = [0,0],
 	matrix,
 	
-	--snapshot_sources = #(),
 	closest_verts_pos,
+	search_treshold = 1.5, -- how far from cell center is searched for grid object 
 	
 	num_cols,
 	num_rows,
+
 	/* private */
 	/* dependency */
 	/* reference */
@@ -60,7 +60,6 @@ struct GridSupportSeeder_v
 		)
 		
 		this.grid_origin = [ min_x, min_y ]
-		 --format "GRID_ORIGIN: %\n" grid_origin
 		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
 		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
@@ -80,8 +79,6 @@ struct GridSupportSeeder_v
 		
 		cell_dict = #()
 		
-		-- format "grid_origin: %\n" grid_origin
-
 		for node in cell_objects do
 		(
 			col = 1 + floor (( node.position.x - grid_origin.x) / cell_size )
@@ -91,8 +88,7 @@ struct GridSupportSeeder_v
 				append matrix[row][col] node
 		)
 		
-		-- return
-		matrix
+		matrix -- return
 	),
 	
 	/** Get closest verts of empty cells
@@ -115,7 +111,7 @@ struct GridSupportSeeder_v
 				if this.closest_verts_pos[pointer] == undefined then
 					this.closest_verts_pos[pointer] = #()
 					
-				append this.closest_verts_pos[pointer] vert_or_pos
+				appendIfUnique this.closest_verts_pos[pointer] vert_or_pos
 			)
 		)
 		
@@ -169,7 +165,7 @@ struct GridSupportSeeder_v
 				closest_pos  = vpos
 			)
 		)
-		-- format "closest_pos: %\n" closest_pos
+
 		closest_pos -- return
 	),
 	
@@ -179,9 +175,6 @@ struct GridSupportSeeder_v
 	function getEmptyCells =
 	(
 		 -- format "\n"; print "GridSupportSeeder_v.getEmptyCells()"
-		--for i = 1 to target_objects.count do
-		--target_objects[i] = snapshotAsMesh target_objects[i]
-		
 		empty_cells	= #()
 		
 		for y = 1 to matrix.count do
@@ -197,15 +190,15 @@ struct GridSupportSeeder_v
 				
 				cell_center = [ x_pos, y_pos, 0 ]
 				
-				
 				close_to_center_found = false
 				
-				--format "\n"
 				for obj in cell_objects while not close_to_center_found do
 				(
 					_distance = distance cell_center obj.pos
 
-					if _distance < cell_size / 2.5 then
+					--if _distance < cell_size / 2.5 then
+					if _distance < cell_size / search_treshold then
+					--if _distance < cell_size then
 						close_to_center_found = true
 				)
 
@@ -266,22 +259,12 @@ struct GridSupportSeeder_v
 		-- format "\n"; print "GridSupportSeeder_v._convertTargetsToMeshSnapshots()"
 		this.intersect_objs = #()
 
-		format "GRID_OBJECTS X: %\n" grid_objects
-		format "TARGET_OBJECTS X: %\n" target_objects
-			format "\n"
-
 		for i = 1 to this.target_objects.count do
 			if classOf this.target_objects[i] != Editable_mesh then
 			(
-				--append this.snapshot_sources this.target_objects[i]
-				
 				this.target_objects[i].isHidden = true
-				--format "OBJ: %\n" (target_objects[i])
-				--format "this.target_objects[i]: %\n" this.target_objects[i]
-				--mesh_node = copy this.target_objects[i]
+
 				mesh_node = snapshot this.target_objects[i]
-				--format "mesh_node: %\n" mesh_node.name
-				--collapseStack mesh_node
 				
 				convertToMesh mesh_node
 				
@@ -291,10 +274,6 @@ struct GridSupportSeeder_v
 			)
 			else
 				this.intersect_objs[i] = target_objects[i]
-
-		--format "GRID_OBJECTS Y: %\n" grid_objects
-		--format "TARGET_OBJECTS Y: %\n" target_objects
-
 	),
 	
 	/** Remove snapshots

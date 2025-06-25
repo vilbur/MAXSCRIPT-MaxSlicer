@@ -13,6 +13,7 @@ struct GridSupportSeeder_v
 (
 	/* construct */
 	target_objects,
+	snapshot_sources = #(),
 	grid_objects,
 	cell_size = 50,
 
@@ -55,7 +56,7 @@ struct GridSupportSeeder_v
 		)
 		
 		this.grid_origin = [ min_x, min_y ]
-		-- format "grid_origin: %\n" grid_origin
+		 --format "GRID_ORIGIN: %\n" grid_origin
 		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
 		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
@@ -99,32 +100,40 @@ struct GridSupportSeeder_v
 		closest_verts_pos = #()
 		
 		empty_cells = this.getEmptyCells()
-
+		
 		this._convertTargetsToMeshSnapshots()
 		
 		for cell_pos in empty_cells do
 		(
-			format "\n"
+			closest_vert_pos = undefined
 			hit_data = this.intersectRayWithObjects ( Ray cell_pos [0,0,1])
-				format "HIT_DATA: %\n" hit_data
+				 
 			if hit_data != undefined then
+			(
+			 --format "\n"
+				-- format "HIT_DATA: %\n" hit_data
+				-- format "OBJ: %\n" hit_data[1]
+				
 				closest_vert_pos = this._getClosestVert hit_data[1] hit_data[2] hit_data[3]
-
-			--closest_verts[closest_vert] = true
-			if closest_vert_pos != undefined then 
-			append closest_verts_pos closest_vert_pos
+				
+				if closest_vert_pos != undefined then 
+					append closest_verts_pos closest_vert_pos
+			)
+		--
+		--	--closest_verts[closest_vert] = true
 		)
-
+		
 		this._removeSnapshots()
 		
 		closest_verts_pos --return
+		--empty_cells --return
 	),
 	
 	/** Get closest vert
 	 */
 	function _getClosestVert hitted_object hit_pos hitted_face =
 	(
-		format "\n"; print "GridSupportSeeder_v._getClosestVert()"
+		-- format "\n"; print "GridSupportSeeder_v._getClosestVert()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
 		closest_vert = -1
@@ -144,7 +153,7 @@ struct GridSupportSeeder_v
 				closest_pos  = vpos
 			)
 		)
-		format "closest_pos: %\n" closest_pos
+		-- format "closest_pos: %\n" closest_pos
 		closest_pos -- return
 	),
 	
@@ -202,18 +211,21 @@ struct GridSupportSeeder_v
 	(
 		closest_dist  = 1e9
 		closest_hit   = undefined
+		hit_obj   = undefined
 		result = undefined
 	
 		--for obj in target_objects where isProperty obj #mesh and obj.mesh != undefined do
+		-- format "\n==============================================\n"
 		for obj in target_objects do
 		(
-			hitted_object = obj
-
-			pointer = (getHandleByAnim obj) as string
+			-- format "\n"
+			-- format "obj: %\n" obj
+			--pointer = (getHandleByAnim obj) as string
 			
 			hit = IntersectRayEx obj ray
+			--format "\n"
 			--hit = intersectRay obj ray
-			format "HIT: %\n" hit
+			 -- format "HIT: %\n" hit
 			
 			if hit != undefined then
 			(
@@ -221,17 +233,20 @@ struct GridSupportSeeder_v
 				
 				if dist < closest_dist then
 				(
+					hit_obj = obj
+					
 					closest_dist = dist
 					
 					closest_hit = hit
 				)
 			)
 			--format "closest_hit: %\n" closest_hit
-			
-			if closest_hit != undefined then 
-			result = #( obj, closest_hit[1].pos, closest_hit[2] )
 		)
-	
+		
+		
+		if closest_hit != undefined then 
+			result = #( hit_obj, closest_hit[1].pos, closest_hit[2] )
+			
 		result -- return
 	),
 
@@ -242,9 +257,14 @@ struct GridSupportSeeder_v
 	 */
 	function _convertTargetsToMeshSnapshots =
 	(
-		--format "\n"; print "GridSupportSeeder_v._convertTargetsToMeshSnapshots()"
+		-- format "\n"; print "GridSupportSeeder_v._convertTargetsToMeshSnapshots()"
 		for i = 1 to target_objects.count where classOf target_objects[i] != Editable_mesh do
 		(
+			append snapshot_sources target_objects[i]
+			
+			target_objects[i].isHidden = true
+			
+			--format "target_objects[i]: %\n" target_objects[i]
 			mesh_node = copy target_objects[i]
 			
 			collapseStack mesh_node
@@ -254,6 +274,8 @@ struct GridSupportSeeder_v
 			setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 			
 			target_objects[i] = mesh_node
+			
+			
 		)
 	),
 	
@@ -261,12 +283,13 @@ struct GridSupportSeeder_v
 	 */
 	function _removeSnapshots =
 	(
-		--format "\n"; print "GridSupportSeeder_v._removeSnapshots()"
-		for i = target_objects.count to 1 by -1 do
-		format "target_objects[i]: %\n" target_objects[i]
-		--for i = target_objects.count to 1 by -1 where getUserProperty target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
-		--for i = 1 to target_objects.count where getUserProperty target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
-			--delete target_objects[i]
+		/* DELETE SNAPSHOT OBJECTS */ 
+		for i = target_objects.count to 1 by -1 where getUserPropVal target_objects[i] "GRID_SUPPORT_SEEDER_SNAPSHOT" != undefined do
+			delete target_objects[i]
+		
+		/* SHOW SOURCE OBJECTS OF SNAPSHOTS */ 
+		for snapshot_source in snapshot_sources do 
+			snapshot_source.isHidden = false
 	),
 	
 	/**

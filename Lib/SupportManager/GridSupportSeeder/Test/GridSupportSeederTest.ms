@@ -70,13 +70,11 @@ GridSupportSeeder = GridSupportSeeder_v()
 
 GridSupportSeeder.cell_size = 15
 
-GridSupportSeeder.target_objects = boxes
-
 GridSupportSeeder.initGrid(boxes)
 
 GridSupportSeeder.sortNodesToMatrix (cylinders)
 
-closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells()
+closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(boxes)
 
 
 

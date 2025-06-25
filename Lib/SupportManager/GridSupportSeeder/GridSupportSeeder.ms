@@ -93,9 +93,12 @@ struct GridSupportSeeder_v
 	
 	/** Get closest verts of empty cells
 	 */
-	function getClosestVertsOfEmptyCells =
+	function getClosestVertsOfEmptyCells target_objects =
 	(
 		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
+
+		
 		closest_verts = #{}
 		closest_verts_pos = #()
 		
@@ -110,23 +113,16 @@ struct GridSupportSeeder_v
 				 
 			if hit_data != undefined then
 			(
-			 --format "\n"
-				-- format "HIT_DATA: %\n" hit_data
-				-- format "OBJ: %\n" hit_data[1]
-				
 				closest_vert_pos = this._getClosestVert hit_data[1] hit_data[2] hit_data[3]
 				
 				if closest_vert_pos != undefined then 
 					append closest_verts_pos closest_vert_pos
 			)
-		--
-		--	--closest_verts[closest_vert] = true
 		)
 		
 		this._removeSnapshots()
 		
 		closest_verts_pos --return
-		--empty_cells --return
 	),
 	
 	/** Get closest vert
@@ -214,18 +210,9 @@ struct GridSupportSeeder_v
 		hit_obj   = undefined
 		result = undefined
 	
-		--for obj in target_objects where isProperty obj #mesh and obj.mesh != undefined do
-		-- format "\n==============================================\n"
 		for obj in target_objects do
 		(
-			-- format "\n"
-			-- format "obj: %\n" obj
-			--pointer = (getHandleByAnim obj) as string
-			
 			hit = IntersectRayEx obj ray
-			--format "\n"
-			--hit = intersectRay obj ray
-			 -- format "HIT: %\n" hit
 			
 			if hit != undefined then
 			(
@@ -240,7 +227,6 @@ struct GridSupportSeeder_v
 					closest_hit = hit
 				)
 			)
-			--format "closest_hit: %\n" closest_hit
 		)
 		
 		
@@ -274,8 +260,6 @@ struct GridSupportSeeder_v
 			setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 			
 			target_objects[i] = mesh_node
-			
-			
 		)
 	),
 	

@@ -77,16 +77,19 @@ struct SourceObject_v
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
 		timer_Normals = timeStamp()
+		format "setLocalVertexNormals() "
 		Normals.setLocalVertexNormals(verts_process)
-		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
+		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		timer_Normals = timeStamp()
+		format "saveNormalsToUserProps() "
 		Normals.saveNormalsToUserProps()
-		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
+		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 
 		timer_Normals = timeStamp()
+		format "setWorldSpaceVertexNormals() "
 		Normals.setWorldSpaceVertexNormals(verts_process)
-		format "Normals: % ms\n" (( timeStamp()) - timer_Normals)
+		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		timer_verts_process = timeStamp()

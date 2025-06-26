@@ -13,6 +13,7 @@ icon:	"ACROSS:4"
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\02-SEEDER.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\GridSupportSeeder\GridSupportSeeder.ms"
 		
 		objects_by_visibility	= for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
 			
@@ -34,7 +35,7 @@ icon:	"ACROSS:4"
 		supports = SUPPORT_MANAGER.getObjectsByType objs_input type:#SUPPORT --hierarchy:select_more
 		
 		format "SOURCE_OBJECTS: %\n" source_objects
-		format "SUPPORT_MOCKUP: %\n" supports
+		format "SUPPORTS:       %\n" supports
 	
 		GridSupportSeeder = GridSupportSeeder_v()
 		
@@ -50,18 +51,40 @@ icon:	"ACROSS:4"
 		
 		format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 		
-		--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
-		closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
-		
+		closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
+		--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
+		format "closest_verts: %\n" closest_verts
 		/* SHOW RESULT */ 
 		if closest_verts != undefined then
 			for obj_pointer in closest_verts.keys do
 			(
-				format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
-			
-				for closest_vert_pos in closest_verts[obj_pointer] do
+				obj = getAnimByHandle (obj_pointer as IntegerPtr )
+				--format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
+				format "obj: %\n" obj
+				format "classOf obj.modifiers[obj.modifiers.count]: %\n" (classOf obj.modifiers[obj.modifiers.count])
+				if classOf obj.modifiers[obj.modifiers.count] != Edit_Poly then
+					addModifier obj (Edit_Poly ())
+				
+				format "CLOSEST_VERTS: %\n" closest_verts[obj_pointer]
+				
+				select obj
+				
+				max modify mode
+				
+				subObjectLevel = 1
+				
+				obj.modifiers[#Edit_Poly].SetSelection #Vertex #{}
+				
+				obj.modifiers[#Edit_Poly].Select #Vertex closest_verts[obj_pointer]
+				
+				--for closest_vert_pos in closest_verts[obj_pointer] do
+				--(
+				--	
+				--	
+				--)
+				
 					--Sphere pos:closest_vert_pos radius:1 --wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
-					Sphere pos:closest_vert_pos radius:1 wirecolor:orange
+					--Sphere pos:closest_vert_pos radius:1 wirecolor:orange
 			)
 		 
 		

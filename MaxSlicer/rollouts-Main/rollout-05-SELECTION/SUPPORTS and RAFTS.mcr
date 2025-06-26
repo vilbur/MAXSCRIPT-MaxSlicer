@@ -59,23 +59,23 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 		format "selection.count: %\n" selection.count
 		
 		_objects = selection as Array
-		format "_objects.count: %\n" _objects.count
+		--format "_objects.count: %\n" _objects.count
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		
-		format "source_objects: %\n" source_objects
+		--format "source_objects: %\n" source_objects
 		
 		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
 		
-		format "\n"
-		for support in supports do 
-			format "support.name: %\n" support.name
-		format "\n"
+		--format "\n"
+		--for support in supports do 
+		--	format "support.name: %\n" support.name
+		--format "\n"
 		
-		format "supports: %\n" supports
-		format "supports.count: %\n" supports.count
+		--format "supports: %\n" supports
+		--format "supports.count: %\n" supports.count
 		
 		SourceObjects = SUPPORT_MANAGER.getSourceObjects source_objects
-		format "SourceObjects: %\n" SourceObjects
+		--format "SourceObjects: %\n" SourceObjects
 		for SourceObject in SourceObjects do
 		(
 			--format "SourceObject: %\n" SourceObject

@@ -5,34 +5,66 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../../../Lib/SupportManag
  */
 macroscript	_print_support_seeder
 category:	"_3D-Print"
-buttontext:	"Seeder"
+buttontext:	"S E E D E R"
 tooltip:	"Seed Supports"
 icon:	"ACROSS:4"
 (
 	on execute do
 	(
+		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\02-SEEDER.mcr"
 		
-		cylinders = ( $'Cylinder*' as Array ) 
+		objects_by_visibility	= for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
+			
+		/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
+		objs_input = if selection.count > 0 then selection as Array else objects_by_visibility
+	
+		/* GET INPUT SOURCE OBJECTS */ 
+		source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
+		--format "SOURCE_OBJECTS: %\n" source_objects
 		
+		/* TEST IF SOURCE OBJECT IS SELECTED */ 
+		select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
+		
+		/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
+		if selection.count == 0 then
+			objs_input = source_objects
+		
+		/* GET OBJECTS BY TYPE */ 	
+		supports = SUPPORT_MANAGER.getObjectsByType objs_input type:#SUPPORT --hierarchy:select_more
+		
+		format "SOURCE_OBJECTS: %\n" source_objects
+		format "SUPPORT_MOCKUP: %\n" supports
+	
 		GridSupportSeeder = GridSupportSeeder_v()
 		
-		GridSupportSeeder.target_objects = $Box001
+		--GridSupportSeeder.cell_size = 30
 		GridSupportSeeder.cell_size = 15
-		--GridSupportSeeder.cell_size = 10
-		--GridSupportSeeder.cell_size = 20
+		--GridSupportSeeder.cell_size = 5
 		
-		--GridSupportSeeder.initGrid(cylinders)
-		GridSupportSeeder.initGrid($Box001)
+		GridSupportSeeder.initGrid(source_objects)
 		
-		GridSupportSeeder.sortNodesToMatrix (cylinders)
-		
-		empty_cells = GridSupportSeeder.getEmptyCells()
+		GridSupportSeeder.sortNodesToMatrix (supports)
 		
 		
-		for cell_pos in empty_cells do
-		--format "empty_cell: %\n" empty_cell
-			Sphere pos:cell_pos radius:1 wirecolor:red
+		
+		format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
+		
+		--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
+		closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
+		
+		/* SHOW RESULT */ 
+		if closest_verts != undefined then
+			for obj_pointer in closest_verts.keys do
+			(
+				format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
+			
+				for closest_vert_pos in closest_verts[obj_pointer] do
+					--Sphere pos:closest_vert_pos radius:1 --wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+					Sphere pos:closest_vert_pos radius:1 wirecolor:orange
+			)
+		 
+		
 				
 		
 	)

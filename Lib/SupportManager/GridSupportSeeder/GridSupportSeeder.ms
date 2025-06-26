@@ -50,21 +50,20 @@ struct GridSupportSeeder_v
 		min_y = 1e9
 		max_y = -1e9
 
-		for node in this.grid_objects do
+		for node in this.grid_objects where isProperty node #position do
 		(
-			--pos = node.position
-			bbox	= nodeGetBoundingBox node ( Matrix3 1) -- return array of min\max positions E.G.: bbox[1].z | bbox[2].z
-
-			if bbox[1].x < min_x then min_x = bbox[1].x
-			if bbox[1].y < min_y then min_y = bbox[1].y
-			if bbox[2].x > max_x then max_x = bbox[2].x
-			if bbox[2].y > max_y then max_y = bbox[2].y
+			pos = node.position
+			
+			if node.min.x < min_x then min_x = node.min.x
+			if node.min.y < min_y then min_y = node.min.y
+			if node.max.x > max_x then max_x = node.max.x
+			if node.max.y > max_y then max_y = node.max.y
 		)
 		
 		this.grid_origin = [ min_x, min_y ]
 		
-		--point pos:[ min_x, min_y, 0 ]
-		--point pos:[ max_x, max_y, 0 ]
+		point pos:[ min_x, min_y, 0 ]
+		point pos:[ max_x, max_y, 0 ]
 		--plane pos:grid_origin width:( max_x - min_x ) length:( max_y - max_y )
 		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
@@ -121,10 +120,9 @@ struct GridSupportSeeder_v
 			--format "\n"
 			/* TEST CENTER OF CELL */ 
 			hit_data = this._testHit cell_center mode
-			--this.appendClosestVert( grid_objects[1] )( cell_center )
 
-			--if hit_data == undefined then
-				--this._testPositionsAroundCenterOfCell(cell_center)(mode)
+			if hit_data == undefined then
+				this._testPositionsAroundCenterOfCell(cell_center)(mode)
 		)
 		
 		this._removeSnapshots()
@@ -246,8 +244,7 @@ struct GridSupportSeeder_v
 	
 		for v in verts_of_face do
 		(
-			
-			vpos = 	at time currentTime getVert hitted_object v
+			vpos = getVert hitted_object v
 			
 			dist = distance vpos hit_pos
 			
@@ -306,10 +303,11 @@ struct GridSupportSeeder_v
 
 	private
 	
-	/* Intersect ray only with specific objects.
+	/* INTERSECT RAY only with specific objects.
+	   
 	   Finds the closest intersection point with any of them.
 	  
-	  return #( pointer of hitted object, postion of hit, hitted face )
+		return #( pointer of hitted object, postion of hit, hitted face )
 	  
 	*/
 	function _intersectRayWithObjects ray =
@@ -321,8 +319,7 @@ struct GridSupportSeeder_v
 	
 		for obj in intersect_objs do
 		(
-			at time currentTime
-				hit = IntersectRayEx obj ray
+			hit = IntersectRayEx obj ray
 			
 			if hit != undefined then
 			(
@@ -365,7 +362,7 @@ struct GridSupportSeeder_v
 
 				mesh_node = snapshot this.target_objects[i]
 				
-				convertToMesh mesh_node
+				mesh_node.transform = target_objects[i].transform -- snapshot is created at time 0
 				
 				setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 				

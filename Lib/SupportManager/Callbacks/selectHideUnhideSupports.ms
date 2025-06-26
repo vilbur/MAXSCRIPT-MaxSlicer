@@ -33,7 +33,7 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 	/* GET INPUT SOURCE OBJECTS */ 
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
 	
-	/* TSEST IF SOURCE OBJECT IS SELECTED */ 
+	/* TEST IF SOURCE OBJECT IS SELECTED */ 
 	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
 	
 	/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
@@ -41,7 +41,7 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 		objs_input = source_objects
 	
 	/* GET OBJECTS BY TYPE */ 	
-	objs_by_type   = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
+	objs_by_type = SUPPORT_MANAGER.getObjectsByType objs_input type:type hierarchy:select_more
 	
 	/* GET ALL OBEJCTS OF GIVEN TYPE - WORKS LIKE NOTHING SELECTED, IF SELECTION EXISTS BUT OBJECTS ARE NOT IN SUPPORT SYSTEM */ 
 	if source_objects.count == 0 and objs_by_type.count == 0 then

@@ -27,13 +27,30 @@ global SPIN_CHAMFER_BAR_LAST_VALUE
 --		)
 --)
 
+/*
+*/ 
+macroscript	_print_support_foot_option
+category:	"_3D-Print"
+buttontext:	"Make Foot"
+tooltip:	"Generate supports WITH\WITHOUT FOOT"
+icon:	"ACROSS:4|control:checkbox|id:CBX_foot_enabled|offset:[ -2, 16 ]"
+(
+	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
+	--on isEnabled return selection.count > 0
+
+	on execute do
+		SUPPORT_OPTIONS.foot_enabled = EventFired.val
+		--SUPPORT_MANAGER.updateModifiers ( EventFired )
+
+)
+
 /** BAR WIDTH
  */
 macroscript	_print_platform_generator_set_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	""
-icon:	"ACROSS:3|control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ -32, 4 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ 0, 16 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -73,7 +90,7 @@ macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|scale:1|width:90|offset:[ -32, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_base_width|fieldwidth:32|range:[ 1, 999, 10 ]|scale:1|width:90|offset:[ -10, 4 ]|tooltip:WIDTH of support BASE\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -106,7 +123,7 @@ macroscript	_print_platform_generator_bar_chamfer
 category:	"_3D-Print"
 buttontext:	"TOP"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|width:64|offset:[ -8, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|width:64|offset:[ 0, 4 ]|tooltip:WIDTH of support TOP\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -138,30 +155,13 @@ icon:	"control:spinner|id:SPIN_top_width|fieldwidth:32|range:[ 0.1, 3, 0.5 ]|wid
 ================================================================================*/
 
 
-/*
-*/ 
-macroscript	_print_support_foot_option
-category:	"_3D-Print"
-buttontext:	"Make Foot"
-tooltip:	"Generate supports WITH\WITHOUT FOOT"
-icon:	"ACROSS:3|control:checkbox|id:CBX_foot_enabled|offset:[ 0, 0 ]"
-(
-	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
-	--on isEnabled return selection.count > 0
-
-	on execute do
-		SUPPORT_OPTIONS.foot_enabled = EventFired.val
-		--SUPPORT_MANAGER.updateModifiers ( EventFired )
-
-)
-
 /**
  */
 macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
 buttontext:	"HEIGHT"
 tooltip:	"Height of support base"
-icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ -16, 0 ]"
+icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ 150, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
@@ -178,7 +178,7 @@ macroscript	_print_platform_generator_extrude_top
 category:	"_3D-Print"
 buttontext:	"EXT"
 tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_extend_top|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ -10, 0 ]"
+icon:	"control:spinner|id:SPIN_extend_top|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ 114, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

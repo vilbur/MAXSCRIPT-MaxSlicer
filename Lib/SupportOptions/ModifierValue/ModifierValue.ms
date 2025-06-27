@@ -9,7 +9,7 @@ struct ModifierValue_v
 	 */
 	function getSweepRadius prop_name bar_width: =
 	(
-		 format "\n"; print "ModifierValue_v.getSweepRadius()"
+		 -- format "\n"; print "ModifierValue_v.getSweepRadius()"
 		-- format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
 		
 		if bar_width == unsupplied then 
@@ -40,7 +40,7 @@ struct ModifierValue_v
 	 */
 	function getChamferBarValue obj_type bar_width: top_width: =
 	(
-		 format "\n"; print "ModifierValue_v.getChamferBarValue()"
+		 -- format "\n"; print "ModifierValue_v.getChamferBarValue()"
 		prop_name = if obj_type == #RAFT then "raft_width" else "bar_width"
 		
 		if bar_width == unsupplied then 

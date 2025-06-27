@@ -136,7 +136,7 @@ struct SupportRaft_v
 		
 		--if raftHasFullLenght() then
 		/* SAVE RAFT LENGTH IF NOT LOCKED, AUTO OR NOT SHORTENED */ 
-		if not SUPPORT_OPTIONS.lock_normal_length and Support.normal_length > 0 and raftHasFullLenght() then
+		if Support.obj_type == #SUPPORT and not SUPPORT_OPTIONS.lock_normal_length and Support.normal_length > 0 and raftHasFullLenght() then
 			setUserPropVal Support.support_obj "NORMAL_LENGTH" normal_length
 
 	),

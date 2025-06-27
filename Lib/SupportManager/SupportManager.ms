@@ -104,7 +104,8 @@ struct SupportManager_v
 		format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
 		--this._removeDeletedNodes()
-
+		--SLICER_SYSTEM.toggleModifiers false
+		
 		max modify mode
 		
 		--SUPPORT_OPTIONS.getValuesFromUi()
@@ -140,7 +141,7 @@ struct SupportManager_v
 		
 		bindOnObjectDeletedCallback( source_obj )
 		--whenSourceObjectSelectionChanges( source_obj )
-
+		--SLICER_SYSTEM.toggleModifiers true
 		new_nodes --return
 	),
 
@@ -553,19 +554,19 @@ struct SupportManager_v
 			supports_to_convert = supports_by_source[sync_key]
 			--format "supports_exists.count: %\n" supports_exists.count
 			supports_exists = SourceObjects[sync_key].getSupportNodes obj_type:to_type
-			
+			format "supports_exists: %\n" supports_exists
 			
 			/* CONVERT TYPE */
-			SourceObjects[sync_key].convertType( supports_to_convert ) obj_type:to_type
+			SourceObjects[sync_key].convertType( supports_to_convert ) to_type:to_type
 
 			
 			/* GET EXISTING MODIFEIRS */
 			if supports_exists.count > 0 then
 				modifiers = supports_exists[1].modifiers
-			
+			format "modifiers: %\n" modifiers
 			
 			/* CONVERT MODIFEIRS */
-			MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) obj_type:to_type modifiers:modifiers
+			MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) to_type:to_type modifiers:modifiers
 		)
 
 		redrawViews()

@@ -185,7 +185,7 @@ struct SupportObject_v
 
 		points = #(first_knot_pos, support_obj.pos)
 		
-		this._setRaftLenght update_raft:update_raft
+		this._setNormalLenght update_raft:update_raft
 
 		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
 		
@@ -249,11 +249,13 @@ struct SupportObject_v
 		
 		
 		/* IF TYPE IS CONVERTED */ 
-		this._getPositionsFromLineOnConvert()
+		--this._getPositionsFromLineOnConvert()
 		
 		
 		/* UPDATE SUPPORT */ 
-		this.updateSupport()
+		--this.updateSupport()
+		--this.updateSupport first_knot_pos:(undefined)
+		this.updateSupport update_raft:( to_type == #RAFT )
 	),
 
 	/** Rebulid support
@@ -715,9 +717,9 @@ struct SupportObject_v
 	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
 	  * 
 	 */
-	function _setRaftLenght update_raft:false =
+	function _setNormalLenght update_raft:false =
 	(
-		-- format "\n"; print "SupportObject_v._setRaftLenght()"
+		-- format "\n"; print "SupportObject_v._setNormalLenght()"
 		
 		this.normal_length = if update_raft and not SUPPORT_OPTIONS.lock_normal_length then
 			 distance points[1] points[2]

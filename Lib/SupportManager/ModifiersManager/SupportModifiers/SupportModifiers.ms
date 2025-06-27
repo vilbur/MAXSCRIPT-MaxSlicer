@@ -23,11 +23,9 @@ struct SupportModifiers_v
 		 format "\n"; print "SupportModifiers_v._initModifiers()"
 		OPTIONS = SUPPORT_OPTIONS
 		
-		format "SHIT\n"
 		top_width_support = ( OPTIONS.getModVal #TOP_WIDTH obj_type:#SUPPORT ) / EXPORT_SIZE
-		format "!!!! WTF\n"
+
 		top_width_raft    = ( OPTIONS.getModVal #TOP_WIDTH obj_type:#RAFT ) / EXPORT_SIZE
-		format "OOOPS\n"
 		
 		/* SUPPORT MODIFIERS */
 		mods_support[8]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )

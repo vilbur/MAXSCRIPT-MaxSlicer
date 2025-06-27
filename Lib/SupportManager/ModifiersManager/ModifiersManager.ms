@@ -201,10 +201,10 @@ struct ModifiersManager_v
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
 	(
-		-- format "\n"; print "ModifiersManager_v.convertSupportType()"
-		--format "to_type: %\n" to_type
-		--format "modifiers: %\n" modifiers
-		--format "_objects: %\n" _objects
+		 format "\n"; print "ModifiersManager_v.convertSupportType()"
+		format "to_type: %\n" to_type
+		format "modifiers: %\n" modifiers
+		format "_objects: %\n" _objects
 		--format "SupportModifiers[#DEFAULT]: %\n" SupportModifiers[#DEFAULT]
 		this._initDefaultModifiers()
 
@@ -215,22 +215,17 @@ struct ModifiersManager_v
 			(to_type == #RAFT):	SupportModifiers[#DEFAULT].mods_raft
 		)
 
-		--format "MODIFIERS_ADD: %\n" modifiers_add
-		--format "MODIFIERS_ADD: %\n" modifiers_add.count
+		format "MODIFIERS_ADD: %\n" modifiers_add
+		format "MODIFIERS_ADD: %\n" modifiers_add.count
 
+		/* DELETE OLD MODIFIERS */ 
 		for obj in _objects do
-		(
-			
 			for i = obj.modifiers.count to 1 by -1 do
 				deleteModifier obj 1
 
-			--
-			--for i = modifiers_add.count to 1 by -1 do
-			--		addModifier obj modifiers_add[i]
-		)
-
+		/* ADD NEW MODIFIERS */ 
 		for i = modifiers_add.count to 1 by -1 do
-				addModifier _objects modifiers_add[i]
+			addModifier _objects modifiers_add[i]
 
 		/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 		this._setSweepProperties (_objects[1])

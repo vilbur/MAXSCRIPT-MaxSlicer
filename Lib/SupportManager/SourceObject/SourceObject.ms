@@ -207,19 +207,19 @@ struct SourceObject_v
 	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
 	  *
 	 */
-	function convertType support_nodes obj_type:#RAFT  =
+	function convertType support_nodes to_type:#RAFT  =
 	(
 		--format "\n"; print "SourceObject_v.convert()"
 
-		from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 		
 		this.removeDeletedNodes()
 
 		for support_node in support_nodes do
-			(this._getSupportByNode (support_node)).convertType(obj_type)
+			(this._getSupportByNode (support_node)).convertType(to_type)
 
 
-		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:obj_type ) obj_type:obj_type
+		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes to_type:obj_type ) obj_type:obj_type
 
 		--for sync_key in supports_by_source.keys do
 		--	for support_node in supports_by_source[sync_key] do

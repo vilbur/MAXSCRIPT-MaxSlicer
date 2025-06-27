@@ -440,7 +440,7 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		 --format "\n"; print "SupportManager_v.updateModifiers()"
+		 format "\n"; print "SupportManager_v.updateModifiers()"
 		--format "EventFired: %\n" EventFired
 		
 		/** Get string after underscore E.G.: "ROLLOUT_supports" >>> "supports"
@@ -450,30 +450,30 @@ struct SupportManager_v
 		/* GET PROPERTY KEY BY CONTROL NAME */
 		--prop_key = splitString (EventFired.control.name)
 		prop_key = ( splitString (EventFired.control.name)) as name 
-
+		format "prop_key: %\n" prop_key
 		/* UPDATE OPTION VALUE */ 
 		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 		
 		/* GET OBJECT TYPE BY ROLLOUT NAME  */
 		obj_type = splitString (EventFired.Roll.name)
-		
+		format "obj_type: %\n" obj_type
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
 		obj_type = ( trimRight obj_type "Ss" ) as name
-		-- format "OBJ_TYPE: %\n" obj_type
-		--format "PROP_KEY: %\n" prop_key
+		format "OBJ_TYPE: %\n" obj_type
 		
-		--objects_by_type = this._getObjectsForUpdate obj_type
-		 
 		if (objects_by_type = this._getObjectsForUpdate obj_type) != undefined then
 		(
+            format "objects_by_type: %\n" objects_by_type	
 			
 			SUPPORT_OPTIONS.init()
 			
+			/* GET  VALUE */ 
 			val = if prop_key == #BAR_WIDTH then EventFired.val / 2 else EventFired.val
 			
 			/* UPDATE USER PROPS */
 			prop_key_string = toUpper (prop_key as string )
 			
+			/* SAVE TO USER PROPS */ 
 			for obj in objects_by_type do 
 				setUserPropVal obj prop_key_string EventFired.val
 				
@@ -713,6 +713,7 @@ struct SupportManager_v
 	function _getObjectsForUpdate obj_type =
 	(
 		--format "\n"; print "SupportManager_v.getObejctsForUpdate()"
+		--format "obj_type: %\n" obj_type
         /* GET OBJECTS TO PROCESS */ 		
 		--_objects = ( if selection.count > 0 then selection else objects ) as Array -- USE ALL OBEJCTS IF NOTHING SELECTED
 		_objects = selection as Array
@@ -725,7 +726,9 @@ struct SupportManager_v
 			
 			/* GET OBJECTS BY TYPE */
 			objects_by_type = this.getObjectsByType ( if source_objects.count > 0 then source_objects else _objects ) type:obj_type
-	
+			
+			--format "OBJECTS_BY_TYPE: %\n" objects_by_type
+			
 			objects_by_type --return
 		)
 	),
@@ -1297,7 +1300,7 @@ struct SupportManager_v
 	*/
 	on create do
 	(
-		--format "\n"; print "SupportManager_v.onCreate()"
+		format "\n"; print "SupportManager_v.onCreate()"
 		if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
 		
 		

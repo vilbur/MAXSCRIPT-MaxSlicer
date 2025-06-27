@@ -27,26 +27,28 @@ struct ModifiersManager_v
 	  */
 	function addModifiers _objects obj_type:#SUPPORT objects_exists:#() =
 	(
-		 format "\n-----------------------------------------\n"
-		 format "\n"; print "ModifiersManager_v.addModifiers()"
-		 format "objects_exists: %\n" objects_exists
+		 -- format "\n-----------------------------------------\n"
+		 -- format "\n"; print "ModifiersManager_v.addModifiers()"
+		 -- format "objects_exists: %\n" objects_exists
 		 
 		this._objects =	_objects
 
-		/*------------------------------------------------------------------------------
+		/*==============================================================================
+		  
 			CREATE NEW ISTANCES OF MODIFIERS
-		--------------------------------------------------------------------------------*/
+			
+		================================================================================*/
 		if objects_exists.count == 0 then
 		(
 			--format "ADD NEW MODIFIERS\n"
 			select _objects
 		
-			SupportModifiers[#DEFAULT] = SupportModifiers_v()
+			this._initDefaultModifiers()
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 
 			for _mod in modifiers do
-			format "_mod: %\n" _mod
+			-- format "_mod: %\n" _mod
 			
 			max modify mode
 			--max create mode
@@ -58,11 +60,18 @@ struct ModifiersManager_v
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepProperties (_objects[1] )
 			
-			this.connenctBarAndToprWidths _objects[1]
+			/* WIRE PARAMETERS */ 
+			this._wireBarAndTopWidth _objects[1]
+			
+			if obj_type == #SUPPORT then
+				this._wireBarWidthToBase _objects[1]
 		)
-		/*------------------------------------------------------------------------------
+		
+		/*==============================================================================
+		  
 			COPY MODIFIERS
-		--------------------------------------------------------------------------------*/
+			
+		================================================================================*/
 		else
 		(
 			-- format "objects_exists: %\n" objects_exists
@@ -110,48 +119,14 @@ struct ModifiersManager_v
 		)
 	),
 
-	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
-	 */
-	function _setSweepProperties obj =
-	(
-		 --format "\n"; print "SupportModifiers_v.setSweepRadius()"
-		--format "BAR_WIDTH: %\n" (SUPPORT_OPTIONS.getModVal #BAR_WIDTH)
-
-		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
-		
-		
-		interpolation_Steps = 4
-		
-		max modify mode
-
-		try(
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = (SUPPORT_OPTIONS.getModVal #BAR_WIDTH / EXPORT_SIZE)
-			
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
-			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
-		)catch(
-			format "**********************************************\n"
-			format "\n"; print "SupportModifiers_v.setSweepRadius()"
-			format "ERROR: SET SWEEP RADIUS FAILED on obj: %\n" obj.name
-		)
-	),
-	
-	--/** Get sweep radius
-	-- */
-	--function getSweepRadius =
-	--(
-	--	--format "\n"; print "ModifiersManager_v.getSweepRadius()"
-	--	SUPPORT_OPTIONS.getModVal #BAR_WIDTH / 2.0
-	--),
-
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */
 	function updateModifier _objects prop_key val: =
 	(
-		 -- format "\n"; print "ModifiersManager_v.updateModifier()"
-		 --format "_objects: %\n" _objects
-		 -- format "prop_key: %\n" prop_key
-		 -- format "val: %\n" val
+		  -- format "\n"; print "ModifiersManager_v.updateModifier()"
+		 -- format "_objects: %\n" _objects
+		  -- format "prop_key: %\n" prop_key
+		  -- format "val: %\n" val
 
 		/* COMPARE ARRAYS
 		*/ 
@@ -222,48 +197,6 @@ struct ModifiersManager_v
 		SetCommandPanelTaskMode mode:current_panel
 	),
 	
-	--/** Udpate top width
-	-- */
-	--function udpateTopWidth _objects top_width =
-	--(
-	--	-- format "\n"; print "ModifiersManager_v.udpateTopWidth()"
-	--	
-	--	--top_width /= EXPORT_SIZE
-	--	
-	--	objs_by_bar_width	= Dictionary #STRING -- KEY:"Value of BAR_WIDTH" VALUE:#( objects )
-	--	
-	--	/* SORT OBJECTS BY BAR WIDTH */ 
-	--	for obj in _objects do
-	--	(
-	--		sweep_radius = obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius as string
-	--		
-	--		if objs_by_bar_width[sweep_radius] == undefined then
-	--			objs_by_bar_width[sweep_radius] = #(obj)
-	--		else
-	--			append objs_by_bar_width[sweep_radius] obj
-	--	)
-	--	
-	--	/* UPDATE CHAMFER FOR EACH VALUE OF SWEEP RADIUS */ 
-	--	for bar_width_key in objs_by_bar_width.keys do
-	--	(
-	--		--_objects = objs_by_bar_width[bar_width]
-	--		
-	--		bar_width = (bar_width_key as float * 2) * EXPORT_SIZE
-	--		
-	--		
-	--		/* GET CHAMFER VALUE */
-	--		--chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:(bar_width as float * 2) top_width:top_width
-	--		chamfer_val = SUPPORT_OPTIONS.ModifierValue.getChamferBarValue bar_width:bar_width top_width:top_width
-	--		-- format "chamfer_val: %\n" chamfer_val
-	--
-	--		/* UPDATE CHAMFER VALUE */ 
-	--		this.updateModifier objs_by_bar_width[bar_width_key] #TOP_WIDTH val:chamfer_val
-	--		
-	--		
-	--	)
-	--),
-	
-	
 	/** Convert obj type
 	 */
 	function convertSupportType _objects to_type:#RAFT modifiers:undefined =
@@ -273,6 +206,7 @@ struct ModifiersManager_v
 		--format "modifiers: %\n" modifiers
 		--format "_objects: %\n" _objects
 		--format "SupportModifiers[#DEFAULT]: %\n" SupportModifiers[#DEFAULT]
+		this._initDefaultModifiers()
 
 		modifiers_add = case of
 		(
@@ -304,43 +238,97 @@ struct ModifiersManager_v
 
 
 
-	/** Connenct bar and topr widths
+	
+	/** CONNECT MODIFIERS OF SUPPORT AND RAFT
+	  
+		CHANGE of bar with FIRES change of chmafer to KEEP SAME ABSOLUTE SIZE of chamfered face
+	  
+		1. Update of modifiers[#TOP_WIDTH].amount fires Param Wire script
+		2. Param Wire script modifies BAR_WITH.radius and TOP_WIDTH.bar_width to get CHAMFER VALUE
+		3. Update chamfer value
+	  
 	 */
-	function connenctBarAndToprWidths obj =
+	function _wireBarAndTopWidth obj =
 	(
-		--format "\n"; print "ModifiersManager_v.connenctBarAndToprWidths()"
-		/** Add bar width variable
-		 */
-		--function addBarWidthVariable obj _float_script = _float_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-		
-		/* CONNECT MODIFIERS OF SUPPORT AND RAFT */ 
+		--format "\n"; print "ModifiersManager_v._wireBarAndTopWidth()"
+		/* CREATE SCRIPT */ 
 		top_width_script = float_script ()
 		
-		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
-		
+		/* CONFIGURE SCRIPT */ 
 		top_width_script.addTarget  "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
 		
 		top_width_script.addTarget "MaxSlicerParameters"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
 		
 		top_width_script.script  = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		
+		/* ADD SCRIPT */ 
+		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
+	),
+	
+	/** CONNENCT BAR WIDTH TO BASE OF SUPPORT
+	  
+		CHANGE of bar with FIRES change of extrude to KEEP SAME ABSOLUTE SIZE of extruded
+	  
+		1. Update of modifiers[#TOP_WIDTH].amount fires Param Wire script
+		2. Param Wire script modifies BAR_WITH.radius and TOP_WIDTH.bar_width to get CHAMFER VALUE
+		3. Update chamfer value
+	  
+	 */
+	function _wireBarWidthToBase obj =
+	(
+		--format "\n"; print "ModifiersManager_v._wireBarWidthToBase()"
+		----if obj.modifiers[#BASE_WIDTH] != undefined then
+		/* CREATE SCRIPT */ 
+		base_width_script = float_script ()
 		
-		/* CONNECT MODIFIERS ONLY OF SUPPORT */ 
-		if obj.modifiers[#BASE_WIDTH] != undefined then
-		(
-			base_width_script = float_script ()
-			
-			obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
-			
-			base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
-			
-			base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
-			
-			base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
-		)
+		/* CONFIGURE SCRIPT */ 
+		base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
+		
+		base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
+		
+		base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		
+		/* ADD SCRIPT */ 
+		obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
 	),
 
 	private
+	
+	/** Init default modifiers
+	 */
+	function _initDefaultModifiers =
+	(
+		--format "\n"; print "ModifiersManager_v._initDefaultModifiers()"
+		if SupportModifiers[#DEFAULT] == undefined then 
+			SupportModifiers[#DEFAULT] = SupportModifiers_v()
+	),
+	
+	
+	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
+	 */
+	function _setSweepProperties obj =
+	(
+		 --format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		--format "BAR_WIDTH: %\n" (SUPPORT_OPTIONS.getModVal #BAR_WIDTH)
+
+		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
+		
+		
+		interpolation_Steps = 4
+		
+		max modify mode
+
+		try(
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = (SUPPORT_OPTIONS.getModVal #BAR_WIDTH / EXPORT_SIZE)
+			
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
+			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5
+		)catch(
+			-- format "**********************************************\n"
+			-- format "\n"; print "SupportModifiers_v.setSweepRadius()"
+			-- format "ERROR: SET SWEEP RADIUS FAILED on obj: %\n" obj.name
+		)
+	),
 	
 	/** REINSTANCE MODIFIER
 	 */

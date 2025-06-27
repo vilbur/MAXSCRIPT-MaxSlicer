@@ -95,18 +95,19 @@ struct SupportOptions_v
 
 	/** Get value of prop mutated for modifier
 	 */
-	function getModVal prop_key =
+	function getModVal prop_key obj_type: =
 	(
-		--format "\n"; print "SupportOptions_v.getProp()"
+		-- format "\n"; print "SupportOptions_v.getModVal()"
 		
 		/* Mutate value for modifier */
 		val = case prop_key of
 		(
-			#BAR_WIDTH:	ModifierValue.getSweepRadius()
+			#BAR_WIDTH:	ModifierValue.getSweepRadius(#BAR_WIDTH)
+			#RAFT_WIDTH:	ModifierValue.getSweepRadius(#RAFT_WIDTH)
 			#BASE_WIDTH:	ModifierValue.getBaseWidthValue()
 			#DRAIN_WIDTH:	ModifierValue.getDrainWidth()
 			#CHAMFER_BASE:	ModifierValue.getChamferBaseValue()
-			#TOP_WIDTH:	ModifierValue.getChamferBarValue bar_width:bar_width
+			#TOP_WIDTH:	ModifierValue.getChamferBarValue(obj_type) bar_width:bar_width
 		
 			default: getProperty this ( prop_key as string )
 		)

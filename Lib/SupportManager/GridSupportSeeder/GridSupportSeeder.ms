@@ -103,7 +103,7 @@ struct GridSupportSeeder_v
 	 */
 	function getClosestVertsOfEmptyCells target_objects mode =
 	(
-		format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		-- format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
 
 		this.mode = mode
@@ -120,7 +120,7 @@ struct GridSupportSeeder_v
 			--format "\n"
 			/* TEST CENTER OF CELL */ 
 			hit_data = this._testHit cell_center
-			format "hit_data: %\n" hit_data
+			-- format "hit_data: %\n" hit_data
 			if hit_data != undefined then
 				this._addToHits( hit_data )
 			
@@ -137,7 +137,7 @@ struct GridSupportSeeder_v
 	 */
 	function _testPositionsAroundCenterOfCell cell_center =
 	(
-		format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
+		-- format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
 		--increment = 60
 		
 		--radiuses = #( cell_size / 2 / 3, cell_size / 2 / 1.5 )
@@ -191,7 +191,7 @@ struct GridSupportSeeder_v
 	 */
 	function _addToHits hit_data =
 	(
-		format "\n"; print "GridSupportSeeder_v._addToHits()"
+		-- format "\n"; print "GridSupportSeeder_v._addToHits()"
 		grid_object = grid_objects[findItem intersect_objs hit_data[1]]
 
 		pointer = (getHandleByAnim grid_object) as string
@@ -234,7 +234,7 @@ struct GridSupportSeeder_v
 	 */
 	function _getClosestVertToHit hitted_object hit_pos hitted_face =
 	(
-		 format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
+		 -- format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
 		closest_vert = -1

@@ -3,15 +3,18 @@
 struct ModifierValue_v
 (
 	/** Get sweep radius
+	  
+		@param #BAR_WIDTH|#RAFT_WIDTH prop_name
+	  
 	 */
-	function getSweepRadius bar_width: =
+	function getSweepRadius prop_name bar_width: =
 	(
-		-- format "\n"; print "ModifierValue_v.getSweepRadius()"
+		 format "\n"; print "ModifierValue_v.getSweepRadius()"
 		-- format "SUPPORT_OPTIONS.bar_width: %\n" SUPPORT_OPTIONS.bar_width
 		
 		if bar_width == unsupplied then 
-			bar_width = SUPPORT_OPTIONS.bar_width
-			
+			bar_width = getProperty SUPPORT_OPTIONS ( prop_name as string )
+
 		bar_width / 2.0
 	),
 	
@@ -31,12 +34,17 @@ struct ModifierValue_v
 	),
 	
 	/** Get chamfer bar value
+	  
+		@param #BAR_WIDTH|#RAFT_WIDTH prop_name
+
 	 */
-	function getChamferBarValue bar_width: top_width: =
+	function getChamferBarValue obj_type bar_width: top_width: =
 	(
-		-- format "\n"; print "ModifierValue_v.getChamferBarValue()"
+		 format "\n"; print "ModifierValue_v.getChamferBarValue()"
+		prop_name = if obj_type == #RAFT then "raft_width" else "bar_width"
+		
 		if bar_width == unsupplied then 
-			bar_width = SUPPORT_OPTIONS.bar_width
+			bar_width = getProperty SUPPORT_OPTIONS prop_name
 			
 		if top_width == unsupplied then 
 			top_width = SUPPORT_OPTIONS.top_width

@@ -46,6 +46,14 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/Callbacks/se
 current_dir = getFilenamePath(getSourceFileName())
 
 
+/** 
+ */
+function refreshSupportManager =
+(
+	print "refreshSupportManager()"
+	--SUPPORT_MANAGER = SupportManager_v()
+)
+
 /*------------------------------------------------------------------------------
 	GENERATE MACROS
 --------------------------------------------------------------------------------*/
@@ -98,9 +106,12 @@ try(
 		EXPORT_SIZE = DIALOG_maxslicer.SPIN_export_size.value
 	
 	--format "EXPORT_SIZE: %\n" EXPORT_SIZE
-	/*------------------------------------------------------------------------------
+	/*-----------------------------------whenExportNodeSelected------------------------------------------
 		RELAUNCH SUB DIALOGS
 	--------------------------------------------------------------------------------*/
+	try( callbacks.removeScripts #filePostOpen id:#refreshSupportManager )catch()
+
+	try( callbacks.addScript #filePostOpen "refreshSupportManager()" id:#refreshSupportManager )catch()
 
 	--/* RELAUNCH ISLAND MANAGER */
 	--if DIALOG_island_manager != undefined then
@@ -116,3 +127,5 @@ try(
 	format "\n——————————————————— TRACE ———————————————————\n%\n"   (getCurrentExceptionStackTrace())
 	format "\n——————————————————— STACK ———————————————————\n%\n"   (getCurrentExceptionCallStack())
 )
+
+

@@ -40,7 +40,7 @@ icon:	"ACROSS:4"
 		GridSupportSeeder = GridSupportSeeder_v()
 		
 		--GridSupportSeeder.cell_size = 30
-		GridSupportSeeder.cell_size = 15
+		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
 		--GridSupportSeeder.cell_size = 5
 		
 		GridSupportSeeder.initGrid(source_objects)
@@ -77,18 +77,19 @@ icon:	"ACROSS:4"
 				
 				obj.modifiers[#Edit_Poly].Select #Vertex closest_verts[obj_pointer]
 				
-				--for closest_vert_pos in closest_verts[obj_pointer] do
-				--(
-				--	
-				--	
-				--)
+				--Sphere pos:closest_vert_pos radius:1 wirecolor:orange
 				
-					--Sphere pos:closest_vert_pos radius:1 --wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
-					--Sphere pos:closest_vert_pos radius:1 wirecolor:orange
+				VertexColorProcessor = VertexColorProcessor_v(obj)
+		
+				VertexColorProcessor.setVertexColor closest_verts[obj_pointer] orange
+						
+						
+
 			)
 		 
-		
+		select source_objects
 				
-		
+		generateSupportsOrRafts obj_type:#SUPPORT
+
 	)
 )

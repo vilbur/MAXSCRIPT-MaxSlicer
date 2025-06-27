@@ -4,6 +4,7 @@ filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCal
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/whenSourceObjectSelectionChanges/whenSourceObjectSelectionChanges.ms" )	--"./onEvents/whenSourceObjectSelectionChanges/whenSourceObjectSelectionChanges.ms"
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/whenSupportSelectionChanges/whenSupportSelectionChanges.ms" )	--"./onEvents/whenSupportSelectionChanges/whenSupportSelectionChanges.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms" )	--"./SourceObject/SourceObjectTransformEventBinder/SourceObjectTransformEventBinder.ms"
 
@@ -101,7 +102,7 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		format "\n"; print "SupportManager_v.generateSupports()"
+		-- format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
 		--this._removeDeletedNodes()
 		--SLICER_SYSTEM.toggleModifiers false
@@ -140,6 +141,8 @@ struct SupportManager_v
 		)
 		
 		bindOnObjectDeletedCallback( source_obj )
+		
+		whenSupportSelectionChanges( new_nodes )
 		--whenSourceObjectSelectionChanges( source_obj )
 		--SLICER_SYSTEM.toggleModifiers true
 		new_nodes --return
@@ -441,7 +444,7 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		 format "\n"; print "SupportManager_v.updateModifiers()"
+		 -- format "\n"; print "SupportManager_v.updateModifiers()"
 		--format "EventFired: %\n" EventFired
 		
 		/** Get string after underscore E.G.: "ROLLOUT_supports" >>> "supports"
@@ -451,25 +454,25 @@ struct SupportManager_v
 		/* GET PROPERTY KEY BY CONTROL NAME */
 		--prop_key = splitString (EventFired.control.name)
 		prop_key = ( splitString (EventFired.control.name)) as name 
-		format "prop_key: %\n" prop_key
+		-- format "prop_key: %\n" prop_key
 		/* UPDATE OPTION VALUE */ 
 		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 		
 		/* GET OBJECT TYPE BY ROLLOUT NAME  */
 		obj_type = splitString (EventFired.Roll.name)
-		format "obj_type: %\n" obj_type
+		-- format "obj_type: %\n" obj_type
 		/* REMOVE TRAILING "S" E.G.: "RAFTS" >>> "RAFT" */ 
 		obj_type = ( trimRight obj_type "Ss" ) as name
-		format "OBJ_TYPE: %\n" obj_type
+		-- format "OBJ_TYPE: %\n" obj_type
 		
 		if (objects_by_type = this._getObjectsForUpdate obj_type) != undefined then
 		(
-            format "objects_by_type: %\n" objects_by_type	
+            -- format "objects_by_type: %\n" objects_by_type	
 			
 			SUPPORT_OPTIONS.init()
 			
-			/* GET  VALUE */ 
-			val = if prop_key == #BAR_WIDTH then EventFired.val / 2 else EventFired.val
+			/* GET EVENT VALUE - Divide by 2 to get radius for sweep modifier */ 
+			val = if prop_key == #BAR_WIDTH or prop_key == #RAFT_WIDTH then EventFired.val / 2.0 else EventFired.val
 			
 			/* UPDATE USER PROPS */
 			prop_key_string = toUpper (prop_key as string )
@@ -554,7 +557,7 @@ struct SupportManager_v
 			supports_to_convert = supports_by_source[sync_key]
 			--format "supports_exists.count: %\n" supports_exists.count
 			supports_exists = SourceObjects[sync_key].getSupportNodes obj_type:to_type
-			format "supports_exists: %\n" supports_exists
+			-- format "supports_exists: %\n" supports_exists
 			
 			/* CONVERT TYPE */
 			SourceObjects[sync_key].convertType( supports_to_convert ) to_type:to_type
@@ -563,7 +566,7 @@ struct SupportManager_v
 			/* GET EXISTING MODIFEIRS */
 			if supports_exists.count > 0 then
 				modifiers = supports_exists[1].modifiers
-			format "modifiers: %\n" modifiers
+			-- format "modifiers: %\n" modifiers
 			
 			/* CONVERT MODIFEIRS */
 			MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) to_type:to_type modifiers:modifiers
@@ -1161,9 +1164,15 @@ struct SupportManager_v
 		for SourceObjectData in SourceObjects do
 			SourceObjectData.value.setVertsPosBySupports()
 
-		bindSupportToTransformEvent( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
+		support_nodes = for key in SupportObjects.keys collect SupportObjects[key].support_obj
 		
-		bindOnObjectDeletedCallback( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
+		bindSupportToTransformEvent( support_nodes )
+		
+		whenSupportSelectionChanges( support_nodes )
+		
+		bindOnObjectDeletedCallback( support_nodes )
+		
+		
 	),
 
 	/** Load beam objects from scene
@@ -1301,7 +1310,7 @@ struct SupportManager_v
 	*/
 	on create do
 	(
-		format "\n"; print "SupportManager_v.onCreate()"
+		-- format "\n"; print "SupportManager_v.onCreate()"
 		if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
 		
 		

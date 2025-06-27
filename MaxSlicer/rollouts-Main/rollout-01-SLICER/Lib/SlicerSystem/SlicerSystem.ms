@@ -34,6 +34,7 @@ struct SlicerSystem_v
 
 	viewport_height,
 	display_units,
+	
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -128,7 +129,7 @@ struct SlicerSystem_v
 		format "slice_start: %\n" slice_start
 	),
 
-	/** Add slice_modifiers
+	/** ADD MODIFIERS
 	 */
 	function addModifiers =
 	(
@@ -229,7 +230,7 @@ struct SlicerSystem_v
 				waitOnModifiyStackIsReady_SLICER()
 	),
 
-	/** Set slider by modifier
+	/** SET LAYER ON SLIDER BY HEIGHT OF SLICE MODIFIER
 	 */
 	function setSliderByModifier =
 	(

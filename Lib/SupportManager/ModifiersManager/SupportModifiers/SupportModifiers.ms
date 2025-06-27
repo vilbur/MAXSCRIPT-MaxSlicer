@@ -20,14 +20,16 @@ struct SupportModifiers_v
 	 */
 	function _initModifiers =
 	(
-		 format "\n"; print "SupportModifiers_v._initModifiers()"
+		 -- format "\n"; print "SupportModifiers_v._initModifiers()"
 		OPTIONS = SUPPORT_OPTIONS
 		
 		top_width_support = ( OPTIONS.getModVal #TOP_WIDTH obj_type:#SUPPORT ) / EXPORT_SIZE
 
 		top_width_raft    = ( OPTIONS.getModVal #TOP_WIDTH obj_type:#RAFT ) / EXPORT_SIZE
 		
-		/* SUPPORT MODIFIERS */
+		/*------------------------------------------------------------------------------
+			SUPPORT MODIFIERS
+		--------------------------------------------------------------------------------*/
 		mods_support[8]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
 		mods_support[7]	= this._volSelectSetup	(Vol__Select	name:"select_base")	(OPTIONS.getMatId  #BASE )
 		mods_support[6]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH / EXPORT_SIZE )
@@ -38,11 +40,16 @@ struct SupportModifiers_v
 		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
 		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getModVal #EXTEND_TOP / EXPORT_SIZE )
 
-		/* RAFT MODIFIERS */
+		
+		/*------------------------------------------------------------------------------
+			RAFT MODIFIERS
+		--------------------------------------------------------------------------------*/
 		mods_raft[4]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
 		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	( top_width_raft )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
-		--------mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_ends")	(OPTIONS.getMatId  #MIDDLE ) invert_sel:true -- SELECT BOTH ENDS
-		mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP ) 
+		
+		mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_ends")	(OPTIONS.getMatId  #MIDDLE ) invert_sel:true -- SELECT BOTH ENDS
+		--mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
+		
 		mods_raft[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_END")	(OPTIONS.getModVal #EXTEND_END / EXPORT_SIZE )
 	),
 
@@ -203,7 +210,7 @@ struct SupportModifiers_v
 		ctrl_name = "spn_" + mod_name
 	
 		ca_def_string =
-			"attributes MaxSlicerParameters
+			"attributes MaxSlicer
 			(
 				parameters main rollout:params
 				(
@@ -219,7 +226,9 @@ struct SupportModifiers_v
 					(
 						obj = (refs.dependentNodes this)[1]
 					
-						format \"obj: %\\n\" obj
+						--format \"ATTRIBUTE CHANGED "+mod_name+"\\n\"
+					
+						 --format \"obj: %\\n\" obj
 						
 						obj.modifiers[#"+mod_name+"].amount.controller.update() -- fires refresh other modifiers[mod_name] which fires param wiring script
 					)

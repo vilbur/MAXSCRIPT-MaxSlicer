@@ -58,7 +58,7 @@ struct ModifiersManager_v
 				modPanel.addModToSelection ( modifiers[i] ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-			this._setSweepProperties (_objects[1] )
+			this._setSweepRadius (_objects[1] ) obj_type
 			
 			/* WIRE PARAMETERS */ 
 			this._wireBarAndTopWidth _objects[1]
@@ -228,16 +228,22 @@ struct ModifiersManager_v
 			addModifier _objects modifiers_add[i]
 
 		/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-		this._setSweepProperties (_objects[1])
+		this._setSweepRadius (_objects[1]) to_type
+
+		/* REWIRE MODIFIER PARAMETERS */ 
+		this._wireBarAndTopWidth _objects[1]
 	),
 
-
-
+	/*==============================================================================
+		WIRE PARAMS
+	================================================================================*/
 	
-	/** CONNECT MODIFIERS OF SUPPORT AND RAFT
-	  
-		CHANGE of bar with FIRES change of chmafer to KEEP SAME ABSOLUTE SIZE of chamfered face
-	  
+	
+	/** CHMAFER VALUE DEPENDS ON SWEEP RADIUS AND CUSTOM ATRRIBUTE
+		
+		CHANGE of bar width radius FIRES script to change chmafer to KEEP SAME ABSOLUTE SIZE of chamfered face
+		
+		
 		1. Update of modifiers[#TOP_WIDTH].amount fires Param Wire script
 		2. Param Wire script modifies BAR_WITH.radius and TOP_WIDTH.bar_width to get CHAMFER VALUE
 		3. Update chamfer value
@@ -249,12 +255,21 @@ struct ModifiersManager_v
 		/* CREATE SCRIPT */ 
 		top_width_script = float_script ()
 		
-		/* CONFIGURE SCRIPT */ 
+		/*------------------------------------------------------------------------------
+			CONFIGURE SCRIPT
+		--------------------------------------------------------------------------------*/
+		
+		/* BIND TO RADIUS OF SWEEP MODIFIER - */ 
 		top_width_script.addTarget  "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
 		
-		top_width_script.addTarget "MaxSlicerParameters"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicerParameters
+		/* BIND TO CUSTOM ATTRIBUTE OF CHAMFER MODIFIER */ 
+		top_width_script.addTarget "MaxSlicer"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicer
+		1
 		
-		top_width_script.script  = "(((bar_width.radius * 2.0) - MaxSlicerParameters.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; (((bar_width.radius * 2.0) - MaxSlicer.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; 0.25"
+		
+		top_width_script.script  = "(((bar_width.radius * 2.0) - MaxSlicer.top_width) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		
 		/* ADD SCRIPT */ 
 		obj.modifiers[#TOP_WIDTH].amount.controller = top_width_script
@@ -279,9 +294,9 @@ struct ModifiersManager_v
 		/* CONFIGURE SCRIPT */ 
 		base_width_script.addTarget "bar_width" obj[#Modified_Object][#BAR_WIDTH][#Cylinder_Section]
 		
-		base_width_script.addTarget "MaxSlicerParameters" obj[#Modified_Object][#BASE_WIDTH].MaxSlicerParameters
+		base_width_script.addTarget "MaxSlicer" obj[#Modified_Object][#BASE_WIDTH].MaxSlicer
 		
-		base_width_script.script = "(( MaxSlicerParameters.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
+		base_width_script.script = "(( MaxSlicer.base_width - (bar_width.radius * 2.0) ) / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		
 		/* ADD SCRIPT */ 
 		obj.modifiers[#BASE_WIDTH].amount.controller = base_width_script
@@ -301,20 +316,17 @@ struct ModifiersManager_v
 	
 	/** Props of Sweep modifier which are driven by shape must set when modifier is added to objext
 	 */
-	function _setSweepProperties obj =
+	function _setSweepRadius obj obj_type =
 	(
 		 --format "\n"; print "SupportModifiers_v.setSweepRadius()"
-		--format "BAR_WIDTH: %\n" (SUPPORT_OPTIONS.getModVal #BAR_WIDTH)
+		mod_name = if obj_type == #RAFT then #RAFT_WIDTH else #BAR_WIDTH
 
-		--format "obj.modifiers[#BAR_WIDTH]: %\n" obj.modifiers[#BAR_WIDTH]
-		
-		
 		interpolation_Steps = 4
 		
 		max modify mode
 
 		try(
-			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = (SUPPORT_OPTIONS.getModVal #BAR_WIDTH / EXPORT_SIZE)
+			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = (SUPPORT_OPTIONS.getModVal mod_name / EXPORT_SIZE)
 			
 			obj.modifiers[#BAR_WIDTH][#Cylinder_Section].steps = interpolation_Steps
 			--obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = 5

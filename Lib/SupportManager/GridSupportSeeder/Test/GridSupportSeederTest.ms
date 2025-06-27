@@ -1,4 +1,4 @@
-filein( getFilenamePath(getSourceFileName()) + "/../GridSupportSeeder.ms" )	--"./../GridSupportSeeder.ms"
+   filein( getFilenamePath(getSourceFileName()) + "/../GridSupportSeeder.ms" )	--"./../GridSupportSeeder.ms"
 
 /* 
 	Creates a flat box above ground and 20 randomly placed support_mockup below it.

@@ -162,19 +162,19 @@ struct SourceObject_v
 	function resetSupports support_nodes =
 	(
 		-- format "\n"; print "SourceObject_v.resetSupports()"
-		format "support_nodes: %\n" support_nodes
-		
+		--format "support_nodes: %\n" support_nodes
+
 
 		/* GET SUPPORTS TO RESET */ 
 		SupportsToReset = this._getSupports support_nodes:support_nodes
 		
+		/* GET VERTS OF SUPPORTS */ 
 		verts = SupportsToReset.keys as BitArray
-				
-		--colors_by_verts = VertexColors.getVertsAndColors verts:( verts ) flat:true
-		VertexColors.getVertsAndColors verts:( verts ) 
-
+		
+		
 		if Normals.normals_local == undefined then
 			Normals.setLocalVertexNormals(verts)
+		
 		
 		----if Normals.normals_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts)
@@ -190,7 +190,9 @@ struct SourceObject_v
 	function resetSupport SupportObject vert =
 	(
 		--format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
-		
+		if VertexColors == undefined then 
+			VertexColors = VertexColors_v(obj)
+			
 		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
@@ -530,6 +532,9 @@ struct SourceObject_v
 	),
 	
 	/** Get verts by colors
+	  
+	  * @return Dictionary KEY:"color" VALUE:#{verts of color}
+	  
 	 */
 	function _getVertsByColors =
 	(
@@ -539,11 +544,11 @@ struct SourceObject_v
 			VertexColors = VertexColors_v(obj)
 
 		verts_by_colors = VertexColors.getVertsAndColors()
-		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
 		verts_by_colors[ obj.wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
 
+		/* REMOVE WHITE */ 
 		RemoveDictValue verts_by_colors ( white as string )
 
 		verts_by_colors --return

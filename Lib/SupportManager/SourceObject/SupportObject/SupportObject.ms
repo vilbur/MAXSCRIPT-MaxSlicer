@@ -214,7 +214,9 @@ struct SupportObject_v
 			POST UPDATE
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
-			
+		
+		this._alignPivotToRaft()
+
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 	
@@ -242,20 +244,25 @@ struct SupportObject_v
 		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 		
 		
-		/* REPLACE OBJECT PROPERTY DATA */ 
+		/* UPDATE OBJECT PROPERTY DATA */ 
 		deleteUserProp support_obj ( _getKey from_type  )
 		
 		setUserPropVal support_obj ( _getKey to_type  ) support_key
 		
 		
 		/* IF TYPE IS CONVERTED */ 
-		--this._getPositionsFromLineOnConvert()
+		------this._getPositionsFromLineOnConvert()
 		
 		
 		/* UPDATE SUPPORT */ 
 		--this.updateSupport()
 		--this.updateSupport first_knot_pos:(undefined)
 		this.updateSupport update_raft:( to_type == #RAFT )
+		
+		/* POST UPDATE */ 
+		this.setPivotToPoint(2)
+		
+		this._alignPivotToRaft()
 	),
 
 	/** Rebulid support
@@ -611,30 +618,30 @@ struct SupportObject_v
 		this._setMaterialsToLineSegments()
 	),
 	
-	/** Get knots postions from existing line
-	  * 
-	  * 1) SUPPORT > RAFT 
-	  * 
-	  *		A) Get 2nd point if support is on ground
-	  * 		B) Get LAST knot if support is NOT on ground
-	  * 
-	  * 
-	  *  2) RAFT > SUPPORT
-	  * 
-	  * 	 	Get LAST knot of raft
-	 */
-	function _getPositionsFromLineOnConvert =
-	(
-		--format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
-		
-		second_point = if obj_type == #RAFT and is_on_ground then 2 else numKnots support_obj spline_1
-		
-		
-		points_positions = #(
-			getKnotPoint support_obj spline_1 1,
-			getKnotPoint support_obj spline_1 second_point
-		)
-	),
+	--/** Get knots postions from existing line
+	--  * 
+	--  * 1) SUPPORT > RAFT 
+	--  * 
+	--  *		A) Get 2nd point if support is on ground
+	--  * 		B) Get LAST knot if support is NOT on ground
+	--  * 
+	--  * 
+	--  *  2) RAFT > SUPPORT
+	--  * 
+	--  * 	 	Get LAST knot of raft
+	-- */
+	--function _getPositionsFromLineOnConvert =
+	--(
+	--	--format "\n"; print "SupportObject_v._getPositionsFromLineOnConvert()"
+	--	
+	--	second_point = if obj_type == #RAFT and is_on_ground then 2 else numKnots support_obj spline_1
+	--	
+	--	
+	--	points_positions = #(
+	--		getKnotPoint support_obj spline_1 1,
+	--		getKnotPoint support_obj spline_1 second_point
+	--	)
+	--),
 	
 	/** • AVOID SUPORT UNDER GROUND
 	 */

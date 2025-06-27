@@ -81,6 +81,20 @@ icon:	"MENU:Set &WHITE"
 
 /**
   */
+macroscript	epoly_vertex_color_set_gray
+category:	"Vertex-Color-Set"
+buttonText:	"GRAY"
+toolTip:	"Set vertex color to selected verts"
+icon:	"MENU:Set &GRAY"
+(
+	on isVisible return subObjectLevel != 0
+
+	on execute do
+		callMethodByVertexColor #SET gray
+)
+
+/**
+  */
 macroscript	epoly_vertex_color_set_orange
 category:	"Vertex-Color-Set"
 buttonText:	"ORANGE"
@@ -92,6 +106,21 @@ icon:	"MENU:Set &ORANGE"
 	on execute do
 		callMethodByVertexColor #SET COLOR_NAMES[#ORANGE]
 	--callMethodByVertexColor #SET orange
+)
+
+/**
+  */
+macroscript	epoly_vertex_color_set_cyan
+category:	"Vertex-Color-Set"
+buttonText:	"CYAN"
+toolTip:	"Set vertex color to selected verts"
+icon:	"MENU:Set &CYAN"
+(
+	on isVisible return subObjectLevel != 0
+
+	on execute do
+		callMethodByVertexColor #SET COLOR_NAMES[#CYAN]
+	--callMethodByVertexColor #SET cyan
 )
 
 /**
@@ -134,18 +163,4 @@ icon:	"MENU:Set &MAGENTA"
 
 	on execute do
 		callMethodByVertexColor #SET COLOR_NAMES[#MAGENTA]
-)
-
-/**
-  */
-macroscript	epoly_vertex_color_set_gray
-category:	"Vertex-Color-Set"
-buttonText:	"GRAY"
-toolTip:	"Set vertex color to selected verts"
-icon:	"MENU:Set &GRAY"
-(
-	on isVisible return subObjectLevel != 0
-
-	on execute do
-		callMethodByVertexColor #SET gray
 )

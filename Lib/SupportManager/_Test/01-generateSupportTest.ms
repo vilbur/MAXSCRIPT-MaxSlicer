@@ -113,8 +113,8 @@ SUPPORT_OPTIONS.normal_length	= 30
 
 
 /* RAFT DIRECTION */ 
-SUPPORT_OPTIONS.raft_direction	= 1 -- NORMAL
--- SUPPORT_OPTIONS.raft_direction	= 2 -- DOWN
+SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
+-- SUPPORT_OPTIONS.raft_direction	= 1 -- DOWN
 
 /* UNLOCK  RAFT LENGTH  */
 SUPPORT_OPTIONS.lock_normal_length = false

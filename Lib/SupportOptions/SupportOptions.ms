@@ -22,7 +22,7 @@ struct SupportOptions_v
 	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
 
-	raft_direction	= 1, -- 1:NORMAL|2:DOWN
+	raft_direction	= 1, -- 1:DOWN|2:NORMAL
 
 	use_nth_vertex	= 1,
 

@@ -26,11 +26,11 @@ function resetSupports param: =
 /**  Export format
   *
  */
-macroscript	_print_generator_normal_mode
+macroscript	_print_generator_raft_length
 category:	"_Export"
 buttontext:	"Raft Direction"
 toolTip:	"Where support is connected to beam"
-icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
+icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN', 'NORMAL' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 (
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
@@ -59,14 +59,51 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 		resumeSupportTransformEvent()
 	)
 )
+/**  Export format
+  *
+ */
+macroscript	_print_generator_raft_length_mode
+category:	"_Export"
+buttontext:	"Raft Mode"
+toolTip:	"Where support is connected to beam"
+icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 40, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+(
+	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
+
+	--DosCommand ("explorer \""+export_dir+"\"")
+	--SUPPORT_MANAGER.updateModifiers ( EventFired )
+	on execute do
+	(
+		format "EventFired: %\n" EventFired
+		--format "EventFired	= % \n" EventFired
+		--SUPPORT_OPTIONS.raft_direction = EventFired.val
+		--
+		--_selection = for obj in selection collect obj
+		--
+		--/* GET SELECTED SUPPORTS & RAFTS */ 
+		--selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		--selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		--
+		--
+		--pauseSupportTransformEvent()
+		--
+		--/*------------------------------------------------------------------------------
+		--	REBUILD SELECTED SUPPORTS & RAFTS
+		----------------------------------------------------------------------------------*/
+		--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
+		--
+		--
+		--resumeSupportTransformEvent()
+	)
+)
 
 /** SPINNER
   */
 macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
-buttontext:	"Raft Length"
+buttontext:	"Length"
 tooltip:	"Length of raft part of support\n\nFOR AUTO LENGTH RESET TO 0.0"
-icon:	"ACROSS:3|control:spinner|id:SPIN_normal_length|offset:[ 12, 20 ]|fieldwidth:24|range:[ 0.0, 999, 3 ]|fieldwidth:32"
+icon:	"ACROSS:4|control:spinner|id:SPIN_normal_length|offset:[ 44, 22 ]|fieldwidth:24|range:[ 0.0, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
@@ -91,7 +128,7 @@ macroscript	_print_option_lock_normal
 category:	"_3D-Print"
 buttontext:	"LOCK"
 tooltip:	"Lock length of support direction on move"
-icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]"
+icon:	"ACROSS:4|control:checkbox|id:CBX_lock_normal_length|offset:[ 50, 22 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
 	--on isEnabled return selection.count > 0
@@ -108,7 +145,7 @@ icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]"
 --category:	"_3D-Print"
 --buttontext:	"LIVE UPDATE"
 --tooltip:	"Live update supports on their transfrom"
---icon:	"across:3|control:#checkbutton|offset:[ 8, 6 ]|height:32|width:96|tooltip:"
+--icon:	"across:4|control:#checkbutton|offset:[ 8, 6 ]|height:32|width:96|tooltip:"
 --(
 --	on execute do
 --		--undo "Generate Rafts" on
@@ -126,7 +163,7 @@ icon:	"ACROSS:3|control:checkbox|id:CBX_lock_normal_length|offset:[ 24, 20 ]"
 --category:	"_3D-Print"
 --buttontext:	"Quiet Mode"
 ----toolTip:	"For objects to keep position on export\n\n(Create boxes in corners of print plane to keep exported position)"
---icon:	"control:checkbox|across:3|offset:[ 12, 2 ]"
+--icon:	"control:checkbox|across:4|offset:[ 12, 2 ]"
 --(
 --	--(PrinterVolume_v()).createVolume(#box)(ROLLOUT_export.SPIN_export_size.value)
 --)

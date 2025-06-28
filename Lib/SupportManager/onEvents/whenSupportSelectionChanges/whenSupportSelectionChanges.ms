@@ -18,7 +18,7 @@ function whenSupportSelectionChanges objs =
 
 	when select WHEN_SUPPORT_SELECT_CHANGED changes id:#WHEN_SUPPORT_SELECT_CHANGED obj do
 	(
-		format "WHEN_SUPPORT_SELECT_CHANGED: %.isSelected = %\n" obj obj.isSelected
+		--format "WHEN_SUPPORT_SELECT_CHANGED: %.isSelected = %\n" obj obj.isSelected
 		--if not isValidNode obj then
 		--	deleteItem WHEN_SUPPORT_SELECT_CHANGED ( findItem WHEN_SUPPORT_SELECT_CHANGED obj )
 		--else

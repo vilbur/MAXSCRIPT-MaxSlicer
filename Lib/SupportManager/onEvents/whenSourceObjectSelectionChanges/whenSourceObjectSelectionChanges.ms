@@ -11,6 +11,8 @@ function whenSourceObjectSelectionChanges objs =
 
 	else
 		append WHEN_SOURCE_OBJ_SELECT_CHANGED objs
+		
+	WHEN_SOURCE_OBJ_SELECT_CHANGED = for obj in WHEN_SOURCE_OBJ_SELECT_CHANGED where isValidNode obj collect obj
 
 	deleteAllChangeHandlers id:#WHEN_SOURCE_OBJ_SELECT_CHANGED
 

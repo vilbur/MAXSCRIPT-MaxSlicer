@@ -1,4 +1,10 @@
 
+/*==============================================================================
+  
+	HELPERS
+	
+================================================================================*/
+
 /** Select supports by beams count
  */
 function selectSupportsByBeamsCount count =
@@ -17,6 +23,41 @@ function selectSupportsByBeamsCount count =
 		select supports_by_count
 )
 
+
+
+
+/** Select supports by ground
+ */
+function selectSupportsByGround state =
+(
+	--format "\n"; print ".selectSupportsByGround()"
+		
+	fn arraysAreSame arr1 arr2 = with PrintAllElements on arr1 as string == arr2 as string
+	
+	fn floatsAreEqual f1 f2 eps:0.001 = f1 == f2 OR abs (f1 - f2) <= eps
+	
+	_selection = selection as Array
+	
+	supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( _selection ) get_nodes:true
+		
+	supports_on_ground = for support in supports_and_rafts where floatsAreEqual support.min.z 0.0 == state collect support
+	
+	suffix = if state then "ON THE GROUND" else "NOT ON THE GROUND"
+	
+	case of
+	(
+	   (arraysAreSame _selection supports_on_ground):	messageBox ( "ALL SUPPORTS \n\n" + suffix ) --title:"Title"  beep:false
+	   (supports_on_ground.count == 0 ):             	messageBox ( "ANY SUPPORT \n\n"  + suffix ) --title:"Title"  beep:false
+	
+		default: select supports_on_ground
+	)
+)
+
+/*==============================================================================
+  
+	MACROSCRIPTS
+	
+================================================================================*/
 
 /**
  *
@@ -132,6 +173,8 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 	)
 )
 
+
+
 /**
  *
  */
@@ -142,15 +185,7 @@ toolTip:	"Select supports which are on ground"
 --icon:	"across:4"
 (
 	on execute do
-	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
-
-		supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
-
-		supports_on_ground = for support in supports where support.min.z as integer == 0 collect support
-
-		select supports_on_ground
-	)
+		 selectSupportsByGround true
 )
 
 /**
@@ -163,17 +198,8 @@ toolTip:	"Select supports which are NOT on ground"
 --icon:	"across:4"
 (
 	on execute do
-	(
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
+	selectSupportsByGround false
 
-		--supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
-		
-		supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( selection as Array ) get_nodes:true
-
-		supports_on_ground = for support in supports_and_rafts where support.min.z as integer != 0 collect support
-
-		select supports_on_ground
-	)
 )
 
 

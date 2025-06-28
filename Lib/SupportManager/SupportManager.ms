@@ -389,7 +389,9 @@ struct SupportManager_v
 				#POSITION_Z: SourceObject.updateSupportsHeight()
 			)
 			
-			for key in SourceObject.Supports.keys do updated_supports += SourceObject.Supports[key].support_obj
+			--for key in SourceObject.Supports.keys do updated_supports += SourceObject.Supports[key].support_obj
+			for key in SourceObject.Supports.keys where isValidNode SourceObject.Supports[key].support_obj do
+				append updated_supports SourceObject.Supports[key].support_obj
 		)	
 				
 				

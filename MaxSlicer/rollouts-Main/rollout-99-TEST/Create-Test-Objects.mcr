@@ -1,3 +1,4 @@
+filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms"
 
 /**  
  */
@@ -59,7 +60,7 @@ toolTip:	"Create PackMan Object"
 
 		obj = createTestObjectPackman  verts_colors:verts_colors
 		
-		rotate obj (angleaxis -5 [ 1, 0, 0 ])
+		rotate obj (angleaxis -6 [ 1, 0, 0 ])
 
 	)
 )

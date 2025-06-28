@@ -144,7 +144,7 @@ struct SupportObject_v
 		
 		this.setPivotToPoint(2)
 		
-		this._alignPivotToRaft()
+		--this._alignPivotToRaft()
 
 		this._isOnGround()
 		
@@ -574,7 +574,7 @@ struct SupportObject_v
 
 	/** Set support line points
 	 */
-	function _setSupportLinePoints update_or_generate:#GENERATE =
+	function _setSupportLinePoints update_or_generate:#UPDATE =
  	(
 		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		-- format "obj_type: %\n" obj_type
@@ -586,12 +586,9 @@ struct SupportObject_v
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
 			foot_exists = foot_enabled and SupportRaft.foot_space_exists
-			-- format "foot_exists: %\n" foot_exists
-			-- format "min_leg_pos: %\n" min_leg_pos
-			-- format "base_height: %\n" base_height
 			
+			/* CREATE LEG */ 
 			SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
-			-- format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
 			
 			/* CREATE FOOT */ 
 			if SupportLeg.hit_leg == undefined and foot_exists then 

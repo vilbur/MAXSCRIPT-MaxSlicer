@@ -26,7 +26,7 @@ struct SupportRaft_v
 	function createRaft update_or_generate: =
 	(
 		--format "\n----------------------------------------------\n"
-		-- format "\n"; print "SupportRaft_v.createRaft()"
+		 format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.obj_type: %\n" Support.obj_type
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		--format "Support.normal_length: %\n" Support.normal_length
@@ -39,27 +39,59 @@ struct SupportRaft_v
 
 		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
+		/** Get second point position
+		 */
+		function getSecondPointPosition Support normal_length = Support.points[1] + ( normal_length * Support.dir_vector )
 		
+		
+		normal_length = if SUPPORT_OPTIONS.raft_mode == 1 then Support.min_raft_length else Support.normal_length
+		
+		--format "UPDATE_OR_GENERATE: %\n" update_or_generate
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
 		if update_or_generate == #GENERATE then
 		(
-			normal_length = if SUPPORT_OPTIONS.raft_mode == 0 then Support.normal_length else Support.min_raft_length
+			normal_length = case SUPPORT_OPTIONS.raft_mode of
+			(
+				0: Support.normal_length -- CUSTOM RAFT LENGTH
+				
+				1: Support.min_raft_length -- MINIMAL RAFT LENGTH
+				
+				2: (                       -- SEARCH FOR SPACE FOR LEG
+					
+					/* START SEARCH WITH MINIMAL RAFT LENGTH */ 
+					normal_length = Support.min_raft_length
+					
+					second_point = getSecondPointPosition (Support) (normal_length)
 			
-		)
-		/* IF UPDATE */ 
-		else
-		(
-			normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
-			
+					/* SEARCH FOR RAFT LENGTH WHERE IS POSSIBLE TO CREATE LEG	*/ 
+					while (hit_raft_auto = Support.intersectRaySourceObject ( second_point ) [0,0,-1]) != undefined and normal_length <= 10 do
+					(
+						/* EXTEND RAFT LENGTH ABOUT SUPPORT WIDTH EACH TIME */ 
+						normal_length += Support.bar_width
+						
+						/* SET TEMP SECOND POINT FOR NEXT LOOP */ 
+						second_point = getSecondPointPosition (Support) (normal_length)
+					)
+					
+					--format "NORMAL_LENGTH: %\n" normal_length
+					
+					normal_length += 0.1
+					
+					normal_length --return
+				 )
+			)
 		)
 
-		
+
+			
 		/* SET 2nd POINT */ 
-		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
+		Support.points[2] = getSecondPointPosition (Support) (normal_length)
+		
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    hit_raft = this._testHitOfSourceObject( normal_length )
 		 -- format "HIT_RAFT: %\n" hit_raft
+		 
 		/*------------------------------------------------------------------------------
 			IF LEG EXISTS
 		--------------------------------------------------------------------------------*/

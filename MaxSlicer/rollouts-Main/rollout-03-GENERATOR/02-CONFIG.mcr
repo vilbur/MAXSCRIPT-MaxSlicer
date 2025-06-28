@@ -29,7 +29,7 @@ function resetSupports param: =
 macroscript	_print_generator_raft_length
 category:	"_Export"
 buttontext:	"Raft Direction"
-toolTip:	"Where support is connected to beam"
+toolTip:	"Direction of support top part"
 icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN', 'NORMAL' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 (
 	on execute do
@@ -66,8 +66,8 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 macroscript	_print_generator_raft_length_mode
 category:	"_Export"
 buttontext:	"Raft Mode"
-toolTip:	"Where support is connected to beam"
-icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 62, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+toolTip:	"Set method of getting raft length of support."
+icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 62, 4 ]|offsets:#([0, 2], [ -4, 2 ] )|tooltip:UNSELECTED: Use defined raft length\n\nMIN: Use minimal raft length\n\nAUTO: Extend raft to get support with leg"
 (
 	on execute do
 	(

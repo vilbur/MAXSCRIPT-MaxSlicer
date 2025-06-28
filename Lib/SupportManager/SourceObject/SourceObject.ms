@@ -43,7 +43,7 @@ struct SourceObject_v
 
 		this.removeDeletedNodes()
 
-		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then #NORMAL else #DOWN
+		direction = if SUPPORT_OPTIONS.raft_direction == 1 then #NORMAL else #DOWN
 		
 		--setUserPropVal obj "ROTATION" (obj.rotation)
 			
@@ -193,7 +193,7 @@ struct SourceObject_v
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 			
-		dir_vector = if SUPPORT_OPTIONS.second_point_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
+		dir_vector = if SUPPORT_OPTIONS.raft_direction == 1 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_leg	= undefined

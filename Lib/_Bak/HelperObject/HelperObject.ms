@@ -207,7 +207,7 @@ struct HelperObject_v
 		append this.points_positions (vert_pos )
 
 		/* ADD SECOND POINT */
-		second_point_pos = case this.Options.second_point_direction of
+		second_point_pos = case this.Options.raft_direction of
 		(
 			1: setSecondByNormal	(copy vert_pos)( normalize _normal)
 			2: setSecondDown	(copy vert_pos)

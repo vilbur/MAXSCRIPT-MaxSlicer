@@ -22,7 +22,7 @@ struct SupportOptions_v
 	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
 
-	second_point_direction	= 1, -- 1:NORMAL|2:DOWN
+	raft_direction	= 1, -- 1:NORMAL|2:DOWN
 
 	use_nth_vertex	= 1,
 
@@ -91,7 +91,7 @@ struct SupportOptions_v
 	
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #second_point_direction, #max_connections, #beams_count ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #raft_direction, #max_connections, #beams_count ),
 
 	/** Get value of prop mutated for modifier
 	 */

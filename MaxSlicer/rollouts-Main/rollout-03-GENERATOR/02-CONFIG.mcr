@@ -28,7 +28,7 @@ function resetSupports param: =
  */
 macroscript	_print_generator_normal_mode
 category:	"_Export"
-buttontext:	"Second Point Direction"
+buttontext:	"Raft Direction"
 toolTip:	"Where support is connected to beam"
 icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
 (
@@ -39,7 +39,7 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'NORMAL
 	on execute do
 	(
 		--format "EventFired	= % \n" EventFired
-		SUPPORT_OPTIONS.second_point_direction = EventFired.val
+		SUPPORT_OPTIONS.raft_direction = EventFired.val
 		
 		_selection = for obj in selection collect obj
 

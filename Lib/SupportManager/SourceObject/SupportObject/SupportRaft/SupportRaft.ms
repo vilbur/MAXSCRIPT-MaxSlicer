@@ -23,7 +23,7 @@ struct SupportRaft_v
 
 	/** Generate raft
 	 */
-	function createRaft =
+	function createRaft update_or_generate: =
 	(
 		--format "\n----------------------------------------------\n"
 		-- format "\n"; print "SupportRaft_v.createRaft()"
@@ -39,9 +39,21 @@ struct SupportRaft_v
 
 		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
-		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */ 
-		normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
+		
+		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
+		if update_or_generate == #GENERATE then
+		(
+			normal_length = if SUPPORT_OPTIONS.raft_mode == 0 then Support.normal_length else Support.min_raft_length
+			
+		)
+		/* IF UPDATE */ 
+		else
+		(
+			normal_length = if Support.normal_length > 0 then Support.normal_length else Support.min_raft_length
+			
+		)
 
+		
 		/* SET 2nd POINT */ 
 		Support.points[2] = Support.points[1] + ( normal_length * Support.dir_vector )
 

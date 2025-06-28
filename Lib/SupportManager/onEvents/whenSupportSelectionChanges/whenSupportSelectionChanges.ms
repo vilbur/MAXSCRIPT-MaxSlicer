@@ -12,6 +12,8 @@ function whenSupportSelectionChanges objs =
 	else
 		append WHEN_SUPPORT_SELECT_CHANGED objs
 
+	WHEN_SUPPORT_SELECT_CHANGED = for obj in WHEN_SUPPORT_SELECT_CHANGED where isValidNode obj collect obj
+	
 	deleteAllChangeHandlers id:#WHEN_SUPPORT_SELECT_CHANGED
 
 	when select WHEN_SUPPORT_SELECT_CHANGED changes id:#WHEN_SUPPORT_SELECT_CHANGED obj do

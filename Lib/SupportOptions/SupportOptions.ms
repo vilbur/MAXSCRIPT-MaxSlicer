@@ -35,7 +35,7 @@ struct SupportOptions_v
 	
 	
 	/* SUPPORT OBJECT OPTIONS */
-	raft_mode, -- 0: CUSTOM | 1: MIN | 2: AUTO
+	raft_mode = 1, -- 0: CUSTOM | 1: MIN | 2: AUTO
 	lock_normal_length = true,
 	normal_length	= 3,
 
@@ -92,7 +92,7 @@ struct SupportOptions_v
 	
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #raft_direction, #max_connections, #beams_count ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #display_units, #export_size, #use_nth_vertex , #chamfer_top, #beams_count, #raft_direction, #raft_mode, #max_connections, #beams_count ),
 
 	/** Get value of prop mutated for modifier
 	 */

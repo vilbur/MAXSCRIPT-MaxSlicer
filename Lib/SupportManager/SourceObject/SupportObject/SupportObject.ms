@@ -84,7 +84,8 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world:undefined wirecolor: =
 	(
 		 -- format "\n===========================================================\n"
-		 -- format "\n"; print "SupportObject_v.generateSupport()"
+		  format "\n"; print "SupportObject_v.generateSupport()"
+		  format "direction: %\n" direction
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
@@ -127,7 +128,7 @@ struct SupportObject_v
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
-		this._setSupportLinePoints()
+		this._setSupportLinePoints update_or_generate:#GENERATE
 		
 
 		/*------------------------------------------------------------------------------
@@ -570,12 +571,12 @@ struct SupportObject_v
 
 	/** Set support line points
 	 */
-	function _setSupportLinePoints =
+	function _setSupportLinePoints update_or_generate:#GENERATE =
  	(
 		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		-- format "obj_type: %\n" obj_type
 		/* CREATE RAFT */ 
-		SupportRaft.createRaft() --"./SupportRaft/SupportRaft.ms"
+		SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
 		   -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 
 		/* CREATE LEG */ 

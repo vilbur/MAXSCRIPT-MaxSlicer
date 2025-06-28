@@ -4,23 +4,23 @@
 function resetSupports param: =
 (
 	--format "\n"; print ".resetSupports()"
-		
-		_selection = for obj in selection collect obj
+	
+	_selection = for obj in selection collect obj
 
-		/* GET SELECTED SUPPORTS & RAFTS */ 
-		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
-		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		
+	/* GET SELECTED SUPPORTS & RAFTS */ 
+	selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+	selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+	
 
-		pauseSupportTransformEvent()
-		
-		
-		/*------------------------------------------------------------------------------
-			REBUILD SELECTED SUPPORTS & RAFTS
-		--------------------------------------------------------------------------------*/
-		SUPPORT_MANAGER.resetSupports(selected_supports)
+	pauseSupportTransformEvent()
+	
+	
+	/*------------------------------------------------------------------------------
+		REBUILD SELECTED SUPPORTS & RAFTS
+	--------------------------------------------------------------------------------*/
+	SUPPORT_MANAGER.resetSupports(selected_supports)
 
-		resumeSupportTransformEvent()
+	resumeSupportTransformEvent()
 )
 
 /**  Export format
@@ -32,13 +32,9 @@ buttontext:	"Raft Direction"
 toolTip:	"Where support is connected to beam"
 icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN', 'NORMAL' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 (
-	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
-
-	--DosCommand ("explorer \""+export_dir+"\"")
-	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 	on execute do
 	(
-		format "EventFired	= % \n" EventFired
+		--format "EventFired	= % \n" EventFired
 		SUPPORT_OPTIONS.raft_direction = EventFired.val
 		
 		_selection = for obj in selection collect obj
@@ -53,7 +49,7 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 		/*------------------------------------------------------------------------------
 			REBUILD SELECTED SUPPORTS & RAFTS
 		--------------------------------------------------------------------------------*/
-		SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
+		SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #DOWN else #NORMAL )
 
 		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
 		ROLLOUT_generator.RB_raft_mode.enabled = EventFired.val == 2
@@ -73,37 +69,13 @@ buttontext:	"Raft Mode"
 toolTip:	"Where support is connected to beam"
 icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 62, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 (
-	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
-
-	--DosCommand ("explorer \""+export_dir+"\"")
-	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 	on execute do
 	(
-		format "EventFired: %\n" EventFired
-		
+		--format "EventFired: %\n" EventFired
 		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
 		ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 0
 		
-		
-		--format "EventFired	= % \n" EventFired
-		--SUPPORT_OPTIONS.raft_direction = EventFired.val
-		--
-		--_selection = for obj in selection collect obj
-		--
-		--/* GET SELECTED SUPPORTS & RAFTS */ 
-		--selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
-		--selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		--
-		--
-		--pauseSupportTransformEvent()
-		--
-		--/*------------------------------------------------------------------------------
-		--	REBUILD SELECTED SUPPORTS & RAFTS
-		----------------------------------------------------------------------------------*/
-		--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
-		--
-		--
-		--resumeSupportTransformEvent()
+		SUPPORT_OPTIONS.raft_mode = EventFired.val
 	)
 )
 

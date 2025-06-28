@@ -43,7 +43,7 @@ struct SourceObject_v
 
 		this.removeDeletedNodes()
 
-		direction = if SUPPORT_OPTIONS.raft_direction == 0 then #NORMAL else #DOWN
+		direction = if SUPPORT_OPTIONS.raft_direction == 1 then #DOWN else #NORMAL
 		
 		--setUserPropVal obj "ROTATION" (obj.rotation)
 			

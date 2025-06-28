@@ -1,4 +1,3 @@
-filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms"
 
 /**  
  */
@@ -33,8 +32,9 @@ toolTip:	"Create PackMan Object"
 	on execute do
 	(
 		--filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms"
+		filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms"
 
-		delete objects
+		--delete objects
 		
 		if $PackMan != undefined then 
 			delete $PackMan
@@ -54,6 +54,9 @@ toolTip:	"Create PackMan Object"
 		verts_colors[ "gray"	] = #{ 32 }
 		verts_colors[ clr_cyan	] = #{ 59 }
 
-		createTestObjectPackman  verts_colors:verts_colors
+		obj = createTestObjectPackman  verts_colors:verts_colors
+		
+		rotate obj (angleaxis -5 [ 1, 0, 0 ])
+
 	)
 )

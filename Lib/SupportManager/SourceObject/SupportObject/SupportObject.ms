@@ -891,11 +891,21 @@ struct SupportObject_v
 		*/
 		fn roundFloat val decimal_palces = ( local mult = 10.0 ^ decimal_palces; (floor ((val * mult) + 0.5)) / mult )
 		
+		/* ADJUST min raft length for adding more\less space for chamfer
+		   
+            space_for_chamfer = 0.25 -- PRODUCE VERTICAL SUPPORT  -- chamfer is deformed
+            space_for_chamfer = 0.5  -- PRODUCE BEST RESULT		  -- chamfer is correct and raft is short as possible
+            space_for_chamfer = 1    -- PRODUCE LONG RAFT		  -- raft has additional length 
+			
+		*/ 
+		space_for_chamfer = 0.25
+
+		
 		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 
-        min_length_for_chamfer = (bar_width - top_width ) / 2
+        min_length_for_chamfer = ( bar_width - top_width ) * space_for_chamfer
 		
 		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		--if update_minimal_lenght then
@@ -904,7 +914,8 @@ struct SupportObject_v
 		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		--if update_min_raft_length then
-			min_raft_length = min_lenght_by_angle + min_length_for_chamfer + dilatation -- chmfer is removing length of raft also
+			--min_raft_length = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			min_raft_length = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
 			
 		min_raft_length = roundFloat min_raft_length 2
 

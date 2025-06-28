@@ -35,6 +35,7 @@ struct SupportOptions_v
 	
 	
 	/* SUPPORT OBJECT OPTIONS */
+	raft_mode, -- 0: CUSTOM | 1: MIN | 2: AUTO
 	lock_normal_length = true,
 	normal_length	= 3,
 
@@ -201,18 +202,6 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
 		setProperty this prop_key val
 	),
-
-
-	--/** Get chamfer bar value
-	-- */
-	--function getChamferBarValue bar_width: =
-	--(
-	--	--format "\n"; print "SupportOptions_v.getChamferBarValue()"
-	--	if bar_width == unsupplied then 
-	--		bar_width = this.bar_width
-	--	
-	--	(bar_width - top_width) / 2.0
-	--),
 	
 	/** Get mat id
 	 */
@@ -285,27 +274,6 @@ struct SupportOptions_v
 
 	private
 
-	--
-	--/** Make sure that chamfer value is less then bar radius
-	--  */
-	--function _getChamferBarValue =
-	--(
-	--	format "\n"; print "SupportModifiers_v._getChamferBarValue()"
-	--	format "bar_width: %\n" bar_width
-	--	format "top_width: %\n" top_width
-	--	--chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
-	--
-	--	--chamfer_val = chamfer_step * top_width
-	--
-	--	--if this.bar_width / 2 == chamfer_val then
-	--		--chamfer_val -= 0.05
-	--
-	--	chamfer_val = (bar_width - top_width) / 2
-	--	format "chamfer_val: %\n" chamfer_val
-	--		
-	--	chamfer_val --return
-	--),
-
 	/** Convert values of properties to milimeters on export
 	  *
 	  * Current units and export size are get in to the game
@@ -333,22 +301,37 @@ struct SupportOptions_v
 			default:	1 -- non metric units
 		)
 	),
-
-	--/** Set base height
-	--  *
-	--  */
-	--function _setBaseHeight =
-	--(
-	--	--format "\n"; print "SupportOptions_v._setBaseHeight()"
-	--	base_height = this.bottom_layers_count * this.layer_height / export_size
-	--),
+	
+	/** ENABLE DISBALE DEPENDENT CONTROLS
+	 */
+	function _enableRaftOptions =
+	(
+		--format "\n"; print "SupportOptions_v._enableRaftOptions()"
+		raft_direction = if ROLLOUT_generator.RB_raft_direction.state == 1 then #DOWN else #NORMAL
+		
+		
+		
+		ROLLOUT_generator.RB_raft_mode.enabled = raft_direction == #NORMAL
+		
+		raft_mode = case ROLLOUT_generator.RB_raft_mode.state of
+					(
+						0: #CUSTOM
+						1: #MIN
+						2: #AUTO
+					)
+		
+		ROLLOUT_generator.SPIN_normal_length.enabled = raft_direction == #NORMAL and raft_mode == #CUSTOM 
+		
+	),
 
 	/**
 	 *
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportOptions_v.create()"
+		format "\n"; print "SupportOptions_v.create()"
+		this._enableRaftOptions()
+		
 		--format "THIS: %\n" this
 		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 
 		--if rollouts == undefined then

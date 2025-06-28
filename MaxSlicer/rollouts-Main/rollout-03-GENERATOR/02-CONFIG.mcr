@@ -38,7 +38,7 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 	on execute do
 	(
-		--format "EventFired	= % \n" EventFired
+		format "EventFired	= % \n" EventFired
 		SUPPORT_OPTIONS.raft_direction = EventFired.val
 		
 		_selection = for obj in selection collect obj
@@ -47,7 +47,7 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
 		
-
+		/* PAUSE CALLBACKS */ 
 		pauseSupportTransformEvent()
 		
 		/*------------------------------------------------------------------------------
@@ -55,7 +55,12 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 		--------------------------------------------------------------------------------*/
 		SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #NORMAL else #DOWN)
 
+		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
+		ROLLOUT_generator.RB_raft_mode.enabled = EventFired.val == 2
 		
+		ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
+		
+		/* RESUME CALLBACKS */ 
 		resumeSupportTransformEvent()
 	)
 )
@@ -66,7 +71,7 @@ macroscript	_print_generator_raft_length_mode
 category:	"_Export"
 buttontext:	"Raft Mode"
 toolTip:	"Where support is connected to beam"
-icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 40, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|columns:3|offset:[ 62, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 (
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
@@ -75,6 +80,11 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'MIN', 
 	on execute do
 	(
 		format "EventFired: %\n" EventFired
+		
+		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
+		ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 0
+		
+		
 		--format "EventFired	= % \n" EventFired
 		--SUPPORT_OPTIONS.raft_direction = EventFired.val
 		--

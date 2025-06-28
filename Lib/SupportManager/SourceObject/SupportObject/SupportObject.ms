@@ -81,7 +81,7 @@ struct SupportObject_v
 	  * @param #DOWN|point3	direction	dir_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:#DOWN dir_vector:undefined normal_world:undefined wirecolor: =
+	function generateSupport vertex_index first_knot_pos: direction:undefined dir_vector:undefined normal_world:undefined wirecolor: =
 	(
 		 -- format "\n===========================================================\n"
 		  format "\n"; print "SupportObject_v.generateSupport()"
@@ -95,15 +95,16 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			SET PARAMS
 		--------------------------------------------------------------------------------*/
-		this.direction = direction
-		
-		this.points = #( first_knot_pos )
-		--this.dir_vector = dir_vector
+		if direction != undefined then  this.direction = direction
 		
 		if dir_vector != undefined then  this.dir_vector = dir_vector
 		
 		if normal_world != undefined then  this.normal_world = normal_world
 		
+		  format "this.DIRECTION: %\n" this.direction
+
+		this.points = #( first_knot_pos )
+
 		
 		--format "this._isFirstPointAboveGround: %\n" (this._isFirstPointAboveGround())
 		
@@ -173,12 +174,14 @@ struct SupportObject_v
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		
 		/*------------------------------------------------------------------------------
-			SANITIZE PARAMETERSw
+			SANITIZE PARAMETERS
 		--------------------------------------------------------------------------------*/
 		
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
+			
+		if direction != undefined then this.direction = direction
 
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
@@ -216,7 +219,7 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		this._postUpdate()
 		
-		this._alignPivotToRaft()
+		--this._alignPivotToRaft() -- THIS MAKES SUPPORT "JIGGLE AND JUMPING"
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),

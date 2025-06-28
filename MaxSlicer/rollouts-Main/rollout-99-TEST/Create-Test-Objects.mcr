@@ -20,6 +20,9 @@ toolTip:	"Create WaveBox Object"
 	)
 )
 
+/*------------------------------------------------------------------------------
+	PACKMAN
+--------------------------------------------------------------------------------*/
 
 /**  
  */
@@ -32,13 +35,13 @@ toolTip:	"Create PackMan Object"
 	on execute do
 	(
 		--filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackman.ms"
-		filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms"
+		--filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms" )	--"./../../../Lib/SupportManager/_Test/helpers/createTestObjectPackMan.ms"
 
 		--delete objects
 		
-		if $PackMan != undefined then 
-			delete $PackMan
-			
+		--if $PackMan != undefined then 
+			----delete $PackMan
+		
 		verts_colors = Dictionary #string
 		
 		clr_blue =  ( color 30 144 255 ) as string
@@ -58,5 +61,25 @@ toolTip:	"Create PackMan Object"
 		
 		rotate obj (angleaxis -5 [ 1, 0, 0 ])
 
+	)
+)
+
+/**  
+ */
+macroscript	_create_test_object_pack_man_delete_objects
+category:	"_maxslicer"
+buttontext:	"PackMan"
+toolTip:	"Delete all objects except PackMan"
+--icon:	"#(path, index)"
+(
+	on execute do
+	(
+		--all_packmans = $'PackMan*' as Array
+		
+		objs_to_delete = for obj in objects where obj.name != "PackMan" collect obj 
+		
+		delete objs_to_delete
+		
+		--macros.run "_maxslicer" "_create_test_object_pack_man"
 	)
 )

@@ -43,7 +43,7 @@ struct SourceObject_v
 
 		this.removeDeletedNodes()
 
-		direction = if SUPPORT_OPTIONS.raft_direction == 1 then #DOWN else #NORMAL
+		direction = if SUPPORT_OPTIONS.raft_direction == 2 then #NORMAL else #DOWN
 		
 		--setUserPropVal obj "ROTATION" (obj.rotation)
 			
@@ -157,14 +157,20 @@ struct SourceObject_v
 		NewSupportObjects
 	),
 
+	
+	/*==============================================================================
+	
+		RESET
+	
+	================================================================================*/
+	
+	
 	/** Reset supports
 	 */
 	function resetSupports support_nodes =
 	(
 		-- format "\n"; print "SourceObject_v.resetSupports()"
 		--format "support_nodes: %\n" support_nodes
-
-
 		/* GET SUPPORTS TO RESET */ 
 		SupportsToReset = this._getSupports support_nodes:support_nodes
 		
@@ -193,7 +199,7 @@ struct SourceObject_v
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 			
-		dir_vector = if SUPPORT_OPTIONS.raft_direction == 0 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
+		dir_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_leg	= undefined

@@ -45,18 +45,20 @@ obj =
 --else
 	--selection[1]
 
+
 /*==============================================================================
 	CONFIGURE OBJECT
 ================================================================================*/
 
 --convertTo obj PolyMeshObject
+
 /*------------------------------------------------------------------------------
-	ADD MODIFIERS 
+	TEST DIFFERENT MODIFIERS TO STACK
 --------------------------------------------------------------------------------*/
 
 --addModifier obj (meshsmooth())
 --addModifier obj (Edit_Poly())
-addModifier obj (PaintLayerMod())
+--addModifier obj (PaintLayerMod())
 --addModifier obj (Edit_Poly())
 --addModifier obj (Poly_Select())
 
@@ -81,14 +83,14 @@ ColorProcessor.byColor #SELECT #( red, green )
 
 
 /* HIDE VERTS */
-ColorProcessor.byColor #HIDE white
+--ColorProcessor.byColor #HIDE white
 --ColorProcessor.byColor #HIDE #( red, green )
 --ColorProcessor.byVerts #HIDE #{1,4,7}
 
 
 
 /* UNHIDE VERTS */
-ColorProcessor.byColor #UNHIDE white
+--ColorProcessor.byColor #UNHIDE white
 --ColorProcessor.byColor #UNHIDE #( red, blue )
 --ColorProcessor.byVerts #UNHIDE #{1,4,7}
 
@@ -96,6 +98,6 @@ ColorProcessor.byColor #UNHIDE white
 
 
 /* ISOLATE VERTS */
-ColorProcessor.byColor #ISOLATE white
+--ColorProcessor.byColor #ISOLATE white
 --ColorProcessor.byColor #ISOLATE #( red, blue )
 --ColorProcessor.byVerts #ISOLATE #{1,4,7}

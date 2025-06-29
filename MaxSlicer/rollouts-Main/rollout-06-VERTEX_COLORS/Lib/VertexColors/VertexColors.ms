@@ -30,7 +30,7 @@ struct VertexColors_v
 
 	/* required */
 	/* properties */
-	obj_snapshot,
+	snapshot_source,
 	
 	--obj.mesh,
 
@@ -262,7 +262,7 @@ struct VertexColors_v
 
 		if classOf obj.baseobject != Editable_Poly then
 		(
-			obj_snapshot = obj
+			snapshot_source = obj
 			
 			this.obj = snapshotAsMesh obj
 		)

@@ -66,26 +66,28 @@ icon:	"ACROSS:4"
 				--format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
 				format "obj: %\n" obj
 				format "classOf obj.modifiers[obj.modifiers.count]: %\n" (classOf obj.modifiers[obj.modifiers.count])
-				if classOf obj.modifiers[obj.modifiers.count] != Edit_Poly then
-					addModifier obj (Edit_Poly ())
+				--if classOf obj.modifiers[obj.modifiers.count] != Edit_Poly then
+					--addModifier obj (Edit_Poly ())
 				
 				format "CLOSEST_VERTS: %\n" closest_verts[obj_pointer]
-				
-				select obj
-				
-				max modify mode
-				
-				subObjectLevel = 1
-				
-				obj.modifiers[#Edit_Poly].SetSelection #Vertex #{}
-				
-				obj.modifiers[#Edit_Poly].Select #Vertex closest_verts[obj_pointer]
-				
-				--Sphere pos:closest_vert_pos radius:1 wirecolor:orange
-				
-				VertexColorProcessor = VertexColorProcessor_v(obj)
-		
-				VertexColorProcessor.setVertexColor closest_verts[obj_pointer] orange
+
+				(VertSelector_v(obj)).setSelection ( closest_verts[obj_pointer] ) --isolate:true
+
+				--select obj
+				--
+				--max modify mode
+				--
+				--subObjectLevel = 1
+				--
+				--obj.modifiers[#Edit_Poly].SetSelection #Vertex #{}
+				--
+				--obj.modifiers[#Edit_Poly].Select #Vertex closest_verts[obj_pointer]
+				--
+				----Sphere pos:closest_vert_pos radius:1 wirecolor:orange
+				--
+				--VertexColorProcessor = VertexColorProcessor_v(obj)
+				--
+				--VertexColorProcessor.setVertexColor closest_verts[obj_pointer] orange
 			)
 		 
 		

@@ -111,33 +111,33 @@ GridSupportSeeder.sortNodesToMatrix (support_mockup)
 
 format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 
---closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
--- format "closest_verts_pos: %\n" closest_verts_pos
--- /* SHOW RESULT */ 
--- if closest_verts_pos != undefined then
-	-- for obj_pointer in closest_verts_pos.keys do
-		-- for closest_vert_pos in closest_verts_pos[obj_pointer] do 
-			-- Sphere pos:closest_vert_pos radius:0.1 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
+ format "closest_verts_pos: %\n" closest_verts_pos
+ /* SHOW RESULT */ 
+ if closest_verts_pos != undefined then
+	 for obj_pointer in closest_verts_pos.keys do
+		 for closest_vert_pos in closest_verts_pos[obj_pointer] do 
+			 Sphere pos:closest_vert_pos radius:0.5 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
 
 
 format "\n------------------------ POSITION OF HITS -------------------------------\n"
 
--- hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
+ --hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
 
--- /* SHOW RESULT */ 
--- if hit_positions != undefined then 
-	-- for obj_pointer in hit_positions.keys do
-		-- for closest_vert_pos in hit_positions[obj_pointer] do 
-			-- Sphere pos:closest_vert_pos radius:0.1 wirecolor:red
+ /* SHOW RESULT */ 
+ if hit_positions != undefined then 
+	 for obj_pointer in hit_positions.keys do
+		 for closest_vert_pos in hit_positions[obj_pointer] do 
+			 Sphere pos:closest_vert_pos radius:0.5 wirecolor:red
 			
 			
 format "\n------------------------ CLOSEST VERTS OF HITS -------------------------------\n"
-
-closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
-format "closest_verts: %\n" closest_verts
--- /* SHOW RESULT */ 
-if closest_verts != undefined then
-	for obj_pointer in closest_verts.keys do
-		for closest_vert_pos in closest_verts[obj_pointer] do 
-			format "CLOSEST_VERT_POS: %\n" closest_vert_pos
+--
+--closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
+--format "closest_verts: %\n" closest_verts
+---- /* SHOW RESULT */ 
+--if closest_verts != undefined then
+--	for obj_pointer in closest_verts.keys do
+--		for closest_vert in closest_verts[obj_pointer] do 
+--			format "CLOSEST_VERT: %\n" closest_vert
 

@@ -94,15 +94,6 @@ struct VertexColorProcessor_v
 		
 		if VertexColors == undefined then
 			VertexColors	= VertexColors_v(obj)
-
-		
-		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
-		(
-			curr_mod = Edit_Poly()
-
-			addModifier obj (curr_mod)
-		)
-			
 			
 		verts_by_colors = #{}
 
@@ -138,15 +129,6 @@ struct VertexColorProcessor_v
 		if VertexColors == undefined then
 			VertexColors	= VertexColors_v(obj)
 
-		
-		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
-		(
-			curr_mod = Edit_Poly()
-
-			addModifier obj (curr_mod)
-		)
-		
-		
 		verts_by_colors = #{}
 
 		all_verts_by_colors = VertexColors.getVertsAndColors()
@@ -185,6 +167,14 @@ struct VertexColorProcessor_v
 	function _callMethod method verts =
 	(
 		--format "\n"; print "VertexColorProcessor_v._callMethod()"
+		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
+		(
+			curr_mod = Edit_Poly()
+
+			addModifier obj (curr_mod)
+		)
+		
+		
 		subObjectLevel = 1
 
 		case method of
@@ -194,6 +184,10 @@ struct VertexColorProcessor_v
 			 #UNHIDE:	this._unhideVerts	(verts)
 			 #ISOLATE:	this._isolateVerts	(verts)
 		)
+		
+		redrawViews()
+		subObjectLevel = 0
+		subObjectLevel = 1
 	),
 
 	/** Select final selection

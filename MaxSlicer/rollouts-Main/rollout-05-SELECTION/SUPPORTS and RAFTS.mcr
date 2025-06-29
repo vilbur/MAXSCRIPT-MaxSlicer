@@ -122,22 +122,27 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 			--format "SourceObject: %\n" SourceObject
 			--indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
 			indexes =( for index in SourceObject.Supports.keys where isValidNode ( support_obj = SourceObject.Supports[index].support_obj) and support_obj.isSelected collect index) as BitArray
-		
-			--format "indexes: %\n" indexes
-			epoly = SourceObject.obj.baseobject
-		
+			format "indexes: %\n" indexes
+			
 			select SourceObject.obj
+			
+			(VertSelector_v(SourceObject.obj)).setSelection (indexes) --isolate:true
 
-
-			verts_hidden = polyop.getHiddenVerts epoly
-		
-			polyop.unHideAllVerts epoly
-		
-			--polyop.setHiddenVerts epoly ( verts_hidden - indexes )
-		
-			epoly.SetSelection #VERTEX indexes
-			max modify mode
-			subObjectLevel = 1
+			--format "indexes: %\n" indexes
+			--epoly = SourceObject.obj.baseobject
+			--
+			--select SourceObject.obj
+			--
+			--
+			--verts_hidden = polyop.getHiddenVerts epoly
+			--
+			--polyop.unHideAllVerts epoly
+			--
+			----polyop.setHiddenVerts epoly ( verts_hidden - indexes )
+			--
+			--epoly.SetSelection #VERTEX indexes
+			--max modify mode
+			--subObjectLevel = 1
 		
 		)
 

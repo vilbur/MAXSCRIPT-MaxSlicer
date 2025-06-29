@@ -61,7 +61,13 @@ struct GridSupportSeeder_v
 		)
 		
 		this.grid_origin = [ min_x, min_y ]
+		-- format "distance: %\n" (distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ])
+		-- format "cell_size: %\n" cell_size
 		
+		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
+		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
+			cell_size /= 2
+			
 		
 		--point pos:[ min_x, min_y, 0 ] size:1
 		--point pos:[ max_x, max_y, 0 ] size:1
@@ -71,8 +77,8 @@ struct GridSupportSeeder_v
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
 		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
 		
-		format "num_cols: %\n" num_cols
-		format "num_rows: %\n" num_rows
+		-- format "num_cols: %\n" num_cols
+		-- format "num_rows: %\n" num_rows
 		
 		/* Initialize matrix */ 
 		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
@@ -108,7 +114,7 @@ struct GridSupportSeeder_v
 	 */
 	function getClosestVertsOfEmptyCells target_objects mode =
 	(
-		 format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		 -- format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
 
 		this.mode = mode
@@ -116,7 +122,7 @@ struct GridSupportSeeder_v
 		closest_verts_pos = Dictionary #STRING
 		
 		empty_cells = this.getEmptyCells()
-		format "empty_cells: %\n" empty_cells
+		-- format "empty_cells: %\n" empty_cells
 		this._convertTargetsToMeshSnapshots()
 		
 		/* LOOP EMPTY CELLS */ 
@@ -132,8 +138,8 @@ struct GridSupportSeeder_v
 			if hit_data != undefined then
 				this._addToHits( hit_data )
 			
-			--else
-				--this._testPositionsAroundCenterOfCell(cell_center)
+			else
+				this._testPositionsAroundCenterOfCell(cell_center)
 		)
 		
 		this._removeSnapshots()
@@ -337,7 +343,7 @@ struct GridSupportSeeder_v
 		for obj in intersect_objs do
 		(
 			hit = IntersectRayEx obj ray
-			format "hit: %\n" hit
+			-- format "hit: %\n" hit
 			if hit != undefined then
 			(
 				dist = distance ray.pos hit[1].pos

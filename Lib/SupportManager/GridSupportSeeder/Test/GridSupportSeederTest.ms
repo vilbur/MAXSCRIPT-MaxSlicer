@@ -73,10 +73,6 @@ function rotateBox obj =
 /*------------------------------------------------------------------------------
 	RESET TEST
 --------------------------------------------------------------------------------*/
-delete objects
-
---currentTime = 1
-
 closest_verts = undefined 
 hit_positions = undefined 
 
@@ -84,17 +80,17 @@ hit_positions = undefined
 	PREPARE SCENE
 --------------------------------------------------------------------------------*/
 
---box_green = createBoxAndCylinders 100 20 green
-box_blue  = createBoxAndCylinders 100 10  yellow cylinder_count:5
-
-
-rotateBox(box_blue)
-
-
+delete objects
+box_green = createBoxAndCylinders 100 20 green
+obj  = createBoxAndCylinders 100 10  yellow cylinder_count:5
+rotateBox(obj)
 
 source_objs    = $Box* as Array
 support_mockup = ( $'Cylinder*' as Array ) 
 
+
+--source_objs	= selection as Array
+--support_mockup = #()
 
 /*==============================================================================
   
@@ -114,22 +110,22 @@ GridSupportSeeder.sortNodesToMatrix (support_mockup)
 
 format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 
---closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
+closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
 
 /* SHOW RESULT */ 
 if closest_verts != undefined then
 	for obj_pointer in closest_verts.keys do
 		for closest_vert_pos in closest_verts[obj_pointer] do 
-			Sphere pos:closest_vert_pos radius:1 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+			Sphere pos:closest_vert_pos radius:0.1 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
 
 
 
 format "\n------------------------ PALCE TO POSITION OF HITS -------------------------------\n"
 
-hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
+--hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
 
 /* SHOW RESULT */ 
 if hit_positions != undefined then 
 	for obj_pointer in hit_positions.keys do
 		for closest_vert_pos in hit_positions[obj_pointer] do 
-			Sphere pos:closest_vert_pos radius:1 wirecolor:red
+			Sphere pos:closest_vert_pos radius:0.1 wirecolor:red

@@ -35,14 +35,12 @@ struct SupportObject_v
 	SupportFoot	= SupportFoot_v(this),
 	
 	/* SUPPORT PROPERTIES */
-	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),
-	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED ),
-	
 	changed_props = Dictionary(),
 
 	direction,
 	dir_vector,
 	normal_world,
+	raft_mode,
 
 	
 	bar_width,
@@ -51,7 +49,7 @@ struct SupportObject_v
 	base_width,
 	top_width,
 	
-	/* minimal dimensions */ 
+	/* minimal dimensions */
 	min_lenght_by_angle,
 	min_raft_length,
 	
@@ -66,6 +64,10 @@ struct SupportObject_v
 	
 	/* static */ 
 	dir_vector_angle_range = 80,
+	
+	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED, #RAFT_MODE ),	-- props of this saved to node userProps WHICH ARE LOADED FROM OTPION when generate
+	
 	
 	private
 
@@ -84,8 +86,8 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:undefined dir_vector:undefined normal_world:undefined wirecolor: =
 	(
 		 -- format "\n===========================================================\n"
-		  format "\n"; print "SupportObject_v.generateSupport()"
-		  format "direction: %\n" direction
+		  --format "\n"; print "SupportObject_v.generateSupport()"
+		  --format "direction: %\n" direction
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
 		
@@ -101,7 +103,7 @@ struct SupportObject_v
 		
 		if normal_world != undefined then  this.normal_world = normal_world
 		
-		  format "this.DIRECTION: %\n" this.direction
+		  --format "this.DIRECTION: %\n" this.direction
 
 		this.points = #( first_knot_pos )
 
@@ -774,7 +776,7 @@ struct SupportObject_v
 	function _saveOptionsToUserProps =
 	(
 		 --format "\n"; print "SupportObject_v._saveOptionsToUserProps()"
-		for prop_key in this_props +option_keys do
+		for prop_key in this_props + option_keys do
 		(
 			key = toUpper ( prop_key as string )
 			val = getProperty this prop_key

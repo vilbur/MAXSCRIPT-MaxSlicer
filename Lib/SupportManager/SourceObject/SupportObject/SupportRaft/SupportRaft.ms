@@ -26,11 +26,14 @@ struct SupportRaft_v
 	function createRaft update_or_generate: =
 	(
 		--format "\n----------------------------------------------\n"
-		 format "\n"; print "SupportRaft_v.createRaft()"
+		 --format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.obj_type: %\n" Support.obj_type
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
-		--format "Support.normal_length: %\n" Support.normal_length
-
+		
+		/*------------------------------------------------------------------------------
+			HELPERS
+		--------------------------------------------------------------------------------*/
+		
 		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
 		function raftHasFullLenght    = isMoreThen ( this.raftLenght() )  ( Support.normal_length )
 		function isSpaceForRaftAndLeg = isMoreThen ( Support.points[1].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
@@ -39,12 +42,14 @@ struct SupportRaft_v
 
 		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
-		/** Get second point position
-		 */
 		function getSecondPointPosition Support normal_length = Support.points[1] + ( normal_length * Support.dir_vector )
 		
 		
-		normal_length = if SUPPORT_OPTIONS.raft_mode == 1 then Support.min_raft_length else Support.normal_length
+		/*------------------------------------------------------------------------------
+			CREATE RAFT
+		--------------------------------------------------------------------------------*/
+		
+		normal_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.normal_length
 		
 		--format "UPDATE_OR_GENERATE: %\n" update_or_generate
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */

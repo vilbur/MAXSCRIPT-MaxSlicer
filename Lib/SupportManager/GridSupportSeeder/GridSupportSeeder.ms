@@ -62,8 +62,10 @@ struct GridSupportSeeder_v
 		
 		this.grid_origin = [ min_x, min_y ]
 		
-		point pos:[ min_x, min_y, 0 ]
-		point pos:[ max_x, max_y, 0 ]
+		
+		--point pos:[ min_x, min_y, 0 ]
+		--point pos:[ max_x, max_y, 0 ]
+		
 		--plane pos:grid_origin width:( max_x - min_x ) length:( max_y - max_y )
 		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)

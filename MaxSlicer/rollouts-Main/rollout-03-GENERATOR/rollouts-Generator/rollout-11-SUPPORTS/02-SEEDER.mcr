@@ -6,7 +6,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../../../Lib/SupportManag
 macroscript	_print_support_seeder
 category:	"_3D-Print"
 buttontext:	"S E E D E R"
-tooltip:	"Seed Supports"
+tooltip:	"Seed Supports\n\nCTRL: DO NOT GENERATE SUPPORTS, Only select verts."
 icon:	"ACROSS:4"
 (
 	on execute do
@@ -14,6 +14,7 @@ icon:	"ACROSS:4"
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\02-SEEDER.mcr"
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\GridSupportSeeder\GridSupportSeeder.ms"
+		
 		
 		objects_by_visibility	= for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
 			
@@ -54,6 +55,8 @@ icon:	"ACROSS:4"
 		closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
 		--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
 		format "closest_verts: %\n" closest_verts
+		
+		
 		/* SHOW RESULT */ 
 		if closest_verts != undefined then
 			for obj_pointer in closest_verts.keys do
@@ -82,14 +85,13 @@ icon:	"ACROSS:4"
 				VertexColorProcessor = VertexColorProcessor_v(obj)
 		
 				VertexColorProcessor.setVertexColor closest_verts[obj_pointer] orange
-						
-						
-
 			)
 		 
+		
 		select source_objects
-				
-		generateSupportsOrRafts obj_type:#SUPPORT
+		
+		if not keyboard.controlPressed then
+			generateSupportsOrRafts obj_type:#SUPPORT
 
 	)
 )

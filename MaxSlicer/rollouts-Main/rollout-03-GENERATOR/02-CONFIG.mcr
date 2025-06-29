@@ -23,7 +23,7 @@ function resetSupports param: =
 	resumeSupportTransformEvent()
 )
 
-/**  Export format
+/**  RAFT DIRECTION RADIOBUTTONS
   *
  */
 macroscript	_print_generator_raft_length
@@ -60,7 +60,7 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 		resumeSupportTransformEvent()
 	)
 )
-/**  Export format
+/** RAFT MODE RADIOBUTTONS
   *
  */
 macroscript	_print_generator_raft_length_mode
@@ -79,7 +79,7 @@ icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|colu
 	)
 )
 
-/** SPINNER
+/** RAFT LENGTH SPINNER
   */
 macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"

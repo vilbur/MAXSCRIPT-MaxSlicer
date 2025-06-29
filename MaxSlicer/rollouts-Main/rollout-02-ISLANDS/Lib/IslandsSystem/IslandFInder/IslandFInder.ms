@@ -26,7 +26,7 @@ struct IslandFinder_v
 	function findIslandsPerLayer layer_height method =
 	(
 		-- format "\n"; print "IslandFinder_v.findIslandsPerLayer()"
-		if classof obj != Editable_Poly and ( getNumVerts obj.baseobject.mesh != getNumVerts obj.mesh ) then
+		if classof obj.baseobject != Editable_Poly or (classof obj.baseobject == Editable_Poly and ( getNumVerts obj.baseobject.mesh != getNumVerts obj.mesh )) then
 		(
 			obj_snapshot_source = obj
 			
@@ -39,15 +39,19 @@ struct IslandFinder_v
 		lowest_verts = #{}
 		
 		try(
+			
+			/*------------------------------------------------------------------------------
+				FIND ISLANDS
+			------------------------------------------------------------------------------*/
 			islands_data = this._findIslandsPerLayer layer_height method
 			
-			-- format "LOWEST_VERTS: %\n" islands_data
+			format "ISLANDS_DATA: %\n" islands_data
 			
 		)catch(
 			
 			format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
 			format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
-	   
+		  
 			if obj_snapshot_source != undefined then 
 				delete obj
 		)
@@ -66,12 +70,14 @@ struct IslandFinder_v
 	 */
 	function _findIslandsPerLayer layer_height method =
 	(
-		-- format "\n"; print "IslandFinder_v._findIslandsPerLayer()"
-		
+		 format "\n"; print "IslandFinder_v._findIslandsPerLayer()"
 		
 		--format "VertexLayers: %\n" VertexLayers
 		--timer_findIslandsPerLayer = timeStamp()
 		--method = #LowestVertIslandFinder
+		
+		select obj
+			
 		/* GET VERTS WITH NORMAL POINTING DOWN */
 		max modify mode
 
@@ -82,37 +88,8 @@ struct IslandFinder_v
 		verts_all = #{1..(vertex_count)}
 		-- format "verts_all: %\n" verts_all
 
-		verts_sel	= getVertSelection obj.mesh
-		-- format "verts_sel: %\n" verts_sel
-		visible_verts = -( polyop.getHiddenVerts obj)
-		-- format "visible_verts: %\n" visible_verts
-		
-		verts_process = if verts_sel.numberSet > 0 then verts_sel else verts_all
-		-- format "verts_process: %\n" verts_process
-		
-		if verts_process.numberSet != visible_verts.numberSet and verts_process.count != visible_verts.count then
-			verts_process *= visible_verts
+		verts_process = this._getVertsToProcess (verts_all)
 
-		
-		PolyToolsSelect.Normal 3 140 true
-		
-		verts_normal_down = obj.getSelection #Vertex
-		
-		/* GET ONLY CONVEX VERTS */
-		PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
-		--PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
-		--PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
-
-		verts_convex = obj.getSelection #Vertex
-		--format "verts_normal_down: %\n" verts_normal_down
-		-- format "verts_convex: %\n" verts_convex
-		--format "verts_process: %\n" verts_process
-		--intersection = (verts_normal_down * verts_convex)
-		--format "INTERSECTION: %\n" intersection
-		--format "WTF: %\n" (intersection * verts_process)
-		--verts_process = intersection * verts_process
-		verts_process *= (verts_normal_down * verts_convex) 
-		 format "VERTS_PROCESS: %\n" verts_process
 		-- format "method: %\n" method
 
 		if method == #IslandPerLayerFinder then
@@ -160,17 +137,15 @@ struct IslandFinder_v
 		else
 		(
 			
-			-- format "verts_process: %\n" verts_process
+			 format "verts_process: %\n" verts_process
 			
 			LowestVertIslandFinder 	= LowestVertIslandFinder_v(obj)
 			
 			LowestVertIslandFinder.verts_all	= verts_all
 			LowestVertIslandFinder.verts_process	= verts_process
-
+			
 			LowestVertIslandFinder.getLowestVertsOfIslands()
-			
-			
-			
+	
 			
 		)
 		
@@ -178,7 +153,81 @@ struct IslandFinder_v
 
 	private
 	
+	/** Get verts to process
+	 */
+	function _getVertsToProcess verts_all=
+	(
+		fn bitArraysAreSame arr1 arr2 = ( arr1 - arr2 ).isEmpty
+
+		format "\n"; print "IslandFinder_v._getVertsToProcess()"
+		verts_sel	= getVertSelection obj.mesh
+		-- format "verts_sel: %\n" verts_sel
+		
+		visible_verts = -( polyop.getHiddenVerts obj)
+		 format "visible_verts: %\n" visible_verts
+		
+		verts_process = if verts_sel.numberSet > 0 then verts_sel else verts_all
+		 format "verts_process: %\n" verts_process
+		
+		
+		if not visible_verts.isEmpty and not bitArraysAreSame verts_process visible_verts then
+			verts_process *= visible_verts
+		 format "verts_process: %\n" verts_process
+
+		
+		PolyToolsSelect.Normal 3 140 true
+		
+		verts_normal_down = obj.getSelection #Vertex
+		format "verts_normal_down: %\n" verts_normal_down
+
+		if verts_normal_down.isEmpty then
+		(
+			ResetXForm obj
+
+			convertTo obj PolyMeshObject
+			
+			select obj
+			
+			max modify mode
 	
+			subObjectLevel = 1
+		
+			PolyToolsSelect.Normal 3 140 true
+			
+			verts_normal_down = obj.getSelection #Vertex
+			
+			format "verts_normal_down: %\n" verts_normal_down
+			
+		)
+			
+			
+				verts_process *= verts_normal_down
+			 format "verts_process: %\n" verts_process
+			
+			/* GET ONLY CONVEX VERTS */
+			PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
+			--PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
+			--PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
+	
+			verts_convex = obj.getSelection #Vertex
+			format "verts_convex: %\n" verts_convex
+			 
+			if not verts_convex.isEmpty then
+				verts_process *= verts_normal_down
+				
+			 format "VERTS_PROCESS: %\n" verts_process
+				
+			verts_process --return
+		--)
+		--
+		--else
+		--(
+		--	messageBox ("Problem to get verts by normal\n\nPLEASE RESET XFORM on:\n\n"+obj.name) --title:"Title"  beep:false
+		--	
+		--	#{} --return fallback
+		--)
+		
+	),
 	
 	
 

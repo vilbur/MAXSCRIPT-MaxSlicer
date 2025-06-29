@@ -96,6 +96,8 @@ struct SourceObject_v
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
 		format "verts_process: % ms\n" (( timeStamp()) - timer_verts_process)
 		
+		if verts_process.numberSet > all_verts.numberSet then
+			messageBox "SHIT" title:"Title"  beep:false
 			
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS

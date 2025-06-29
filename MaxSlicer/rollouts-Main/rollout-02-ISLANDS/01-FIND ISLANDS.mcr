@@ -19,7 +19,7 @@ icon:	"across:3|height:32"
 			obj	= selection[1]
 
             VertSelector = VertSelector_v(obj) --"./../rollout-07-VERTEX_SELECTION/Lib/VertSelector/VertSelector.ms"
-            --IslandFInder = IslandFInder_v(obj)
+            --IslandFInder = IslandFinder_v(obj)
 
 			/* DISABLE SLICER MODIFIERS */
 			SLICER_SYSTEM.toggleModifiers false
@@ -103,13 +103,13 @@ icon:	"across:3"
 		
 		ISLANDS_SYSTEM = IslandsSystem_v(obj)
 
-		ISLANDS_SYSTEM.islands_data = (IslandFInder_v(obj)).findIslandsPerLayer(layer_height) #LowestVertIslandFinder
+		ISLANDS_SYSTEM.islands_data = (IslandFinder_v(obj)).findIslandsPerLayer(layer_height) #LowestVertIslandFinder
 		format "ISLANDS_SYSTEM.islands_data: %\n" ISLANDS_SYSTEM.islands_data
+		
 		/* SAVE ISlANDS DATA TO OBJECT */
 		setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
-	
 
-		macros.run "_3D-Print" "maxtoprint_islands_dialog"
+		--macros.run "_3D-Print" "maxtoprint_islands_dialog"
 	)
 )
 /**
@@ -128,7 +128,7 @@ icon:	"across:3"
 		
 		ISLANDS_SYSTEM = IslandsSystem_v(obj)
 
-		ISLANDS_SYSTEM.islands_data = (IslandFInder_v(obj)).findIslandsPerLayer(layer_height) #IslandPerLayerFinder
+		ISLANDS_SYSTEM.islands_data = (IslandFinder_v(obj)).findIslandsPerLayer(layer_height) #IslandPerLayerFinder
 		
 		/* SAVE ISlANDS DATA TO OBJECT */
 		setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data

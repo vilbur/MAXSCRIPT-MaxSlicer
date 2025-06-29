@@ -5,6 +5,9 @@ filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/islandsR
 filein( getFilenamePath(getSourceFileName()) + "/../IslandManagerDialog/createIslandManagerDialog.ms" )	--"./../IslandManagerDialog/createIslandManagerDialog.ms"
 
 /** Islands system
+  
+	global ISLANDS_SYSTEM
+  
  */
 struct IslandsSystem_v
 (
@@ -379,8 +382,9 @@ struct IslandsSystem_v
 	 */
 	function fitZpozitions islands_data layer_height =
 	(
-		-- format "\n"; print "IslandsSystem_v.fitZpozitions()"
-		-- format "islands_data: %\n" islands_data
+		 format "\n"; print "IslandsSystem_v.fitZpozitions()"
+		 format "islands_data: %\n" islands_data
+		 
 		first_island = islands_data[1]
 
 		bottom_layer = first_island[#BOTTOM]

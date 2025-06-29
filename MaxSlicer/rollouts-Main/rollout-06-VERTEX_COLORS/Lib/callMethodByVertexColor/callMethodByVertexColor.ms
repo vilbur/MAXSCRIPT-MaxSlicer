@@ -2,6 +2,9 @@ global VERTEX_COLOR_PARAM
 
 
 /** Call vertex color macro
+  
+  @param color|undefined _color to process, IF UNDEFINED THEN ALL COLORED VERTS ARE PROCESSED
+  
  */
 function callMethodByVertexColor method _color =
 (
@@ -10,8 +13,9 @@ function callMethodByVertexColor method _color =
 	format "VERTEX_COLOR_PARAM: %\n" VERTEX_COLOR_PARAM
 
 	obj = selection[1]
-
-	VERTEX_COLOR_PARAM = _color
+	
+	if _color != undefined then 
+		VERTEX_COLOR_PARAM = _color
 
 	VertexColorProcessor = VertexColorProcessor_v(obj)
 
@@ -20,9 +24,7 @@ function callMethodByVertexColor method _color =
 		vertex_sel	= getVertSelection obj.mesh
 		
 		VertexColorProcessor.setVertexColor vertex_sel VERTEX_COLOR_PARAM
-		
-		
 	)
 	else
-		VertexColorProcessor.byColor method VERTEX_COLOR_PARAM
+		VertexColorProcessor.byColor method _color
 )

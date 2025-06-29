@@ -55,8 +55,8 @@ struct LowestVertIslandFinder_v
 				verts_process[v] = false
 	
 				v_pos = verts_pos[v]
-				if v == 287878 then
-					format "V_POS: %\n" v_pos
+				--if v == 287878 then
+					--format "V_POS: %\n" v_pos
 				
 				lower_found = false
 	
@@ -94,8 +94,8 @@ struct LowestVertIslandFinder_v
 					)
 				)
 				
-				if v == 287878 then
-					format "lower_found: %\n" lower_found
+				--if v == 287878 then
+					--format "lower_found: %\n" lower_found
 
 				
 				
@@ -118,8 +118,8 @@ struct LowestVertIslandFinder_v
 				--)
 			)
 			
-			format "lowest_verts: %\n" lowest_verts
-			format "lowest_verts: %\n" lowest_verts.count
+			--format "lowest_verts: %\n" lowest_verts
+			--format "lowest_verts: %\n" lowest_verts.count
 			
 			for v in lowest_verts do 
 			(
@@ -135,7 +135,7 @@ struct LowestVertIslandFinder_v
 			
 		)
 		
-		format "\n\n\n"
+		--format "\n\n\n"
 		
 		--for island_data in islands_data do
 		--format "island_data: %\n" island_data[#LOWEST_VERT]

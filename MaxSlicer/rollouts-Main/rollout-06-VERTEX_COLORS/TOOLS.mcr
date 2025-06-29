@@ -60,7 +60,7 @@ toolTip:	"List Vertex Colors"
   */
 macroscript	epoly_vertex_color_reset_vertex_colors
 category:	"_Epoly-Vertex-Color"
-buttonText:	"Reset"
+buttonText:	"RESET CPVVerts"
 toolTip:	"Reset Vertex Colors"
 --icon:	"across:4|MENU:true"
 (

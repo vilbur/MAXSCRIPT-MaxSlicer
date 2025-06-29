@@ -19,7 +19,7 @@ struct GridSupportSeeder_v
 	
 	cell_size = 50,
 	/* required */
-	mode = #VERTS, -- #VERTS|#HITS
+	mode = #VERTS, -- #VERTS|#HITS|#POS -- vertex indexes | hits positions | verts positions of closest hit
 
 	/* properties */
 	grid_origin = [0,0],
@@ -63,13 +63,16 @@ struct GridSupportSeeder_v
 		this.grid_origin = [ min_x, min_y ]
 		
 		
-		--point pos:[ min_x, min_y, 0 ]
-		--point pos:[ max_x, max_y, 0 ]
+		--point pos:[ min_x, min_y, 0 ] size:1
+		--point pos:[ max_x, max_y, 0 ] size:1
 		
 		--plane pos:grid_origin width:( max_x - min_x ) length:( max_y - max_y )
 		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
 		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
+		
+		format "num_cols: %\n" num_cols
+		format "num_rows: %\n" num_rows
 		
 		/* Initialize matrix */ 
 		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
@@ -100,12 +103,12 @@ struct GridSupportSeeder_v
 	
 	/** Get closest verts of empty cells
 	  
-		@param #VERTS|#HITS mode
+		@param #VERTS|#HITS|#POS  mode vertex indexes | hits positions | verts positions of closest hit
 	  
 	 */
 	function getClosestVertsOfEmptyCells target_objects mode =
 	(
-		-- format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		 format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
 
 		this.mode = mode
@@ -113,21 +116,24 @@ struct GridSupportSeeder_v
 		closest_verts_pos = Dictionary #STRING
 		
 		empty_cells = this.getEmptyCells()
-		
+		format "empty_cells: %\n" empty_cells
 		this._convertTargetsToMeshSnapshots()
 		
 		/* LOOP EMPTY CELLS */ 
 		for cell_center in empty_cells do
 		(
 			--format "\n"
+			--format "cell_center: %\n" cell_center
+			 --Sphere pos:cell_center radius:0.1 wirecolor:red
+
 			/* TEST CENTER OF CELL */ 
 			hit_data = this._testHit cell_center
-			-- format "hit_data: %\n" hit_data
+			 --format "hit_data: %\n" hit_data
 			if hit_data != undefined then
 				this._addToHits( hit_data )
 			
-			else
-				this._testPositionsAroundCenterOfCell(cell_center)
+			--else
+				--this._testPositionsAroundCenterOfCell(cell_center)
 		)
 		
 		this._removeSnapshots()
@@ -143,7 +149,8 @@ struct GridSupportSeeder_v
 		--increment = 60
 		
 		--radiuses = #( cell_size / 2 / 3, cell_size / 2 / 1.5 )
-		ratios = #( 3.0, 1.2 )
+		
+		ratios = #( 3.0, 1.2 ) -- size of inner circles around center
 		
 		
 		/*------------------------------------------------------------------------------
@@ -177,16 +184,16 @@ struct GridSupportSeeder_v
 				
 			)
 		)
-		
 	),
-	
-	
-	/** Test hit
+		/** Test hit
 	 */
 	function _testHit pos =
 	(
-		--format "\n"; print "GridSupportSeeder_v._testHit()"
-		this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		-- format "\n"; print "GridSupportSeeder_v._testHit()"
+		--this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		-- format "HIT_DATA: %\n" hit_data
+		hit_data --return
 	),
 	
 	/** Append closest vert
@@ -199,13 +206,22 @@ struct GridSupportSeeder_v
 		pointer = (getHandleByAnim grid_object) as string
 
 		if this.closest_verts_pos[pointer] == undefined then
-			this.closest_verts_pos[pointer] = if mode == #HITS then #() else #{}
+			this.closest_verts_pos[pointer] = if mode != #VERTS then #() else #{}
 		
-		if mode == #HITS then
-			appendIfUnique this.closest_verts_pos[pointer] hit_data[2]
+		 if mode != #HITS then
+			index_or_pos = this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3]
+		 
+		 
+		 case mode of
+		 (
+			#HITS:  appendIfUnique this.closest_verts_pos[pointer] hit_data[2]
+			
+			#POS:   appendIfUnique this.closest_verts_pos[pointer] index_or_pos
+			
+			#VERTS: this.closest_verts_pos[pointer][index_or_pos] = true	
+		)	
+		 
 		
-		else if ( vertex = this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3] ) != undefined then
-			this.closest_verts_pos[pointer][vertex] = true	
 	),
 	
 	/** 
@@ -257,7 +273,7 @@ struct GridSupportSeeder_v
 			)
 		)
 
-		closest_vert -- return
+		if mode == #VERTS then closest_vert else closest_pos -- return
 	),
 	
 	/** 
@@ -317,11 +333,11 @@ struct GridSupportSeeder_v
 		closest_hit   = undefined
 		hit_obj   = undefined
 		result = undefined
-	
+		--format "intersect_objs: %\n" intersect_objs
 		for obj in intersect_objs do
 		(
 			hit = IntersectRayEx obj ray
-			
+			format "hit: %\n" hit
 			if hit != undefined then
 			(
 				dist = distance ray.pos hit[1].pos
@@ -355,9 +371,10 @@ struct GridSupportSeeder_v
 			(
 				this.target_objects[i].isHidden = true
 
-				mesh_node = snapshot this.target_objects[i]
+				--mesh_node = snapshot this.target_objects[i]
+				mesh_node = copy this.target_objects[i]
 				
-				mesh_node.transform = target_objects[i].transform -- snapshot is created at time 0
+				convertTo mesh_node TriMeshGeometry
 				
 				setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 				

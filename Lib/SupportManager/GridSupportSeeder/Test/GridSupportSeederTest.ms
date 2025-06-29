@@ -75,22 +75,23 @@ function rotateBox obj =
 --------------------------------------------------------------------------------*/
 closest_verts = undefined 
 hit_positions = undefined 
+closest_verts_pos = undefined 
 
 /*------------------------------------------------------------------------------
 	PREPARE SCENE
 --------------------------------------------------------------------------------*/
 
-delete objects
-box_green = createBoxAndCylinders 100 20 green
-obj  = createBoxAndCylinders 100 10  yellow cylinder_count:5
-rotateBox(obj)
+--delete objects
+--box_green = createBoxAndCylinders 100 20 green
+--obj  = createBoxAndCylinders 100 10  yellow cylinder_count:5
+--rotateBox(obj)
+--
+--source_objs    = $Box* as Array
+--support_mockup = ( $'Cylinder*' as Array ) 
 
-source_objs    = $Box* as Array
-support_mockup = ( $'Cylinder*' as Array ) 
 
-
---source_objs	= selection as Array
---support_mockup = #()
+source_objs	= selection as Array
+support_mockup = #()
 
 /*==============================================================================
   
@@ -99,8 +100,8 @@ support_mockup = ( $'Cylinder*' as Array )
 ================================================================================*/
 GridSupportSeeder = GridSupportSeeder_v()
 
-GridSupportSeeder.cell_size = 10
---GridSupportSeeder.cell_size = 5
+--GridSupportSeeder.cell_size = 10
+GridSupportSeeder.cell_size = 5
 
 GridSupportSeeder.initGrid(source_objs)
 
@@ -108,24 +109,35 @@ GridSupportSeeder.sortNodesToMatrix (support_mockup)
 
 
 
-format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
+format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
+
+--closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
+-- format "closest_verts_pos: %\n" closest_verts_pos
+-- /* SHOW RESULT */ 
+-- if closest_verts_pos != undefined then
+	-- for obj_pointer in closest_verts_pos.keys do
+		-- for closest_vert_pos in closest_verts_pos[obj_pointer] do 
+			-- Sphere pos:closest_vert_pos radius:0.1 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+
+
+format "\n------------------------ POSITION OF HITS -------------------------------\n"
+
+-- hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
+
+-- /* SHOW RESULT */ 
+-- if hit_positions != undefined then 
+	-- for obj_pointer in hit_positions.keys do
+		-- for closest_vert_pos in hit_positions[obj_pointer] do 
+			-- Sphere pos:closest_vert_pos radius:0.1 wirecolor:red
+			
+			
+format "\n------------------------ CLOSEST VERTS OF HITS -------------------------------\n"
 
 closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
-
-/* SHOW RESULT */ 
+format "closest_verts: %\n" closest_verts
+-- /* SHOW RESULT */ 
 if closest_verts != undefined then
 	for obj_pointer in closest_verts.keys do
 		for closest_vert_pos in closest_verts[obj_pointer] do 
-			Sphere pos:closest_vert_pos radius:0.1 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+			format "CLOSEST_VERT_POS: %\n" closest_vert_pos
 
-
-
-format "\n------------------------ PALCE TO POSITION OF HITS -------------------------------\n"
-
---hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
-
-/* SHOW RESULT */ 
-if hit_positions != undefined then 
-	for obj_pointer in hit_positions.keys do
-		for closest_vert_pos in hit_positions[obj_pointer] do 
-			Sphere pos:closest_vert_pos radius:0.1 wirecolor:red

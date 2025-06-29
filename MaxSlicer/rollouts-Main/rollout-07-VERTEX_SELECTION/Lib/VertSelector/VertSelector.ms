@@ -336,10 +336,17 @@ struct VertSelector_v
 		max modify mode
 
 		_mod = modPanel.getCurrentObject()
-
+		
+		if classOf _mod != Edit_Poly and classOf _mod != Editable_Poly then
+		(
+			_mod = Edit_Poly()
+			
+			addModifier obj _mod
+		)
+		
 		setSelectionLevel _mod subobject
 		--_mod.SetSelection subobject #{}
-
+		format "classOf _mod: %\n" (classOf _mod)
 		if classOf _mod == Edit_Poly then
 		(
 

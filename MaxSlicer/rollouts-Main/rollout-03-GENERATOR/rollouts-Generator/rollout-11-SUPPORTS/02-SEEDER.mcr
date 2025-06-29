@@ -43,18 +43,19 @@ icon:	"ACROSS:4"
 		--GridSupportSeeder.cell_size = 30
 		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
 		--GridSupportSeeder.cell_size = 5
+		--GridSupportSeeder.cell_size = 1
 		
 		GridSupportSeeder.initGrid(source_objects)
 		
 		GridSupportSeeder.sortNodesToMatrix (supports)
 		
-		
+--		
 		
 		format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 		
 		closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
 		--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
-		format "closest_verts: %\n" closest_verts
+		format "CLOSEST_VERTS: %\n" closest_verts
 		
 		
 		/* SHOW RESULT */ 

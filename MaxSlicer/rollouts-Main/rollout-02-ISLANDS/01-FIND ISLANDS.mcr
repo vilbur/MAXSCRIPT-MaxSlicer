@@ -109,7 +109,18 @@ icon:	"across:3"
 		/* SAVE ISlANDS DATA TO OBJECT */
 		setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
 
-		--macros.run "_3D-Print" "maxtoprint_islands_dialog"
+		lowesrt_verts = for lowest_vert_data in ISLANDS_SYSTEM.islands_data collect
+			lowest_vert_data[#lowest_vert]
+		
+		select obj
+		format "lowesrt_verts: %\n" (lowesrt_verts as BitArray )
+		format "lowesrt_verts.count: %\n" lowesrt_verts.count
+		if lowesrt_verts.count > 0 then
+			(VertSelector_v(obj)).setSelection (lowesrt_verts as BitArray ) --isolate:true
+
+			
+		--if lowesrt_verts.count > 0 then
+			--macros.run "_3D-Print" "maxtoprint_islands_dialog"
 	)
 )
 /**

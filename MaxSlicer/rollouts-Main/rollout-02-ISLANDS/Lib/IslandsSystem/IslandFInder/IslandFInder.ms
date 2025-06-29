@@ -25,12 +25,20 @@ struct IslandFinder_v
 	 */
 	function findIslandsPerLayer layer_height method =
 	(
-		-- format "\n"; print "IslandFinder_v.findIslandsPerLayer()"
+		 format "\n"; print "IslandFinder_v.findIslandsPerLayer()"
 		if classof obj.baseobject != Editable_Poly or (classof obj.baseobject == Editable_Poly and ( getNumVerts obj.baseobject.mesh != getNumVerts obj.mesh )) then
 		(
 			obj_snapshot_source = obj
 			
 			obj = snapshot obj_snapshot_source
+			
+			obj.transform = obj_snapshot_source.transform -- snapshot is created at time 0
+
+			--obj.parent = undefined
+			
+			--ResetXForm obj
+			--format "OBJ.PARENT: %\n" obj.parent
+			
 			
 			convertTo obj PolyMeshObject
 		)
@@ -57,7 +65,7 @@ struct IslandFinder_v
 		)
 		
 		
-		if obj_snapshot_source != undefined then 
+		if isValidNode obj_snapshot_source and obj_snapshot_source != undefined then 
 			delete obj
 
 			
@@ -79,9 +87,7 @@ struct IslandFinder_v
 		select obj
 			
 		/* GET VERTS WITH NORMAL POINTING DOWN */
-		max modify mode
 
-		subObjectLevel = 1
 		
 		vertex_count = getNumVerts obj.mesh
 
@@ -166,7 +172,7 @@ struct IslandFinder_v
 		visible_verts = -( polyop.getHiddenVerts obj)
 		 format "visible_verts: %\n" visible_verts
 		
-		verts_process = if verts_sel.numberSet > 0 then verts_sel else verts_all
+		verts_process = if verts_sel.numberSet > 1 then verts_sel else verts_all
 		 format "verts_process: %\n" verts_process
 		
 		
@@ -175,30 +181,7 @@ struct IslandFinder_v
 		 format "verts_process: %\n" verts_process
 
 		
-		PolyToolsSelect.Normal 3 140 true
-		
-		verts_normal_down = obj.getSelection #Vertex
-		format "verts_normal_down: %\n" verts_normal_down
-
-		if verts_normal_down.isEmpty then
-		(
-			ResetXForm obj
-
-			convertTo obj PolyMeshObject
-			
-			select obj
-			
-			max modify mode
-	
-			subObjectLevel = 1
-		
-			PolyToolsSelect.Normal 3 140 true
-			
-			verts_normal_down = obj.getSelection #Vertex
-			
-			format "verts_normal_down: %\n" verts_normal_down
-			
-		)
+			verts_normal_down = this._getNormalDownVerts()
 			
 			
 				verts_process *= verts_normal_down
@@ -229,7 +212,40 @@ struct IslandFinder_v
 		
 	),
 	
+	/** Get bottom verts
+	 */
+	function _getNormalDownVerts =
+	(
+		--format "\n"; print "IslandFinder_v._getNormalDownVerts()"
+		/** Select normal down verts
+		 */
+		function selectNormalDownVerts =
+		(
+			--format "\n"; print "IslandFinder_v.selectNormalDownVerts()"
+			select this.obj
+			
+			max modify mode
 	
+			subObjectLevel = 1
+		
+			PolyToolsSelect.Normal 3 140 true
+			
+			this.obj.getSelection #Vertex
+		)
+		
+
+		if (verts_normal_down = selectNormalDownVerts() ).isEmpty then
+		(
+			ResetXForm obj
+
+			convertTo obj PolyMeshObject
+			
+			verts_normal_down = selectNormalDownVerts()
+		)
+		
+		format "verts_normal_down: %\n" verts_normal_down
+		verts_normal_down --return
+	),
 
 
 	/**

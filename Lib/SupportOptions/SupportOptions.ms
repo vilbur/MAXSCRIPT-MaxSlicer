@@ -328,8 +328,8 @@ struct SupportOptions_v
 			SEEDER
 		--------------------------------------------------------------------------------*/
 		
-		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 2
-		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 2
+		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = ROLLOUT_SUPPORTS.SPIN_seeder_mode.state
+		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = ROLLOUT_SUPPORTS.SPIN_seeder_mode.state
 		
 	),
 

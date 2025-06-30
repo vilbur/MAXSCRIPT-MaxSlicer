@@ -46,7 +46,7 @@ icon:	"ACROSS:4"
 		--GridSupportSeeder.cell_size = 30
 		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
 		
-		grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
+		grid_type = if ROLLOUT_SUPPORTS.SPIN_seeder_mode.state then #RADIAL else #GRID
 		
 		/* IF SQUARE */ 
 		if grid_type == #RADIAL then
@@ -100,10 +100,10 @@ icon:	"ACROSS:4"
  */
 macroscript	_print_support_seeder_mode
 category:	"_3D-Print"
-buttontext:	"[Seeder mode]"
+buttontext:	"RADIAL"
 toolTip:	""
 --icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"across:4|control:checkbox|offset:[ 24, 4 ]"
+icon:	"across:4|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 4 ]"
 (
 	on execute do
 	(
@@ -125,8 +125,8 @@ icon:	"across:4|control:checkbox|offset:[ 24, 4 ]"
 		--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #DOWN else #NORMAL )
 		--
 		--/* ENABLE DISBALE DEPENDENT CONTROLS */ 
-		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val == 2
-		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val == 2
+		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val
+		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val
 		--ROLLOUT_SUPPORTS.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
 		--
 		--/* RESUME CALLBACKS */ 

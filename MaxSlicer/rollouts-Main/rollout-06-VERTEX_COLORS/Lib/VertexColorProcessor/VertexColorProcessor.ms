@@ -169,7 +169,8 @@ struct VertexColorProcessor_v
 		--format "\n"; print "VertexColorProcessor_v._callMethod()"
 		if classOf curr_mod != Editable_Poly and classOf curr_mod != Edit_Poly then
 		(
-			curr_mod = Edit_Poly()
+			--curr_mod = Edit_Poly()
+			curr_mod = Edit_Poly name:"VERTEX PAINT SELECT"
 
 			addModifier obj (curr_mod)
 		)

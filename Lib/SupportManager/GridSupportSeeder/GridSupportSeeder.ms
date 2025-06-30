@@ -22,7 +22,7 @@ struct GridSupportSeeder_v
 	/* required */
 	mode = #VERTS, -- #VERTS|#HITS|#POS -- vertex indexes | hits positions | verts positions of closest hit
 
-	/* circle setup */ 
+	/* radial setup */ 
 	segments_count = 32,
 	--segments_count_keep = false,
 	segments_count_keep = true,
@@ -66,7 +66,7 @@ struct GridSupportSeeder_v
 		
 		if grid_type == #GRID then
 		(
-			--ratios = #( 3.0, 1.2 ) -- size of inner circles around center
+			--ratios = #( 3.0, 1.2 ) -- size of inner radials around center
 			
 			this.initGrid()
 			
@@ -76,9 +76,9 @@ struct GridSupportSeeder_v
 		)
 		else
 		(
-			this.initGridCircle()
+			this.initGridRadial()
 			
-			empty_cells = this.getEmptyCellsCircle()
+			empty_cells = this.getEmptyCellsRadial()
 			
 		)
 		  -- format "EMPTY_CELLS: %\n" empty_cells
@@ -95,7 +95,7 @@ struct GridSupportSeeder_v
 			 -- format "hit_data: %\n" hit_data
 			 
 			if hit_data == undefined then
-				hits_data = this._getCirclePositions(cell_center)(cell_size / 2 )(cell_size) clr:white --test_hit:true
+				hits_data = this._getRadialPositions(cell_center)(cell_size / 2 )(cell_size) clr:white --test_hit:true
 				
 			--if hit_data != undefined then
 			--	Point pos:cell_center size:10 Box:true  wirecolor:red
@@ -138,11 +138,11 @@ struct GridSupportSeeder_v
 		grid_positions = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
 	),
 	
-	/** Init grid circle
+	/** Init grid radial
 	 */
-	function initGridCircle =
+	function initGridRadial =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v.initGridCircle()"
+		 -- format "\n"; print "GridSupportSeeder_v.initGridRadial()"
 		bbox = this._getBbox()
 		
 		min_x = bbox[1]
@@ -168,12 +168,12 @@ struct GridSupportSeeder_v
 		--cell_size = 60
 		
 		/* GET HITS */ 		
-		grid_positions = this._getCirclePositions(this.grid_origin)(radius)(cell_size)  clr:green  --test_hit:true
+		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(cell_size)  clr:green  --test_hit:true
 		-- format "grid_positions: %\n" grid_positions
 		-- format "grid_positions.count: %\n" grid_positions.count
 		
 		--for grid_position in grid_positions do 
-			--this._getCirclePositions(grid_position)(cell_size)(cell_size/4)  clr:yellow  --test_hit:true
+			--this._getRadialPositions(grid_position)(cell_size)(cell_size/4)  clr:yellow  --test_hit:true
 		-- format "grid_positions: %\n" grid_positions
 	),
 	
@@ -203,9 +203,9 @@ struct GridSupportSeeder_v
 
 	/** Test positions in cicrles around center of cell
 	 */
-	function _getCirclePositions cell_center radius split_size test_hit:false clr:undefined =
+	function _getRadialPositions cell_center radius split_size test_hit:false clr:undefined =
 	(
-		  -- format "\n"; print "GridSupportSeeder_v._getCirclePositions()"
+		  -- format "\n"; print "GridSupportSeeder_v._getRadialPositions()"
 		-- format "cell_center: %\n" cell_center
 		-- format "radius: %\n" radius
 		-- format "split_size: %\n" split_size
@@ -250,7 +250,7 @@ struct GridSupportSeeder_v
 			(
 				rotate_about = ( 360.0 / segments ) * i
 				
-				moved_pos = this.movePointOnCircleDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
+				moved_pos = this.movePointOnRadialDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
 				
 				--if clr != undefined then 
 					--Point pos:moved_pos size:5 wirecolor:clr Box:true 
@@ -307,9 +307,9 @@ struct GridSupportSeeder_v
 	),
 	
 	/** 
-	Move point along a circle by rotation angle using only degrees
+	Move point along a radial by rotation angle using only degrees
 	*/
-	function movePointOnCircleDeg center_pos radius point_pos angle_deg =
+	function movePointOnRadialDeg center_pos radius point_pos angle_deg =
 	(
 		-- Vector from center to point
 		vec = point_pos - center_pos
@@ -324,7 +324,7 @@ struct GridSupportSeeder_v
 		new_x = cos(new_angle) * radius
 		new_y = sin(new_angle) * radius
 	
-		-- Final position on circle
+		-- Final position on radial
 		new_pos = center_pos + [new_x, new_y, 0]
 	
 		new_pos -- return
@@ -399,11 +399,11 @@ struct GridSupportSeeder_v
 		empty_cells --return
 	),
 
-	/** Sort nodes to circle grid
+	/** Sort nodes to radial grid
 	 */
-	function getEmptyCellsCircle =
+	function getEmptyCellsRadial =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._sortNodesToCircleGrid()"
+		-- format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
 		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
 		empty_cells = #()

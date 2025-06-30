@@ -65,8 +65,8 @@ struct PinsGenerator_v
 
 		pin_name = uniqueName ( obj.name + "-pin-" )
 
-		pin_inner  = Circle name:pin_name	pos:pos wirecolor:obj.wirecolor radius:(Options.pin_width / 2)
-		pin_outter = Circle name:(pin_name+"-outter")	pos:pos wirecolor:obj.wirecolor radius:((Options.pin_width / 2) + Options.pin_gap )  xray:true
+		pin_inner  = Radial name:pin_name	pos:pos wirecolor:obj.wirecolor radius:(Options.pin_width / 2)
+		pin_outter = Radial name:(pin_name+"-outter")	pos:pos wirecolor:obj.wirecolor radius:((Options.pin_width / 2) + Options.pin_gap )  xray:true
 
 		freeze pin_outter
 

@@ -46,10 +46,10 @@ icon:	"ACROSS:4"
 		--GridSupportSeeder.cell_size = 30
 		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
 		
-		grid_type = #( #GRID, #CIRCLE )[ROLLOUT_SUPPORTS.RB_seeder_mode.state]
+		grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
 		
 		/* IF SQUARE */ 
-		if grid_type == #CIRCLE then
+		if grid_type == #RADIAL then
 		(
 			
 			GridSupportSeeder.segments_count = ROLLOUT_SUPPORTS.SPIN_segments_count.value
@@ -102,8 +102,8 @@ macroscript	_print_support_seeder_mode
 category:	"_3D-Print"
 buttontext:	"[Seeder mode]"
 toolTip:	""
---icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"across:4|control:radiobuttons|unselect:false|items:#( 'GRID', 'CIRCLE' )|offset:[ 24, 4 ]|"
+--icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+icon:	"across:4|control:checkbox|offset:[ 24, 4 ]"
 (
 	on execute do
 	(
@@ -142,7 +142,7 @@ macroscript	_print_support_seeder_mode_segments_count
 category:	"_3D-Print"
 buttontext:	"Segments"
 toolTip:	""
---icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+--icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
 icon:	"across:4|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ 64, 4 ]|tooltip:Xxx"
 (
 		format "EventFired	= % \n" EventFired

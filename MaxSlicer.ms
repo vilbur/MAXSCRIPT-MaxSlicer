@@ -12,6 +12,7 @@ global DIALOG_slicer_slider
 global ROLLOUT_generator
 global ROLLOUT_slicer
 global ROLLOUT_beams
+global ROLLOUT_supports
 
 /* STRUCT GLOBALS - before import SupportManager */
 global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER

@@ -304,13 +304,15 @@ struct SupportOptions_v
 	
 	/** ENABLE DISBALE DEPENDENT CONTROLS
 	 */
-	function _enableRaftOptions =
+	function _enabledDependantControls =
 	(
-		--format "\n"; print "SupportOptions_v._enableRaftOptions()"
+		--format "\n"; print "SupportOptions_v._enabledDependantControls()"
+
+		/*------------------------------------------------------------------------------
+			RAFT MODES
+		--------------------------------------------------------------------------------*/
 		raft_direction = if ROLLOUT_generator.RB_raft_direction.state == 1 then #DOWN else #NORMAL
-		
-		
-		
+
 		ROLLOUT_generator.RB_raft_mode.enabled = raft_direction == #NORMAL
 		
 		raft_mode = case ROLLOUT_generator.RB_raft_mode.state of
@@ -322,6 +324,13 @@ struct SupportOptions_v
 		
 		ROLLOUT_generator.SPIN_normal_length.enabled = raft_direction == #NORMAL and raft_mode == #CUSTOM 
 		
+		/*------------------------------------------------------------------------------
+			SEEDER
+		--------------------------------------------------------------------------------*/
+		
+		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 2
+		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 2
+		
 	),
 
 	/**
@@ -330,7 +339,7 @@ struct SupportOptions_v
 	on create do
 	(
 		format "\n"; print "SupportOptions_v.create()"
-		this._enableRaftOptions()
+		this._enabledDependantControls()
 		
 		--format "THIS: %\n" this
 		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 

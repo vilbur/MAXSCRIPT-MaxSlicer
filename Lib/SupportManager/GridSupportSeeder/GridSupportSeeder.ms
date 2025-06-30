@@ -33,6 +33,10 @@ struct GridSupportSeeder_v
 	num_cols,
 	num_rows,
 
+	/* circle setup */ 
+	segments_count = 32,
+	segments_count_keep = false,
+	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -96,27 +100,6 @@ struct GridSupportSeeder_v
 	function initGridCircle grid_objects =
 	(
 		format "\n"; print "GridSupportSeeder_v.initGridCircle()"
-		/* 
-		Finds the closest float in an array to a given value
-		*/
-		function getClosestFloatValue array target_float = 
-		(
-			closest_value = undefined
-			min_diff = 1e9
-		
-			for f in array do
-			(
-				diff = abs(f - target_float)
-				if diff < min_diff then
-				(
-					min_diff = diff
-					closest_value = f
-				)
-			)
-			
-			closest_value -- return
-		)
-
 
 		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
 		
@@ -142,35 +125,17 @@ struct GridSupportSeeder_v
 		--Sphere pos:p2 radius:1  wirecolor:green
 		--Sphere pos:p3 radius:1  wirecolor:blue
 		--Sphere pos:p4 radius:1  wirecolor:yellow
-		
-		/* 	RATIOS WHICH PRODUCE BEST RESULTS
-		
-			THIS NUMBER IS CONTROLING PATTERN OF HITS FOOTPRINT
-		*/ 
-		ratios = #( 1.0, 2.0, 4.0, 6.0, 8.0 )
-		
 		/* GET LONGER SIDE OF BOUNGING BOX */ 
 		radius = (amax (distance p1 p3) (distance p1 p4)) / 2
-		
+
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if radius < cell_size * 4 then
-			cell_size /= 2
-			
-		/* GET CLOSEST NICE RATIO OF CURRENT RATIO */ 
-		ratio = getClosestFloatValue ratios (radius / cell_size)
-		
-		/* ADJSUT CELL SIZE */ 
-		cell_size = radius / ratio
-
-		/* GET RADIUSES */ 
-		radius_count = radius / cell_size
-
-		segment_size = radius / radius_count
-
-		radiuses = for i = 1 to radius_count collect segment_size * i
+		--if radius < cell_size * 4 then
+			--cell_size /= 2
 		
 		/* GET HITS */ 		
-		this._testPositionsAroundCenterOfCell(this.grid_origin)(radius)(radiuses) all_hits:true 
+		matrix = this._testPositionsAroundCenterOfCell(this.grid_origin)(radius)(cell_size) get_first_hit:false
+		
+		format "matrix: %\n" matrix
 	),
 	
 	/* 
@@ -182,7 +147,6 @@ struct GridSupportSeeder_v
 		 -- format "nodes: %\n" nodes
 		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 		
-		cell_dict = #()
 		
 		for node in cell_objects do
 		(
@@ -194,6 +158,30 @@ struct GridSupportSeeder_v
 		)
 		
 		matrix -- return
+	),
+	
+	/** Sort nodes to circle grid
+	 */
+	function sortNodesToCircleGrid cell_objects=
+	(
+		--format "\n"; print "GridSupportSeeder_v._sortNodesToCircleGrid()"
+		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
+
+		obj_matrix = #()
+		
+		for pos in matrix do
+		(
+			for node in cell_objects do
+			(
+				node_pos = node.position
+				
+				pos.z = node_pos.z = 0
+				
+				distance pos node_pos < cell_size / 2 
+			)			
+			
+		)
+		
 	),
 
 	/** Get closest verts of empty cells
@@ -214,7 +202,6 @@ struct GridSupportSeeder_v
 		
 		empty_cells = this.getEmptyCells()
 		-- format "empty_cells: %\n" empty_cells
-		this._convertTargetsToMeshSnapshots()
 		
 		/* LOOP EMPTY CELLS */ 
 		for cell_center in empty_cells do
@@ -240,23 +227,55 @@ struct GridSupportSeeder_v
 	
 	/** Test positions in cicrles around center of cell
 	 */
-	function _testPositionsAroundCenterOfCell cell_center radius radiuses all_hits:false =
+	function _testPositionsAroundCenterOfCell cell_center radius split_size get_first_hit:false =
 	(
 		 format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
+
+		/* 	RATIOS WHICH PRODUCE BEST RESULTS
+		
+			THIS NUMBER IS CONTROLING PATTERN OF HITS FOOTPRINT
+		*/ 
+		--ratios = #( 1.0, 2.0, 4.0, 6.0, 12.0, 24.0 , 36.0  )
+		--ratios = #( 1.0, 2.0, 4.0, 6.0  )
+		--
+		--segments_count = 12 -- number of segments in full radius
+		--segments_count = 36 -- number of segments in full radius
+		--segments_count = 24 -- number of segments in full radius
+		--segments_count = 48 -- number of segments in full radius
+		--segments_count = 28 -- number of segments in full radius
+		--segments_count = 32 -- number of segments in full radius
+
+		/* GET CLOSEST NICE RATIO OF CURRENT RATIO */ 
+		--ratio = getClosestFloatValue ratios (radius / split_size)
+
+		positions	= #(cell_center)
+		
+		ratio = (radius / split_size)
+		
+		/* ADJSUT CELL SIZE */ 
+		--split_size = radius / ratio
+
+		/* GET RADIUSES */ 
+		radius_count = radius / split_size
+
+		segment_size = radius / radius_count
+
+		radiuses = for i = 1 to radius_count collect segment_size * i
+		
+		format "radiuses: %\n" radiuses
 		 
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
 		--------------------------------------------------------------------------------*/
 		
-		segments_count = 24 -- number of segments in full radius
 		
 		for radius_portion in radiuses while hit_data == undefined do 
 		(
-			format "------------------\n"
+			--format "------------------\n"
 			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
-			segments = ceil( segments_count * radius_portion / radius )
-
+			segments = if segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
+		
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
 			--------------------------------------------------------------------------------*/
@@ -267,21 +286,25 @@ struct GridSupportSeeder_v
 				moved_pos = this.movePointOnCircleDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
 				--Sphere pos:moved_pos radius:1 wirecolor:orange
 				
-				hit_data = this._testHit moved_pos 
-				
-				if hit_data != undefined then
-					this._addToHits( hit_data )
-				
-				if all_hits then
-					hit_data = undefined 
+				if get_first_hit then
+				(
+					hit_data = this._testHit moved_pos 
+					
+					if hit_data != undefined then
+						this._addToHits( hit_data )
+				)
+				else
+					append positions moved_pos
 			)
 		)
+		
+		positions --return
 	),
 		/** Test hit
 	 */
 	function _testHit pos =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._testHit()"
+		 format "\n"; print "GridSupportSeeder_v._testHit()"
 		--this._intersectRayWithObjects ( Ray pos [0,0,1] )
 		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
 		-- format "HIT_DATA: %\n" hit_data
@@ -292,7 +315,7 @@ struct GridSupportSeeder_v
 	 */
 	function _addToHits hit_data =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._addToHits()"
+		 format "\n"; print "GridSupportSeeder_v._addToHits()"
 		grid_object = grid_objects[findItem intersect_objs hit_data[1]]
 
 		pointer = (getHandleByAnim grid_object) as string
@@ -419,11 +442,12 @@ struct GridSupportSeeder_v
 	*/
 	function _intersectRayWithObjects ray =
 	(
+		 format "\n"; print "GridSupportSeeder_v._intersectRayWithObjects()"
 		closest_dist  = 1e9
 		closest_hit   = undefined
 		hit_obj   = undefined
 		result = undefined
-		--format "intersect_objs: %\n" intersect_objs
+		format "intersect_objs: %\n" intersect_objs
 		for obj in intersect_objs do
 		(
 			hit = IntersectRayEx obj ray

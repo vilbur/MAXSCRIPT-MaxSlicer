@@ -59,8 +59,12 @@ icon:	"ACROSS:4"
 		)
 		else
 		(
-			GridSupportSeeder.initGridCircle(source_objects)
 			
+			GridSupportSeeder.segments_count = ROLLOUT_SUPPORTS.SPIN_segments_count
+					
+			GridSupportSeeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep
+			
+			GridSupportSeeder.initGridCircle(source_objects)
 		)
 
 			
@@ -138,11 +142,40 @@ icon:	"across:4|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' 
 		--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #DOWN else #NORMAL )
 		--
 		--/* ENABLE DISBALE DEPENDENT CONTROLS */ 
-		--ROLLOUT_generator.RB_raft_mode.enabled = EventFired.val == 2
-		--
-		--ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
+		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val == 2
+		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val == 2
+		--ROLLOUT_SUPPORTS.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
 		--
 		--/* RESUME CALLBACKS */ 
 		--resumeSupportTransformEvent()
 	)
+)
+
+
+/**  RAFT DIRECTION RADIOBUTTONS
+  *
+ */
+macroscript	_print_support_seeder_mode_segments_count
+category:	"_3D-Print"
+buttontext:	"Segments"
+toolTip:	""
+--icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
+icon:	"across:4|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ 64, 4 ]|tooltip:Xxx"
+(
+		format "EventFired	= % \n" EventFired
+
+)
+
+
+/**  RAFT DIRECTION RADIOBUTTONS
+  *
+ */
+macroscript	_print_support_seeder_mode_segments_count_keep
+category:	"_3D-Print"
+buttontext:	"keep"
+toolTip:	""
+icon:	"ACROSS:4|control:checkbox|id:CBX_segments_count_keep|offset:[ 48, 4 ]"
+(
+		format "EventFired	= % \n" EventFired
+
 )

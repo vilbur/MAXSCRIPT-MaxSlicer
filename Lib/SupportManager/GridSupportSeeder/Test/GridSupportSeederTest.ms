@@ -103,9 +103,9 @@ support_mockup = #()
 GridSupportSeeder = GridSupportSeeder_v()
 
 --GridSupportSeeder.cell_size = 10
-GridSupportSeeder.cell_size = 5.5
---GridSupportSeeder.cell_size = 6
-GridSupportSeeder.cell_size = 4
+--GridSupportSeeder.cell_size = 5.5
+GridSupportSeeder.cell_size = 6
+--GridSupportSeeder.cell_size = 2
 
 --GridSupportSeeder.initGrid(source_objs)
 
@@ -113,6 +113,7 @@ GridSupportSeeder.cell_size = 4
 
 
 GridSupportSeeder.initGridCircle(source_objs)
+GridSupportSeeder.sortNodesToCircleGrid (support_mockup)
 
 
 format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"

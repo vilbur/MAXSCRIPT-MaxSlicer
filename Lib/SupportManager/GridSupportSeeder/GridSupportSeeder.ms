@@ -18,7 +18,9 @@ struct GridSupportSeeder_v
 	intersect_objs = #(),
 	
 	seeder_mode,
-	cell_size = 50,
+	
+	eccentric_step = 50,
+	
 	/* required */
 	mode = #VERTS, -- #VERTS|#HITS|#POS -- vertex indexes | hits positions | verts positions of closest hit
 
@@ -95,7 +97,7 @@ struct GridSupportSeeder_v
 			 -- format "hit_data: %\n" hit_data
 			 
 			if hit_data == undefined then
-				hits_data = this._getRadialPositions(cell_center)(cell_size / 2 )(cell_size) clr:white --test_hit:true
+				hits_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(eccentric_step) clr:white --test_hit:true
 				
 			--if hit_data != undefined then
 			--	Point pos:cell_center size:10 Box:true  wirecolor:red
@@ -125,14 +127,14 @@ struct GridSupportSeeder_v
 		this.grid_origin = [ min_x, min_y ]
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
-			cell_size /= 2
+		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < eccentric_step * 4 then
+			eccentric_step /= 2
 		
 		--point pos:[ min_x, min_y, 0 ] size:1
 		--point pos:[ max_x, max_y, 0 ] size:1
 		
-		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
-		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
+		num_cols = ceil ((max_x - min_x + 0.1) / eccentric_step)
+		num_rows = ceil ((max_y - min_y + 0.1) / eccentric_step)
 		
 		/* Initialize grid_positions */ 
 		grid_positions = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
@@ -162,18 +164,18 @@ struct GridSupportSeeder_v
 		radius = (amax (distance p1 p3) (distance p1 p4)) / 2.0
 		-- format "radius: %\n" radius
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		--if radius < cell_size * 4 then
-			--cell_size /= 2
+		--if radius < eccentric_step * 4 then
+			--eccentric_step /= 2
 		
-		--cell_size = 60
+		--eccentric_step = 60
 		
 		/* GET HITS */ 		
-		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(cell_size)  clr:green  --test_hit:true
+		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(eccentric_step)  clr:green  --test_hit:true
 		-- format "grid_positions: %\n" grid_positions
 		-- format "grid_positions.count: %\n" grid_positions.count
 		
 		--for grid_position in grid_positions do 
-			--this._getRadialPositions(grid_position)(cell_size)(cell_size/4)  clr:yellow  --test_hit:true
+			--this._getRadialPositions(grid_position)(eccentric_step)(eccentric_step/4)  clr:yellow  --test_hit:true
 		-- format "grid_positions: %\n" grid_positions
 	),
 	
@@ -189,8 +191,8 @@ struct GridSupportSeeder_v
 		
 		for node in cell_objects do
 		(
-			col = 1 + floor (( node.position.x - grid_origin.x) / cell_size )
-			row = 1 + floor (( node.position.y - grid_origin.y) / cell_size )
+			col = 1 + floor (( node.position.x - grid_origin.x) / eccentric_step )
+			row = 1 + floor (( node.position.y - grid_origin.y) / eccentric_step )
 			
 			if row >= 1 and row <= num_rows and col >= 1 and col <= num_cols then
 				append grid_positions[row][col] node
@@ -374,8 +376,8 @@ struct GridSupportSeeder_v
 			(
 				objects_in_row = row[x]
 				
-				x_pos = grid_origin.x + ((x - 1) * cell_size) -- + (cell_size/2)
-				y_pos = grid_origin.y + ((y - 1) * cell_size) -- + (cell_size/2)
+				x_pos = grid_origin.x + ((x - 1) * eccentric_step) -- + (eccentric_step/2)
+				y_pos = grid_origin.y + ((y - 1) * eccentric_step) -- + (eccentric_step/2)
 				
 				cell_center = [ x_pos, y_pos, 0 ]
 				
@@ -385,9 +387,9 @@ struct GridSupportSeeder_v
 				(
 					_distance = distance cell_center obj.pos
 
-					--if _distance < cell_size / 2.5 then
-					if _distance < cell_size / search_treshold then
-					--if _distance < cell_size then
+					--if _distance < eccentric_step / 2.5 then
+					if _distance < eccentric_step / search_treshold then
+					--if _distance < eccentric_step then
 						close_to_center_found = true
 				)
 
@@ -420,17 +422,17 @@ struct GridSupportSeeder_v
 				--format "\n"
 				pos.z = node_pos.z = 0
 				
-				--serach_radius = 20.0
-				serach_radius = cell_size / 2
+				--search_radius = 20.0
+				search_radius = eccentric_step / 4 -- divide by 2x2 for radius and both sides
 				
 				/* DEVELOPENT
 					if findItem dev_show_radius node == 0 then
-						VolumeHelper pos:pos radius:serach_radius segments:16 wirecolor:brown volumeType:1 name:node.name
+						VolumeHelper pos:pos radius:search_radius segments:16 wirecolor:brown volumeType:1 name:node.name
 					
 					appendIfUnique dev_show_radius node
 				*/ 
 				
-				if distance pos node_pos < serach_radius  then
+				if distance pos node_pos < search_radius  then
 					append nodes_of_pos node
 			)
 			--format "nodes_of_pos: %\n" nodes_of_pos

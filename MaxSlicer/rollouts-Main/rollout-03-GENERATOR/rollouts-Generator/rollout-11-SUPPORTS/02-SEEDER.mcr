@@ -7,7 +7,7 @@ macroscript	_print_support_seeder
 category:	"_3D-Print"
 buttontext:	"S E E D E R"
 tooltip:	"Seed Supports\n\nCTRL: DO NOT GENERATE SUPPORTS, Only select verts."
-icon:	"ACROSS:4"
+icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 (
 	on execute do
 	(
@@ -44,9 +44,9 @@ icon:	"ACROSS:4"
 		GridSupportSeeder = GridSupportSeeder_v(source_objects)
 		
 		--GridSupportSeeder.cell_size = 30
-		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
+		GridSupportSeeder.eccentric_step = ROLLOUT_SUPPORTS.SPIN_eccentric_step.value
 		
-		grid_type = if ROLLOUT_SUPPORTS.SPIN_seeder_mode.state then #RADIAL else #GRID
+		grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
 		
 		/* IF SQUARE */ 
 		if grid_type == #RADIAL then
@@ -95,15 +95,15 @@ icon:	"ACROSS:4"
 )
 
 
-/**  RAFT DIRECTION RADIOBUTTONS
+/**  
   *
  */
 macroscript	_print_support_seeder_mode
 category:	"_3D-Print"
-buttontext:	"RADIAL"
+buttontext:	"[RADIAL]"
 toolTip:	""
---icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"across:4|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 4 ]"
+icon:	"ACROSS:5|control:radiobuttons|id:RB_seeder_mode|unselect:true|items:#( 'RADIAL' )|offset:[ 28, 8 ]"
+--icon:	"ACROSS:5|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 8 ]"
 (
 	on execute do
 	(
@@ -125,8 +125,9 @@ icon:	"across:4|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 4 ]"
 		--SUPPORT_MANAGER.updateSupports(selected_supports+selected_rafts) direction:(if EventFired.val == 1 then #DOWN else #NORMAL )
 		--
 		--/* ENABLE DISBALE DEPENDENT CONTROLS */ 
-		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val
-		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val
+		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val == 1
+		ROLLOUT_SUPPORTS.SPIN_eccentric_step.enabled = EventFired.val == 1
+		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val == 1
 		--ROLLOUT_SUPPORTS.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
 		--
 		--/* RESUME CALLBACKS */ 
@@ -134,31 +135,46 @@ icon:	"across:4|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 4 ]"
 	)
 )
 
-
-/**  RAFT DIRECTION RADIOBUTTONS
+/**  
   *
  */
 macroscript	_print_support_seeder_mode_segments_count
 category:	"_3D-Print"
-buttontext:	"Segments"
+buttontext:	"[Segments]"
 toolTip:	""
---icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"across:4|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ 64, 4 ]|tooltip:Xxx"
+--icon:	"ACROSS:5|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 8 ]|offsets:#([0, 2], [ -4, 2 ] )"
+icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ -32, 8 ]|tooltip:Xxx"
 (
 		format "EventFired	= % \n" EventFired
 
 )
 
-
-/**  RAFT DIRECTION RADIOBUTTONS
+/**  
   *
  */
 macroscript	_print_support_seeder_mode_segments_count_keep
 category:	"_3D-Print"
 buttontext:	"keep"
 toolTip:	""
-icon:	"ACROSS:4|control:checkbox|id:CBX_segments_count_keep|offset:[ 48, 4 ]"
+icon:	"ACROSS:5|control:checkbox|id:CBX_segments_count_keep|offset:[ -16, 8 ]"
 (
 		format "EventFired	= % \n" EventFired
 
 )
+
+
+/**  
+  *
+ */
+macroscript	_print_support_seeder_eccentric_step
+category:	"_3D-Print"
+buttontext:	"Step size"
+toolTip:	""
+--icon:	"ACROSS:5|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 8 ]|offsets:#([0, 2], [ -4, 2 ] )"
+icon:	"ACROSS:5|control:spinner|id:SPIN_eccentric_step|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 16, 8 ]|tooltip:Distance between circles in radial pattern"
+(
+		format "EventFired	= % \n" EventFired
+
+)
+
+

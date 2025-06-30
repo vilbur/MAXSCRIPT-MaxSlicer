@@ -103,8 +103,9 @@ support_mockup = #()
 GridSupportSeeder = GridSupportSeeder_v()
 
 --GridSupportSeeder.cell_size = 10
+GridSupportSeeder.cell_size = 5.5
+--GridSupportSeeder.cell_size = 6
 GridSupportSeeder.cell_size = 4
---GridSupportSeeder.cell_size = 1
 
 --GridSupportSeeder.initGrid(source_objs)
 

@@ -76,23 +76,16 @@ struct GridSupportSeeder_v
 		max_y = bbox[4]
 		
 		this.grid_origin = [ min_x, min_y ]
-
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
 		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
 			cell_size /= 2
-			
 		
 		--point pos:[ min_x, min_y, 0 ] size:1
 		--point pos:[ max_x, max_y, 0 ] size:1
 		
-		--plane pos:grid_origin width:( max_x - min_x ) length:( max_y - max_y )
-		
 		num_cols = ceil ((max_x - min_x + 0.1) / cell_size)
 		num_rows = ceil ((max_y - min_y + 0.1) / cell_size)
-		
-		-- format "num_cols: %\n" num_cols
-		-- format "num_rows: %\n" num_rows
 		
 		/* Initialize matrix */ 
 		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
@@ -103,6 +96,28 @@ struct GridSupportSeeder_v
 	function initGridCircle grid_objects =
 	(
 		format "\n"; print "GridSupportSeeder_v.initGridCircle()"
+		/* 
+		Finds the closest float in an array to a given value
+		*/
+		function getClosestFloatValue array target_float = 
+		(
+			closest_value = undefined
+			min_diff = 1e9
+		
+			for f in array do
+			(
+				diff = abs(f - target_float)
+				if diff < min_diff then
+				(
+					min_diff = diff
+					closest_value = f
+				)
+			)
+			
+			closest_value -- return
+		)
+
+
 		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
 		
 		bbox = this._getBbox()
@@ -123,28 +138,39 @@ struct GridSupportSeeder_v
 		
 		Sphere pos:this.grid_origin radius:1  wirecolor:red
 		
-
-			
-		--this.grid_origin = [ min_x, min_y, 0 ]
 		--Sphere pos:p1 radius:1  wirecolor:red
 		--Sphere pos:p2 radius:1  wirecolor:green
 		--Sphere pos:p3 radius:1  wirecolor:blue
 		--Sphere pos:p4 radius:1  wirecolor:yellow
 		
+		/* 	RATIOS WHICH PRODUCE BEST RESULTS
+		
+			THIS NUMBER IS CONTROLING PATTERN OF HITS FOOTPRINT
+		*/ 
+		ratios = #( 1.0, 2.0, 4.0, 6.0, 8.0 )
+		
+		/* GET LONGER SIDE OF BOUNGING BOX */ 
 		radius = (amax (distance p1 p3) (distance p1 p4)) / 2
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
 		if radius < cell_size * 4 then
 			cell_size /= 2
 			
+		/* GET CLOSEST NICE RATIO OF CURRENT RATIO */ 
+		ratio = getClosestFloatValue ratios (radius / cell_size)
+		
+		/* ADJSUT CELL SIZE */ 
+		cell_size = radius / ratio
+
+		/* GET RADIUSES */ 
 		radius_count = radius / cell_size
 
 		segment_size = radius / radius_count
 
 		radiuses = for i = 1 to radius_count collect segment_size * i
 		
+		/* GET HITS */ 		
 		this._testPositionsAroundCenterOfCell(this.grid_origin)(radius)(radiuses) all_hits:true 
-
 	),
 	
 	/* 
@@ -217,30 +243,19 @@ struct GridSupportSeeder_v
 	function _testPositionsAroundCenterOfCell cell_center radius radiuses all_hits:false =
 	(
 		 format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
-		 format "radiuses: %\n" radiuses
 		 
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
 		--------------------------------------------------------------------------------*/
-		--for radius in radiuses while hit_data == undefined do
 		
 		segments_count = 24 -- number of segments in full radius
 		
 		for radius_portion in radiuses while hit_data == undefined do 
 		(
 			format "------------------\n"
-			--format "ratio: %\n" ratio
-			
-			--radius = radius / ratio	
-			
 			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
-			--increment_count = increment / ratio
-			--increment = if ratio == 3 then 60 else 30 -- add more test if radius is bigger
-
-
 			segments = ceil( segments_count * radius_portion / radius )
-			format "segments: %\n" segments
 
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
@@ -248,19 +263,16 @@ struct GridSupportSeeder_v
 			for i = 1 to segments while hit_data == undefined do
 			(
 				rotate_about = ( 360.0 / segments ) * i
-				format "\n"
-				format "rotate_about: %\n" rotate_about
 				
 				moved_pos = this.movePointOnCircleDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
-				--format "moved_pos: %\n" moved_pos
-				Sphere pos:moved_pos radius:1 wirecolor:orange
+				--Sphere pos:moved_pos radius:1 wirecolor:orange
 				
-				--hit_data = this._testHit moved_pos 
-				--
-				--if hit_data != undefined then
-				--	this._addToHits( hit_data )
-				--
-				--if all_hits then
+				hit_data = this._testHit moved_pos 
+				
+				if hit_data != undefined then
+					this._addToHits( hit_data )
+				
+				if all_hits then
 					hit_data = undefined 
 			)
 		)

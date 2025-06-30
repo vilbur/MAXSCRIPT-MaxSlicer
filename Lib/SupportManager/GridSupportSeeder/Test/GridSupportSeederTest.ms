@@ -1,25 +1,47 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 filein( getFilenamePath(getSourceFileName()) + "/../GridSupportSeeder.ms" )	--"./../GridSupportSeeder.ms"
-
 /* 
-	Creates a flat box above ground and 20 randomly placed support_mockup below it.
+	Creates a
+	
+	flat box above ground and 20 randomly placed support_mockup below it.
 
 	--"./../Doc/select-verts-up-down.gif.gif.gif"
 
 */
 
-function createBoxAndCylinders box_width box_length wirecolor cylinder_count:10 =
+function createBox box_width box_length wirecolor cylinder_count:10 =
 (
 	--cylinder_count = 60
 
 	obj = box length:box_length width:box_width height:20 pos:[ 0, 0, 80 ] lengthsegs:( ceil (box_length/5) ) widthsegs:( ceil (box_width/5) ) heightsegs:1	wirecolor:wirecolor
+	
+	obj --return
+)
 
+/** Create spheres
+ */
+function createSpheres =
+(
+	--format "\n"; print ".createSpheres()"
+	local obj
+	
+	for i = 1 to 4 do
+		obj = Sphere pos:[ 350 * i, 0, 300 ] radius:(50 * i) segments:4
+	select obj
+	obj --return
+)
+
+function createCylinders obj cylinder_count:10 =
+(
+	format "obj: %\n" format "cylinder_count: %\n" cylinder_count
+	if obj == undefined then 
+		return false
+	
 	min_x = 1e9
 	min_y = 1e9
 	max_x = -1e9
 	max_y = -1e9
-
 
 	bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of min\max positions E.G.: bbox[1].z | bbox[2].z
 
@@ -36,7 +58,7 @@ function createBoxAndCylinders box_width box_length wirecolor cylinder_count:10 
 		y = random min_y max_y
 		
 		pos = [x, y, 0 ]
-		
+		format "pos: %\n" pos
 
 		/* CREATE MOCK SUPPORTS IF ARE BELLOW TEST BOXES */ 		
 		--for obj in test_objects do 
@@ -50,6 +72,7 @@ function createBoxAndCylinders box_width box_length wirecolor cylinder_count:10 
 	
 	obj --return
 )
+
 
 /** Rotate box
  */
@@ -79,68 +102,95 @@ closest_verts = undefined
 hit_positions = undefined 
 closest_verts_pos = undefined 
 
+--delete objects
+delete helpers
+delete $'Cylinder*'
+
+obj	= selection[1]
+support_mockup = #()
+
 /*------------------------------------------------------------------------------
 	PREPARE SCENE
 --------------------------------------------------------------------------------*/
 
---delete objects
---box_green = createBoxAndCylinders 100 20 green
---obj  = createBoxAndCylinders 100 10  yellow cylinder_count:5
+/*------ OBJ ------*/
+if objects.count == 0 then
+	obj = createSpheres()
+
+--obj  = createBox 100 10  yellow
 --rotateBox(obj)
---
---source_objs    = $Box* as Array
---support_mockup = ( $'Cylinder*' as Array ) 
 
 
+/*------ SOURCE OBJECTS  ------*/
 source_objs	= selection as Array
-support_mockup = #()
+--source_objs    = $Box* as Array
+--source_objs    = $Sphere* as Array
+
+
+/*------ CELL OBJECTS ------*/
+createCylinders obj --cylinder_count:5
+
+support_mockup = ( $'Cylinder*' as Array ) 
+
+
+
+format "source_objs: %\n" source_objs
 
 /*==============================================================================
   
-	TEST
+	CONFIGURE TEST
 	
 ================================================================================*/
-GridSupportSeeder = GridSupportSeeder_v()
+GridSupportSeeder = GridSupportSeeder_v(source_objs)
 
---GridSupportSeeder.cell_size = 10
+/* CELL SIZE */ 
+--GridSupportSeeder.cell_size = 50
+--GridSupportSeeder.cell_size = 25
+--GridSupportSeeder.cell_size = 6
 --GridSupportSeeder.cell_size = 5.5
-GridSupportSeeder.cell_size = 6
+--GridSupportSeeder.cell_size = 6
 --GridSupportSeeder.cell_size = 2
 
---GridSupportSeeder.initGrid(source_objs)
 
---GridSupportSeeder.sortNodesToMatrix (support_mockup)
+/* COFIG CIRCLE PATERN */ 
+grid_type = #CIRCLE
 
+--GridSupportSeeder.segments_count = 32
+GridSupportSeeder.segments_count = 4
+--GridSupportSeeder.segments_count = 16
+--GridSupportSeeder.segments_count_keep = true
 
-GridSupportSeeder.initGridCircle(source_objs)
-GridSupportSeeder.sortNodesToCircleGrid (support_mockup)
+/*==============================================================================
 
+		RUN TESTS
+
+================================================================================*/
 
 format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 
---closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
+closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #POS grid_type
  format "closest_verts_pos: %\n" closest_verts_pos
- /* SHOW RESULT */ 
- if closest_verts_pos != undefined then
-	 for obj_pointer in closest_verts_pos.keys do
-		 for closest_vert_pos in closest_verts_pos[obj_pointer] do 
-			 Sphere pos:closest_vert_pos radius:0.5 wirecolor:(getAnimByHandle ( obj_pointer as IntegerPtr )).wirecolor
+/* SHOW RESULT */ 
+if closest_verts_pos != undefined then
+	for obj_pointer in closest_verts_pos.keys do
+		for closest_vert_pos in closest_verts_pos[obj_pointer] do 
+			Point pos:closest_vert_pos size:15 Box:true wirecolor:orange
 
 
 format "\n------------------------ POSITION OF HITS -------------------------------\n"
 
- --hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #HITS
-
- /* SHOW RESULT */ 
- if hit_positions != undefined then 
-	 for obj_pointer in hit_positions.keys do
-		 for closest_vert_pos in hit_positions[obj_pointer] do 
-			 Sphere pos:closest_vert_pos radius:0.5 wirecolor:red
-			
-			
-format "\n------------------------ CLOSEST VERTS OF HITS -------------------------------\n"
+-- hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #HITS grid_type
 --
---closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #VERTS
+--/* SHOW RESULT */ 
+-- if hit_positions != undefined then 
+--	 for obj_pointer in hit_positions.keys do
+--		 for closest_vert_pos in hit_positions[obj_pointer] do 
+--			 Point pos:closest_vert_pos size:10 Box:true wirecolor:blue
+--			
+--			
+format "\n------------------------ INDEXES OF VERTS CLOSEST TO HITS -------------------------------\n"
+--
+--closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #VERTS grid_type
 --format "closest_verts: %\n" closest_verts
 ---- /* SHOW RESULT */ 
 --if closest_verts != undefined then

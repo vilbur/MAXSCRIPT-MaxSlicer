@@ -479,12 +479,12 @@ struct SupportObject_v
 						hit_distance = distance ray_pos hit.pos
 				)
 			)
-			else /* GET DISTANCE TO HIT */ 
+			else /* GET DISTANCE TO HIT IN CENTER */ 
 				hit_distance = distance ray_pos hit.pos
 			
 			
 			/* GET HIT POSITION DIR VECTOR */ 
-			if hit_distance != undefined then
+			if hit != undefined then
 				hit.pos = pos + ( hit_distance * dir )
 				
 			if hit != undefined then 

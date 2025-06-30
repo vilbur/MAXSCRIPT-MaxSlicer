@@ -264,7 +264,7 @@ struct ModifiersManager_v
 		
 		/* BIND TO CUSTOM ATTRIBUTE OF CHAMFER MODIFIER */ 
 		top_width_script.addTarget "MaxSlicer"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicer
-		1
+		
 		
 		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; (((bar_width.radius * 2.0) - MaxSlicer.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; 0.25"

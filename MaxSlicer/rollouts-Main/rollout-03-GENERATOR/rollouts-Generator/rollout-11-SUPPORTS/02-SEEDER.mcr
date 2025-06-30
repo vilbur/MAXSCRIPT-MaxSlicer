@@ -12,7 +12,7 @@ icon:	"ACROSS:4"
 	on execute do
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\02-SEEDER.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-03-GENERATOR\rollouts-Generator\rollout-11-SUPPORTS\02-SEEDER.mcr"
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\Lib\SupportManager\GridSupportSeeder\GridSupportSeeder.ms"
 		
 		
@@ -29,85 +29,68 @@ icon:	"ACROSS:4"
 		select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
 		
 		/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
-		if selection.count == 0 then
-			objs_input = source_objects
+		if source_objects.count == 0 and selection.count > 0 then
+			objs_input = source_objects = selection as Array
 		
 		/* GET OBJECTS BY TYPE */ 	
 		supports = SUPPORT_MANAGER.getObjectsByType objs_input type:#SUPPORT --hierarchy:select_more
 		
 		format "SOURCE_OBJECTS: %\n" source_objects
 		format "SUPPORTS:       %\n" supports
-		GridSupportSeeder = GridSupportSeeder_v()
+		
+		if source_objects.count == 0 then
+			return false
+		
+		GridSupportSeeder = GridSupportSeeder_v(source_objects)
 		
 		--GridSupportSeeder.cell_size = 30
 		GridSupportSeeder.cell_size = SUPPORT_OPTIONS.base_width
-
-	
-		/* IF SQUARE */ 
-		if ROLLOUT_SUPPORTS.RB_seeder_mode.state == 1 then
-		(
-			GridSupportSeeder.initGrid(source_objects)
-			
-			GridSupportSeeder.sortNodesToMatrix (supports)
-			
-			format "\n------------------------ PALCE OBJECTS TO POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
-			
-			closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS
-			--closest_verts    = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #HITS
-			format "CLOSEST_VERTS: %\n" closest_verts
 		
-		)
-		else
+		grid_type = #( #GRID, #CIRCLE )[ROLLOUT_SUPPORTS.RB_seeder_mode.state]
+		
+		/* IF SQUARE */ 
+		if grid_type == #CIRCLE then
 		(
 			
-			GridSupportSeeder.segments_count = ROLLOUT_SUPPORTS.SPIN_segments_count
+			GridSupportSeeder.segments_count = ROLLOUT_SUPPORTS.SPIN_segments_count.value
 					
-			GridSupportSeeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep
-			
-			GridSupportSeeder.initGridCircle(source_objects)
+			GridSupportSeeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep.state
 		)
+		
+		closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS grid_type
 
-			
-			/* SHOW RESULT */ 
-			if closest_verts != undefined then
-				for obj_pointer in closest_verts.keys do
-				(
-					obj = getAnimByHandle (obj_pointer as IntegerPtr )
-					--format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
-					format "obj: %\n" obj
-					format "classOf obj.modifiers[obj.modifiers.count]: %\n" (classOf obj.modifiers[obj.modifiers.count])
-					--if classOf obj.modifiers[obj.modifiers.count] != Edit_Poly then
-						--addModifier obj (Edit_Poly ())
-					
-					format "CLOSEST_VERTS: %\n" closest_verts[obj_pointer]
-	
-					(VertSelector_v(obj)).setSelection ( closest_verts[obj_pointer] ) --isolate:true
-	
-					--select obj
-					--
-					--max modify mode
-					--
-					--subObjectLevel = 1
-					--
-					--obj.modifiers[#Edit_Poly].SetSelection #Vertex #{}
-					--
-					--obj.modifiers[#Edit_Poly].Select #Vertex closest_verts[obj_pointer]
-					--
-					----Sphere pos:closest_vert_pos radius:1 wirecolor:orange
-					--
-					--VertexColorProcessor = VertexColorProcessor_v(obj)
-					--
-					--VertexColorProcessor.setVertexColor closest_verts[obj_pointer] orange
-				)
-			 
-			
-			select source_objects
-			
-			if not keyboard.controlPressed then
-				generateSupportsOrRafts obj_type:#SUPPORT
-			
-	
+		format "CLOSEST_VERTS: %\n" closest_verts
+		
+		/* SHOW RESULT */ 
+		if closest_verts != undefined then
+			for obj_pointer in closest_verts.keys do
+			(
+				obj = getAnimByHandle (obj_pointer as IntegerPtr )
+				--format "closest_verts[obj_pointer]: %\n" closest_verts[obj_pointer]
+				format "obj: %\n" obj
+				format "classOf obj.modifiers[obj.modifiers.count]: %\n" (classOf obj.modifiers[obj.modifiers.count])
+				--if classOf obj.modifiers[obj.modifiers.count] != Edit_Poly then
+					--addModifier obj (Edit_Poly ())
+				
+				format "CLOSEST_VERTS PER OBJECT: %\n" closest_verts[obj_pointer]
+				
+				select obj
 
+				subObjectLevel = 1
+		
+				(VertSelector_v(obj)).setSelection ( closest_verts[obj_pointer] ) --isolate:true
+		
+				VertexColorProcessor = VertexColorProcessor_v(obj)
+				
+				VertexColorProcessor.setVertexColor (closest_verts[obj_pointer]  as BitArray )orange
+			)
+		 
+		
+		select source_objects
+
+		/* GENRATE SUPPORTS */ 		
+		if not keyboard.controlPressed then
+			generateSupportsOrRafts obj_type:#SUPPORT
 	)
 )
 
@@ -120,7 +103,7 @@ category:	"_3D-Print"
 buttontext:	"[Seeder mode]"
 toolTip:	""
 --icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' )|columns:3|offset:[ -2, 4 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"across:4|control:radiobuttons|unselect:false|items:#( 'Square', 'Circle' )|offset:[ 24, 4 ]|"
+icon:	"across:4|control:radiobuttons|unselect:false|items:#( 'GRID', 'CIRCLE' )|offset:[ 24, 4 ]|"
 (
 	on execute do
 	(

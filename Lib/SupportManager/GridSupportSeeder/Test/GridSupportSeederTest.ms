@@ -1,4 +1,6 @@
-   filein( getFilenamePath(getSourceFileName()) + "/../GridSupportSeeder.ms" )	--"./../GridSupportSeeder.ms"
+clearListener(); print("Cleared in:\n"+getSourceFileName())
+
+filein( getFilenamePath(getSourceFileName()) + "/../GridSupportSeeder.ms" )	--"./../GridSupportSeeder.ms"
 
 /* 
 	Creates a flat box above ground and 20 randomly placed support_mockup below it.
@@ -101,17 +103,20 @@ support_mockup = #()
 GridSupportSeeder = GridSupportSeeder_v()
 
 --GridSupportSeeder.cell_size = 10
-GridSupportSeeder.cell_size = 5
+GridSupportSeeder.cell_size = 4
+--GridSupportSeeder.cell_size = 1
 
-GridSupportSeeder.initGrid(source_objs)
+--GridSupportSeeder.initGrid(source_objs)
 
-GridSupportSeeder.sortNodesToMatrix (support_mockup)
+--GridSupportSeeder.sortNodesToMatrix (support_mockup)
 
+
+GridSupportSeeder.initGridCircle(source_objs)
 
 
 format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 
-closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
+--closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objs) #POS
  format "closest_verts_pos: %\n" closest_verts_pos
  /* SHOW RESULT */ 
  if closest_verts_pos != undefined then

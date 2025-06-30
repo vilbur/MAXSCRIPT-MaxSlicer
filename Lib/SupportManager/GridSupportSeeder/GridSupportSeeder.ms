@@ -17,6 +17,7 @@ struct GridSupportSeeder_v
 	target_objects,
 	intersect_objs,
 	
+	seeder_mode,
 	cell_size = 50,
 	/* required */
 	mode = #VERTS, -- #VERTS|#HITS|#POS -- vertex indexes | hits positions | verts positions of closest hit
@@ -37,14 +38,11 @@ struct GridSupportSeeder_v
 	/* reference */
 	/* inhered */
 
-	
-	/** Set grid
+	/** Get bbox
 	 */
-	function initGrid grid_objects =
+	function _getBbox =
 	(
-		--format "\n"; print "GridSupportSeeder_v.initGrid()"
-		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
-		
+		--format "\n"; print "GridSupportSeeder_v._getBbox()"
 		min_x = 1e9
 		max_x = -1e9
 		min_y = 1e9
@@ -60,9 +58,25 @@ struct GridSupportSeeder_v
 			if node.max.y > max_y then max_y = node.max.y
 		)
 		
+		#( min_x, min_y, max_x, max_y ) --return	
+	),
+	
+	/** Set grid
+	 */
+	function initGrid grid_objects =
+	(
+		--format "\n"; print "GridSupportSeeder_v.initGrid()"
+		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
+		
+		bbox = this._getBbox()
+		
+		min_x = bbox[1]
+		min_y = bbox[2]
+		max_x = bbox[3]
+		max_y = bbox[4]
+		
 		this.grid_origin = [ min_x, min_y ]
-		-- format "distance: %\n" (distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ])
-		-- format "cell_size: %\n" cell_size
+
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
 		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
@@ -82,6 +96,55 @@ struct GridSupportSeeder_v
 		
 		/* Initialize matrix */ 
 		matrix = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
+	),
+	
+	/** Init grid circle
+	 */
+	function initGridCircle grid_objects =
+	(
+		format "\n"; print "GridSupportSeeder_v.initGridCircle()"
+		this.grid_objects = if classOf grid_objects != Array then #(grid_objects) else grid_objects
+		
+		bbox = this._getBbox()
+		
+		min_x = bbox[1]
+		min_y = bbox[2]
+		max_x = bbox[3]
+		max_y = bbox[4]
+		
+		p1 = [ min_x, min_y, 0 ] -- bottom left 
+		p2 = [ max_x, max_y, 0 ] -- top right
+		p3 = [ max_x, min_y, 0 ] -- bottom right
+		p4 = [ min_x, max_y, 0 ] -- top left
+--		
+		--ratios = #( 4 , 3, 2, 1 ) -- size of inner circles around center
+
+		this.grid_origin = ( p1 + p2 + p3 + p4 ) / 4
+		
+		Sphere pos:this.grid_origin radius:1  wirecolor:red
+		
+
+			
+		--this.grid_origin = [ min_x, min_y, 0 ]
+		--Sphere pos:p1 radius:1  wirecolor:red
+		--Sphere pos:p2 radius:1  wirecolor:green
+		--Sphere pos:p3 radius:1  wirecolor:blue
+		--Sphere pos:p4 radius:1  wirecolor:yellow
+		
+		radius = (amax (distance p1 p3) (distance p1 p4)) / 2
+		
+		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
+		if radius < cell_size * 4 then
+			cell_size /= 2
+			
+		radius_count = radius / cell_size
+
+		segment_size = radius / radius_count
+
+		radiuses = for i = 1 to radius_count collect segment_size * i
+		
+		this._testPositionsAroundCenterOfCell(this.grid_origin)(radius)(radiuses) all_hits:true 
+
 	),
 	
 	/* 
@@ -106,7 +169,7 @@ struct GridSupportSeeder_v
 		
 		matrix -- return
 	),
-	
+
 	/** Get closest verts of empty cells
 	  
 		@param #VERTS|#HITS|#POS  mode vertex indexes | hits positions | verts positions of closest hit
@@ -116,6 +179,8 @@ struct GridSupportSeeder_v
 	(
 		 -- format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 		this.target_objects = if classOf target_objects != Array then #(target_objects) else target_objects
+
+		ratios = #( 3.0, 1.2 ) -- size of inner circles around center
 
 		this.mode = mode
 		
@@ -138,8 +203,8 @@ struct GridSupportSeeder_v
 			if hit_data != undefined then
 				this._addToHits( hit_data )
 			
-			else
-				this._testPositionsAroundCenterOfCell(cell_center)
+			--else
+				--this._testPositionsAroundCenterOfCell(cell_center)(cell_size / 2 )(ratios)
 		)
 		
 		this._removeSnapshots()
@@ -149,45 +214,54 @@ struct GridSupportSeeder_v
 	
 	/** Test positions in cicrles around center of cell
 	 */
-	function _testPositionsAroundCenterOfCell cell_center =
+	function _testPositionsAroundCenterOfCell cell_center radius radiuses all_hits:false =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
-		--increment = 60
-		
-		--radiuses = #( cell_size / 2 / 3, cell_size / 2 / 1.5 )
-		
-		ratios = #( 3.0, 1.2 ) -- size of inner circles around center
-		
-		
+		 format "\n"; print "GridSupportSeeder_v._testPositionsAroundCenterOfCell()"
+		 format "radiuses: %\n" radiuses
+		 
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
 		--------------------------------------------------------------------------------*/
-		--for radius in radiuses while hit_data == undefined do 
-		for ratio in ratios while hit_data == undefined do 
+		--for radius in radiuses while hit_data == undefined do
+		
+		segments_count = 24 -- number of segments in full radius
+		
+		for radius_portion in radiuses while hit_data == undefined do 
 		(
-			radius = cell_size / 2 / ratio	
+			format "------------------\n"
+			--format "ratio: %\n" ratio
 			
-			point_pos = cell_center + [ radius, 0, 0 ]
+			--radius = radius / ratio	
+			
+			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
 			--increment_count = increment / ratio
-			increment = if ratio == 3 then 60 else 30 -- add more test if radius is bigger
+			--increment = if ratio == 3 then 60 else 30 -- add more test if radius is bigger
+
+
+			segments = ceil( segments_count * radius_portion / radius )
+			format "segments: %\n" segments
 
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
 			--------------------------------------------------------------------------------*/
-			for i = 1 to 360 / increment while hit_data == undefined do
+			for i = 1 to segments while hit_data == undefined do
 			(
-				rotate_about = increment * i
+				rotate_about = ( 360.0 / segments ) * i
+				format "\n"
+				format "rotate_about: %\n" rotate_about
 				
-				moved_pos = this.movePointOnCircleDeg cell_center radius point_pos rotate_about
+				moved_pos = this.movePointOnCircleDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
 				--format "moved_pos: %\n" moved_pos
-				--Sphere pos:moved_pos radius:0.1 wirecolor:orange
+				Sphere pos:moved_pos radius:1 wirecolor:orange
 				
-				hit_data = this._testHit moved_pos 
-				
-				if hit_data != undefined then
-					this._addToHits( hit_data )
-				
+				--hit_data = this._testHit moved_pos 
+				--
+				--if hit_data != undefined then
+				--	this._addToHits( hit_data )
+				--
+				--if all_hits then
+					hit_data = undefined 
 			)
 		)
 	),
@@ -226,8 +300,6 @@ struct GridSupportSeeder_v
 			
 			#VERTS: this.closest_verts_pos[pointer][index_or_pos] = true	
 		)	
-		 
-		
 	),
 	
 	/** 

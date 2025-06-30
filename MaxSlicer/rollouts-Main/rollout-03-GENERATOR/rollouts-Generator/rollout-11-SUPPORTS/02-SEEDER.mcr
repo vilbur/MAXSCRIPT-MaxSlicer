@@ -41,6 +41,18 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 		if source_objects.count == 0 then
 			return false
 		
+		
+		for obj in source_objects do
+		(
+			if ( _mod = obj.modifiers[#VertexPaint] ) != undefined then
+					deleteModifier obj _mod
+					
+			if ( _mod = obj.modifiers[#VERTEX_PAINT_SELECT] ) != undefined then
+					deleteModifier obj _mod
+		)
+
+		
+		
 		GridSupportSeeder = GridSupportSeeder_v(source_objects)
 		
 		--GridSupportSeeder.cell_size = 30
@@ -142,8 +154,7 @@ macroscript	_print_support_seeder_mode_segments_count
 category:	"_3D-Print"
 buttontext:	"[Segments]"
 toolTip:	""
---icon:	"ACROSS:5|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 8 ]|offsets:#([0, 2], [ -4, 2 ] )"
-icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ -32, 8 ]|tooltip:Xxx"
+icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ -32, 8 ]|tooltip:Count of radial steps.\n\nHow many times is circle divided"
 (
 		format "EventFired	= % \n" EventFired
 
@@ -155,8 +166,8 @@ icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 
 macroscript	_print_support_seeder_mode_segments_count_keep
 category:	"_3D-Print"
 buttontext:	"keep"
-toolTip:	""
-icon:	"ACROSS:5|control:checkbox|id:CBX_segments_count_keep|offset:[ -16, 8 ]"
+toolTip:	"TRUE: Produce \"RAYS OF SUN\" pattern\n\nFALSE:  Produce \"SUNFLOWER\" pattern"
+icon:	"ACROSS:5|control:checkbox|id:CBX_segments_count_keep|offset:[ -16, 8 ]|checked:true"
 (
 		format "EventFired	= % \n" EventFired
 
@@ -170,10 +181,10 @@ macroscript	_print_support_seeder_eccentric_step
 category:	"_3D-Print"
 buttontext:	"Step size"
 toolTip:	""
---icon:	"ACROSS:5|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'Square', 'Radial' )|columns:3|offset:[ -2, 8 ]|offsets:#([0, 2], [ -4, 2 ] )"
 icon:	"ACROSS:5|control:spinner|id:SPIN_eccentric_step|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 16, 8 ]|tooltip:Distance between circles in radial pattern"
 (
-		format "EventFired	= % \n" EventFired
+	on execute do
+		format "EventFired: %\n" EventFired
 
 )
 

@@ -80,11 +80,15 @@ icon:	"across:2"
 				for i = obj.modifiers.count to 1 by -1 where classOf obj.modifiers[i] == VertexPaint do
 				(
 					deleteModifier obj i
+					
+					obj.showVertexColors = false
+					
 					--format "obj.modifiers[i].name: %\n" obj.modifiers[i].name
 					prev_mod = i - 1
 					
 					/* REMOVE MODIFIER ABOVE VertexPaint modifier */ 
-					if  obj.modifiers[prev_mod].name == "VERTEX PAINT SELECT" then
+					--if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name == "VERTEX PAINT SELECT" then
+					if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name as name == #VERTEX_PAINT_SELECT then
 						deleteModifier obj prev_mod
 				)
 			)

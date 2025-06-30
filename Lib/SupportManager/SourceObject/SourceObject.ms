@@ -36,7 +36,7 @@ struct SourceObject_v
 	function generateSupports obj_type:#SUPPORT =
 	(
 		 format "\n"; print "SourceObject_v.generateSupports()"
-		-- format "obj: %\n" obj
+		 format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 		
 		NewSupportObjects = #()

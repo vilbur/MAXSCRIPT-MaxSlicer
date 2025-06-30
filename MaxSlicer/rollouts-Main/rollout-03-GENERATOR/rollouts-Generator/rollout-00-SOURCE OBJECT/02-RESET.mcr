@@ -4,7 +4,7 @@ macroscript	_print_reset_source_object_userprops_normals
 category:	"_3D-Print"
 buttontext:	"Reset Normals"
 tooltip:	"Reset normals data in userprops of selected or visible source objects."
---icon:	""
+icon:	"ACROSS:2"
 (
 	on execute do
 	(
@@ -40,10 +40,10 @@ tooltip:	"Reset data in userprops of selected or visible source objects"
 	(
 		/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
 		objs_input = if selection.count > 0 then selection as Array else for obj in objects where obj.isHidden == false collect obj 
-	
+		format "objs_input: %\n" objs_input
 		/* GET INPUT SOURCE OBJECTS */ 
 		source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
-		
+		format "source_objects: %\n" source_objects
 		if source_objects.count > 0 then
 		(
 			message = if source_objects.count > 1 then "OBJECTS ?\n" else "OBJECT ?\n"

@@ -95,15 +95,30 @@ struct GridSupportSeeder_v
 			/* TEST CENTER OF CELL */ 
 			hit_data = this._testHit cell_center
 			 -- format "hit_data: %\n" hit_data
+			   -- format "AAAAAA: %\n" hit_data
 			 
 			if hit_data == undefined then
-				hits_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(eccentric_step) clr:white --test_hit:true
+			(
+			  -- format "HIT SHIT: %\n" hit_data
+				-- format "CELL_CENTER: %\n" cell_center
+			 --format "\n"
+
+				--hit_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(eccentric_step) test_hit:true clr:red
+				hit_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(  1.0 ) test_hit:true --clr:red
+				-- format "BBBBBBB: %\n" hit_data
+				
+				--if hit_data == undefined then
+					--Point pos:cell_center size:30 Box:true  wirecolor:red
+
+			)
 				
 			--if hit_data != undefined then
 			--	Point pos:cell_center size:10 Box:true  wirecolor:red
 				
 			if hit_data != undefined then
 				this._addToHits( hit_data )
+
+
 		)
 		
 		this._removeSnapshots()
@@ -144,7 +159,7 @@ struct GridSupportSeeder_v
 	 */
 	function initGridRadial =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v.initGridRadial()"
+		  -- format "\n"; print "GridSupportSeeder_v.initGridRadial()"
 		bbox = this._getBbox()
 		
 		min_x = bbox[1]
@@ -159,6 +174,7 @@ struct GridSupportSeeder_v
 
 		this.grid_origin = ( p1 + p2 + p3 + p4 ) / 4
 		
+		--Point pos:grid_origin size:20 wirecolor:gray Box:false cross:true
 
 		/* GET LONGER SIDE OF BOUNGING BOX */ 
 		radius = (amax (distance p1 p3) (distance p1 p4)) / 2.0
@@ -167,16 +183,8 @@ struct GridSupportSeeder_v
 		--if radius < eccentric_step * 4 then
 			--eccentric_step /= 2
 		
-		--eccentric_step = 60
-		
-		/* GET HITS */ 		
-		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(eccentric_step)  clr:green  --test_hit:true
-		-- format "grid_positions: %\n" grid_positions
-		-- format "grid_positions.count: %\n" grid_positions.count
-		
-		--for grid_position in grid_positions do 
-			--this._getRadialPositions(grid_position)(eccentric_step)(eccentric_step/4)  clr:yellow  --test_hit:true
-		-- format "grid_positions: %\n" grid_positions
+		/* GET RADIAL POSITIONS AROUND CENTER */ 		
+		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(eccentric_step) --clr:green  --test_hit:true
 	),
 	
 	/* 
@@ -207,32 +215,85 @@ struct GridSupportSeeder_v
 	 */
 	function _getRadialPositions cell_center radius split_size test_hit:false clr:undefined =
 	(
-		  -- format "\n"; print "GridSupportSeeder_v._getRadialPositions()"
-		-- format "cell_center: %\n" cell_center
-		-- format "radius: %\n" radius
-		-- format "split_size: %\n" split_size
-		/* 	RATIOS WHICH PRODUCE BEST RESULTS
+		 -- format "\n"; print "GridSupportSeeder_v._getRadialPositions()"
+		 -- format "test_hit: %\n" test_hit
+		/**  Move point along a radial by rotation angle using only degrees
+		*/
+		function movePointOnRadialDeg center_pos radius point_pos angle_deg =
+		(
+			-- Vector from center to point
+			vec = point_pos - center_pos
+		
+			-- Get current angle in degrees
+			current_angle = atan2 vec.y vec.x * 180 / pi
+		
+			-- Add rotation in degrees
+			new_angle = current_angle + angle_deg
+		
+			-- Convert to position using degrees
+			new_x = cos(new_angle) * radius
+			new_y = sin(new_angle) * radius
+		
+			-- Final position on radial
+			new_pos = center_pos + [new_x, new_y, 0]
+		
+			new_pos -- return
+		)
+		
+		/* Finds the closest float in an array to a given value
+		   
+			RATIOS WHICH PRODUCE BEST RESULTS
 		
 			THIS NUMBER IS CONTROLING PATTERN OF HITS FOOTPRINT
-		*/ 
-		--ratios = #( 1.0, 2.0, 4.0, 6.0, 12.0, 24.0 , 36.0  )
-		--ratios = #( 1.0, 2.0, 4.0, 6.0  )
-
+		*/
+		function getClosestFloatValue target_float = 
+		(
+			ratios = #( 0.5, 1.0, 2.0, 4.0, 6.0, 12.0, 24.0 , 36.0  )
+			--ratios = #( 1.0, 2.0, 4.0, 6.0  )
+			
+			closest_value = undefined
+			min_diff = 1e9
+		
+			for f in ratios do
+			(
+				diff = abs(f - target_float)
+				if diff < min_diff then
+				(
+					min_diff = diff
+					closest_value = f
+				)
+			)
+			
+			closest_value -- return
+		)
+		
+		hit_data = undefined
+		
 		result = #(cell_center)
 		
-		ratio = (radius / split_size  as float )
-		-- format "ratio: %\n" ratio
+		ratio = (radius / split_size as float )
+		
+		--if not test_hit then
+			--ratio = getClosestFloatValue (ratio)
+
+		
+		 -- format "RATIO: %\n" ratio
+		
 		/* ADJSUT CELL SIZE */ 
 		split_size = radius / ratio
 
 		/* GET RADIUSES */ 
 		radius_count = radius / split_size
-		-- format "radius_count: %\n" radius_count
+		
+		if radius_count < 1.0 then
+			radius_count = 1
+		 
+		 -- format "radius_count: %\n" radius_count
 		segment_size = radius / radius_count
 		
 		radiuses = for i = 1 to radius_count collect segment_size * i
 		
-		  -- format "RADIUSES: %\n" radiuses
+		-- format "RADIUSES: %\n" radiuses
 		 
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
@@ -242,44 +303,52 @@ struct GridSupportSeeder_v
 			--format "------------------\n"
 			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
-			segments = if segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
-			--segments = ceil( segments_count * radius_portion / radius )
-		
+			segments = if not test_hit or segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
+
+			  -- format "SEGMENTS: %\n" segments
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
 			--------------------------------------------------------------------------------*/
 			for i = 1 to segments while hit_data == undefined do
 			(
+				-- format "hit_data: %\n" hit_data
 				rotate_about = ( 360.0 / segments ) * i
 				
-				moved_pos = this.movePointOnRadialDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
+				moved_pos = movePointOnRadialDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
 				
-				--if clr != undefined then 
-					--Point pos:moved_pos size:5 wirecolor:clr Box:true 
+				if clr != undefined then
+					Point pos:moved_pos size:15 wirecolor:clr Box:true 
+
+				
+				if test_hit and clr != undefined then
+				(
+					-- format "CELL_CENTER: %\n" cell_center
+				
+					--Point pos:moved_pos size:20 wirecolor:clr Box:true 
+				)
 				
 				if test_hit then
 				(
-					hit_data = this._testHit moved_pos 
-					
-					if hit_data != undefined then
-						result = hit_data
+					hit_data = this._testHit moved_pos
+					-- format "\n"
+					--if hit_data != undefined then
+						--result = hit_data
+					-- format "---------------WTF hit_data: %\n" (hit_data)
 				)
 				else
 					append result moved_pos
 			)
 		)
-		
-		result --return
+
+		--result --return
+		if test_hit then hit_data else result --return
 	),
 		/** Test hit
 	 */
 	function _testHit pos =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v._testHit()"
-		--this._intersectRayWithObjects ( Ray pos [0,0,1] )
-		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
-		-- format "HIT_DATA: %\n" hit_data
-		hit_data --return
+		 --format "\n"; print "GridSupportSeeder_v._testHit()"
+		this._intersectRayWithObjects ( Ray pos [0,0,1] )
 	),
 	
 	/** Append closest vert
@@ -306,30 +375,6 @@ struct GridSupportSeeder_v
 			
 			#VERTS: this.closest_verts_pos[pointer][index_or_pos] = true	
 		)	
-	),
-	
-	/** 
-	Move point along a radial by rotation angle using only degrees
-	*/
-	function movePointOnRadialDeg center_pos radius point_pos angle_deg =
-	(
-		-- Vector from center to point
-		vec = point_pos - center_pos
-	
-		-- Get current angle in degrees
-		current_angle = atan2 vec.y vec.x * 180 / pi
-	
-		-- Add rotation in degrees
-		new_angle = current_angle + angle_deg
-	
-		-- Convert to position using degrees
-		new_x = cos(new_angle) * radius
-		new_y = sin(new_angle) * radius
-	
-		-- Final position on radial
-		new_pos = center_pos + [new_x, new_y, 0]
-	
-		new_pos -- return
 	),
 	
 	/** Get closest vert
@@ -545,7 +590,6 @@ struct GridSupportSeeder_v
 		/* SHOW SOURCE OBJECTS OF SNAPSHOTS */ 
 		for target_object in target_objects do
 			target_object.isHidden = false
-				
 	),
 	
 	/**

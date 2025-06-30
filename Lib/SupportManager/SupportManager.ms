@@ -102,8 +102,8 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		-- format "\n"; print "SupportManager_v.generateSupports()"
-		--format "obj_type: %\n" obj_type
+		 format "\n"; print "SupportManager_v.generateSupports()"
+		format "source_obj: %\n" source_obj
 		--this._removeDeletedNodes()
 		--SLICER_SYSTEM.toggleModifiers false
 		

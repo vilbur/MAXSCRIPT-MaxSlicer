@@ -366,10 +366,13 @@ struct VertSelector_v
 				_mod.Select #VERTEX sel_bitarray
 			
 				_mod.ButtonOp #HideUnselectedVertex	
-				
 			)
 			else
+			(
+				_mod.SetSelection #VERTEX #{}				
+				
 				_mod.Select subobject sel_bitarray
+			)
 			
 
 		)

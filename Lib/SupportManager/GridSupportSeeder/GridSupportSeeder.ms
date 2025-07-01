@@ -34,6 +34,8 @@ struct GridSupportSeeder_v
 	num_cols,
 	num_rows,
 	
+	debug = true,
+	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -91,13 +93,10 @@ struct GridSupportSeeder_v
 		
 			/* SEARCH FOR MESH AROUND CELL CENTER */ 	 
 			if hit_data == undefined then
-				hit_data = this._getRadialPositions(cell_center)(cell_size / 2 )(  1.0 ) test_hit:true --clr:red
+				hit_data = this._getRadialPositions(cell_center)(cell_size / 2.5 )(  1.0 ) test_hit:true --clr:red
 				
-			else
+			if hit_data != undefined then
 				this._addToHits( hit_data )
-				
-			--Point pos:cell_center size:5 wirecolor:green box:true
-
 		)
 		
 		this._removeSnapshots()
@@ -117,7 +116,7 @@ struct GridSupportSeeder_v
 	 */
 	function _initGrid =
 	(
-		format "\n"; print "GridSupportSeeder_v._initGrid()"
+		--format "\n"; print "GridSupportSeeder_v._initGrid()"
 		bbox = this._getBbox()
 		
 		p1 = bbox[1]
@@ -131,8 +130,8 @@ struct GridSupportSeeder_v
 		size_y = p2.y - p1.y
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if amax size_x size_y < cell_size * 4 then
-			cell_size /= 2
+		--if amax size_x size_y < cell_size * 4 then
+			--cell_size /= 2
 		
 		/* GET NUMBER OF ROWS AND COLUMNS */ 		
 		num_cols = ceil (size_x / cell_size)
@@ -143,6 +142,9 @@ struct GridSupportSeeder_v
 		
 		offset_x = (grid_size_x - size_x) / 2.0
 		offset_y = (grid_size_y - size_y) / 2.0
+		
+		/* ALIGN GRID TO BOUNGING BOX LEFT BOTTOM CORNER */ 
+		this.grid_origin = p1
 		
 		/* CENTER GRID TO SELECTION */ 
 		this.grid_origin = p1 - [ offset_x, offset_y, 0 ]
@@ -195,7 +197,8 @@ struct GridSupportSeeder_v
 	
 				cell_center = [ x_pos, y_pos, 0 ]
 				
-				--Point pos:cell_center size:10 wirecolor:red box:true
+				if debug then
+					Dummy pos:cell_center boxsize:[cell_size,cell_size,0] wirecolor:green name:("GRID-SEEDER-HELPER-CELL-"+ x as string +"-"+ y as string )
 
 				/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
 				for obj in cell_objects while not close_to_center_found do
@@ -236,8 +239,8 @@ struct GridSupportSeeder_v
 		radius = (amax (distance p1 p2) (distance p1 p4)) / 2.0
 		 --format "RADIUS: %\n" radius
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		--if radius < cell_size * 4 then
-			--cell_size /= 2
+		if radius < cell_size * 4 then
+			cell_size /= 2
 		
 		/* GET RADIAL POSITIONS AROUND CENTER */ 		
 		grid_cells = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
@@ -329,7 +332,7 @@ struct GridSupportSeeder_v
 			--format "------------------\n"
 			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
-			segments = if not test_hit or segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
+			segments = if test_hit or segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
 
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
@@ -346,6 +349,11 @@ struct GridSupportSeeder_v
 
 				else
 					append radial_postions moved_pos
+			
+				if debug then
+					Point pos:moved_pos size:0.1 wirecolor:yellow box:false name:("GRID-SEEDER-HELPER-HIT-SEARCH")
+
+				
 			)
 		)
 
@@ -359,7 +367,7 @@ struct GridSupportSeeder_v
 		 --format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
 		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
-		empty_cells = #()
+		empty_cells = #() 
 		
 		dev_show_radius = #()
 		
@@ -367,7 +375,7 @@ struct GridSupportSeeder_v
 		(
 			nodes_of_pos = #()
 			
-			--Point pos:pos size:10 wirecolor:red box:true
+			--Point pos:pos size:10 wirecolor:red box:true name:"RADIAL CELL"
 
 			/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
 			for node in cell_objects while nodes_of_pos.count == 0 do
@@ -417,7 +425,8 @@ struct GridSupportSeeder_v
 	 */
 	function _addToHits hit_data =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v._addToHits()"
+		--format "\n"; print "GridSupportSeeder_v._addToHits()"
+		--format "mode: %\n" mode
 		grid_object = target_objects[findItem intersect_objs hit_data[1]]
 
 		pointer = (getHandleByAnim grid_object) as string
@@ -436,14 +445,20 @@ struct GridSupportSeeder_v
 			#POS:   appendIfUnique this.closest_verts_pos[pointer] index_or_pos
 			
 			#VERTS: this.closest_verts_pos[pointer][index_or_pos] = true	
-		)	
+		)
+		 
+			
+		if debug then
+			Point pos:hit_data[2] size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ hit_data[3] as string )
+		 
+		 
 	),
 	
 	/** Get closest vert
 	 */
 	function _getClosestVertToHit hitted_object hit_pos hitted_face =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
+		--format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
 		closest_vert = -1

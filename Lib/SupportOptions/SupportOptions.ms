@@ -327,11 +327,11 @@ struct SupportOptions_v
 		/*------------------------------------------------------------------------------
 			SEEDER
 		--------------------------------------------------------------------------------*/
-		
-		radial_grid_enabled = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 1
-		
-		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = radial_grid_enabled
-		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = radial_grid_enabled
+		--
+		--radial_grid_enabled = ROLLOUT_SUPPORTS.RB_seeder_mode.state == 1
+		--
+		--ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = radial_grid_enabled
+		--ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = radial_grid_enabled
 		
 	),
 

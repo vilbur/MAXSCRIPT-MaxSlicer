@@ -59,7 +59,7 @@ struct VertexPaintMod_v
 	(
 		--format "\n"; print "VertexPaintMod_v.setPaintState()"
 		--format "this.obj: %\n" this.obj
-		completeRedraw() -- WITHOUT THIS LINE AcquirePaintState returns undefined
+		CompleteRedraw() -- WITHOUT THIS LINE AcquirePaintState returns undefined
 		--max modify mode
 		this.paint_state = this.paint_layer_mod.AcquirePaintState this.obj -- return
 	),
@@ -91,7 +91,8 @@ struct VertexPaintMod_v
 	*/
 	function setVertexColor vertex_indexes color =
 	(
-		this.obj.showVertexColors = on
+		format "\n"; print "VertexPaintMod_v.setVertexColor()"
+		--this.obj.showVertexColors = on
 		
 		if superClassOf vertex_indexes == Number then
 			vertex_indexes = #{vertex_indexes}
@@ -115,10 +116,10 @@ struct VertexPaintMod_v
 	 */
 	function getVertsAndColors =
 	(
-		format "\n"; print "for.getVertsAndColors()"
+		--format "\n"; print "VertexPaintMod_v.getVertsAndColors()"
 		verts_by_colors	= Dictionary #STRING -- KEY:color as string VALUE:#{ verts of color }
 		vertex_count = getNumVerts obj.mesh
---format "vertex_count: %\n" vertex_count
+
 		for v = 1 to vertex_count do
 		(
 			vertex_color = ((this.getVertexAverageColor v) as color ) as string

@@ -71,8 +71,6 @@ icon:	"across:2"
 	(
 		for obj in selection do
 		(
-			obj	= selection[1]
-			
 			/* REMOVE VERTEX PAINT MODIFIER */ 
 			if obj.modifiers[#VertexPaint] != undefined then
 			(
@@ -104,6 +102,8 @@ icon:	"across:2"
 			)
 			
 		)
+
+		CompleteRedraw()
 	)
 )
 

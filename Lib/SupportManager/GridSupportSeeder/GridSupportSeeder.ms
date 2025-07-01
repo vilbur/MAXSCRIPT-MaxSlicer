@@ -19,7 +19,7 @@ struct GridSupportSeeder_v
 	
 	seeder_mode,
 	
-	eccentric_step = 50,
+	cell_size = 50,
 	
 	/* required */
 	mode = #VERTS, -- #VERTS|#HITS|#POS -- vertex indexes | hits positions | verts positions of closest hit
@@ -74,13 +74,13 @@ struct GridSupportSeeder_v
 			
 			this.sortNodesToMatrix()
 			
-			empty_cells = this.getEmptyCells()
+			empty_cells = this._getEmptyCells()
 		)
 		else
 		(
 			this.initGridRadial()
 			
-			empty_cells = this.getEmptyCellsRadial()
+			empty_cells = this._getEmptyCellsRadial()
 			
 		)
 		  -- format "EMPTY_CELLS: %\n" empty_cells
@@ -103,8 +103,8 @@ struct GridSupportSeeder_v
 				-- format "CELL_CENTER: %\n" cell_center
 			 --format "\n"
 
-				--hit_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(eccentric_step) test_hit:true clr:red
-				hit_data = this._getRadialPositions(cell_center)(eccentric_step / 2 )(  1.0 ) test_hit:true --clr:red
+				--hit_data = this._getRadialPositions(cell_center)(cell_size / 2 )(cell_size) test_hit:true clr:red
+				hit_data = this._getRadialPositions(cell_center)(cell_size / 2 )(  1.0 ) test_hit:true --clr:red
 				-- format "BBBBBBB: %\n" hit_data
 				
 				--if hit_data == undefined then
@@ -142,14 +142,14 @@ struct GridSupportSeeder_v
 		this.grid_origin = [ min_x, min_y ]
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < eccentric_step * 4 then
-			eccentric_step /= 2
+		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
+			cell_size /= 2
 		
 		--point pos:[ min_x, min_y, 0 ] size:1
 		--point pos:[ max_x, max_y, 0 ] size:1
 		
-		num_cols = ceil ((max_x - min_x + 0.1) / eccentric_step)
-		num_rows = ceil ((max_y - min_y + 0.1) / eccentric_step)
+		num_cols = ceil ((max_x - min_x) / cell_size)
+		num_rows = ceil ((max_y - min_y) / cell_size)
 		
 		/* Initialize grid_positions */ 
 		grid_positions = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
@@ -180,11 +180,12 @@ struct GridSupportSeeder_v
 		radius = (amax (distance p1 p3) (distance p1 p4)) / 2.0
 		-- format "radius: %\n" radius
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		--if radius < eccentric_step * 4 then
-			--eccentric_step /= 2
+		--if radius < cell_size * 4 then
+			--cell_size /= 2
 		
 		/* GET RADIAL POSITIONS AROUND CENTER */ 		
-		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(eccentric_step) --clr:green  --test_hit:true
+		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
+		format "grid_positions: %\n" grid_positions
 	),
 	
 	/* 
@@ -199,8 +200,8 @@ struct GridSupportSeeder_v
 		
 		for node in cell_objects do
 		(
-			col = 1 + floor (( node.position.x - grid_origin.x) / eccentric_step )
-			row = 1 + floor (( node.position.y - grid_origin.y) / eccentric_step )
+			col = 1 + floor (( node.position.x - grid_origin.x) / cell_size )
+			row = 1 + floor (( node.position.y - grid_origin.y) / cell_size )
 			
 			if row >= 1 and row <= num_rows and col >= 1 and col <= num_cols then
 				append grid_positions[row][col] node
@@ -269,7 +270,7 @@ struct GridSupportSeeder_v
 		
 		hit_data = undefined
 		
-		result = #(cell_center)
+		radial_postions = #(cell_center)
 		
 		ratio = (radius / split_size as float )
 		
@@ -332,16 +333,16 @@ struct GridSupportSeeder_v
 					hit_data = this._testHit moved_pos
 					-- format "\n"
 					--if hit_data != undefined then
-						--result = hit_data
+						--radial_postions = hit_data
 					-- format "---------------WTF hit_data: %\n" (hit_data)
 				)
 				else
-					append result moved_pos
+					append radial_postions moved_pos
 			)
 		)
 
-		--result --return
-		if test_hit then hit_data else result --return
+		--radial_postions --return
+		if test_hit then hit_data else radial_postions --return
 	),
 		/** Test hit
 	 */
@@ -408,9 +409,10 @@ struct GridSupportSeeder_v
 	/** 
 	  *	
 	  */
-	function getEmptyCells =
+	function _getEmptyCells =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v.getEmptyCells()"
+		  format "\n"; print "GridSupportSeeder_v._getEmptyCells()"
+		  format "grid_positions: %\n" grid_positions
 		empty_cells	= #()
 		
 		for y = 1 to grid_positions.count do
@@ -419,22 +421,27 @@ struct GridSupportSeeder_v
 			
 			for x = 1 to row.count do
 			(
-				objects_in_row = row[x]
 				
-				x_pos = grid_origin.x + ((x - 1) * eccentric_step) -- + (eccentric_step/2)
-				y_pos = grid_origin.y + ((y - 1) * eccentric_step) -- + (eccentric_step/2)
+				pos = row[x]
+				format "OBJECTS_IN_ROW: %\n" pos
 				
+				x_pos = grid_origin.x + ((x - 1) * cell_size) -- + (cell_size/2)
+				y_pos = grid_origin.y + ((y - 1) * cell_size) -- + (cell_size/2)
+	
+
 				cell_center = [ x_pos, y_pos, 0 ]
 				
 				close_to_center_found = false
 				
+				Point pos:cell_center size:20 wirecolor:green
+
 				for obj in cell_objects while not close_to_center_found do
 				(
 					_distance = distance cell_center obj.pos
 
-					--if _distance < eccentric_step / 2.5 then
-					if _distance < eccentric_step / search_treshold then
-					--if _distance < eccentric_step then
+					--if _distance < cell_size / 2.5 then
+					if _distance < cell_size / search_treshold then
+					--if _distance < cell_size then
 						close_to_center_found = true
 				)
 
@@ -448,9 +455,9 @@ struct GridSupportSeeder_v
 
 	/** Sort nodes to radial grid
 	 */
-	function getEmptyCellsRadial =
+	function _getEmptyCellsRadial =
 	(
-		-- format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
+		 format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
 		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
 		empty_cells = #()
@@ -459,6 +466,9 @@ struct GridSupportSeeder_v
 		
 		for pos in grid_positions do
 		(
+			format "\n"
+			format "pos: %\n" pos
+			format "cell_objects: %\n" cell_objects
 			nodes_of_pos = #()
 			
 			for node in cell_objects while nodes_of_pos.count == 0 do
@@ -468,7 +478,7 @@ struct GridSupportSeeder_v
 				pos.z = node_pos.z = 0
 				
 				--search_radius = 20.0
-				search_radius = eccentric_step / 4 -- divide by 2x2 for radius and both sides
+				search_radius = cell_size / 4 -- divide by 2x2 for radius and both sides
 				
 				/* DEVELOPENT
 					if findItem dev_show_radius node == 0 then
@@ -478,13 +488,18 @@ struct GridSupportSeeder_v
 				*/ 
 				
 				if distance pos node_pos < search_radius  then
+				(
+					
+					
 					append nodes_of_pos node
+				)
+				
 			)
 			--format "nodes_of_pos: %\n" nodes_of_pos
 			if nodes_of_pos.count == 0 then
 				append empty_cells pos
 		)
-		
+		format "empty_cells: %\n" empty_cells
 		empty_cells --return
 	),
 	

@@ -332,7 +332,6 @@ struct SupportOptions_v
 		
 		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = radial_grid_enabled
 		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled     = radial_grid_enabled
-		ROLLOUT_SUPPORTS.SPIN_eccentric_step.enabled     = radial_grid_enabled
 		
 	),
 

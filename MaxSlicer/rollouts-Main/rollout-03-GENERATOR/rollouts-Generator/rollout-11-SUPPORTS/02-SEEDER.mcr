@@ -42,21 +42,21 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 			return false
 		
 		
-		for obj in source_objects do
-		(
-			if ( _mod = obj.modifiers[#VertexPaint] ) != undefined then
-					deleteModifier obj _mod
-					
-			if ( _mod = obj.modifiers[#VERTEX_PAINT_SELECT] ) != undefined then
-					deleteModifier obj _mod
-		)
+		--for obj in source_objects do
+		--(
+		--	if ( _mod = obj.modifiers[#VertexPaint] ) != undefined then
+		--			deleteModifier obj _mod
+		--			
+		--	if ( _mod = obj.modifiers[#VERTEX_PAINT_SELECT] ) != undefined then
+		--			deleteModifier obj _mod
+		--)
 
 		
 		
 		GridSupportSeeder = GridSupportSeeder_v(source_objects)
 		
 		--GridSupportSeeder.cell_size = 30
-		GridSupportSeeder.eccentric_step = ROLLOUT_SUPPORTS.SPIN_eccentric_step.value
+		GridSupportSeeder.cell_size = ROLLOUT_SUPPORTS.SPIN_cell_size.value
 		
 		grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
 		
@@ -69,7 +69,7 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 			GridSupportSeeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep.state
 		)
 		
-		closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(source_objects) #VERTS grid_type
+		closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(supports) #VERTS grid_type
 
 		format "CLOSEST_VERTS: %\n" closest_verts
 		
@@ -106,6 +106,19 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 	)
 )
 
+/**  
+  *
+ */
+macroscript	_print_support_seeder_cell_size
+category:	"_3D-Print"
+buttontext:	"Grid"
+toolTip:	"Cell size of grid"
+icon:	"ACROSS:5|control:spinner|id:SPIN_cell_size|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 8, 10 ]|tooltip:Distance between circles in radial pattern"
+(
+	on execute do
+		format "EventFired: %\n" EventFired
+
+)
 
 /**  
   *
@@ -114,8 +127,8 @@ macroscript	_print_support_seeder_mode
 category:	"_3D-Print"
 buttontext:	"[RADIAL]"
 toolTip:	""
-icon:	"ACROSS:5|control:radiobuttons|id:RB_seeder_mode|unselect:true|items:#( 'RADIAL' )|offset:[ 28, 8 ]"
---icon:	"ACROSS:5|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 8 ]"
+icon:	"ACROSS:5|control:radiobuttons|id:RB_seeder_mode|unselect:true|items:#( 'RADIAL' )|offset:[ 36, 10 ]"
+--icon:	"ACROSS:5|control:checkbox|id:SPIN_seeder_mode|offset:[ 24, 10 ]"
 (
 	on execute do
 	(
@@ -138,7 +151,6 @@ icon:	"ACROSS:5|control:radiobuttons|id:RB_seeder_mode|unselect:true|items:#( 'R
 		--
 		--/* ENABLE DISBALE DEPENDENT CONTROLS */ 
 		ROLLOUT_SUPPORTS.SPIN_segments_count.enabled = EventFired.val == 1
-		ROLLOUT_SUPPORTS.SPIN_eccentric_step.enabled = EventFired.val == 1
 		ROLLOUT_SUPPORTS.CBX_segments_count_keep.enabled = EventFired.val == 1
 		--ROLLOUT_SUPPORTS.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
 		--
@@ -154,7 +166,7 @@ macroscript	_print_support_seeder_mode_segments_count
 category:	"_3D-Print"
 buttontext:	"[Segments]"
 toolTip:	""
-icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ -32, 8 ]|tooltip:Count of radial steps.\n\nHow many times is circle divided"
+icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 1024, 12 ]|type:#integer|width:64|offset:[ -12, 10 ]|tooltip:Count of radial steps.\n\nHow many times is circle divided"
 (
 		format "EventFired	= % \n" EventFired
 
@@ -165,27 +177,15 @@ icon:	"ACROSS:5|control:spinner|id:SPIN_segments_count|fieldwidth:28|range:[ 3, 
  */
 macroscript	_print_support_seeder_mode_segments_count_keep
 category:	"_3D-Print"
-buttontext:	"keep"
+buttontext:	"Fix"
 toolTip:	"TRUE: Produce \"RAYS OF SUN\" pattern\n\nFALSE:  Produce \"SUNFLOWER\" pattern"
-icon:	"ACROSS:5|control:checkbox|id:CBX_segments_count_keep|offset:[ -16, 8 ]|checked:true"
+icon:	"ACROSS:5|control:checkbox|id:CBX_segments_count_keep|offset:[ 20, 10 ]|checked:true"
 (
 		format "EventFired	= % \n" EventFired
 
 )
 
 
-/**  
-  *
- */
-macroscript	_print_support_seeder_eccentric_step
-category:	"_3D-Print"
-buttontext:	"Step size"
-toolTip:	""
-icon:	"ACROSS:5|control:spinner|id:SPIN_eccentric_step|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 16, 8 ]|tooltip:Distance between circles in radial pattern"
-(
-	on execute do
-		format "EventFired: %\n" EventFired
 
-)
 
 

@@ -91,7 +91,7 @@ struct VertexPaintMod_v
 	*/
 	function setVertexColor vertex_indexes color =
 	(
-		format "\n"; print "VertexPaintMod_v.setVertexColor()"
+		--format "\n"; print "VertexPaintMod_v.setVertexColor()"
 		--this.obj.showVertexColors = on
 		
 		if superClassOf vertex_indexes == Number then

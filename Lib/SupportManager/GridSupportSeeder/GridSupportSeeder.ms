@@ -1,6 +1,3 @@
-clearListener(); print("Cleared in:\n"+getSourceFileName())
-
-
 /** Grid of nodes_v
   
   
@@ -13,7 +10,6 @@ struct GridSupportSeeder_v
 (
 	/* construct */
 	target_objects,
-	--target_objects,
 	cell_objects,
 	intersect_objs = #(),
 	
@@ -26,22 +22,17 @@ struct GridSupportSeeder_v
 
 	/* radial setup */ 
 	segments_count = 32,
-	--segments_count_keep = false,
 	segments_count_keep = true,
 	
 	
 	/* properties */
 	grid_origin = [0,0],
-	grid_positions,
+	grid_cells,
 	
 	closest_verts_pos,
-	search_treshold = 1.5, -- how far from cell center is searched for grid object 
-	--search_treshold = 2.0, -- how far from cell center is searched for grid object 
 	
 	num_cols,
 	num_rows,
-
-
 	
 	/* private */
 	/* dependency */
@@ -66,59 +57,44 @@ struct GridSupportSeeder_v
 		
 		this._convertTargetsToMeshSnapshots()
 		
+		/* SQUARE GRID */
+		/*------------------------------------------------------------------------------
+			SQUARE GRID
+		--------------------------------------------------------------------------------*/
 		if grid_type == #GRID then
-		(
-			--ratios = #( 3.0, 1.2 ) -- size of inner radials around center
-			
+		(			
 			this.initGrid()
 			
 			this.sortNodesToMatrix()
 			
 			empty_cells = this._getEmptyCells()
 		)
+		
+		/*------------------------------------------------------------------------------
+			RADIAL GRID
+		--------------------------------------------------------------------------------*/
 		else
 		(
 			this.initGridRadial()
 			
 			empty_cells = this._getEmptyCellsRadial()
-			
 		)
-		  -- format "EMPTY_CELLS: %\n" empty_cells
 		
-		/* LOOP EMPTY CELLS */ 
+		
+		/*------------------------------------------------------------------------------
+			SEARCH FOR ALREADY OCCUPIED CELLS BY OTHER SUPPORTS
+		--------------------------------------------------------------------------------*/
 		for cell_center in empty_cells do
 		(
-			 --format "\n"
-			--format "cell_center: %\n" cell_center
-			 --Point pos:cell_center size:10 Box:true  wirecolor:red
-		
-			/* TEST CENTER OF CELL */ 
+			/* SEARCH FOR MESH IN CELL CENTER */ 	 
 			hit_data = this._testHit cell_center
-			 -- format "hit_data: %\n" hit_data
-			   -- format "AAAAAA: %\n" hit_data
-			 
+		
+			/* SEARCH FOR MESH AROUND CELL CENTER */ 	 
 			if hit_data == undefined then
-			(
-			  -- format "HIT SHIT: %\n" hit_data
-				-- format "CELL_CENTER: %\n" cell_center
-			 --format "\n"
-
-				--hit_data = this._getRadialPositions(cell_center)(cell_size / 2 )(cell_size) test_hit:true clr:red
 				hit_data = this._getRadialPositions(cell_center)(cell_size / 2 )(  1.0 ) test_hit:true --clr:red
-				-- format "BBBBBBB: %\n" hit_data
 				
-				--if hit_data == undefined then
-					--Point pos:cell_center size:30 Box:true  wirecolor:red
-
-			)
-				
-			--if hit_data != undefined then
-			--	Point pos:cell_center size:10 Box:true  wirecolor:red
-				
-			if hit_data != undefined then
+			else
 				this._addToHits( hit_data )
-
-
 		)
 		
 		this._removeSnapshots()
@@ -130,29 +106,38 @@ struct GridSupportSeeder_v
 	 */
 	function initGrid =
 	(
-		--format "\n"; print "GridSupportSeeder_v.initGrid()"
-		
+		format "\n"; print "GridSupportSeeder_v.initGrid()"
 		bbox = this._getBbox()
 		
-		min_x = bbox[1]
-		min_y = bbox[2]
-		max_x = bbox[3]
-		max_y = bbox[4]
+		p1 = bbox[1]
+		p2 = bbox[2]
+		p3 = bbox[3]
+		p4 = bbox[4]
 		
-		this.grid_origin = [ min_x, min_y ]
+		grid_center = ( p1 + p2 + p3 + p4 ) / 4
+
+		size_x = p4.x - p1.x
+		size_y = p2.y - p1.y
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if distance [ min_x, min_y, 0 ] [ max_x, max_y, 0 ] < cell_size * 4 then
+		if distance size_x size_y < cell_size * 4 then
 			cell_size /= 2
 		
-		--point pos:[ min_x, min_y, 0 ] size:1
-		--point pos:[ max_x, max_y, 0 ] size:1
+		/* GET NUMBER OF ROWS AND COLUMNS */ 		
+		num_cols = ceil (size_x / cell_size)
+		num_rows = ceil (size_y / cell_size)
+	
+		grid_size_x = cell_size * num_cols
+		grid_size_y = cell_size * num_rows
 		
-		num_cols = ceil ((max_x - min_x) / cell_size)
-		num_rows = ceil ((max_y - min_y) / cell_size)
+		offset_x = (grid_size_x - size_x) / 2.0
+		offset_y = (grid_size_y - size_y) / 2.0
 		
-		/* Initialize grid_positions */ 
-		grid_positions = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
+		/* CENTER GRID TO SELECTION */ 
+		this.grid_origin = p1 - [ offset_x, offset_y, 0 ]
+		
+		/* INITIALIZE GRID */ 
+		grid_cells = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
 	),
 	
 	/** Init grid radial
@@ -162,34 +147,27 @@ struct GridSupportSeeder_v
 		  -- format "\n"; print "GridSupportSeeder_v.initGridRadial()"
 		bbox = this._getBbox()
 		
-		min_x = bbox[1]
-		min_y = bbox[2]
-		max_x = bbox[3]
-		max_y = bbox[4]
-		
-		p1 = [ min_x, min_y, 0 ] -- bottom left 
-		p2 = [ max_x, max_y, 0 ] -- top right
-		p3 = [ max_x, min_y, 0 ] -- bottom right
-		p4 = [ min_x, max_y, 0 ] -- top left
+		p1 = bbox[1]
+		p2 = bbox[2]
+		p3 = bbox[3]
+		p4 = bbox[4]
 
 		this.grid_origin = ( p1 + p2 + p3 + p4 ) / 4
 		
-		--Point pos:grid_origin size:20 wirecolor:gray Box:false cross:true
-
 		/* GET LONGER SIDE OF BOUNGING BOX */ 
-		radius = (amax (distance p1 p3) (distance p1 p4)) / 2.0
+		radius = (amax (distance p1 p2) (distance p1 p4)) / 2.0
 		-- format "radius: %\n" radius
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
 		--if radius < cell_size * 4 then
 			--cell_size /= 2
 		
 		/* GET RADIAL POSITIONS AROUND CENTER */ 		
-		grid_positions = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
-		format "grid_positions: %\n" grid_positions
+		grid_cells = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
+		--format "grid_cells: %\n" grid_cells
 	),
 	
 	/* 
-	Sorts array of nodes into 2D grid_positions based on node position.x and position.y 
+	Sorts array of nodes into 2D grid_cells based on node position.x and position.y 
 	*/
 	function sortNodesToMatrix =
 	(
@@ -204,10 +182,10 @@ struct GridSupportSeeder_v
 			row = 1 + floor (( node.position.y - grid_origin.y) / cell_size )
 			
 			if row >= 1 and row <= num_rows and col >= 1 and col <= num_cols then
-				append grid_positions[row][col] node
+				append grid_cells[row][col] node
 		)
 		
-		grid_positions -- return
+		grid_cells -- return
 	),
 	
 
@@ -277,9 +255,6 @@ struct GridSupportSeeder_v
 		--if not test_hit then
 			--ratio = getClosestFloatValue (ratio)
 
-		
-		 -- format "RATIO: %\n" ratio
-		
 		/* ADJSUT CELL SIZE */ 
 		split_size = radius / ratio
 
@@ -294,8 +269,6 @@ struct GridSupportSeeder_v
 		
 		radiuses = for i = 1 to radius_count collect segment_size * i
 		
-		-- format "RADIUSES: %\n" radiuses
-		 
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
 		--------------------------------------------------------------------------------*/
@@ -306,7 +279,6 @@ struct GridSupportSeeder_v
 			
 			segments = if not test_hit or segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
 
-			  -- format "SEGMENTS: %\n" segments
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
 			--------------------------------------------------------------------------------*/
@@ -317,31 +289,14 @@ struct GridSupportSeeder_v
 				
 				moved_pos = movePointOnRadialDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
 				
-				if clr != undefined then
-					Point pos:moved_pos size:15 wirecolor:clr Box:true 
-
-				
-				if test_hit and clr != undefined then
-				(
-					-- format "CELL_CENTER: %\n" cell_center
-				
-					--Point pos:moved_pos size:20 wirecolor:clr Box:true 
-				)
-				
 				if test_hit then
-				(
 					hit_data = this._testHit moved_pos
-					-- format "\n"
-					--if hit_data != undefined then
-						--radial_postions = hit_data
-					-- format "---------------WTF hit_data: %\n" (hit_data)
-				)
+
 				else
 					append radial_postions moved_pos
 			)
 		)
 
-		--radial_postions --return
 		if test_hit then hit_data else radial_postions --return
 	),
 		/** Test hit
@@ -411,40 +366,29 @@ struct GridSupportSeeder_v
 	  */
 	function _getEmptyCells =
 	(
-		  format "\n"; print "GridSupportSeeder_v._getEmptyCells()"
-		  format "grid_positions: %\n" grid_positions
+		--format "\n"; print "GridSupportSeeder_v._getEmptyCells()"
+		--format "grid_cells: %\n" grid_cells
 		empty_cells	= #()
 		
-		for y = 1 to grid_positions.count do
+		for y = 1 to grid_cells.count do
  		(
-			row = grid_positions[y]
+			row = grid_cells[y]
 			
 			for x = 1 to row.count do
 			(
-				
-				pos = row[x]
-				format "OBJECTS_IN_ROW: %\n" pos
-				
-				x_pos = grid_origin.x + ((x - 1) * cell_size) -- + (cell_size/2)
-				y_pos = grid_origin.y + ((y - 1) * cell_size) -- + (cell_size/2)
-	
-
-				cell_center = [ x_pos, y_pos, 0 ]
-				
 				close_to_center_found = false
 				
-				Point pos:cell_center size:20 wirecolor:green
-
+				x_pos = grid_origin.x + ((x - 1) * cell_size) + (cell_size/2)
+				y_pos = grid_origin.y + ((y - 1) * cell_size) + (cell_size/2)
+	
+				cell_center = [ x_pos, y_pos, 0 ]
+				
+				/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
 				for obj in cell_objects while not close_to_center_found do
-				(
-					_distance = distance cell_center obj.pos
-
-					--if _distance < cell_size / 2.5 then
-					if _distance < cell_size / search_treshold then
-					--if _distance < cell_size then
+					if distance cell_center obj.pos < cell_size / 2 then
 						close_to_center_found = true
-				)
 
+				/* IF ANY OBJECT FOUND */ 
 				if not close_to_center_found then
 					append empty_cells cell_center					
 			)
@@ -457,28 +401,25 @@ struct GridSupportSeeder_v
 	 */
 	function _getEmptyCellsRadial =
 	(
-		 format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
+		 --format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
 		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
 		empty_cells = #()
 		
 		dev_show_radius = #()
 		
-		for pos in grid_positions do
+		for pos in grid_cells do
 		(
-			format "\n"
-			format "pos: %\n" pos
-			format "cell_objects: %\n" cell_objects
 			nodes_of_pos = #()
 			
+			/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
 			for node in cell_objects while nodes_of_pos.count == 0 do
 			(
-				node_pos = node.position
-				--format "\n"
-				pos.z = node_pos.z = 0
-				
-				--search_radius = 20.0
 				search_radius = cell_size / 4 -- divide by 2x2 for radius and both sides
+
+				node_pos = node.position
+				
+				pos.z = node_pos.z = 0
 				
 				/* DEVELOPENT
 					if findItem dev_show_radius node == 0 then
@@ -487,19 +428,17 @@ struct GridSupportSeeder_v
 					appendIfUnique dev_show_radius node
 				*/ 
 				
-				if distance pos node_pos < search_radius  then
-				(
-					
-					
-					append nodes_of_pos node
-				)
 				
+				if distance pos node_pos < search_radius  then
+					append nodes_of_pos node
 			)
-			--format "nodes_of_pos: %\n" nodes_of_pos
+			
+			/* IF ANY OBJECT FOUND */ 
 			if nodes_of_pos.count == 0 then
 				append empty_cells pos
+				
 		)
-		format "empty_cells: %\n" empty_cells
+
 		empty_cells --return
 	),
 	
@@ -591,7 +530,12 @@ struct GridSupportSeeder_v
 			if node.max.y > max_y then max_y = node.max.y
 		)
 		
-		#( min_x, min_y, max_x, max_y ) --return	
+		p1 = [ min_x, min_y, 0 ] -- bottom left 
+		p2 = [ min_x, max_y, 0 ] -- top left
+		p3 = [ max_x, max_y, 0 ] -- top right
+		p4 = [ max_x, min_y, 0 ] -- bottom right
+		
+		#( p1, p2, p3, p4 ) --return	
 	),
 	
 	/** Remove snapshots
@@ -614,11 +558,5 @@ struct GridSupportSeeder_v
 		-- format "\n"; print "GridSupportSeeder_v.onCreate()"
 		if classOf this.target_objects != Array then 
 			this.target_objects = #( this.target_objects )
-		
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
-
 )
-
-

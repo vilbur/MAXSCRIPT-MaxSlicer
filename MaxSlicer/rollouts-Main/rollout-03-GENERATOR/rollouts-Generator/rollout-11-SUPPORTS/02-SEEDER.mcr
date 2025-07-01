@@ -90,11 +90,11 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 
 				subObjectLevel = 1
 		
-				(VertSelector_v(obj)).setSelection ( closest_verts[obj_pointer] ) --isolate:true
-		
-				VertexColorProcessor = VertexColorProcessor_v(obj)
+				--VertexColorProcessor = VertexColorProcessor_v(obj)
 				
-				VertexColorProcessor.setVertexColor (closest_verts[obj_pointer]  as BitArray )orange
+				--VertexColorProcessor.setVertexColor (closest_verts[obj_pointer]  as BitArray )orange
+		
+				(VertSelector_v(obj)).setSelection ( closest_verts[obj_pointer] ) --isolate:true
 			)
 		 
 		
@@ -112,8 +112,8 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 macroscript	_print_support_seeder_cell_size
 category:	"_3D-Print"
 buttontext:	"Grid"
-toolTip:	"Cell size of grid"
-icon:	"ACROSS:5|control:spinner|id:SPIN_cell_size|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 8, 10 ]|tooltip:Distance between circles in radial pattern"
+toolTip:	"SQUARE GRID: Cell size of grid.\n\nRADIAL GRID: Distance between circles."
+icon:	"ACROSS:5|control:spinner|id:SPIN_cell_size|fieldwidth:28|range:[ 1, 1024, 10 ]|type:#integer|width:64|offset:[ 8, 10 ]"
 (
 	on execute do
 		format "EventFired: %\n" EventFired

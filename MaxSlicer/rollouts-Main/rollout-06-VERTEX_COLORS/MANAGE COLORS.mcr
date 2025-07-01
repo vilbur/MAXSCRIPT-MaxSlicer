@@ -88,7 +88,7 @@ buttonText:	"S H O W"
 toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
 icon:	"across:3|MENU:true"
 (
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+	--on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
 	on execute do
 	undo "Show Vertex Colors" on

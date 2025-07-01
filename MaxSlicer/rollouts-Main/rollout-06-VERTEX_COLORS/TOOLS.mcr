@@ -1,16 +1,70 @@
 /**
   */
-macroscript	epoly_vertex_color_copy_paste
+macroscript	epoly_vertex_color_reset_cpv_verts
 category:	"_Epoly-Vertex-Color"
-buttonText:	"Copy \ Paste"
-tooltip:	"Copy vertex color"
+buttonText:	"RESET CPVVerts"
+toolTip:	"Reset Vertex Colors"
 icon:	"across:2"
 (
 	--on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
-	--on execute do
+	on execute do
+	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
+	(
+		for obj in selection do
+			 if classOf obj.baseobject == Editable_Poly then
+			(
+				VertexColorProcessor = VertexColorProcessor_v(obj)
 		
+				VertexColorProcessor.resetCPVVerts()
+		
+				VertexColorProcessor.setVertexColor #ALL white
+				
+		
+			)
+
+		CompleteRedraw()
+		
+		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
+	)
 )
+
+/**
+  */
+macroscript	epoly_vertex_color_remove_vertex_paint_mod
+category:	"_Epoly-Vertex-Color"
+buttonText:	"Remove VertexPaint"
+tooltip:	"Remove VertexPaint Modifier"
+--icon:	"across:2"
+(
+	--on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+
+	on execute do
+	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
+	(
+		for obj in selection do
+			/* REMOVE VERTEX PAINT MODIFIER */ 
+			if obj.modifiers[#VertexPaint] != undefined then
+				for i = obj.modifiers.count to 1 by -1 where classOf obj.modifiers[i] == VertexPaint do
+				(
+					deleteModifier obj i
+					
+					obj.showVertexColors = false
+					
+					--format "obj.modifiers[i].name: %\n" obj.modifiers[i].name
+					prev_mod = i - 1
+					
+					/* REMOVE MODIFIER ABOVE VertexPaint modifier */ 
+					--if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name == "VERTEX PAINT SELECT" then
+					if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name as name == #VERTEX_PAINT_SELECT then
+						deleteModifier obj prev_mod
+				)
+		CompleteRedraw()
+
+		messageBox "VertexPaint Removed" title:"VERTEX COLOR"
+	)
+)
+
 
 /**
   */
@@ -56,56 +110,7 @@ toolTip:	"List Vertex Colors"
 	)
 )
 
-/**
-  */
-macroscript	epoly_vertex_color_reset_vertex_colors
-category:	"_Epoly-Vertex-Color"
-buttonText:	"RESET CPVVerts"
-toolTip:	"Reset Vertex Colors"
-icon:	"across:2"
-(
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
-	on execute do
-	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
-	(
-		for obj in selection do
-		(
-			/* REMOVE VERTEX PAINT MODIFIER */ 
-			if obj.modifiers[#VertexPaint] != undefined then
-			(
-				
-				for i = obj.modifiers.count to 1 by -1 where classOf obj.modifiers[i] == VertexPaint do
-				(
-					deleteModifier obj i
-					
-					obj.showVertexColors = false
-					
-					--format "obj.modifiers[i].name: %\n" obj.modifiers[i].name
-					prev_mod = i - 1
-					
-					/* REMOVE MODIFIER ABOVE VertexPaint modifier */ 
-					--if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name == "VERTEX PAINT SELECT" then
-					if obj.modifiers[prev_mod] != undefined and obj.modifiers[prev_mod].name as name == #VERTEX_PAINT_SELECT then
-						deleteModifier obj prev_mod
-				)
-			)
-			/* RESET EDITABLE POLY VERTEX COLORS */ 
-			else if classOf obj.baseobject == Editable_Poly then
-			(
-				/* SET NEW CLASS INSTANCE */
-				VertexColorProcessor = VertexColorProcessor_v(obj)
-		
-				VertexColorProcessor.resetCPVVerts()
-		
-				messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
-			)
-			
-		)
-
-		CompleteRedraw()
-	)
-)
 
 --/**
 --  */

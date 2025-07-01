@@ -63,9 +63,9 @@ struct GridSupportSeeder_v
 		--------------------------------------------------------------------------------*/
 		if grid_type == #GRID then
 		(			
-			this.initGrid()
+			this._initGrid()
 			
-			this.sortNodesToMatrix()
+			this._sortNodesToMatrix()
 			
 			empty_cells = this._getEmptyCells()
 		)
@@ -75,7 +75,7 @@ struct GridSupportSeeder_v
 		--------------------------------------------------------------------------------*/
 		else
 		(
-			this.initGridRadial()
+			this._initGridRadial()
 			
 			empty_cells = this._getEmptyCellsRadial()
 		)
@@ -95,18 +95,29 @@ struct GridSupportSeeder_v
 				
 			else
 				this._addToHits( hit_data )
+				
+			--Point pos:cell_center size:5 wirecolor:green box:true
+
 		)
 		
 		this._removeSnapshots()
 		
 		closest_verts_pos --return
 	),
+	
+	private
 
+	/*==============================================================================
+	
+			SQUARE GRID
+	
+	================================================================================*/
+	
 	/** Set grid
 	 */
-	function initGrid =
+	function _initGrid =
 	(
-		format "\n"; print "GridSupportSeeder_v.initGrid()"
+		format "\n"; print "GridSupportSeeder_v._initGrid()"
 		bbox = this._getBbox()
 		
 		p1 = bbox[1]
@@ -120,7 +131,7 @@ struct GridSupportSeeder_v
 		size_y = p2.y - p1.y
 		
 		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		if distance size_x size_y < cell_size * 4 then
+		if amax size_x size_y < cell_size * 4 then
 			cell_size /= 2
 		
 		/* GET NUMBER OF ROWS AND COLUMNS */ 		
@@ -140,38 +151,12 @@ struct GridSupportSeeder_v
 		grid_cells = for r = 1 to num_rows collect (for c = 1 to num_cols collect #())
 	),
 	
-	/** Init grid radial
-	 */
-	function initGridRadial =
-	(
-		  -- format "\n"; print "GridSupportSeeder_v.initGridRadial()"
-		bbox = this._getBbox()
-		
-		p1 = bbox[1]
-		p2 = bbox[2]
-		p3 = bbox[3]
-		p4 = bbox[4]
-
-		this.grid_origin = ( p1 + p2 + p3 + p4 ) / 4
-		
-		/* GET LONGER SIDE OF BOUNGING BOX */ 
-		radius = (amax (distance p1 p2) (distance p1 p4)) / 2.0
-		-- format "radius: %\n" radius
-		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
-		--if radius < cell_size * 4 then
-			--cell_size /= 2
-		
-		/* GET RADIAL POSITIONS AROUND CENTER */ 		
-		grid_cells = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
-		--format "grid_cells: %\n" grid_cells
-	),
-	
 	/* 
 	Sorts array of nodes into 2D grid_cells based on node position.x and position.y 
 	*/
-	function sortNodesToMatrix =
+	function _sortNodesToMatrix =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v.sortNodesToMatrix()"
+		 -- format "\n"; print "GridSupportSeeder_v._sortNodesToMatrix()"
 		 -- format "nodes: %\n" nodes
 		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 		
@@ -187,8 +172,77 @@ struct GridSupportSeeder_v
 		
 		grid_cells -- return
 	),
-	
 
+	/** 
+	  *	
+	  */
+	function _getEmptyCells =
+	(
+		--format "\n"; print "GridSupportSeeder_v._getEmptyCells()"
+		--format "grid_cells: %\n" grid_cells
+		empty_cells	= #()
+		
+		for y = 1 to grid_cells.count do
+ 		(
+			row = grid_cells[y]
+			
+			for x = 1 to row.count do
+			(
+				close_to_center_found = false
+				
+				x_pos = grid_origin.x + ((x - 1) * cell_size) + (cell_size/2)
+				y_pos = grid_origin.y + ((y - 1) * cell_size) + (cell_size/2)
+	
+				cell_center = [ x_pos, y_pos, 0 ]
+				
+				--Point pos:cell_center size:10 wirecolor:red box:true
+
+				/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
+				for obj in cell_objects while not close_to_center_found do
+					if distance cell_center obj.pos < cell_size / 2 then
+						close_to_center_found = true
+
+				/* IF ANY OBJECT FOUND */ 
+				if not close_to_center_found then
+					append empty_cells cell_center					
+			)
+		)
+
+		empty_cells --return
+	),
+	
+	/*==============================================================================
+	  
+		RADIAL GRID
+		
+	================================================================================*/
+	
+	
+	/** Init grid radial
+	 */
+	function _initGridRadial =
+	(
+		  -- format "\n"; print "GridSupportSeeder_v._initGridRadial()"
+		bbox = this._getBbox()
+		
+		p1 = bbox[1]
+		p2 = bbox[2]
+		p3 = bbox[3]
+		p4 = bbox[4]
+
+		this.grid_origin = ( p1 + p2 + p3 + p4 ) / 4
+		
+		/* GET LONGER SIDE OF BOUNGING BOX */ 
+		radius = (amax (distance p1 p2) (distance p1 p4)) / 2.0
+		 --format "RADIUS: %\n" radius
+		/* SUBDIVIDE GRID IF OBJECT IS TO SMALL OR CELL SIZE TO BIG */ 
+		--if radius < cell_size * 4 then
+			--cell_size /= 2
+		
+		/* GET RADIAL POSITIONS AROUND CENTER */ 		
+		grid_cells = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
+		--format "grid_cells: %\n" grid_cells
+	),
 
 	/** Test positions in cicrles around center of cell
 	 */
@@ -246,29 +300,27 @@ struct GridSupportSeeder_v
 			closest_value -- return
 		)
 		
+		/* Get round float to integer
+			
+			Never return 0 -- all value bellow 0.5 return 1
+		*/ 
+		fn roundToInteger val = if (rounded_val = floor (val  + 0.5)  as integer ) == 0 then 1 else rounded_val
+
+		
 		hit_data = undefined
 		
+		/* SET CENTER AS CELL */ 
 		radial_postions = #(cell_center)
 		
-		ratio = (radius / split_size as float )
+		/* GET NUMBER OF ECCENTRIC CIRLES */ 
+		radius_count = roundToInteger( radius / split_size )
+
+		/* GET SIZE OF SEMENT */ 
+		radius_split = radius / radius_count
 		
-		--if not test_hit then
-			--ratio = getClosestFloatValue (ratio)
-
-		/* ADJSUT CELL SIZE */ 
-		split_size = radius / ratio
-
 		/* GET RADIUSES */ 
-		radius_count = radius / split_size
-		
-		if radius_count < 1.0 then
-			radius_count = 1
-		 
-		 -- format "radius_count: %\n" radius_count
-		segment_size = radius / radius_count
-		
-		radiuses = for i = 1 to radius_count collect segment_size * i
-		
+		radiuses = for i = 1 to radius_count collect radius_split * i
+
 		/*------------------------------------------------------------------------------
 			TEST CIRCLES OF POSITIONS AROUND CENTER OF CELL
 		--------------------------------------------------------------------------------*/
@@ -299,6 +351,60 @@ struct GridSupportSeeder_v
 
 		if test_hit then hit_data else radial_postions --return
 	),
+	
+	/** Sort nodes to radial grid
+	 */
+	function _getEmptyCellsRadial =
+	(
+		 --format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
+		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
+
+		empty_cells = #()
+		
+		dev_show_radius = #()
+		
+		for pos in grid_cells do
+		(
+			nodes_of_pos = #()
+			
+			--Point pos:pos size:10 wirecolor:red box:true
+
+			/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
+			for node in cell_objects while nodes_of_pos.count == 0 do
+			(
+				search_radius = cell_size / 4 -- divide by 2x2 for radius and both sides
+
+				node_pos = node.position
+				
+				pos.z = node_pos.z = 0
+				
+				/* DEVELOPENT
+					if findItem dev_show_radius node == 0 then
+						VolumeHelper pos:pos radius:search_radius segments:16 wirecolor:brown volumeType:1 name:node.name
+					
+					appendIfUnique dev_show_radius node
+				*/ 
+				
+				
+				if distance pos node_pos < search_radius  then
+					append nodes_of_pos node
+			)
+			
+			/* IF ANY OBJECT FOUND */ 
+			if nodes_of_pos.count == 0 then
+				append empty_cells pos
+				
+		)
+
+		empty_cells --return
+	),
+	
+	/*==============================================================================
+	  
+		HELPERS
+		
+	================================================================================*/
+	
 		/** Test hit
 	 */
 	function _testHit pos =
@@ -361,89 +467,7 @@ struct GridSupportSeeder_v
 		if mode == #VERTS then closest_vert else closest_pos -- return
 	),
 	
-	/** 
-	  *	
-	  */
-	function _getEmptyCells =
-	(
-		--format "\n"; print "GridSupportSeeder_v._getEmptyCells()"
-		--format "grid_cells: %\n" grid_cells
-		empty_cells	= #()
-		
-		for y = 1 to grid_cells.count do
- 		(
-			row = grid_cells[y]
-			
-			for x = 1 to row.count do
-			(
-				close_to_center_found = false
-				
-				x_pos = grid_origin.x + ((x - 1) * cell_size) + (cell_size/2)
-				y_pos = grid_origin.y + ((y - 1) * cell_size) + (cell_size/2)
-	
-				cell_center = [ x_pos, y_pos, 0 ]
-				
-				/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
-				for obj in cell_objects while not close_to_center_found do
-					if distance cell_center obj.pos < cell_size / 2 then
-						close_to_center_found = true
 
-				/* IF ANY OBJECT FOUND */ 
-				if not close_to_center_found then
-					append empty_cells cell_center					
-			)
-		)
-
-		empty_cells --return
-	),
-
-	/** Sort nodes to radial grid
-	 */
-	function _getEmptyCellsRadial =
-	(
-		 --format "\n"; print "GridSupportSeeder_v._sortNodesToRadialGrid()"
-		--this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
-
-		empty_cells = #()
-		
-		dev_show_radius = #()
-		
-		for pos in grid_cells do
-		(
-			nodes_of_pos = #()
-			
-			/* SERACH FOR OBJECT NEAR TO CENTER OF CELL */ 
-			for node in cell_objects while nodes_of_pos.count == 0 do
-			(
-				search_radius = cell_size / 4 -- divide by 2x2 for radius and both sides
-
-				node_pos = node.position
-				
-				pos.z = node_pos.z = 0
-				
-				/* DEVELOPENT
-					if findItem dev_show_radius node == 0 then
-						VolumeHelper pos:pos radius:search_radius segments:16 wirecolor:brown volumeType:1 name:node.name
-					
-					appendIfUnique dev_show_radius node
-				*/ 
-				
-				
-				if distance pos node_pos < search_radius  then
-					append nodes_of_pos node
-			)
-			
-			/* IF ANY OBJECT FOUND */ 
-			if nodes_of_pos.count == 0 then
-				append empty_cells pos
-				
-		)
-
-		empty_cells --return
-	),
-	
-	private
-	
 	/* INTERSECT RAY only with specific objects.
 	   
 	   Finds the closest intersection point with any of them.

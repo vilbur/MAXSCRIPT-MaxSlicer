@@ -32,12 +32,19 @@ struct VertexColorProcessor_v
 
 
 	/** Set vertex color
+	  
+	   @param BitArray|#ALL verts
 	 */
 	function setVertexColor verts clr =
 	(
 		-- format "\n"; print "VertexColorProcessor_v.setVertexColor()"
 		--format "VertexPaintMod: %\n" VertexPaintMod
-		--format "VertexColors:   %\n" VertexColors
+		--format "VertexColors:   %\n" VertexColors.
+		vertex_count = getNumVerts obj.mesh
+		
+		if verts == #ALL then
+			verts = #{1..vertex_count}
+		
 		if VertexPaintMod == undefined and VertexColors == undefined  then
 		(
 			VertexPaintMod = VertexPaintMod_v(obj)
@@ -64,7 +71,6 @@ struct VertexColorProcessor_v
 			verts_base = this._getBaseObjectVerts(verts)
 	
 	
-			vertex_count	= getNumVerts obj.mesh
 			CPV_verts 	= getNumCPVVerts obj.mesh
 	
 			 if getNumVerts obj.baseobject.mesh != getNumCPVVerts obj.baseobject.mesh then

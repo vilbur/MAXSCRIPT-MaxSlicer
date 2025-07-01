@@ -68,18 +68,19 @@ icon:	"offset:[ 18, 6 ]|height:40|width:76|tooltip:GENERATE BEAMS for selected s
 	on execute do
 		undo "Generate Beams" on
 		(
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
 			_selection = for obj in selection collect obj
 		
 			/* SEARCH FOR SOURCE OBJECTS IN SLECTION */ 
 			source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
 
 			supports = if source_objects.count == _selection.count then
-				SUPPORT_MANAGER.getSupportObjects (SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT) get_nodes:false 
+				SUPPORT_MANAGER.getSupportObjects (SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT) get_nodes:false 
 			else
 				/* GET SUPPORTS */ 
 				SUPPORT_MANAGER.getSupportObjects( _selection )
-
-			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports	= (not keyboard.shiftPressed )
+			--format "supports: %\n" supports
+			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports = (not keyboard.shiftPressed )
 
 			SUPPORT_MANAGER.generateBeams supports sort_mode:( if not keyboard.controlPressed then #JOIN_CLOSE_SUPPORTS )
 		)
@@ -101,7 +102,7 @@ tooltip:	"OPEN MENU"
 			/* DEFINE MAIN MENU */
 			Menu = RcMenu_v name:"GenerateBeamsMenu"
 
-			Menu.item "Connect supports in CHAIN"	( "SUPPORT_MANAGER.generateBeams sort_mode:#JOIN_SUPPORTS_CHAIN"	)
+			Menu.item "Connect supports in CHAIN" ( "SUPPORT_MANAGER.generateBeams ( SUPPORT_MANAGER.getSupportObjects (SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT) get_nodes:false  ) sort_mode:#JOIN_SUPPORTS_CHAIN")
 
 			popUpMenu (Menu.create())
 		)

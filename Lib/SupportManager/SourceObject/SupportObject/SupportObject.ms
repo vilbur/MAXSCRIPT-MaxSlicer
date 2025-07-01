@@ -86,8 +86,8 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: direction:undefined dir_vector:undefined normal_world:undefined wirecolor: =
 	(
 		 -- format "\n===========================================================\n"
-		  format "\n"; print "SupportObject_v.generateSupport()"
-		  format "wirecolor: %\n" wirecolor
+		  --format "\n"; print "SupportObject_v.generateSupport()"
+		  --format "wirecolor: %\n" wirecolor
 		  --format "direction: %\n" direction
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE

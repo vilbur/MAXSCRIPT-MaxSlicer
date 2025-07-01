@@ -6,17 +6,20 @@ function generateSupportsOrRafts obj_type: =
 	 format "\n"; print ".generateSupportsOrRafts()"
 	-- format "obj_type: %\n" obj_type
 	 --format "generateSupportsOrRafts: %\n" obj_type
-
+	new_nodes = #()
+	
 	_selection = for obj in selection collect obj
 
 	/* SEARCH FOR SOURCE OBJECTS IN SLECTION */ 
 	source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
+	 format "source_objects.count: %\n" source_objects.count
 
 	/* GET NEW OBJECT AS SOURCE OBJECT IF ANY OBJECT HAS NOT BEEN FOUND */ 
-	if source_objects.count == 0 then
+	--if source_objects.count == 0 then
 		source_objects = for obj in _selection where not SUPPORT_MANAGER.isManaged(obj) collect obj
 	
-	 --format "SOURCE_OBJECTS: %\n" source_objects
+	 format "SOURCE_OBJECTS: %\n" source_objects
+	 format "source_objects.count: %\n" source_objects.count
 		
 	/*------------------------------------------------------------------------------
 	  
@@ -24,7 +27,8 @@ function generateSupportsOrRafts obj_type: =
 		
 	------------------------------------------------------------------------------*/
 	if source_objects.count > 0 then
-		new_nodes = SUPPORT_MANAGER.generateSupports source_objects[1] obj_type:obj_type
+		for source_object in source_objects do 
+			new_nodes += SUPPORT_MANAGER.generateSupports source_object obj_type:obj_type
 	
 	else
 	(

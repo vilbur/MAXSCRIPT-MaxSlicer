@@ -21,7 +21,7 @@ struct SourceObjectNormals_v
 	normals_local, -- Array fot store vertex normals in object space
 	normals_world, -- Array fot store vertex normals in world space
 
-	--obj_rotation, -- store object rotation to find if world normals needs to be recount
+	--obj_rotation, -- store object rotation to find if world n1`ormals needs to be recount
 	--
 	--direction_down = [0,0,-1],
 	/* dependency */
@@ -35,7 +35,7 @@ struct SourceObjectNormals_v
 	 */
 	function setLocalVertexNormals verts =
 	(
-		-- format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		this._initNormalsLocalArray()
 
 
@@ -49,9 +49,9 @@ struct SourceObjectNormals_v
 	 */
 	function setWorldSpaceVertexNormals verts =
 	(
-		  -- format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
-		 -- format "verts: %\n" verts
-		 -- format "verts.numberset : %\n" verts.numberset 
+		--format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
+		--format "verts: %\n" verts
+		--format "verts.numberset : %\n" verts.numberset 
 		
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
@@ -75,10 +75,10 @@ struct SourceObjectNormals_v
 	 */
 	function loadNormalsLocal =
 	(
-		-- format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
+		--format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
 			this.normals_local = normals_local_loaded
-
+		--format "normals_local_loaded: %\n" normals_local_loaded
 		normals_local_loaded != undefined
 	),
 	
@@ -90,7 +90,7 @@ struct SourceObjectNormals_v
 		--format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
 		is_normal_valid = normals_world[vert].z <= 0
 		--if not (is_normal_valid = normals_world[vert].z <= 0 ) then
-			-- format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
+			--format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
 		
 		--is_normal_valid --return
 	),
@@ -109,7 +109,7 @@ struct SourceObjectNormals_v
 	 */
 	function _updateLocalVertexNormalsByModifier verts =
 	(
-		 -- format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
+		--format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
 
 		eMod = Edit_Normals()
 
@@ -130,14 +130,14 @@ struct SourceObjectNormals_v
 			
 		)
 
-		deleteModifier selection eMod
+		deleteModifier obj eMod
 	),
 
 	/** Get verts normals
 	 */
 	function _updateLocalNormals verts =
 	(
-		-- format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
+		--format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
 
 		obj_mesh = obj.mesh
 
@@ -159,7 +159,7 @@ struct SourceObjectNormals_v
 
 		for vert in verts do normals_local[vert] = normalize normals_local[vert]
 
-		-- format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
+		--format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
 	),
 	
 	/** Set vertex normals empty array
@@ -167,10 +167,12 @@ struct SourceObjectNormals_v
 	function _initNormalsLocalArray =
 	(
 		--format "\n"; print "SourceObjectNormals_v._initNormalsLocalArray()"
-		if normals_local == undefined or normals_local.count != all_verts.numberSet then
+		
+		if (normals_local != undefined and normals_local.count != all_verts.numberSet ) \
+		or normals_local == undefined then
 		(
 			normals_local = this.all_verts as Array
-	
+
 			for i = 1 to normals_local.count do
 				normals_local[i] = point3 0 0 0
 		)

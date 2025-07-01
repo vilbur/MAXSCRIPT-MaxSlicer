@@ -35,8 +35,9 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		 format "\n"; print "SourceObject_v.generateSupports()"
-		 format "obj: %\n" obj
+		 --format "\n"; print "SourceObject_v.generateSupports()"
+		 --format "SourceObject.obj: %\n" obj
+		 --format "classOf obj: %\n" ( classOf obj )
 		--format "OBJ_TYPE: %\n" obj_type
 		
 		NewSupportObjects = #()
@@ -50,16 +51,17 @@ struct SourceObject_v
 		/*------------------------------------------------------------------------------
 			GET VERTS TO PROCESS by vertex color
 		--------------------------------------------------------------------------------*/
-
-		verts_sel	= getVertSelection obj.mesh
 		
+		--format "classOf obj: %\n" ( classOf obj )
+		verts_sel	= getVertSelection obj.mesh
+		--format "verts_sel: %\n" verts_sel
  		supports_exists = Supports.keys as BitArray
 		timer_color = timeStamp()
 
 		verts_by_colors = this._getVertsByColors()
 		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		format "color: % ms\n" (( timeStamp()) - timer_color)
+		--format "color: % ms\n" (( timeStamp()) - timer_color)
 		--format "COLORED_VERTS: %\n" colored_verts
 
 		/* GEt SELECTED or COLORED verts */ 
@@ -77,24 +79,24 @@ struct SourceObject_v
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
 		timer_Normals = timeStamp()
-		format "setLocalVertexNormals() "
+		--format "setLocalVertexNormals() "
 		Normals.setLocalVertexNormals(verts_process)
-		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		timer_Normals = timeStamp()
-		format "saveNormalsToUserProps() "
+		--format "saveNormalsToUserProps() "
 		Normals.saveNormalsToUserProps()
-		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 
 		timer_Normals = timeStamp()
-		format "setWorldSpaceVertexNormals() "
+		--format "setWorldSpaceVertexNormals() "
 		Normals.setWorldSpaceVertexNormals(verts_process)
-		format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		timer_verts_process = timeStamp()
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
-		format "verts_process: % ms\n" (( timeStamp()) - timer_verts_process)
+		--format "verts_process: % ms\n" (( timeStamp()) - timer_verts_process)
 		
 		if verts_process.numberSet > all_verts.numberSet then
 			messageBox "SHIT" title:"Title"  beep:false
@@ -104,7 +106,7 @@ struct SourceObject_v
 		--------------------------------------------------------------------------------*/
 		timer_verts_pos = timeStamp()
 		verts_pos = this.getVertsPositions(verts_process)
-		format "verts_pos: % ms\n" (( timeStamp()) - timer_verts_pos)
+		--format "verts_pos: % ms\n" (( timeStamp()) - timer_verts_pos)
 		
 		
 		
@@ -150,7 +152,7 @@ struct SourceObject_v
 					(format "\n";	print ("! VERTEX "+vert as string +" IS BELLOW GROUND - SUPPORT IS NOT CREATED"))
 			)
 		
-		format "generate: % ms\n" (( timeStamp()) - timer_generate)
+		--format "generate: % ms\n" (( timeStamp()) - timer_generate)
 		/*------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------*/
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )

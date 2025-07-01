@@ -40,19 +40,18 @@ tooltip:	"Reset data in userprops of selected or visible source objects"
 	(
 		/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
 		objs_input = if selection.count > 0 then selection as Array else for obj in objects where obj.isHidden == false collect obj 
-		format "objs_input: %\n" objs_input
 		/* GET INPUT SOURCE OBJECTS */ 
-		source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
-		format "source_objects: %\n" source_objects
-		if source_objects.count > 0 then
+		--source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
+
+		if objs_input.count > 0 then
 		(
-			message = if source_objects.count > 1 then "OBJECTS ?\n" else "OBJECT ?\n"
+			message = if objs_input.count > 1 then "OBJECTS ?\n" else "OBJECT ?\n"
 			
-			for source_object in source_objects do message += "\n" + source_object.name
+			for obj in objs_input do message += "\n" + obj.name
 			
 			if queryBox ("Reset USER DATA ON " + message ) title:"RESET USER PROPS" beep:false then
-				for source_object in source_objects do
-					setUserPropBuffer source_object ""
+				for obj in objs_input do
+					setUserPropBuffer obj ""
 		)
 	)
 )

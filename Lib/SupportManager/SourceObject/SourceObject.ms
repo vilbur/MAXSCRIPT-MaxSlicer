@@ -35,7 +35,7 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		 --format "\n"; print "SourceObject_v.generateSupports()"
+		 format "\n"; print "SourceObject_v.generateSupports()"
 		 --format "SourceObject.obj: %\n" obj
 		 --format "classOf obj: %\n" ( classOf obj )
 		--format "OBJ_TYPE: %\n" obj_type
@@ -56,12 +56,13 @@ struct SourceObject_v
 		verts_sel	= getVertSelection obj.mesh
 		--format "verts_sel: %\n" verts_sel
  		supports_exists = Supports.keys as BitArray
-		timer_color = timeStamp()
 
+		timer_color = timeStamp()
+		FORMAT "_getVertsByColors() "
 		verts_by_colors = this._getVertsByColors()
-		--format "VERTS_BY_COLORS: %\n" verts_by_colors
+		format "TIME: % ms\n" (( timeStamp()) - timer_color)
+		
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		--format "color: % ms\n" (( timeStamp()) - timer_color)
 		--format "COLORED_VERTS: %\n" colored_verts
 
 		/* GEt SELECTED or COLORED verts */ 
@@ -79,19 +80,19 @@ struct SourceObject_v
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
 		timer_Normals = timeStamp()
-		--format "setLocalVertexNormals() "
+		FORMAT "setLocalVertexNormals() "
 		Normals.setLocalVertexNormals(verts_process)
-		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		FORMAT "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		timer_Normals = timeStamp()
-		--format "saveNormalsToUserProps() "
+		FORMAT "saveNormalsToUserProps() "
 		Normals.saveNormalsToUserProps()
-		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		FORMAT "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 
 		timer_Normals = timeStamp()
-		--format "setWorldSpaceVertexNormals() "
+		FORMAT "setWorldSpaceVertexNormals() "
 		Normals.setWorldSpaceVertexNormals(verts_process)
-		--format "TIME: % ms\n" (( timeStamp()) - timer_Normals)
+		FORMAT "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		timer_verts_process = timeStamp()
@@ -127,7 +128,7 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys do
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
-				--format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
+				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
 		
 				/*------------------------------------------------------------------------------

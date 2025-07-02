@@ -156,8 +156,8 @@ struct SupportManager_v
 	 */
 	function generateBeams supports sort_mode:undefined =
 	(
-		format "\n"; print "SupportManager_v.generateBeams()"
-		format "supports: %\n" supports
+		--format "\n"; print "SupportManager_v.generateBeams()"
+		--format "supports: %\n" supports
 
 		/** if support height is greater then min height option
 		 */

@@ -332,6 +332,8 @@ struct VertSelector_v
 		--
 		--	verts_baseobject --return
 		--)
+		/*  */ 
+		function  bitArraysAreSame arr1 arr2 = ( arr1 - arr2 ).isEmpty
 
 		max modify mode
 
@@ -345,17 +347,9 @@ struct VertSelector_v
 		)
 		
 		setSelectionLevel _mod subobject
-		--_mod.SetSelection subobject #{}
-		format "classOf _mod: %\n" (classOf _mod)
+
 		if classOf _mod == Edit_Poly then
 		(
-
-			--format "SEL_BITARRAY: %\n" sel_bitarray
-			--if obj.modifiers[#SLICE_PLANE_TOP] != undefined then
-			--(
-			--	sel_bitarray = getVertsByBaseobject(obj)(sel_bitarray)
-			--)
-			
 			
 			if isolate and subobject == #VERTEX then
 			(
@@ -369,15 +363,60 @@ struct VertSelector_v
 			)
 			else
 			(
-				_mod.SetSelection #VERTEX #{}				
+				_mod.SetSelection #VERTEX #{}
 				
 				_mod.Select subobject sel_bitarray
-			)
-			
+				
+				new_selection	= _mod.getSelection #vertex
+				
+				format "sel_bitarray: %\n" sel_bitarray
+				format "new_selection: %\n" new_selection
+				
+				format "TEST: %\n" (bitArraysAreSame sel_bitarray new_selection)
+				
+				/* UNHIDE VERTS - if all desired verts are not selected */ 
+				if new_selection.count == 0 or not bitArraysAreSame sel_bitarray new_selection then
+				(
+					vertex_count = _mod.getNumVertices()
+					format "vertex_count: %\n" vertex_count
 
+					verts_all = #{1..vertex_count}
+					
+					_mod.SetSelection #Vertex #{}
+					
+					_mod.setSelection #VERTEX verts_all
+
+					visible_verts	= _mod.getSelection #Vertex
+					format "visible_verts: %\n" visible_verts
+
+					hidden_verts = verts_all - visible_verts - sel_bitarray
+		
+					_mod.ButtonOp #UnhideAllVertex
+		
+					_mod.SetSelection #VERTEX hidden_verts
+		
+					_mod.ButtonOp #HideVertex
+					
+					--_mod.SetSelection #Vertex #{}
+
+					_mod.Select #VERTEX sel_bitarray
+				)
+			)
 		)
 		else if classOf _mod  == Editable_Poly then
+		(
+			hidden_verts = 	polyop.getHiddenVerts obj
+			--format "hidden_verts: %\n" hidden_verts
+			/* UNHIDE VERT */ 
+			if (verts_to_unhide  = hidden_verts * sel_bitarray ).count > 0 then
+			(
+				polyop.unHideAllVerts obj
+	
+				polyop.setHiddenVerts obj ( hidden_verts - verts_to_unhide )
+			)
+		
 			_mod.SetSelection subobject sel_bitarray
+		)
 
 	),
 

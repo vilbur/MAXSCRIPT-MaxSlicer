@@ -256,8 +256,10 @@ struct VertexColorProcessor_v
 
 			curr_mod.ButtonOp #UnhideAllVertex
 
-			this._selectVertsEditablePoly hidden_verts
+			--this._selectVertsEditablePoly hidden_verts
+			curr_mod.SetSelection #VERTEX hidden_verts
 
+			
 			curr_mod.ButtonOp #HideVertex
 
 			this._selectVertsEditablePoly original_selection

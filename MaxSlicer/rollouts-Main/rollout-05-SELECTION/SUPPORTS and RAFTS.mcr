@@ -103,7 +103,7 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 		--format "_objects.count: %\n" _objects.count
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		
-		--format "source_objects: %\n" source_objects
+		format "source_objects: %\n" source_objects
 		
 		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
 		
@@ -112,7 +112,7 @@ icon:	"across:4|tooltip:SELECT VERTS BY SUPPORTS & VICE VERSA"
 		--	format "support.name: %\n" support.name
 		--format "\n"
 		
-		--format "supports: %\n" supports
+		format "supports: %\n" supports
 		--format "supports.count: %\n" supports.count
 		
 		SourceObjects = SUPPORT_MANAGER.getSourceObjects source_objects

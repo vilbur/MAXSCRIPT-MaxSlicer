@@ -57,8 +57,8 @@ struct BeamGenerator_v
 	 */
 	function generateBeamsChain supports =
 	(
-		 format "\n"; print "BeamGenerator_v.generateBeamsChain()"
-		format "supports: %\n" supports
+		--format "\n"; print "BeamGenerator_v.generateBeamsChain()"
+		--format "supports: %\n" supports
 		new_beams = #()
 
 		sorted_supports = this._sortSupportsByDistance(supports) (SUPPORT_OPTIONS.max_distance)

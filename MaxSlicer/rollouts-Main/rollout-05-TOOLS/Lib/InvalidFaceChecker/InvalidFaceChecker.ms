@@ -1,4 +1,13 @@
-/** Invalid face checker
+/** Search for invalid polygons or faces which triangle has area near zero
+	
+	A) Verts of face are in line
+	
+	B) If polygon has degenerated triangle then
+		1) Retriangulate polygon if it is possible
+		2) Add to invalid faces if can`t be retriangulated
+  
+  
+	@retrun BitArray of invalid faces
  */
 struct InvalidFaceChecker_v
 (
@@ -9,8 +18,8 @@ struct InvalidFaceChecker_v
 	
 
 	/* properties */
-	invalid_faces = Dictionary #( 3, #{} ) #( 4, #{} ), -- maps [original vert index] -> [new vert index]
-
+	--invalid_faces = Dictionary #( 3, #{} ) #( 4, #{} ), -- maps [original vert index] -> [new vert index]
+	invalid_faces = #{},
 
 	/* private */
 	/* dependency */
@@ -21,148 +30,185 @@ struct InvalidFaceChecker_v
 	function search =
 	(
 		--format "\n"; print "InvalidFaceChecker_v.search()"
+		/** First index
+		 */
+		function firstBit bit_array = amin( bit_array as Array )
+		
 		face_count = polyop.getNumFaces obj
 		face_vert_map = #()
 		face_list = #()
 		
-		
 		face_sel	= getFaceSelection obj
-		
-		--faces_all = #{1..face_count}
-		format "face_sel.numberSet: %\n" face_sel.numberSet
+		--format "face_sel.numberSet: %\n" face_sel.numberSet
 		
 		faces_process = if face_sel.numberSet > 0 then face_sel else #{1..face_count}
 		
-		format "faces_process: %\n" faces_process
-		--for f = 1 to face_count do
-		for f = 1 to face_count where faces_process[f] do
+		for face = 1 to face_count where faces_process[face] do
 		(
-			face_verts = polyop.getFaceVerts obj f
+			format "\n=================\n\n"
+			format "FACE: %\n" face
+			
+			face_verts = polyop.getFaceVerts obj face
+			--format "face_verts: %\n" face_verts
 			verts_count = face_verts.count
-			format "verts_count: %\n" verts_count
-
-			if this._isDegeneratedFace obj f face_verts then
+			--format "verts_count: %\n" verts_count
+			/* GET POSITIONS */ 
+			verts_pos = for vert in face_verts collect polyop.getVert obj vert
+			format "verts_pos: %\n" verts_pos
+			format "face_verts.count: %\n" face_verts.count
+			
+			/*------------------------------------------------------------------------------
+				TEST POLYGON
+			--------------------------------------------------------------------------------*/
+			if face_verts.count > 3 then
 			(
-				
-				if invalid_faces[verts_count] == undefined then 
-					invalid_faces[verts_count] = #{}
-				
-				invalid_faces[verts_count][f] = true
 
-				--if face_verts.count == 4 then
-				--	obj.TurnDiagonal f 1
+				/* GET POSSIBLE TRIANGULATIONS */ 
+				all_triangulations = this._getAllTriangulations ( face_verts )
 				
+				for triangulation in all_triangulations do
+					format "triangulation: %\n" triangulation
+				
+				all_triangulations_pos = this._getAllTriangulations ( verts_pos )
+				
+				/* FIND INVALID FACES */ 
+				valid_triangulations = this._validateTriangulations (all_triangulations_pos)
+				format "valid_triangulations: %\n" valid_triangulations
+				
+				/* IF ANY VALID COMBINATION EXISTS */ 
+				if not valid_triangulations.isEmpty then
+				(
+					/* IF ALL COMNINATIONS ARE VALID */
+					face_is_valid = valid_triangulations.numberSet == all_triangulations.count
+					format "IS_FACE_VALID: %\n" face_is_valid
+					
+					/* IF VALID TRIANGULATION EXISTS */ 
+					if not face_is_valid then
+						/* RETRIANGULATE POLYGON */ 
+						this._retriangulatePolygon face face_verts ( all_triangulations[firstBit(valid_triangulations)] )
+				)
+				else /* FACE IS BROKEN - E.G.: two verts are on same pos */
+				(
+					invalid_faces[face] = true
+					
+					
+				)
 			)
+			/*------------------------------------------------------------------------------
+				TEST TRIANGLE
+			--------------------------------------------------------------------------------*/
+			else
+				invalid_faces[face] = this._isTriangleFlat verts_pos
+
 		)
-		
-		--invalid_faces --return
-		
+
+		invalid_faces --return
 	),
 	
 
 	private
 	
-	function _isDegeneratedFace obj face face_verts =
+	/** Retriangulate polygon
+	 */
+	function _retriangulatePolygon face face_verts triangulation =
 	(
-		--format "\n"; print "InvalidFaceChecker._isDegeneratedFace()"
-		format "\n=================\n\n"
-		format "FACE: %\n" face
-	
-		is_face_flat = false
-		
-		verts_count = face_verts.count
-		
-		tri_count = verts_count - 3
+		format "\n"; print "InvalidFaceChecker_v._retriangulatePolygon()"
 
-		all_triangulations = this._getAllTriangleCombinations ( for i = 1 to verts_count collect i )
 		
-		format "all_triangulations: %\n" all_triangulations
-		format "all_triangulations.count: %\n" all_triangulations.count
-		
-		verts_pos = for vert in face_verts collect polyop.getVert obj vert
-		--
-		trianlges_valid = #()
-		trianlges_invalid = #()
-		--
-		--format "TRIANGLES: %\n" all_triangulations
-		--/*------------------------------------------------------------------------------
-		--	SEARCH FOR FLAT TRIANLGES 
-		----------------------------------------------------------------------------------*/
-		--
-		--if verts_count == 3 then
-		--(
-		--	is_face_flat = this._isTriangleFlat verts_pos
-		--	
-		--	if is_face_flat then
-		--		append trianlges_invalid tri_verts
-		--	else
-		--		append trianlges_valid tri_verts
-		--)
-		--else
-		--	for tri_verts in all_triangulations  do
-		--	(
-		--		is_face_flat = this._isTriangleFlat ( this._getVertexPositions verts_pos tri_verts )
-		--		
-		--		if is_face_flat then
-		--			append trianlges_invalid tri_verts
-		--		else
-		--			append trianlges_valid tri_verts
-		--		
-		--	)
-		--format "face_verts: %\n" (face_verts as Array )
-		--
-		--format "trianlges_valid:   %\n" trianlges_valid
-		--format "trianlges_invalid: %\n" trianlges_invalid
-		--
-		--if trianlges_invalid.count > 0 and trianlges_valid.count > 0 and  tri_count > 0 then
-		--(
-		--	/* SEARCH FOR shared edge of trianlges */ 
-		--	for i = 1 to tri_count do
-		--	(
-		--		local edge_found
-		--		
-		--		for x = 1 to trianlges_valid.count do 
-		--			for y = x + 1 to trianlges_valid.count while edge_found == undefined where x != y do
-		--			(
-		--				format "trianlges_valid[x]: %\n" trianlges_valid[x]
-		--				format "trianlges_valid[y]: %\n" trianlges_valid[y]
-		--				verts_x = for face_vert in trianlges_valid[x] collect face_verts[face_vert]
-		--				verts_y = for face_vert in trianlges_valid[y] collect face_verts[face_vert]
-		--				
-		--				if (edge_verts = ( verts_x as BitArray * verts_y as BitArray ) as Array ).count == 2 then
-		--				(
-		--					edge_found = true
-		--					format "---------\n"
-		--					--format "edge_verts: %\n" edge_verts
-		--					format "edge_verts: %\n" edge_verts
-		--					v1 = face_verts[edge_verts[1]]
-		--					v2 = face_verts[edge_verts[2]]
-		--					format "v1: %\n" v1
-		--					format "v2: %\n" v2
-		--					--polyop.setDiagonal obj face v1 v2
-		--					result = polyop.setDiagonal obj face v1 v2
-		--					format "result: %\n" result
-		--					--obj.TurnDiagonal face i
-		--
-		--					
-		--				)
-		--			)
-		--	)
-		--)
-		
-		trianlges_invalid.count > 0 --return
+		/* SEARCH FOR shared edge of trianlges */ 
+		for a = 1 to triangulation.count do
+		(
+			edge_found = false
+			
+			for b = a + 1 to triangulation.count while not edge_found where a != b do
+			(
+				face_A = triangulation[a] as BitArray 
+				face_B = triangulation[b] as BitArray 
+				
+				if (edge_verts = ( face_A * face_B ) as Array ).count == 2 then
+				(
+					edge_found = true
+					
+					v1 = findItem face_verts edge_verts[1]
+					v2 = findItem face_verts edge_verts[2]
+					format "v1: %\n" v1
+					format "v2: %\n" v2
+					/* CONNECT VERTS BY HIDDEN EDGE */ 
+					polyop.setDiagonal obj face v1 v2 -- setDiagonal uses NUMBER OF VERT IN FACE but not indexof vertex in MESH
+				)
+			)
+			
+		)
 	),
+	
+	
+	/** Test triangulations
+	 */
+	function _validateTriangulations triangulations =
+	(
+		--format "\n"; print "InvalidFaceChecker_v._validateTriangulations triangulations()"
+		
+		valid_triangulations = #{}
+		
+		--for triangulation in triangulations do
+		for i = 1 to triangulations.count do 
+		(
+			triangulation = triangulations[i]
+			
+			is_invalid = false
+			
+			/* TEST EACH TRIANLGE OF POLYGON */ 	
+			for triangle in triangulation while not is_invalid do
+				is_invalid = this._isTriangleFlat (triangle)
+			
+			/* ADD TO RESULT */ 
+			if not is_invalid then
+				valid_triangulations[i] = true
+		)
+		
+		valid_triangulations --return
+	),
+	
+	--/** If edge exists
+	-- */
+	--function _ifEdgeExists vert_A vert_B =
+	--(
+	--	--format "\n"; print "InvalidFaceChecker_v._ifEdgeExists()"
+	--	
+	--	
+	--	format "all_edges: %\n" (meshop.getEdgesUsingVert obj_snapshot #{1..4})
+	--	
+	--	all_edges = meshop.getEdgesUsingVert obj_snapshot #{1..4}
+	--	format "\n\n----------------\n"
+	--	
+	--	for _edge in all_edges do
+	--		format "verts of edge %: %\n" _edge ( meshop.getVertsUsingEdge obj_snapshot _edge )
+	--	
+	--	
+	--	format "\n\n----------------\n"
+	--	
+	--	edges_A = meshop.getEdgesUsingVert obj_snapshot vert_A
+	--	edges_B = meshop.getEdgesUsingVert obj_snapshot vert_B
+	--	
+	--	edge_exists = false
+	--	
+	--	for _edge in edges_A where edges_B[_edge] do edge_exists = true
+	--	
+	--	
+	--	format "edge_exists: %\n" edge_exists
+	--	edge_exists --return
+	--),
 	
 	/* 
 	Get all unique triangle combinations from polygon vertex array
 	Each triangle is a unique set of 3 vertex indices from the input array
 	*/
-	function _getAllTriangleCombinations vert_array =
+	function _getAllTriangulations verts_numbers =
 	(
 		-- Local variables for the function
-		format "\n"; print "InvalidFaceChecker._getAllTriangleCombinations()"
-		format "vert_array: %\n" vert_array
-		local n = vert_array.count
+		--format "\n"; print "InvalidFaceChecker._getAllTriangulations()"
+		--format "verts_numbers: %\n" verts_numbers
+		local n = verts_numbers.count
 		local resultTriangulations = #()
 		local v_first, v_last, v_k
 		local subPoly_A, subPoly_B
@@ -173,26 +219,26 @@ struct InvalidFaceChecker_v
 		if n < 3 then return #()
 	
 		-- Base case: If the polygon is already a triangle, there is only one triangulation: itself.
-		if n == 3 then return #( #(vert_array) )
+		if n == 3 then return #( #(verts_numbers) )
 	
 		-- Define the main diagonal we will use to split the polygon.
-		v_first = vert_array[1]
-		v_last = vert_array[n]
+		v_first = verts_numbers[1]
+		v_last = verts_numbers[n]
 	
 		-- Recursive Step: Iterate through all possible intermediate vertices (v_k)
 		-- to form a triangle (v_first, v_k, v_last) and two sub-polygons.
 		for k = 2 to (n - 1) do
 		(
-			v_k = vert_array[k]
+			v_k = verts_numbers[k]
 			local new_triangle = #(v_first, v_k, v_last)
 	
 			-- Create the first sub-polygon from v_first to v_k
-			subPoly_A = for i = 1 to k collect vert_array[i]
-			triangulations_A = getAllTriangulations subPoly_A
+			subPoly_A = for i = 1 to k collect verts_numbers[i]
+			triangulations_A = this._getAllTriangulations subPoly_A
 	
 			-- Create the second sub-polygon from v_k to v_last
-			subPoly_B = for i = k to n collect vert_array[i]
-			triangulations_B = getAllTriangulations subPoly_B
+			subPoly_B = for i = k to n collect verts_numbers[i]
+			triangulations_B = this._getAllTriangulations subPoly_B
 	
 			-- Combine the triangulations from the two sub-polygons.
 	
@@ -232,20 +278,23 @@ struct InvalidFaceChecker_v
 			)
 		)
 	
-		return resultTriangulations
+		resultTriangulations --return
 	),
 	/** Is triangle flat
 	 */
 	function _isTriangleFlat verts_pos =
 	(
-		--format "\n"; print ".isTriangleFlat()"
+		format "\n"; print ".isTriangleFlat()"
 		-- compute triangle area via cross product
 		v1 = verts_pos[2] - verts_pos[1]
 		v2 = verts_pos[3] - verts_pos[2]
 		
 		area = length (cross v1 v2) * 0.5
+		format "area: %\n" area
+		--format "TEST: %\n" (area < 1e-5)
 
-		area < 1e-5 --return
+		--area < 1e-5 --return
+		area < 0.001 --return 
 	),
 	
 	/** Get vertex positions
@@ -267,6 +316,7 @@ struct InvalidFaceChecker_v
 			
 			exit
 		)
-	)
 
+		--obj_snapshot = snapshotAsMesh obj -- or use Editable_Mesh directly
+	)
 )

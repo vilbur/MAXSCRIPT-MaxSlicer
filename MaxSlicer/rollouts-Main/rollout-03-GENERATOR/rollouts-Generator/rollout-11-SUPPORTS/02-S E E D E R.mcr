@@ -36,17 +36,6 @@ function seedSupportsBellowSelection grid_type debug:false =
 		return false
 	
 	
-	--for obj in source_objects do
-	--(
-	--	if ( _mod = obj.modifiers[#VertexPaint] ) != undefined then
-	--			deleteModifier obj _mod
-	--			
-	--	if ( _mod = obj.modifiers[#VERTEX_PAINT_SELECT] ) != undefined then
-	--			deleteModifier obj _mod
-	--)
-
-	
-	
 	Seeder = GridSupportSeeder_v(source_objects)
 	
 	--Seeder.cell_size = 30
@@ -65,7 +54,7 @@ function seedSupportsBellowSelection grid_type debug:false =
 		Seeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep.state
 	)
 	
-	closest_verts = Seeder.getClosestVertsOfEmptyCells(supports) #VERTS grid_type
+	closest_verts = Seeder.getClosestVertsOfEmptyCells(supports) #VERTS grid_type:grid_type
 
 	format "CLOSEST_VERTS: %\n" closest_verts
 	
@@ -118,12 +107,12 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -2, 0 ]"
 macroscript	_print_support_seeder_grid_debug
 category:	"_3D-Print"
 buttontext:	"G R I D"
-tooltip:	"DEBUG MODE: SHOW \ HIDE GRID AND HITS"
+tooltip:	"DEBUG MODE: SHOW OR DELETE HELPERS OF GRID AND HITS"
 icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 (
 	on execute do
 	(
-		if ( seeder_helpers = $'GRID-SEEDER-HELPER*' ) != undefined then 
+		if ( seeder_helpers = $'GRID-SEEDER-HELPER*' ).count > 0 then 
 			delete seeder_helpers
 		
 		else

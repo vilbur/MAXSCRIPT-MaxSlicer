@@ -47,7 +47,7 @@ struct LowestVertIslandFinder_v
 			for v = 1 to numverts where verts_process[v] do
 			(
 				if mod v 1000 == 0 then
-					  FORMAT "%\% of verts checked\n" (v  / (numverts / 100))
+					  FORMAT "%\% of verts checked\n" (v  / (numverts / 100 ))
 					  --FORMAT "% of %\n" v numverts
 				
 					

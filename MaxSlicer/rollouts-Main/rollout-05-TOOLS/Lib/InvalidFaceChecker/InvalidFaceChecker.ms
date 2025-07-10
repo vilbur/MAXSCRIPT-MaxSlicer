@@ -20,8 +20,13 @@ struct InvalidFaceChecker_v
 	/* properties */
 	--invalid_faces = Dictionary #( 3, #{} ) #( 4, #{} ), -- maps [original vert index] -> [new vert index]
 	invalid_faces = #{},
+	retriangluted_faces = #{},
 
 	/* private */
+	area_treshold = 1e-5,
+	--area_treshold = 0.001,
+	
+	
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -39,23 +44,20 @@ struct InvalidFaceChecker_v
 		face_list = #()
 		
 		face_sel	= getFaceSelection obj
-		--format "face_sel.numberSet: %\n" face_sel.numberSet
+		--format "face_sel.numberSet: VertSelector_v%\n" face_sel.numberSet
 		
 		faces_process = if face_sel.numberSet > 0 then face_sel else #{1..face_count}
 		
 		for face = 1 to face_count where faces_process[face] do
 		(
-			format "\n=================\n\n"
-			format "FACE: %\n" face
-			
+			--format "\n=================\n\n"
+			--format "FACE: %\n" face
 			face_verts = polyop.getFaceVerts obj face
-			--format "face_verts: %\n" face_verts
+
 			verts_count = face_verts.count
-			--format "verts_count: %\n" verts_count
+
 			/* GET POSITIONS */ 
 			verts_pos = for vert in face_verts collect polyop.getVert obj vert
-			format "verts_pos: %\n" verts_pos
-			format "face_verts.count: %\n" face_verts.count
 			
 			/*------------------------------------------------------------------------------
 				TEST POLYGON
@@ -66,21 +68,21 @@ struct InvalidFaceChecker_v
 				/* GET POSSIBLE TRIANGULATIONS */ 
 				all_triangulations = this._getAllTriangulations ( face_verts )
 				
-				for triangulation in all_triangulations do
-					format "triangulation: %\n" triangulation
+				--for triangulation in all_triangulations do
+					--format "triangulation: %\n" triangulation
 				
 				all_triangulations_pos = this._getAllTriangulations ( verts_pos )
 				
 				/* FIND INVALID FACES */ 
 				valid_triangulations = this._validateTriangulations (all_triangulations_pos)
-				format "valid_triangulations: %\n" valid_triangulations
+				--format "valid_triangulations: %\n" valid_triangulations
 				
 				/* IF ANY VALID COMBINATION EXISTS */ 
 				if not valid_triangulations.isEmpty then
 				(
 					/* IF ALL COMNINATIONS ARE VALID */
 					face_is_valid = valid_triangulations.numberSet == all_triangulations.count
-					format "IS_FACE_VALID: %\n" face_is_valid
+					--format "IS_FACE_VALID: %\n" face_is_valid
 					
 					/* IF VALID TRIANGULATION EXISTS */ 
 					if not face_is_valid then
@@ -88,11 +90,8 @@ struct InvalidFaceChecker_v
 						this._retriangulatePolygon face face_verts ( all_triangulations[firstBit(valid_triangulations)] )
 				)
 				else /* FACE IS BROKEN - E.G.: two verts are on same pos */
-				(
 					invalid_faces[face] = true
-					
-					
-				)
+
 			)
 			/*------------------------------------------------------------------------------
 				TEST TRIANGLE
@@ -101,7 +100,7 @@ struct InvalidFaceChecker_v
 				invalid_faces[face] = this._isTriangleFlat verts_pos
 
 		)
-
+		format "invalid_faces: %\n" invalid_faces
 		invalid_faces --return
 	),
 	
@@ -112,7 +111,7 @@ struct InvalidFaceChecker_v
 	 */
 	function _retriangulatePolygon face face_verts triangulation =
 	(
-		format "\n"; print "InvalidFaceChecker_v._retriangulatePolygon()"
+		--format "\n"; print "InvalidFaceChecker_v._retriangulatePolygon()"
 
 		
 		/* SEARCH FOR shared edge of trianlges */ 
@@ -131,10 +130,12 @@ struct InvalidFaceChecker_v
 					
 					v1 = findItem face_verts edge_verts[1]
 					v2 = findItem face_verts edge_verts[2]
-					format "v1: %\n" v1
-					format "v2: %\n" v2
+					--format "v1: %\n" v1
+					--format "v2: %\n" v2
 					/* CONNECT VERTS BY HIDDEN EDGE */ 
 					polyop.setDiagonal obj face v1 v2 -- setDiagonal uses NUMBER OF VERT IN FACE but not indexof vertex in MESH
+					
+					retriangluted_faces[face] = true
 				)
 			)
 			
@@ -284,17 +285,17 @@ struct InvalidFaceChecker_v
 	 */
 	function _isTriangleFlat verts_pos =
 	(
-		format "\n"; print ".isTriangleFlat()"
+		--format "\n"; print ".isTriangleFlat()"
 		-- compute triangle area via cross product
 		v1 = verts_pos[2] - verts_pos[1]
 		v2 = verts_pos[3] - verts_pos[2]
 		
 		area = length (cross v1 v2) * 0.5
-		format "area: %\n" area
+		--format "area: %\n" area
 		--format "TEST: %\n" (area < 1e-5)
 
-		--area < 1e-5 --return
-		area < 0.001 --return 
+		--area <  --return
+		area < area_treshold --return 
 	),
 	
 	/** Get vertex positions

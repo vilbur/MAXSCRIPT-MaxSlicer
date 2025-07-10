@@ -26,6 +26,9 @@ struct GridSupportSeeder_v
 	
 	
 	/* properties */
+	sel_verts = #{},
+	sel_faces = #{},
+	
 	grid_origin = [0,0],
 	grid_cells,
 	
@@ -34,7 +37,7 @@ struct GridSupportSeeder_v
 	num_cols,
 	num_rows,
 	
-	debug = true,
+	debug = false,  -- debug creates helpers to mark grid and hits
 	
 	/* private */
 	/* dependency */
@@ -46,11 +49,11 @@ struct GridSupportSeeder_v
 	  
 		@param #GRID|undefined grid_type if not #GRID the cicrcle is used
 	 */
-	function getClosestVertsOfEmptyCells cell_objects mode grid_type =
+	function getClosestVertsOfEmptyCells cell_objects mode grid_type:#GRID =
 	(
-		  -- format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
-		  --format "cell_objects: %\n" cell_objects
-		  -- format "grid_type: %\n" grid_type
+		format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+	   --format "cell_objects: %\n" cell_objects
+		format "grid_type: %\n" grid_type
 		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
 		this.mode = mode
@@ -59,12 +62,17 @@ struct GridSupportSeeder_v
 		
 		this._convertTargetsToMeshSnapshots()
 		
+		this._setIntersectFaces()
+		format "SEL_FACES: %\n" sel_faces
+		
 		/* SQUARE GRID */
 		/*------------------------------------------------------------------------------
 			SQUARE GRID
 		--------------------------------------------------------------------------------*/
 		if grid_type == #GRID then
-		(			
+		(
+			this.segments_count_keep = false
+		 
 			this._initGrid()
 			
 			this._sortNodesToMatrix()
@@ -93,7 +101,9 @@ struct GridSupportSeeder_v
 		
 			/* SEARCH FOR MESH AROUND CELL CENTER */ 	 
 			if hit_data == undefined then
-				hit_data = this._getRadialPositions(cell_center)(cell_size / 2.5 )(  1.0 ) test_hit:true --clr:red
+				hit_data = this._getHitsOnAroundPos(cell_center)((cell_size / 2.0) - 0.5 )(  1.0 ) test_hit:true --clr:red
+				--hit_data = this._getHitsOnAroundPos(cell_center)(cell_size / 2.3 )(  1.0 ) test_hit:true --clr:red
+				--hit_data = this._getHitsOnAroundPos(cell_center)(cell_size / 2.5 )(  1.0 ) test_hit:true --clr:red
 				
 			if hit_data != undefined then
 				this._addToHits( hit_data )
@@ -116,8 +126,9 @@ struct GridSupportSeeder_v
 	 */
 	function _initGrid =
 	(
-		--format "\n"; print "GridSupportSeeder_v._initGrid()"
-		bbox = this._getBbox()
+		format "\n"; print "GridSupportSeeder_v._initGrid()"
+
+		bbox = if sel_verts.isEmpty and sel_faces.isEmpty then this._getBbox() else this.getSelectedVertsXYBounds target_objects[1]
 		
 		p1 = bbox[1]
 		p2 = bbox[2]
@@ -243,15 +254,16 @@ struct GridSupportSeeder_v
 			cell_size /= 2
 		
 		/* GET RADIAL POSITIONS AROUND CENTER */ 		
-		grid_cells = this._getRadialPositions(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
+		grid_cells = this._getHitsOnAroundPos(this.grid_origin)(radius)(cell_size) --clr:green  --test_hit:true
 		--format "grid_cells: %\n" grid_cells
 	),
 
 	/** Test positions in cicrles around center of cell
 	 */
-	function _getRadialPositions cell_center radius split_size test_hit:false clr:undefined =
+	function _getHitsOnAroundPos cell_center radius split_size test_hit:false clr:undefined =
 	(
-		 -- format "\n"; print "GridSupportSeeder_v._getRadialPositions()"
+		  format "\n"; print "GridSupportSeeder_v._getHitsOnAroundPos()"
+		  format "segments_count: %\n" segments_count
 		 -- format "test_hit: %\n" test_hit
 		/**  Move point along a radial by rotation angle using only degrees
 		*/
@@ -282,32 +294,33 @@ struct GridSupportSeeder_v
 		
 			THIS NUMBER IS CONTROLING PATTERN OF HITS FOOTPRINT
 		*/
-		function getClosestFloatValue target_float = 
-		(
-			ratios = #( 0.5, 1.0, 2.0, 4.0, 6.0, 12.0, 24.0 , 36.0  )
-			--ratios = #( 1.0, 2.0, 4.0, 6.0  )
-			
-			closest_value = undefined
-			min_diff = 1e9
-		
-			for f in ratios do
-			(
-				diff = abs(f - target_float)
-				if diff < min_diff then
-				(
-					min_diff = diff
-					closest_value = f
-				)
-			)
-			
-			closest_value -- return
-		)
+		--function getClosestFloatValue target_float = 
+		--(
+		--	ratios = #( 0.5, 1.0, 2.0, 4.0, 6.0, 12.0, 24.0 , 36.0  )
+		--	--ratios = #( 1.0, 2.0, 4.0, 6.0  )
+		--	
+		--	closest_value = undefined
+		--	min_diff = 1e9
+		--
+		--	for f in ratios do
+		--	(
+		--		diff = abs(f - target_float)
+		--		if diff < min_diff then
+		--		(
+		--			min_diff = diff
+		--			closest_value = f
+		--		)
+		--	)
+		--	
+		--	closest_value -- return
+		--)
 		
 		/* Get round float to integer
 			
 			Never return 0 -- all value bellow 0.5 return 1
 		*/ 
 		fn roundToInteger val = if (rounded_val = floor (val  + 0.5)  as integer ) == 0 then 1 else rounded_val
+		--fn roundToInteger val = if (rounded_val = ceil (val  + 0.5)  as integer ) == 0 then 1 else rounded_val
 
 		
 		hit_data = undefined
@@ -332,7 +345,7 @@ struct GridSupportSeeder_v
 			--format "------------------\n"
 			point_pos = cell_center + [ radius_portion, 0, 0 ]
 			
-			segments = if test_hit or segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
+			segments = if segments_count_keep then segments_count else ceil( segments_count * radius_portion / radius )
 
 			/*------------------------------------------------------------------------------
 				TEST EACH ANGLE
@@ -352,8 +365,6 @@ struct GridSupportSeeder_v
 			
 				if debug then
 					Point pos:moved_pos size:0.1 wirecolor:yellow box:false name:("GRID-SEEDER-HELPER-HIT-SEARCH")
-
-				
 			)
 		)
 
@@ -418,7 +429,14 @@ struct GridSupportSeeder_v
 	function _testHit pos =
 	(
 		 --format "\n"; print "GridSupportSeeder_v._testHit()"
-		this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
+		
+		/* TEST IF HIT HITS SELECTED FACE */ 
+		if not sel_faces.isEmpty and hit_data != undefined and sel_faces[hit_data[3]] == false then 
+			hit_data = undefined
+		
+		
+		hit_data --return
 	),
 	
 	/** Append closest vert
@@ -436,15 +454,20 @@ struct GridSupportSeeder_v
 		
 		 if mode != #HITS then
 			index_or_pos = this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3]
-		 
+
+		 --if mode != #HITS and ( closest_vert = this._getClosestVertToHit hit_data[1] hit_data[2] hit_data[3] ) != undefined then 
+			--index_or_pos =
 		 
 		 case mode of
 		 (
-			#HITS:  appendIfUnique this.closest_verts_pos[pointer] hit_data[2]
+			/* POSITION OF HIT */ 
+			#HITS: appendIfUnique this.closest_verts_pos[pointer] hit_data[2]
 			
-			#POS:   appendIfUnique this.closest_verts_pos[pointer] index_or_pos
+			/* POSITION OF CLOSEST VERT OF HIT */ 
+			#POS:   if index_or_pos != undefined then appendIfUnique this.closest_verts_pos[pointer] index_or_pos
 			
-			#VERTS: this.closest_verts_pos[pointer][index_or_pos] = true	
+			/* INDEXE OF VERTS CLOSEST TO HIT */ 
+			#VERTS:  if index_or_pos != undefined then this.closest_verts_pos[pointer][index_or_pos] = true	
 		)
 		 
 			
@@ -461,7 +484,11 @@ struct GridSupportSeeder_v
 		--format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
-		closest_vert = -1
+		if sel_verts.count > 0 then
+			for vert in verts_of_face where not sel_verts[vert] do 
+				verts_of_face[vert] = false
+	
+		closest_vert = undefined
 		closest_dist = 1e9
 		closest_pos  = undefined
 	
@@ -548,6 +575,29 @@ struct GridSupportSeeder_v
 				this.intersect_objs[i] = target_objects[i]
 	),
 	
+	/** Set intersect faces
+	 */
+	function _setIntersectFaces =
+	(
+		format "\n"; print "GridSupportSeeder_v._setIntersectFaces()"
+		
+		intescect_obj = intersect_objs[1]
+		
+		sel_verts = polyop.getVertSelection target_objects[1]
+		
+		
+		/* GET FACES WITH ALL VERTS IN SELCTION */ 
+		faces_of_verts = meshop.getFacesUsingVert intescect_obj sel_verts
+
+		verts_of_faces = meshop.getVertsUsingFace intescect_obj faces_of_verts
+		
+		border_vets = verts_of_faces - sel_verts
+		
+		border_faces = meshop.getFacesUsingVert intescect_obj border_vets
+
+		sel_faces = faces_of_verts - border_faces
+	),
+	
 	/** Get bbox
 	 */
 	function _getBbox =
@@ -569,6 +619,56 @@ struct GridSupportSeeder_v
 			if node.max.y > max_y then max_y = node.max.y
 		)
 		
+		this._getCornerPointsOnGround min_x max_x min_y max_y
+	),
+	
+	/* 
+	Get min and max XY values of selected verts in Editable Poly or Edit Poly modifier
+	*/
+	function getSelectedVertsXYBounds src_obj =
+	(
+		-- format "\n"; print "GridSupportSeeder_v._getBbox()"
+		--if isKindOf src_obj Editable_Poly or isKindOf src_obj Edit_Poly then
+		--(
+			-- get selected verts
+		--if verts.isEmpty then (return undefined) -- no selected verts
+		
+
+		first_found = true
+
+		min_x = 0.0
+		max_x = 0.0
+		min_y = 0.0
+		max_y = 0.0
+
+		for i in sel_verts do
+		(
+			p = polyop.getVert src_obj i
+			
+			if first_found then
+			(
+				min_x = p.x ; max_x = p.x
+				min_y = p.y ; max_y = p.y
+				first_found = false
+			)
+			else
+			(
+				if p.x < min_x then min_x = p.x
+				if p.x > max_x then max_x = p.x
+				if p.y < min_y then min_y = p.y
+				if p.y > max_y then max_y = p.y
+			)
+		)
+		
+		this._getCornerPointsOnGround min_x max_x min_y max_y
+	),
+	
+	/** Get corner points on ground
+	 */
+	function _getCornerPointsOnGround min_x max_x min_y max_y =
+	(
+		--format "\n"; print "GridSupportSeeder_v._getCornerPointsOnGround()"
+
 		p1 = [ min_x, min_y, 0 ] -- bottom left 
 		p2 = [ min_x, max_y, 0 ] -- top left
 		p3 = [ max_x, max_y, 0 ] -- top right

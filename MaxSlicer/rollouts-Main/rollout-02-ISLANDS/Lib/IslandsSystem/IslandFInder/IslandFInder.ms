@@ -50,7 +50,7 @@ struct IslandFinder_v
 			
 			/*------------------------------------------------------------------------------
 				FIND ISLANDS
-			------------------------------------------------------------------------------*/
+			----------------------------------------------------------------------------*/
 			islands_data = this._findIslandsPerLayer layer_height method
 			
 			format "ISLANDS_DATA: %\n" islands_data
@@ -96,7 +96,7 @@ struct IslandFinder_v
 
 		verts_process = this._getVertsToProcess (verts_all)
 
-		-- format "method: %\n" method
+		 format "method: %\n" method
 
 		if method == #IslandPerLayerFinder then
 		(
@@ -143,7 +143,7 @@ struct IslandFinder_v
 		else
 		(
 			
-			 format "verts_process: %\n" verts_process
+			 --format "verts_process: %\n" verts_process
 			
 			LowestVertIslandFinder 	= LowestVertIslandFinder_v(obj)
 			
@@ -163,44 +163,44 @@ struct IslandFinder_v
 	 */
 	function _getVertsToProcess verts_all=
 	(
+		format "\n"; print "IslandFinder_v._getVertsToProcess()"
+		
 		fn bitArraysAreSame arr1 arr2 = ( arr1 - arr2 ).isEmpty
 
-		format "\n"; print "IslandFinder_v._getVertsToProcess()"
 		verts_sel	= getVertSelection obj.mesh
-		-- format "verts_sel: %\n" verts_sel
 		
 		visible_verts = -( polyop.getHiddenVerts obj)
-		 format "visible_verts: %\n" visible_verts
+		 --format "visible_verts: %\n" visible_verts
 		
 		verts_process = if verts_sel.numberSet > 1 then verts_sel else verts_all
-		 format "verts_process: %\n" verts_process
+		 --format "verts_process: %\n" verts_process
 		
 		
 		if not visible_verts.isEmpty and not bitArraysAreSame verts_process visible_verts then
 			verts_process *= visible_verts
-		 format "verts_process: %\n" verts_process
+		 --format "verts_process: %\n" verts_process
 
 		
-			verts_normal_down = this._getNormalDownVerts()
+		verts_normal_down = this._getNormalDownVerts()
+		
+		
+		verts_process *= verts_normal_down
+		 --format "verts_process: /*%*/\n" verts_process
+		
+		/* GET ONLY CONVEX VERTS */
+		PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
+		--PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
+		--PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
+
+		verts_convex = obj.getSelection #Vertex
+		--format "verts_convex: %\n" verts_convex
+		 
+		if not verts_convex.isEmpty then
+			verts_process *= verts_normal_down
 			
+		 format "VERTS_PROCESS: %\n" verts_process
 			
-				verts_process *= verts_normal_down
-			 format "verts_process: %\n" verts_process
-			
-			/* GET ONLY CONVEX VERTS */
-			PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
-			--PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
-			--PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
-	
-			verts_convex = obj.getSelection #Vertex
-			format "verts_convex: %\n" verts_convex
-			 
-			if not verts_convex.isEmpty then
-				verts_process *= verts_normal_down
-				
-			 format "VERTS_PROCESS: %\n" verts_process
-				
-			verts_process --return
+		verts_process --return
 		--)
 		--
 		--else
@@ -216,7 +216,7 @@ struct IslandFinder_v
 	 */
 	function _getNormalDownVerts =
 	(
-		--format "\n"; print "IslandFinder_v._getNormalDownVerts()"
+		format "\n"; print "IslandFinder_v._getNormalDownVerts()"
 		/** Select normal down verts
 		 */
 		function selectNormalDownVerts =
@@ -227,8 +227,8 @@ struct IslandFinder_v
 			max modify mode
 	
 			subObjectLevel = 1
-		
-			PolyToolsSelect.Normal 3 140 true
+			
+ 			PolyToolsSelect.Normal 3 140 true
 			
 			this.obj.getSelection #Vertex
 		)

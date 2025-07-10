@@ -141,22 +141,28 @@ format "source_objs: %\n" source_objs
 	CONFIGURE TEST
 	
 ================================================================================*/
-GridSupportSeeder = GridSupportSeeder_v(source_objs)
+debug = false
+debug = true
+
+GridSupportSeeder = GridSupportSeeder_v(source_objs) debug:debug -- debug creates helpers to mark grid and hits
 
 /* CELL SIZE */ 
 --GridSupportSeeder.cell_size = 50
 --GridSupportSeeder.cell_size = 25
---GridSupportSeeder.cell_size = 6
+GridSupportSeeder.cell_size = 10
+--GridSupportSeeder.cell_size = 5
 --GridSupportSeeder.cell_size = 5.5
 --GridSupportSeeder.cell_size = 6
 --GridSupportSeeder.cell_size = 2
 
 
 /* COFIG CIRCLE PATERN */ 
-grid_type = #CIRCLE
+grid_type = #GRID
+--grid_type = #CIRCLE
+
 
 --GridSupportSeeder.segments_count = 32
-GridSupportSeeder.segments_count = 4
+--GridSupportSeeder.segments_count = 4
 --GridSupportSeeder.segments_count = 16
 --GridSupportSeeder.segments_count_keep = true
 
@@ -168,33 +174,33 @@ GridSupportSeeder.segments_count = 4
 
 format "\n------------------------ POSITION OF CLOSEST VERT OF HIT -------------------------------\n"
 
-closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #POS grid_type
+closest_verts_pos = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #POS grid_type:grid_type
  format "closest_verts_pos: %\n" closest_verts_pos
 /* SHOW RESULT */ 
 if closest_verts_pos != undefined then
 	for obj_pointer in closest_verts_pos.keys do
 		for closest_vert_pos in closest_verts_pos[obj_pointer] do 
-			Point pos:closest_vert_pos size:15 Box:true wirecolor:orange
+			Point pos:closest_vert_pos size:5 Box:true wirecolor:orange
 
 
 format "\n------------------------ POSITION OF HITS -------------------------------\n"
 
--- hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #HITS grid_type
---
---/* SHOW RESULT */ 
--- if hit_positions != undefined then 
---	 for obj_pointer in hit_positions.keys do
---		 for closest_vert_pos in hit_positions[obj_pointer] do 
---			 Point pos:closest_vert_pos size:10 Box:true wirecolor:blue
+ --hit_positions = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #HITS grid_type:grid_type
+
+/* SHOW RESULT */ 
+ if hit_positions != undefined then 
+	 for obj_pointer in hit_positions.keys do
+		 for closest_vert_pos in hit_positions[obj_pointer] do 
+			 Point pos:closest_vert_pos size:10 Box:true wirecolor:blue
 --			
 --			
 format "\n------------------------ INDEXES OF VERTS CLOSEST TO HITS -------------------------------\n"
 --
---closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #VERTS grid_type
+--closest_verts = GridSupportSeeder.getClosestVertsOfEmptyCells(support_mockup) #VERTS grid_type:grid_type
 --format "closest_verts: %\n" closest_verts
----- /* SHOW RESULT */ 
---if closest_verts != undefined then
---	for obj_pointer in closest_verts.keys do
---		for closest_vert in closest_verts[obj_pointer] do 
---			format "CLOSEST_VERT: %\n" closest_vert
+-- /* SHOW RESULT */ 
+if closest_verts != undefined then
+	for obj_pointer in closest_verts.keys do
+		for closest_vert in closest_verts[obj_pointer] do 
+			format "CLOSEST_VERT: %\n" closest_vert
 

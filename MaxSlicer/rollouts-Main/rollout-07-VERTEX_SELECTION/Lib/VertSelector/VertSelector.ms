@@ -350,24 +350,25 @@ struct VertSelector_v
 
 		if classOf _mod == Edit_Poly then
 		(
-			
-			if isolate and subobject == #VERTEX then
+			/* ISOLATE SELECTION */ 
+			if isolate and subobject == subobject then
 			(
 				_mod.ButtonOp #UnhideAllVertex
 			
-				_mod.SetSelection #VERTEX #{}
+				_mod.SetSelection subobject #{}
 			
-				_mod.Select #VERTEX sel_bitarray
+				_mod.Select subobject sel_bitarray
 			
 				_mod.ButtonOp #HideUnselectedVertex	
 			)
+			/* SELECT SUBOBJT - unhide selection if needed */ 
 			else
 			(
-				_mod.SetSelection #VERTEX #{}
+				_mod.SetSelection subobject #{}
 				
 				_mod.Select subobject sel_bitarray
 				
-				new_selection	= _mod.getSelection #vertex
+				new_selection	= _mod.getSelection subobject
 				
 				format "sel_bitarray: %\n" sel_bitarray
 				format "new_selection: %\n" new_selection
@@ -377,29 +378,27 @@ struct VertSelector_v
 				/* UNHIDE VERTS - if all desired verts are not selected */ 
 				if new_selection.count == 0 or not bitArraysAreSame sel_bitarray new_selection then
 				(
-					vertex_count = _mod.getNumVertices()
-					format "vertex_count: %\n" vertex_count
-
-					verts_all = #{1..vertex_count}
-					
-					_mod.SetSelection #Vertex #{}
-					
-					_mod.setSelection #VERTEX verts_all
-
-					visible_verts	= _mod.getSelection #Vertex
-					format "visible_verts: %\n" visible_verts
-
-					hidden_verts = verts_all - visible_verts - sel_bitarray
-		
-					_mod.ButtonOp #UnhideAllVertex
-		
-					_mod.SetSelection #VERTEX hidden_verts
-		
-					_mod.ButtonOp #HideVertex
-					
-					--_mod.SetSelection #Vertex #{}
-
-					_mod.Select #VERTEX sel_bitarray
+						-- Supports both #VERTEX and #FACE subobject levels
+					element_count = if subobject == #face then _mod.getNumFaces() else _mod.getNumVertices()
+				
+					format "element_count: %\n" element_count
+				
+					all_elements = #{1..element_count}
+				
+					_mod.SetSelection subobject #{}
+					_mod.setSelection subobject all_elements
+				
+					visible_elements = _mod.getSelection subobject
+				
+					hidden_elements = all_elements - visible_elements - sel_bitarray
+				
+					_mod.ButtonOp ( if (subobject == #face) then #UnhideAllFaces else #UnhideAllVertex)
+				
+					_mod.SetSelection subobject hidden_elements
+				
+					_mod.ButtonOp ( if (subobject == #face) then #HideFace else #HideVertex)
+				
+					_mod.Select subobject sel_bitarray
 				)
 			)
 		)
@@ -419,7 +418,15 @@ struct VertSelector_v
 		)
 
 	),
-
+	
+	/** wrapper for this.setSelection()
+	 */
+	function selectVerts sel_bitarray isolate:false =
+	(
+		format "\n"; print "VertSelector_v.setSelection()"
+		this.setSelection sel_bitarray subobject:#VERTEX isolate:isolate
+	),	
+		
 	/** Get vert with min z pos
 	  *
 	  * @param BitArray verts

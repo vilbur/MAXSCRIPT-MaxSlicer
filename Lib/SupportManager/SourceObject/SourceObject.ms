@@ -12,6 +12,7 @@ struct SourceObject_v
 	/* properties */
 
 	all_verts,
+	down_faces,
 
 	Supports = Dictionary #INTEGER, -- KEY:vertex_index VALUE:SupportObject|RaftObject
 
@@ -94,11 +95,15 @@ struct SourceObject_v
 		Normals.setWorldSpaceVertexNormals(verts_process)
 		FORMAT "TIME: % ms\n" (( timeStamp()) - timer_Normals)
 		
-		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
-		timer_verts_process = timeStamp()
-		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
-		--format "verts_process: % ms\n" (( timeStamp()) - timer_verts_process)
+		--this._getDownwardFaces()
+		--format "DOWN_FACES: %\n" down_faces
 		
+		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
+		--timer_verts_process = timeStamp()
+		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
+		--format "VERTS_PROCESS: % ms\n" (( timeStamp()) - timer_verts_process)
+		format "VERTS_PROCESS:   %\n" verts_process
+		format "SUPPORTS_EXISTS: %\n" supports_exists
 		if verts_process.numberSet > all_verts.numberSet then
 			messageBox "SHIT" title:"Title"  beep:false
 			
@@ -109,8 +114,6 @@ struct SourceObject_v
 		verts_pos = this.getVertsPositions(verts_process)
 		--format "verts_pos: % ms\n" (( timeStamp()) - timer_verts_pos)
 		
-		
-		
 		/*------------------------------------------------------------------------------
 			SORT VERTS BY COLORS
 		--------------------------------------------------------------------------------*/
@@ -120,6 +123,11 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys do
 			verts_by_colors[vertex_color] *= verts_process
 			--verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
+		
+		format "\n---------------\n"
+		for vertex_color in verts_by_colors.keys do
+			format "vertex_color: % VERTS: %\n" vertex_color verts_by_colors[vertex_color]
+		
 		
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
@@ -136,8 +144,15 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
-				success = SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] direction:direction dir_vector:dir_vector normal_world:Normals.normals_world[vert] wirecolor:(execute vertex_color) --"./SupportObject/SupportObject.ms"
+								--first_knot_pos:verts_pos[vert] \
+				success = SupportObject.generateSupport vert \
+								first_knot_pos:(this._getSupportPosition(vert)) \
+								direction:direction \
+								dir_vector:dir_vector \
+								normal_world:Normals.normals_world[vert] \
+								wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
 
+				
 				if success then
 				(
 					/* ADD TO ARRAYS */
@@ -162,7 +177,70 @@ struct SourceObject_v
 		NewSupportObjects
 	),
 
+	/** Get support position
+	 */
+	function _getSupportPosition vert =
+	(
+		--format "\n"; print "SourceObject_v._getSupportPosition()"
+		
+		down_faces = #{}
+
+		faces_of_vert = meshop.getFacesUsingVert obj.mesh vert
+		--format "FACES_OF_VERT: %\n" faces_of_vert
+		
+		--format "\n-----------------------\n"
+		for face in faces_of_vert do
+		(
+			n = getFaceNormal obj.mesh face
+			--format "face: % NORMAL: %\n" face	n.z
+			if n.z < -0.99 then down_faces[face] = true
+		)
+		--format "\n-----------------------\n"
+		--if not down_faces.isEmpty then
+		--for down_face in down_faces do 
+		--(
+		--	face_center = meshop.getFaceCenter obj.mesh down_face node:obj
+		--	
+		--	format "FACE: % FACE: % VERT: %\n" down_face face_center.z verts_pos[vert]
+		--)
 	
+		if not down_faces.isEmpty \ -- if any face is pointing down
+			and faces_of_vert.numberSet != down_faces.numberSet then -- but vert pos if all faces are pointing down
+				meshop.getFaceCenter obj.mesh (down_faces as Array )[1] node:obj
+		else
+			verts_pos[vert] --return
+	),
+	
+	/* 
+	Get all face indices of faces pointing downward
+	*/
+	function _getDownwardFaces =
+	(
+		format "\n"; print "SourceObject_v._getDownwardFaces()"
+		--if isKindOf src_obj Editable_Poly or isKindOf src_obj Edit_Poly then
+		--(
+			face_count = meshop.getNumFaces obj.mesh
+			format "face_count: %\n" face_count
+
+			down_faces = #{}
+	
+			for f = 1 to face_count do
+			(
+				--format "\n"
+				n = getFaceNormal obj.mesh f
+--format "n: % TEST: %\n" n (n.z < -0.9)
+				if n.z < -0.95 then down_faces[f] = true
+			)
+	
+			-- return
+			down_faces
+		--)
+		--else
+		--(
+		--	undefined
+		--)
+	),
+
 	/*==============================================================================
 	
 		RESET

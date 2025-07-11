@@ -51,9 +51,9 @@ struct GridSupportSeeder_v
 	 */
 	function getClosestVertsOfEmptyCells cell_objects mode grid_type:#GRID =
 	(
-		format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
+		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 	   --format "cell_objects: %\n" cell_objects
-		format "grid_type: %\n" grid_type
+		--format "grid_type: %\n" grid_type
 		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
 		this.mode = mode
@@ -63,7 +63,7 @@ struct GridSupportSeeder_v
 		this._convertTargetsToMeshSnapshots()
 		
 		this._setIntersectFaces()
-		format "SEL_FACES: %\n" sel_faces
+		--format "SEL_FACES: %\n" sel_faces
 		
 		/* SQUARE GRID */
 		/*------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ struct GridSupportSeeder_v
 	 */
 	function _initGrid =
 	(
-		format "\n"; print "GridSupportSeeder_v._initGrid()"
+		--format "\n"; print "GridSupportSeeder_v._initGrid()"
 
 		bbox = if sel_verts.isEmpty and sel_faces.isEmpty then this._getBbox() else this.getSelectedVertsXYBounds target_objects[1]
 		
@@ -262,8 +262,8 @@ struct GridSupportSeeder_v
 	 */
 	function _getHitsOnAroundPos cell_center radius split_size test_hit:false clr:undefined =
 	(
-		  format "\n"; print "GridSupportSeeder_v._getHitsOnAroundPos()"
-		  format "segments_count: %\n" segments_count
+		  --format "\n"; print "GridSupportSeeder_v._getHitsOnAroundPos()"
+		  --format "segments_count: %\n" segments_count
 		 -- format "test_hit: %\n" test_hit
 		/**  Move point along a radial by rotation angle using only degrees
 		*/
@@ -579,7 +579,7 @@ struct GridSupportSeeder_v
 	 */
 	function _setIntersectFaces =
 	(
-		format "\n"; print "GridSupportSeeder_v._setIntersectFaces()"
+		--format "\n"; print "GridSupportSeeder_v._setIntersectFaces()"
 		
 		intescect_obj = intersect_objs[1]
 		

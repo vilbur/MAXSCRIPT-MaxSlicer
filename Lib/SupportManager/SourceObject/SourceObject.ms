@@ -124,9 +124,9 @@ struct SourceObject_v
 			verts_by_colors[vertex_color] *= verts_process
 			--verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
 		
-		format "\n---------------\n"
-		for vertex_color in verts_by_colors.keys do
-			format "vertex_color: % VERTS: %\n" vertex_color verts_by_colors[vertex_color]
+		--format "\n---------------\n"
+		--for vertex_color in verts_by_colors.keys do
+		--	format "vertex_color: % VERTS: %\n" vertex_color verts_by_colors[vertex_color]
 		
 		
 		/*------------------------------------------------------------------------------

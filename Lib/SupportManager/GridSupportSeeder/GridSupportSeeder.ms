@@ -267,26 +267,26 @@ struct GridSupportSeeder_v
 		 -- format "test_hit: %\n" test_hit
 		/**  Move point along a radial by rotation angle using only degrees
 		*/
-		function movePointOnRadialDeg center_pos radius point_pos angle_deg =
-		(
-			-- Vector from center to point
-			vec = point_pos - center_pos
-		
-			-- Get current angle in degrees
-			current_angle = atan2 vec.y vec.x * 180 / pi
-		
-			-- Add rotation in degrees
-			new_angle = current_angle + angle_deg
-		
-			-- Convert to position using degrees
-			new_x = cos(new_angle) * radius
-			new_y = sin(new_angle) * radius
-		
-			-- Final position on radial
-			new_pos = center_pos + [new_x, new_y, 0]
-		
-			new_pos -- return
-		)
+		--function movePointOnRadialDeg center_pos radius point_pos angle_deg =
+		--(
+		--	-- Vector from center to point
+		--	vec = point_pos - center_pos
+		--
+		--	-- Get current angle in degrees
+		--	current_angle = atan2 vec.y vec.x * 180 / pi
+		--
+		--	-- Add rotation in degrees
+		--	new_angle = current_angle + angle_deg
+		--
+		--	-- Convert to position using degrees
+		--	new_x = cos(new_angle) * radius
+		--	new_y = sin(new_angle) * radius
+		--
+		--	-- Final position on radial
+		--	new_pos = center_pos + [new_x, new_y, 0]
+		--
+		--	new_pos -- return
+		--)
 		
 		/* Finds the closest float in an array to a given value
 		   
@@ -314,7 +314,35 @@ struct GridSupportSeeder_v
 		--	
 		--	closest_value -- return
 		--)
-		
+		/* 
+		  Get point on a circle in 3D and rotate it around the normal axis
+		  center: Point3 - center of circle
+		  normal: Point3 - normal to the circle plane (rotation axis)
+		  radius: float - radius of the circle
+		  angle_deg: float - rotation angle in degrees
+		*/
+		function getRotatedPointOnCircle center normal radius angle_deg =
+		(
+			-- Normalize normal vector
+			n = normalize normal
+			
+			-- Get arbitrary vector not parallel to n
+			ref = if abs (dot n [1,0,0]) < 0.99 then [1,0,0] else [0,1,0]
+			
+			-- First orthogonal vector in plane
+			v1 = normalize (cross n ref)
+			
+			-- Second orthogonal vector in plane
+			v2 = normalize (cross n v1)
+			
+			-- Convert angle to radians
+			--angle_rad = angle_deg * pi / 180.0
+			
+			-- Compute rotated point on circle
+			p = center + (cos angle_deg) * v1 * radius + (sin angle_deg) * v2 * radius
+			
+			p -- return
+		)
 		/* Get round float to integer
 			
 			Never return 0 -- all value bellow 0.5 return 1
@@ -355,8 +383,8 @@ struct GridSupportSeeder_v
 				-- format "hit_data: %\n" hit_data
 				rotate_about = ( 360.0 / segments ) * i
 				
-				moved_pos = movePointOnRadialDeg (cell_center) (radius_portion) (point_pos) (rotate_about)
-				
+				moved_pos = getRotatedPointOnCircle cell_center [0,0,-1] radius_portion rotate_about
+	
 				if test_hit then
 					hit_data = this._testHit moved_pos
 
@@ -566,6 +594,7 @@ struct GridSupportSeeder_v
 				mesh_node = copy this.target_objects[i]
 				
 				convertTo mesh_node TriMeshGeometry
+					
 				
 				setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 				

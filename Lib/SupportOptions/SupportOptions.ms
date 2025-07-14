@@ -163,6 +163,13 @@ struct SupportOptions_v
 			--format "%: %\n" prop_key control_value
 			this.setOptionValue (prop_key) (control_value)
 		)
+		
+		/*==============================================================================
+			EXCEPTIONS
+		================================================================================*/
+		/* IF DIRECTION IS DOWN - ALWAYS USE MIN RAFT LENGTH */ 
+		if raft_direction == 1 then
+			raft_mode = 1
 	),
 	
 	/** Get controls with option value

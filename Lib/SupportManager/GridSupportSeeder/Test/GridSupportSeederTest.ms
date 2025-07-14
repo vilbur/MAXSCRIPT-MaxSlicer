@@ -28,7 +28,11 @@ function createSpheres =
 	
 	for i = 1 to 4 do
 		obj = Sphere pos:[ 350 * i, 0, 300 ] radius:(50 * i) segments:4
+		
 	select obj
+	
+	convertTo obj PolyMeshObject
+	
 	obj --return
 )
 

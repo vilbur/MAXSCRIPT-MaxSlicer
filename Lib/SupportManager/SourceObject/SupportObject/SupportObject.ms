@@ -394,7 +394,7 @@ struct SupportObject_v
 	 */
 	function intersectRaySourceObject pos dir =
 	(
-		 -- format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		  format "\n"; print "SupportObject_v.intersectRaySourceObject()"
 		/* Shift origin point perpendicular to a vector and project to plane
 			
 			DEV EXAMPLE: --"./_Dev/shiftPointPerpendicularOnPlane_dev.ms"
@@ -453,7 +453,7 @@ struct SupportObject_v
 		
 		objs_check_hits = for obj in geometry where superClassOf obj == GeometryClass and not ( obj.isHidden or obj.isFrozen ) and getUserProp obj "SYNC_KEY" == undefined collect obj
 		
-		
+		--format "objs_check_hits: %\n" objs_check_hits
 		for source_obj in objs_check_hits do
 		(
 			hit = intersectRay source_obj _ray
@@ -475,18 +475,24 @@ struct SupportObject_v
 					pos_shifted = shiftPointPerpendicularOnPlane ray_pos dir shift_distance planes[i]
 					
 					_ray = ( Ray pos_shifted dir )
+					
 					/* GET DISTANCE TO HIT */ 
 					if ( hit = intersectRay source_obj _ray ) != undefined then 
 						hit_distance = distance ray_pos hit.pos
+						
+
 				)
 			)
 			else /* GET DISTANCE TO HIT IN CENTER */ 
 				hit_distance = distance ray_pos hit.pos
 			
+			format "HIT: %\n" hit
+			if hit != undefined then
+				Point pos:hit.pos size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ sync_key as string )
 			
 			/* GET HIT POSITION DIR VECTOR */ 
-			if hit != undefined then
-				hit.pos = pos + ( hit_distance * dir )
+			--if hit != undefined then
+				--hit.pos = pos + ( hit_distance * dir )
 				
 			if hit != undefined then 
 				append hits #( _ray, hit )

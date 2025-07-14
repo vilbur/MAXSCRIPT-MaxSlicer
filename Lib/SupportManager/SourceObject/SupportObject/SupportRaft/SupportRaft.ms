@@ -25,8 +25,8 @@ struct SupportRaft_v
 	 */
 	function createRaft update_or_generate: =
 	(
-		--format "\n----------------------------------------------\n"
-		 --format "\n"; print "SupportRaft_v.createRaft()"
+		format "\n----------------------------------------------\n"
+		 format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.obj_type: %\n" Support.obj_type
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		
@@ -48,10 +48,14 @@ struct SupportRaft_v
 		/*------------------------------------------------------------------------------
 			CREATE RAFT
 		--------------------------------------------------------------------------------*/
+		--if update_or_generate == #GENERATE then
+
+		
 		
 		normal_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.normal_length
 		
 		--format "UPDATE_OR_GENERATE: %\n" update_or_generate
+
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
 		if update_or_generate == #GENERATE then
 		(
@@ -140,6 +144,7 @@ struct SupportRaft_v
 			else
 				this._shortenRaftOnDirection( 0 )
 		)
+		
 		/*------------------------------------------------------------------------------
 			GET POSITION OF HIT
 		--------------------------------------------------------------------------------*/
@@ -147,30 +152,19 @@ struct SupportRaft_v
 		(
 			Support.points[2] = hit_raft.pos
 			-- format "not raftHasMinLenght(): %\n" (not raftHasMinLenght())
+			
+			--Point pos:hit_raft.pos size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ Support.sync_key as string )
 		
 			if Support.obj_type == #RAFT and not raftHasMinLenght() then
 			(
-				-- format "Support.min_raft_length: %\n" Support.min_raft_length
-				-- format "Support.points[2]: %\n" Support.points[2]
-				--add_to_min_distance = Support.min_raft_length - distance Support.points[1] Support.points[2]
 				add_to_min_distance = (Support.min_raft_length * 1.5 ) - distance Support.points[1] Support.points[2]
-				
-				-- format "add_to_min_distance: %\n" add_to_min_distance
-				
-				--line_vector = Support.dir_vector
+
 				line_vector = normalize (Support.points[2] - Support.points[1])
-				--format "line_vector.z: %\n" line_vector.z
-				
-				--if line_vector.z < 0 then
+
 				Support.points[2] = Support.points[2] + ( add_to_min_distance * line_vector )
-				
-				-- format "distance: %\n" (distance Support.points[1] Support.points[2])
-				-- format "Support.points[2]: %\n" Support.points[2]
-			
 			)
 		)
-	
-	
+		
 		
 		/*------------------------------------------------------------------------------
 			GET DATA ABOUT STATE OF SUPPORTs
@@ -234,7 +228,7 @@ struct SupportRaft_v
 	 */
 	function _testHitOfSourceObject max_distance =
 	(
-		-- format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
+		 format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
 		-- format "max_distance: %\n" max_distance
 		
 		ray_pos = Support.points[1]

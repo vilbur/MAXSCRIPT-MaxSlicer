@@ -10,17 +10,27 @@ struct RaftBottomSnapper_v
 	mesh_snapshot,
 	
 	test_hits_around = 4,
+	limit_angle = 80.0, -- avoid snaping if raft is perpendicular to face
 	
 	/** Snap rafts to target object
 	 */
 	function snapRaftsToTargetObject supports =
 	(
 		--format "\n"; print "for.snapRaftsToTargetObject()"
+		this._snapshotTargetObjAsMesh()
 		
-		for support in supports do 
-			this.run support
+		try
+		(
+			for support in supports do 
+				this.run support
+			
+			delete mesh_snapshot
+		)
+		catch
+		(
+			delete mesh_snapshot
+		)
 		
-		delete mesh_snapshot
 	),
 	
 	
@@ -29,11 +39,15 @@ struct RaftBottomSnapper_v
 	*/
 	function run support  =
 	(
-		this._snapshotTargetObjAsMesh()
+
+		knot_pos_1 = getKnotPoint support 1 1
+		knot_pos_2 = getKnotPoint support 1 2
+		
+		dir = normalize (knot_pos_2 - knot_pos_1)
 
 		radius = support.modifiers[#BAR_WIDTH][#Cylinder_Section].radius
 		
-		hits = this._getHitsOnTarget(support)(radius)
+		hits = this._getHitsOnTarget (support) (knot_pos_1) (dir) (radius)
 
 		hit = this._getHighestHit (hits)
 		
@@ -41,12 +55,16 @@ struct RaftBottomSnapper_v
 		
 		face_normal = getFaceNormal mesh_snapshot hit[2]
 
-		--this._createLineFromVector hit_pos face_normal
-		knot_pos_1 = getKnotPoint support 1 1
+		if (the_angle = this._getVectorsAngle dir face_normal ) < limit_angle then
+		(
+			
+			this._createLineFromVector hit_pos face_normal
+	
+			intersection_point = this._lineIntersection knot_pos_1 dir hit_pos face_normal
+	
+			this._updateKnotsPositions(support)(intersection_point)
+		)
 
-		intersection_point = this._lineIntersection knot_pos_1 dir hit_pos face_normal
-
-		this._updateKnotsPositions(support)(intersection_point)
 
 		
 		-- return
@@ -54,14 +72,9 @@ struct RaftBottomSnapper_v
 	
 	/** Get hits on target
 	 */
-	function _getHitsOnTarget support radius =
+	function _getHitsOnTarget support knot_pos_1 dir radius =
 	(
 		--format "\n"; print "for._getHitsOnTarget()"
-		
-		knot_pos_1 = getKnotPoint support 1 1
-		knot_pos_2 = getKnotPoint support 1 2
-		
-		dir = normalize (knot_pos_2 - knot_pos_1)
 
 		ray_positions = this._getRayPositions knot_pos_1 dir radius
 		
@@ -140,12 +153,18 @@ struct RaftBottomSnapper_v
 	function _createLineFromVector start_point direction_vector length:10 =
 	(
 		direction_vector = normalize direction_vector * length
+		
 		end_point = start_point + direction_vector
+		
 		shape = splineShape name:"vector_line"
 		addNewSpline shape
+		
 		addKnot shape 1 #corner #line start_point
+		
 		addKnot shape 1 #corner #line end_point
+		
 		updateShape shape
+		
 		shape -- return
 	),
 
@@ -186,16 +205,22 @@ struct RaftBottomSnapper_v
 		hits = #()
 		for ray_position in ray_positions do 
 		(
+			--format "\n"
+			--Point pos:ray_position size:0.5 wirecolor:green
+
 			_ray = Ray ray_position dir
 			
 			hit = IntersectRayEx mesh_snapshot _ray
 			
-			if hit != undefined then
+			if hit != undefined and distance ray_position hit[1].pos > 0.01 then
 			(
 				face_index = hit[2]
-			
+				--Point pos:hit[1].pos size:0.5 wirecolor:red
+				--format "ray_position: %\n" ray_position
+				--format "hit[1].pos: %\n" hit[1].pos
 				face_normal = getFaceNormal mesh_snapshot face_index
-				format "TEST: %\n" (TEST)
+				--format "TEST: %\n" ( dot face_normal _ray.dir)
+				
 				/* Check if dot product is less than zero (ray hits front face) */ 
 				if (dot face_normal _ray.dir) < 0.0 then
 				(
@@ -209,16 +234,12 @@ struct RaftBottomSnapper_v
 		hits -- return
 	),
 
+	function _getVectorsAngle v1 v2 =
+	(
+		acos(dot (normalize v1) (normalize v2)) - 90
+	),
+	
 	on create do
 	(
 	)
 )
-
-
-
-delete helpers
-
-circleIntersect = RaftBottomSnapper_v( $PackMan )
-circleIntersect.snapRaftsToTargetObject (selection as Array )
-
-

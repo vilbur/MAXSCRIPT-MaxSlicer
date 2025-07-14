@@ -3,27 +3,78 @@
 */
 struct RaftBottomSnapper_v
 (
+	/* construct */
+
+	/* properties */
+	target_obj,
+	mesh_snapshot,
+	
+	test_hits_around = 4,
+	
+	/** Snap rafts to target object
+	 */
+	function snapRaftsToTargetObject supports =
+	(
+		--format "\n"; print "for.snapRaftsToTargetObject()"
+		
+		for support in supports do 
+			this.run support
+		
+		delete mesh_snapshot
+	),
+	
+	
 	/* 
 	  Run projection and intersection process
 	*/
-	function run target_obj support radius segments =
+	function run support  =
 	(
-		mesh_snapshot = copy target_obj
-		convertTo mesh_snapshot TriMeshGeometry
+		this._snapshotTargetObjAsMesh()
 
+		radius = support.modifiers[#BAR_WIDTH][#Cylinder_Section].radius
+		
+		hits = this._getHitsOnTarget(support)(radius)
+
+		hit = this._getHighestHit (hits)
+		
+		hit_pos = hit[1].pos
+		
+		face_normal = getFaceNormal mesh_snapshot hit[2]
+
+		--this._createLineFromVector hit_pos face_normal
+		knot_pos_1 = getKnotPoint support 1 1
+
+		intersection_point = this._lineIntersection knot_pos_1 dir hit_pos face_normal
+
+		this._updateKnotsPositions(support)(intersection_point)
+
+		
+		-- return
+	),
+	
+	/** Get hits on target
+	 */
+	function _getHitsOnTarget support radius =
+	(
+		--format "\n"; print "for._getHitsOnTarget()"
+		
 		knot_pos_1 = getKnotPoint support 1 1
 		knot_pos_2 = getKnotPoint support 1 2
+		
 		dir = normalize (knot_pos_2 - knot_pos_1)
 
-		ray_positions = this._getRayPositions knot_pos_1 dir radius segments
-		hits = this._collectRayHits mesh_snapshot ray_positions dir
+		ray_positions = this._getRayPositions knot_pos_1 dir radius
+		
+		hits = this._collectRayHits ((ray_positions)) (dir)
 
-		if hits.count == 0 then
-		(
-			delete mesh_snapshot
-			return undefined
-		)
-
+		hits --return
+	),
+	
+	/** Get highest hit
+	 */
+	function _getHighestHit hits =
+	(
+		--format "\n"; print "for._getHighestHit()"
 		index_of_max_pos = 1
 		max_pos = -1e9
 
@@ -36,21 +87,22 @@ struct RaftBottomSnapper_v
 			)
 		)
 
-		hit = hits[index_of_max_pos]
-		hit_pos = hit[1].pos
-		face_normal = getFaceNormal mesh_snapshot hit[2]
-
-		this._createLineFromVector hit_pos face_normal
-
-		intersection_point = this._lineIntersection knot_pos_1 dir hit_pos face_normal
-
-		delete mesh_snapshot
-
+		hits[index_of_max_pos]
+	),
+	
+	/** Update knots positions
+	 */
+	function _updateKnotsPositions support intersection_point =
+	(
+		--format "\n"; print "for._updateKnotsPositions()"
+		
 		setKnotPoint support 1 2 intersection_point
+		
 		addKnot support 1 #corner #line hit_pos
+		
 		setMaterialID support 1 2 3
+		
 		updateShape support
-		ok -- return
 	),
 	
 	/* 
@@ -100,33 +152,62 @@ struct RaftBottomSnapper_v
 	/* 
 	  Generate positions around a circle
 	*/
-	function _getRayPositions base_point normal radius segments =
+	function _getRayPositions base_point normal radius =
 	(
 		positions = #()
-		for i = 1 to segments do
+		for i = 1 to test_hits_around do
 		(
-			angle = (360.0 / segments) * i
-			pos = this._getRotatedPointOnCircle base_point normal radius angle
+			_angle = (360.0 / test_hits_around) * i
+			
+			pos = this._getRotatedPointOnCircle base_point normal radius _angle
+			
 			append positions pos
 		)
 		positions -- return
 	),
 
+
+	/** Snapshot target obj as mesh
+	 */
+	function _snapshotTargetObjAsMesh =
+	(
+		--format "\n"; print "for._snapshotTargetObjAsMesh()"
+		mesh_snapshot = copy target_obj
+		
+		convertTo mesh_snapshot TriMeshGeometry
+	),
+
+	
 	/* 
 	  Intersect rays with mesh from given positions
 	*/
-	function _collectRayHits mesh ray_positions dir =
+	function _collectRayHits ray_positions dir =
 	(
 		hits = #()
 		for ray_position in ray_positions do 
 		(
 			_ray = Ray ray_position dir
-			hit = IntersectRayEx mesh _ray
-			if hit != undefined then append hits hit
+			
+			hit = IntersectRayEx mesh_snapshot _ray
+			
+			if hit != undefined then
+			(
+				face_index = hit[2]
+			
+				face_normal = getFaceNormal mesh_snapshot face_index
+				format "TEST: %\n" (TEST)
+				/* Check if dot product is less than zero (ray hits front face) */ 
+				if (dot face_normal _ray.dir) < 0.0 then
+				(
+					append hit face_normal
+					
+					append hits hit
+				)
+			)
 		)
+		
 		hits -- return
 	),
-	
 
 	on create do
 	(
@@ -137,7 +218,7 @@ struct RaftBottomSnapper_v
 
 delete helpers
 
-circleIntersect = RaftBottomSnapper_v()
-circleIntersect.run $PackMan selection[1] 0.5 4
+circleIntersect = RaftBottomSnapper_v( $PackMan )
+circleIntersect.snapRaftsToTargetObject (selection as Array )
 
 

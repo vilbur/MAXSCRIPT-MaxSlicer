@@ -74,11 +74,15 @@ icon:	"offset:[ 18, 6 ]|height:40|width:76|tooltip:GENERATE BEAMS for selected s
 			/* SEARCH FOR SOURCE OBJECTS IN SLECTION */ 
 			source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
 
-			supports = if source_objects.count == _selection.count then
-				SUPPORT_MANAGER.getSupportObjects (SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT) get_nodes:false 
+			supports_selection = if source_objects.count == _selection.count then
+				SUPPORT_MANAGER.getObjectsByType ( _selection ) type:#SUPPORT
 			else
-				/* GET SUPPORTS */ 
-				SUPPORT_MANAGER.getSupportObjects( _selection )
+				_selection
+			
+			/* GET SUPPORTS */ 
+			supports =	SUPPORT_MANAGER.getSupportObjects( supports_selection ) get_nodes:true
+			
+				
 			--format "supports: %\n" supports
 			SUPPORT_MANAGER.BeamGenerator.use_only_selected_supports = (not keyboard.shiftPressed )
 

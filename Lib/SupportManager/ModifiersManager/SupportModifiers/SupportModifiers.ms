@@ -45,7 +45,7 @@ struct SupportModifiers_v
 			RAFT MODIFIERS
 		--------------------------------------------------------------------------------*/
 		mods_raft[4]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
-		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	( top_width_raft )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
+		mods_raft[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	( top_width_raft )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#DIFFERENT
 		
 		mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_ends")	(OPTIONS.getMatId  #MIDDLE ) invert_sel:true -- SELECT BOTH ENDS
 		--mods_raft[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )

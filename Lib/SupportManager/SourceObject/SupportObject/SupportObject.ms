@@ -394,7 +394,7 @@ struct SupportObject_v
 	 */
 	function intersectRaySourceObject pos dir =
 	(
-		  format "\n"; print "SupportObject_v.intersectRaySourceObject()"
+		  --format "\n"; print "SupportObject_v.intersectRaySourceObject()"
 		/* Shift origin point perpendicular to a vector and project to plane
 			
 			DEV EXAMPLE: --"./_Dev/shiftPointPerpendicularOnPlane_dev.ms"
@@ -486,7 +486,7 @@ struct SupportObject_v
 			else /* GET DISTANCE TO HIT IN CENTER */ 
 				hit_distance = distance ray_pos hit.pos
 			
-			format "HIT: %\n" hit
+			--format "HIT: %\n" hit
 			if hit != undefined then
 				Point pos:hit.pos size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ sync_key as string )
 			

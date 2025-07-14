@@ -25,8 +25,8 @@ struct SupportRaft_v
 	 */
 	function createRaft update_or_generate: =
 	(
-		format "\n----------------------------------------------\n"
-		 format "\n"; print "SupportRaft_v.createRaft()"
+		--format "\n----------------------------------------------\n"
+		 --format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.obj_type: %\n" Support.obj_type
 		-- format "Support.dir_vector:    %\n" Support.dir_vector
 		
@@ -228,7 +228,7 @@ struct SupportRaft_v
 	 */
 	function _testHitOfSourceObject max_distance =
 	(
-		 format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
+		 --format "\n"; print "SupportRaft_v._testHitOfSourceObject()"
 		-- format "max_distance: %\n" max_distance
 		
 		ray_pos = Support.points[1]

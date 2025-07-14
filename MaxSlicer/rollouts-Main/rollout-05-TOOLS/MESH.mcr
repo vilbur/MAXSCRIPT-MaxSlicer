@@ -7,7 +7,7 @@ macroscript	maxtoprint_test_mesh
 category:	"_Tools"
 buttontext:	"Check Invalid Faces"
 toolTip:	"Search for invalid face.\n\nPolygons with invalid triangulation will be retriangulated.\n\nWORKS ON SELECTED OR ALL FACES"
-icon:	"AXRTOSS:2|width:108"
+icon:	"ACROSS:2|width:108"
 (
 	on execute do
 	(

@@ -146,8 +146,12 @@ icon:	"across:3"
 		
 		/* SAVE ISlANDS DATA TO OBJECT */
 		setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
-	
-		--macros.run "_3D-Print" "maxtoprint_islands_dialog"
+		
+		
+		macros.run "_3D-Print" "maxtoprint_islands_dialog"
 		
 	)
 )
+
+
+

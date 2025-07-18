@@ -30,23 +30,13 @@ struct IslandFinder_v
 		(
 			obj_snapshot_source = obj
 			
-			obj = snapshot obj_snapshot_source
-			
-			obj.transform = obj_snapshot_source.transform -- snapshot is created at time 0
-
-			--obj.parent = undefined
-			
-			--ResetXForm obj
-			--format "OBJ.PARENT: %\n" obj.parent
-			
-			
-			convertTo obj PolyMeshObject
+			obj = convertTo ( copy obj) PolyMeshObject -- copy is faster then snapshot and copy created at current frame of animation
 		)
 		
 		--verts_to_check = #{1..( polyop.getNumVerts obj)}
 		lowest_verts = #{}
 		
-		try(
+		--try(
 			
 			/*------------------------------------------------------------------------------
 				FIND ISLANDS
@@ -55,14 +45,14 @@ struct IslandFinder_v
 			
 			format "ISLANDS_DATA: %\n" islands_data
 			
-		)catch(
-			
-			format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
-			format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
-		  
-			if obj_snapshot_source != undefined then 
-				delete obj
-		)
+		--)catch(
+		--	
+		--	format "\n************ EXCEPTION ************\n%\n***********************************\n" (getCurrentException())
+		--	format "\n**************** EXCEPTION File: % ****************\n\n%\n\n**************************************************************************************************************************************\n" filein_path (getCurrentException())
+		--  
+		--	if obj_snapshot_source != undefined then 
+		--		delete obj
+		--)
 		
 		
 		if isValidNode obj_snapshot_source and obj_snapshot_source != undefined then 
@@ -72,7 +62,7 @@ struct IslandFinder_v
 		islands_data --return
 	),
 	
-	/** Find islands per layer
+	/** FIND ISLANDS PER LAYER
 	  * 
 	  * @param #IslandPerLayerFinder|#LowestVertIslandFinder
 	 */
@@ -87,17 +77,17 @@ struct IslandFinder_v
 		select obj
 			
 		/* GET VERTS WITH NORMAL POINTING DOWN */
-
-		
 		vertex_count = getNumVerts obj.mesh
 
 		verts_all = #{1..(vertex_count)}
-		-- format "verts_all: %\n" verts_all
 
 		verts_process = this._getVertsToProcess (verts_all)
 
 		 format "method: %\n" method
 
+		/*==============================================================================
+			ISLAND PER LAYER FINDER
+		================================================================================*/
 		if method == #IslandPerLayerFinder then
 		(
 			IslandPerLayerFinder 	= IslandPerLayerFinder_v(obj)
@@ -119,27 +109,31 @@ struct IslandFinder_v
 			(
 				island_data = IslandPerLayerFinder.islands_data[i]
 
-				IslandPerLayerFinder.islands_data[i][#LOWEST_VERT] = this.getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+				--IslandPerLayerFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+				IslandPerLayerFinder.islands_data[i][#LOWEST_VERT] = (( island_data[#NEW_ISLAND] ) as Array )[1]
 
 				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
 
-				if island_data[#WHOLE_ISLAND] != undefined then
-				(
-					x_positions = for vert in verts_get_size collect verts_pos[vert].x
-					y_positions = for vert in verts_get_size collect verts_pos[vert].y
-
-
-					x_length = (amax x_positions) - (amin x_positions)
-					y_length = (amax y_positions) - (amin y_positions)
-
-
-					IslandPerLayerFinder.islands_data[i][#SIZE] = [x_length, y_length]
-				)
+				--if island_data[#WHOLE_ISLAND] != undefined then
+				--(
+				--	x_positions = for vert in verts_get_size collect verts_pos[vert].x
+				--	y_positions = for vert in verts_get_size collect verts_pos[vert].y
+				--
+				--
+				--	x_length = (amax x_positions) - (amin x_positions)
+				--	y_length = (amax y_positions) - (amin y_positions)
+				--
+				--
+				--	IslandPerLayerFinder.islands_data[i][#SIZE] = [x_length, y_length]
+				--)
 			)
 			
 			-- format "findIslandsPerLayer: % ms\n" (( timeStamp()) - timer_findIslandsPerLayer)
 			IslandPerLayerFinder.islands_data --return
 		)
+		/*==============================================================================
+			 LOWEST VERT ISLAND FINDER
+		================================================================================*/
 		else
 		(
 			
@@ -154,14 +148,41 @@ struct IslandFinder_v
 	
 			
 		)
-		
 	),
+	/** Get vert with min z pos
+	  *
+	  * @param BitArray verts
+	 */
+	function _getLowestVertOnZaxis verts =
+	(
+		--format "\n"; print "VertexGridGetter_v._getLowestVertOnZaxis()"
+		verts_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
 
+		verts_arr = verts as Array
+
+		/* GET LOWEST POINT IN CELL */
+		if verts_arr.count > 1 then
+		(
+			--z_positions = for vert in verts_arr collect MeshDataGetter.getPosition(vert) axis:#Z
+
+			z_positions = for i = 1 to verts_arr.count collect verts_pos[i].z
+
+			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
+
+			if ( index = findItem z_positions (amin z_positions) ) > 0 then
+				verts_arr[index] --return
+		)
+		else
+			verts_arr[1] --return
+
+			--verts_arr[1] --return
+	),
+	
 	private
 	
 	/** Get verts to process
 	 */
-	function _getVertsToProcess verts_all=
+	function _getVertsToProcess verts_all =
 	(
 		format "\n"; print "IslandFinder_v._getVertsToProcess()"
 		
@@ -233,9 +254,11 @@ struct IslandFinder_v
 			this.obj.getSelection #Vertex
 		)
 		
-
+		/* RESET X FORM */ 
 		if (verts_normal_down = selectNormalDownVerts() ).isEmpty then
 		(
+			format "\n"; print ("Reset XForm of object: "+obj.name+" in IslandFinder_v._getNormalDownVerts()")
+			
 			ResetXForm obj
 
 			convertTo obj PolyMeshObject

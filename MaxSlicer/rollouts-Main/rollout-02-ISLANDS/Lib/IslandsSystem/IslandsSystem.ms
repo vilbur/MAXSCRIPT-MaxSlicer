@@ -458,8 +458,8 @@ struct IslandsSystem_v
 	 */
 	function _getIslandIndexFromTitle list_item =
 	(
-		--format "\n"; print "IslandsSystem_v._getIslandIndexFromTitle()"
-		--format "list_item: %\n" list_item
+		format "\n"; print "IslandsSystem_v._getIslandIndexFromTitle()"
+		format "list_item: %\n" list_item
 		(filterString list_item ":")[2] as Number
 
 		--( substring list_item (( findString list_item "island_index:" )+1) -1 ) as Number

@@ -69,7 +69,7 @@ macroscript	_print_platform_generator_extrude_top_raft
 category:	"_3D-Print"
 buttontext:	"EXT"
 tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_extend_end|fieldwidth:32|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 8 ]"
+icon:	"control:spinner|id:SPIN_extend_end|fieldwidth:32|width:64|range:[ 0, 99, 0.05 ]|offset:[ 0, 8 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

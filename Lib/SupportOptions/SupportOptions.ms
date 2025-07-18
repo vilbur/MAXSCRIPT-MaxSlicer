@@ -52,13 +52,13 @@ struct SupportOptions_v
 	chamfer_base	= 2,
 	top_width	= 0.5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
-	extend_top	= 0.5,
+	extend_top	= 0.05,
 
 	foot_enabled = true,
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
-	extend_end	= 0.5,
+	extend_end	= 0.05,
 
 
 	/* BEAMS OPTIONS */

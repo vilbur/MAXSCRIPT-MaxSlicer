@@ -12,19 +12,24 @@ function callMethodByVertexColor method _color =
 	format "method: %\n" method
 	format "VERTEX_COLOR_PARAM: %\n" VERTEX_COLOR_PARAM
 
-	obj = selection[1]
-	
-	if _color != undefined then 
-		VERTEX_COLOR_PARAM = _color
-
-	VertexColorProcessor = VertexColorProcessor_v(obj)
-
-	if method == #SET then
+	for obj in selection do
 	(
-		vertex_sel	= getVertSelection obj.mesh
+		--obj = selection[1]
 		
-		VertexColorProcessor.setVertexColor vertex_sel VERTEX_COLOR_PARAM
+		if _color != undefined then 
+			VERTEX_COLOR_PARAM = _color
+	
+		VertexColorProcessor = VertexColorProcessor_v(obj)
+	
+		if method == #SET then
+		(
+			vertex_sel	= getVertSelection obj.mesh
+			
+			VertexColorProcessor.setVertexColor vertex_sel VERTEX_COLOR_PARAM
+		)
+		else
+			VertexColorProcessor.byColor method _color
+		
+		
 	)
-	else
-		VertexColorProcessor.byColor method _color
 )

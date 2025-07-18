@@ -154,6 +154,25 @@ toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
 	)
 )
 
+
+/**
+  */
+macroscript	maxtoprint_inner_verts_select
+category:	"maxtoprint"
+buttontext:	"INNER"
+toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
+--icon:	"tooltip:CTRL: Reset selection"
+(
+	on execute do
+	(
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-07-VERTEX_SELECTION\Lib\getInternalVertsOfObject\getInternalVertsOfObject.ms"
+
+		selectConcexOrBottomFacesOrVers #TOP
+	)
+)
+
+
+
 /**
   */
 macroscript	maxtoprint_get_top_verts_inner

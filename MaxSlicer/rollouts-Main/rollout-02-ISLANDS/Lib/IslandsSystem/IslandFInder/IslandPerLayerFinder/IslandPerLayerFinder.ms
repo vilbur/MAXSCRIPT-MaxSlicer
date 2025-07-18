@@ -58,48 +58,32 @@ struct IslandPerLayerFinder_v
 	function getNewIslandsPerLayer =
 	(
 		format "\n"; print "IslandPerLayerFinder_v.getNewIslandsPerLayer()"
+		
+		FORMAT "\nSTART OF SEARCHING FOR ISLANDS\n"
+		--format "verts_process.count: %\n" verts_process.count
+		all_layers_timer = layer_timer = timeStamp()
 
-		format "verts_process.count: %\n" verts_process.count
-		--format "layers_count: %\n" layers_count
-		--verts_processed = #{}
-
-		--this.empty_bitarray = verts_all * #{}
-
+		
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
-			
 
 		layers_with_verts = for layer_index = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer_index] ) == BitArray collect layer_index -- layer has not verts if item is integer ( layer number )
 
-		used_layers_count = layers_with_verts.count
-
-		all_layers_timer = timeStamp()
-		layer_timer = timeStamp()
-		vertex_counter_dev = 0
 		
-		format "\nSTART OF SEARCHING FOR ISLANDS\n"
-
-		for l = 1 to used_layers_count do
-		--for layer in layers_with_verts do -- layer has not verts if item is integer ( layer number )
+		/*==============================================================================
+		
+				LOOP EACH LAYER FROM BOTTOM TO UP
+		
+		================================================================================*/
+		for l = 1 to layers_with_verts.count do
 		(
-			--format "layer: %\n" layer
-			--format "\n==============================\nlayer: %\n" layer
-			if mod l 100 == 0 then (
+			--format "\n\n==============================\nlayer: %\n" layer
+			if mod l 100 == 0 then
+			(
+				format "LAYER: % of: % TIME:\n" l layers_with_verts.count ( ( timeStamp() - layer_timer) / 1000.0)
 
-				--gc light:true
-
-				--format "TIMER: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
-				time_stamp = timeStamp() - layer_timer
-				--format "\n"
-				format "LAYER: % of: % TIME:\n" l used_layers_count ( time_stamp / 1000.0)
-				--format "layer: % of: %\n" l used_layers_count
-				--format "vertex_counter_dev: %\n" vertex_counter_dev
-				--format "time_stamp: %\n" time_stamp
-				format "per vertex: %\n" ((time_stamp as float / vertex_counter_dev ) as float )
-				--format "TIMER: % seconds\n" ( time_stamp / 1000.0)
-
-				--format "islands_cache.count: %\n" islands_cache.count
 				layer_timer = timeStamp()
+
 				vertex_counter_dev = 0
 			)
 
@@ -107,7 +91,6 @@ struct IslandPerLayerFinder_v
 
 			/* GET VERTS IN LAYER */
 			verts_in_layer = verts_layers[layer]
-			vertex_counter_dev += verts_in_layer.numberSet
 
 			/* REMOVE VERTS FORM CURENT LAYER FROM VERTS ABOVE */
 			verts_above  -= verts_in_layer
@@ -119,11 +102,9 @@ struct IslandPerLayerFinder_v
 			new_faces_in_layer = faces_in_layer - faces_processed
 
 			/* JOIN NEW FACES TO ALL NEW_ISLANDS */
-			timer_JOIN = timeStamp()
-
 			new_islands = this._joinFacesToIslands(new_faces_in_layer)(verts_in_layer)layer
-			--this._joinVertsToIslands(new_faces_in_layer)
 
+			
 			/* IF NEW ISLANDS FOUND */
 			if new_islands.count > 0 then
 			(
@@ -143,16 +124,13 @@ struct IslandPerLayerFinder_v
 				/* TRY MERGE ALL ISLANDS - islands can be joined by new faces in layer */
 				this._mergeNewIslandsToCache(layer)
 
+				/* STORE ISALNDS DATA */ 
 				this._addIslandDataToNewIslands(new_islands)(verts_in_layer)(layer)
 			)
 			
+			/* ADD TO PROCESS ARRAYS */ 
 			for b in faces_in_layer do faces_processed[b] = true
 			for b in verts_in_layer do verts_processed[b] = true
-			--faces_processed += faces_in_layer
-			--verts_processed += verts_in_layer
-
-			--if mod l 100 == 0 then
-				--format "Takes % seconds to process\n" ((( timeStamp()) - layer_timer) / 1000.0)
 
 			gc light:true
 		)

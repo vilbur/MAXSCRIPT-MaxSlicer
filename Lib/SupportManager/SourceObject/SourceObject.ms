@@ -24,7 +24,8 @@ struct SourceObject_v
 	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
 	--direction_down = [0,0,-1],
-
+	exclude_vertex_colors = #( black as string ),
+	
 	/* dependency */
 	VertexColors, --"./../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 	Normals,	--"./SourceObjectNormals/SourceObjectNormals.ms"
@@ -64,11 +65,11 @@ struct SourceObject_v
 		format "TIME: % ms\n" (( timeStamp()) - timer_color)
 		
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		--format "COLORED_VERTS: %\n" colored_verts
+		format "COLORED_VERTS: %\n" colored_verts
 
 		/* GEt SELECTED or COLORED verts */ 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-		
+		format "WTF 1\n"
 		
 		if verts_process.isEmpty then
 		(
@@ -77,6 +78,7 @@ struct SourceObject_v
 			return #()
 		)
 		
+		format "WTF 2\n"
 		/*-----------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
@@ -116,10 +118,13 @@ struct SourceObject_v
 		
 		/*------------------------------------------------------------------------------
 			SORT VERTS BY COLORS
+		
 		--------------------------------------------------------------------------------*/
-		
-		--verts_by_colors_process = Dictionary #STRING
-		
+		--if verts_by_colors[black as string ] != undefined then
+			--verts_by_colors[black as string ] = undefined
+			--RemoveDictValue verts_by_colors (black as string )
+
+		/* USE ONLY VERTS TO PROCESS  */ 
 		for vertex_color in verts_by_colors.keys do
 			verts_by_colors[vertex_color] *= verts_process
 			--verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
@@ -127,6 +132,7 @@ struct SourceObject_v
 		--format "\n---------------\n"
 		--for vertex_color in verts_by_colors.keys do
 		--	format "vertex_color: % VERTS: %\n" vertex_color verts_by_colors[vertex_color]
+		
 		
 		
 		/*------------------------------------------------------------------------------
@@ -628,14 +634,40 @@ struct SourceObject_v
 	function _getVertsByColors =
 	(
 		 --format "\n"; print "SourceObject_v._getVertsByColors()"
+	/** Shift wirecolor sligtly to +1 - Helper points are shifter -1
+	  *
+	  *
+	  *
+	  * Each level of points has different wirecolor for better selection
+	  */
+	function _shiftWirecolor wirecolor =
+	(
+		--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
+		--format "WIRECOLOR:	% \n" wirecolor
+		i = 1
+
+		wirecolor_shifted = copy wirecolor
+
+		if wirecolor_shifted.r <= 254 then wirecolor_shifted.r += i
+		if wirecolor_shifted.g <= 254 then wirecolor_shifted.g += i
+		if wirecolor_shifted.b <= 254 then wirecolor_shifted.b += i
+		--format "WIRECOLOR_SHIFTED:	% \n" wirecolor_shifted
+
+		wirecolor_shifted --return
+	)
+
+		 
 		 
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 
-		verts_by_colors = VertexColors.getVertsAndColors()
+		--verts_by_colors = VertexColors.getVertsAndColors()
+		verts_by_colors = VertexColors.getVertsAndColors exclude:exclude_vertex_colors
+		
+		obj_wirecolor = _shiftWirecolor obj.wirecolor
 		
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
-		verts_by_colors[ obj.wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
+		verts_by_colors[ obj_wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
 
 		/* REMOVE WHITE */ 
 		RemoveDictValue verts_by_colors ( white as string )

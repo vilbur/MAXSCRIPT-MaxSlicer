@@ -50,7 +50,7 @@ macroscript	_print_platform_generator_set_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	""
-icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.8, 3, 1.4 ]|width:64|offset:[ 0, 16 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
+icon:	"control:spinner|id:SPIN_bar_width|fieldwidth:32|range:[ 0.5, 3, 1.4 ]|width:64|offset:[ 0, 16 ]|tooltip:WIDTH of support LEG\n\nrightclick: RESET TO RECOMENDED VALUE"
 (
 	on execute do
 	(
@@ -161,7 +161,7 @@ macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
 buttontext:	"HEIGHT"
 tooltip:	"Height of support base"
-icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 1, 999, 1 ]|width:72|offset:[ 150, 0 ]"
+icon:	"ACROSS:3|control:spinner|id:SPIN_base_height|fieldwidth:32|range:[ 0.5, 999, 1 ]|width:72|offset:[ 150, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

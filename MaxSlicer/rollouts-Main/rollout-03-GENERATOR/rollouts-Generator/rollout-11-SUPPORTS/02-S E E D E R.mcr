@@ -45,7 +45,9 @@ function seedSupportsBellowSelection grid_type debug:false =
 	
 	--grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
 	
-	/* IF SQUARE */ 
+	/*------------------------------------------------------------------------------
+		IF RADIAL GRID
+	--------------------------------------------------------------------------------*/
 	if grid_type == #RADIAL then
 	(
 		
@@ -54,11 +56,17 @@ function seedSupportsBellowSelection grid_type debug:false =
 		Seeder.segments_count_keep = ROLLOUT_SUPPORTS.CBX_segments_count_keep.state
 	)
 	
+	/*------------------------------------------------------------------------------
+		RUN SEEDER
+	--------------------------------------------------------------------------------*/
+	
 	closest_verts = Seeder.getClosestVertsOfEmptyCells(supports) #VERTS grid_type:grid_type
 
 	format "CLOSEST_VERTS: %\n" closest_verts
 	
-	/* SHOW RESULT */ 
+	/*------------------------------------------------------------------------------
+		SHOW RESULT 
+	--------------------------------------------------------------------------------*/
 	if closest_verts != undefined then
 		for obj_pointer in closest_verts.keys do
 		(
@@ -82,8 +90,8 @@ function seedSupportsBellowSelection grid_type debug:false =
 	select source_objects
 
 	/* GENRATE SUPPORTS */ 		
-	if not keyboard.controlPressed and not debug then
-		generateSupportsOrRafts obj_type:#SUPPORT
+	--if not keyboard.controlPressed and not debug then
+		--generateSupportsOrRafts obj_type:#SUPPORT
 	
 	
 )

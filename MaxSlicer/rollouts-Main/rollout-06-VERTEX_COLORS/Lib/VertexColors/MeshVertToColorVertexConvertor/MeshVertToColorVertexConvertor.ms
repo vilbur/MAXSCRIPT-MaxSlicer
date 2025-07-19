@@ -92,13 +92,20 @@ struct MeshVertToColorVertexConvertor_v
 			--format "vert: %\n" vert
 
 			faces =  ( meshop.getFacesUsingVert obj_mesh vert ) as Array
+			format "faces.count: %\n" faces.count
 			--format "faces: %\n" faces
 
-			if not get_single_vert then
-				CPV_verts_all[i] = for face_id in faces collect getMapVertFromFace(vert)(face_id)
-
+			if faces.count > 0 then
+			(
+				if not get_single_vert then
+					CPV_verts_all[i] = for face_id in faces collect getMapVertFromFace(vert)(face_id)
+	
+				else
+					CPV_verts_all[i] = getMapVertFromFace(vert)(faces[1])
+			)
 			else
-				CPV_verts_all[i] = getMapVertFromFace(vert)(faces[1])
+				FORMAT "VERT WITHOUT FACES ver: % of object: % \n" vert obj.name
+			
 		)
 		--format "CPV_verts_all: %\n" CPV_verts_all
 

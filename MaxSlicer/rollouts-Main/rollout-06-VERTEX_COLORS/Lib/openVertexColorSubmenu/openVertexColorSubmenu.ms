@@ -4,6 +4,10 @@
   *     2) Submenu Item	-> Call Function callMethodByVertexColor()	-- Choose color used for method
   *         3) Function	-> Call Desired Vertex Color Method	-- Run used method with choosed color ( Set color|Select By Color|Hide by Color|... )
   *
+  
+  
+  USES COLOR_NAMES: --"./../../../../../Lib/COLOR_NAMES/COLOR_NAMES.ms"
+  
  */
 function openVertexColorSubmenu method =
 (
@@ -51,6 +55,7 @@ function openVertexColorSubmenu method =
 
 	Menu.item "&WHITE"	( call_method_by_vertex_color + "white"	)
 	Menu.item "&GRAY"	( call_method_by_vertex_color + "gray"	)
+	Menu.item "B&LACK"	( call_method_by_vertex_color + "black"	)
 	Menu.separator()
 	
 	Menu.item "&RED"	( call_method_by_vertex_color + "red"	)

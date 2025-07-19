@@ -1,9 +1,12 @@
-clearListener(); print("Cleared in:\n"+getSourceFileName())
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
+
 /*
   Function to find vertices that are inside the mesh volume of their own object
 */
 function getInternalVertsOfObject source_obj target_objects verts: =
 (
+	format "\n"; print "getInternalVertsOfObject()"
+	
 	if classOf target_objects != Array then
 		target_objects = #(target_objects)
 	
@@ -18,20 +21,25 @@ function getInternalVertsOfObject source_obj target_objects verts: =
 	/*------------------------------------------------------------------------------
 		TEST EACH TARGET OBJECT
 	--------------------------------------------------------------------------------*/
-	for target_obejct_tmp in target_objects do 
+	for target_object in target_objects do 
 	(
 		rm = RayMeshGridIntersect()
 		rm.Initialize 10
-		--is_inside = undefined 
-		target_obejct = convertTo (copy target_obejct_tmp ) TriMeshGeometry
+		--is_inside = undefined
 		
-		rm.addNode  target_obejct
+		target_object_mesh = if source_obj != target_object then
+				convertTo ( copy target_object ) TriMeshGeometry
+			else
+				source_obj_mesh
+			
+		
+		rm.addNode  target_object_mesh
 		rm.buildGrid()
 		
 		for v in verts where not inside_verts[v] do 
 		(
-			if mod v 100 == 0 then
-				format "\nvert: % of: %\n" v verts.numberSet
+			if mod v 1000 == 0 then
+				format "vert: % of: %\n" v verts.count
 			
 			pos = getVert source_obj_mesh v
 
@@ -45,13 +53,15 @@ function getInternalVertsOfObject source_obj target_objects verts: =
 				inside_verts[v] = true
 		)
 		
-		delete target_obejct
+		if source_obj_mesh != target_object_mesh then
+			delete target_object_mesh
 	
 	)
 	
+	
 	delete source_obj_mesh
-	--rm.free() 
 
+	
 	inside_verts -- return
 )
 

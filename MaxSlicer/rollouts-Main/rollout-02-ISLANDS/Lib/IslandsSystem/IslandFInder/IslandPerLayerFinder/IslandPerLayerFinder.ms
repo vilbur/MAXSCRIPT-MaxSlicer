@@ -69,6 +69,7 @@ struct IslandPerLayerFinder_v
 
 		layers_with_verts = for layer_index = 1 to verts_layers.count where classOf ( verts_in_layer = verts_layers[layer_index] ) == BitArray collect layer_index -- layer has not verts if item is integer ( layer number )
 
+
 		
 		/*==============================================================================
 		

@@ -1,5 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/LowestVertIslandFinder/LowestVertIslandFinder.ms" )	--"./LowestVertIslandFinder/LowestVertIslandFinder.ms"
 filein( getFilenamePath(getSourceFileName()) + "/IslandPerLayerFinder/IslandPerLayerFinder.ms" )	--"./IslandPerLayerFinder/IslandPerLayerFinder.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../getInternalVertsOfObject/getInternalVertsOfObject.ms" )	--"./../../getInternalVertsOfObject/getInternalVertsOfObject.ms"
 
 /** Island finder
  */
@@ -26,11 +27,18 @@ struct IslandFinder_v
 	function findIslandsPerLayer layer_height method =
 	(
 		 format "\n"; print "IslandFinder_v.findIslandsPerLayer()"
-		if classof obj.baseobject != Editable_Poly or (classof obj.baseobject == Editable_Poly and ( getNumVerts obj.baseobject.mesh != getNumVerts obj.mesh )) then
+		 
+		--if classof obj.baseobject != Editable_Poly or (classof obj.baseobject == Editable_Poly and ( getNumVerts obj.baseobject.mesh != getNumVerts obj.mesh )) then
 		(
 			obj_snapshot_source = obj
 			
-			obj = convertTo ( copy obj) PolyMeshObject -- copy is faster then snapshot and copy created at current frame of animation
+			--obj = convertTo ( copy obj ) PolyMeshObject -- copy is faster then snapshot and copy created at current frame of animation
+			
+			maxOps.CloneNodes obj expandHierarchy:true newNodes:&nnl
+		
+			obj = nnl[1]
+		
+			convertTo obj PolyMeshObject
 		)
 		
 		--verts_to_check = #{1..( polyop.getNumVerts obj)}
@@ -82,8 +90,6 @@ struct IslandFinder_v
 		verts_all = #{1..(vertex_count)}
 
 		verts_process = this._getVertsToProcess (verts_all)
-
-		 format "method: %\n" method
 
 		/*==============================================================================
 			ISLAND PER LAYER FINDER
@@ -188,49 +194,46 @@ struct IslandFinder_v
 		
 		fn bitArraysAreSame arr1 arr2 = ( arr1 - arr2 ).isEmpty
 
+		/* GET VERTEX SELECTION */ 
 		verts_sel	= getVertSelection obj.mesh
 		
-		visible_verts = -( polyop.getHiddenVerts obj)
-		 --format "visible_verts: %\n" visible_verts
+		use_selection = not verts_sel.isEmpty and queryBox ("Use "+verts_sel.numberSet as string +" selected vertices ?") title:"IslandFinder" 
 		
-		verts_process = if verts_sel.numberSet > 1 then verts_sel else verts_all
+		/* USE ALL OR SELECTED VERTS */ 
+		verts_process = if use_selection then verts_sel else verts_all
 		 --format "verts_process: %\n" verts_process
 		
+		/* REMOVE HIDDEN VERTS */ 
+		visible_verts = -( polyop.getHiddenVerts obj)
 		
 		if not visible_verts.isEmpty and not bitArraysAreSame verts_process visible_verts then
 			verts_process *= visible_verts
-		 --format "verts_process: %\n" verts_process
 
-		
+		/* REMOVE VERTS POINTING UP */
 		verts_normal_down = this._getNormalDownVerts()
 		
-		
-		verts_process *= verts_normal_down
-		 --format "verts_process: /*%*/\n" verts_process
+		if not verts_normal_down.isEmpty then
+			verts_process *= verts_normal_down
 		
 		/* GET ONLY CONVEX VERTS */
 		PolyToolsSelect.ConvexConcave 0.0001 2 -- select convex and convex-concave
-		--PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
-		--PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
-
+		----PolyToolsSelect.ConvexConcave 0.05 2 -- select convex and convex-concave
+		----PolyToolsSelect.ConvexConcave 0.1 2 -- select convex and convex-concave
 		verts_convex = obj.getSelection #Vertex
-		--format "verts_convex: %\n" verts_convex
-		 
-		if not verts_convex.isEmpty then
-			verts_process *= verts_normal_down
-			
-		 format "VERTS_PROCESS: %\n" verts_process
-			
-		verts_process --return
-		--)
-		--
-		--else
-		--(
-		--	messageBox ("Problem to get verts by normal\n\nPLEASE RESET XFORM on:\n\n"+obj.name) --title:"Title"  beep:false
-		--	
-		--	#{} --return fallback
-		--)
 		
+		if not verts_convex.isEmpty then
+			verts_process *= verts_convex
+		
+		/* REMOVE INNER VERTS  */
+		inside_verts = getInternalVertsOfObject obj obj verts:verts_process
+		format "INSIDE_VERTS: %\n" inside_verts
+		
+		if not inside_verts.isEmpty then
+			verts_process -= inside_verts
+		
+		
+		/* RESULT */ 
+		verts_process --return
 	),
 	
 	/** Get bottom verts

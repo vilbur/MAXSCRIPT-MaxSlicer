@@ -26,8 +26,8 @@ struct GridSupportSeeder_v
 	
 	
 	/* properties */
-	sel_verts = #{},
-	sel_faces = #{},
+	verts_process = #{},
+	faces_to_hit  = #{},
 	
 	grid_origin = [0,0],
 	grid_cells,
@@ -62,8 +62,13 @@ struct GridSupportSeeder_v
 		
 		this._convertTargetsToMeshSnapshots()
 		
-		this._setIntersectFaces()
-		--format "SEL_FACES: %\n" sel_faces
+		--verts_process = polyop.getVertSelection target_objects[1]
+		
+		if verts_process.isEmpty then
+			verts_all = #{1.. ( getNumVerts target_objects[1] )}
+		
+		--this._setFacesToTestHits()
+		--format "SEL_FACES: %\n" faces_to_hit
 		
 		/* SQUARE GRID */
 		/*------------------------------------------------------------------------------
@@ -101,7 +106,7 @@ struct GridSupportSeeder_v
 		
 			/* SEARCH FOR MESH AROUND CELL CENTER */ 	 
 			if hit_data == undefined then
-				hit_data = this._getHitsOnAroundPos(cell_center)((cell_size / 2.0) - 0.5 )(  1.0 ) test_hit:true --clr:red
+				hit_data = this._getHitsOnAroundPos(cell_center)((cell_size / 2.0 ) - 0.2 )( 0.5 ) test_hit:true --clr:red
 				--hit_data = this._getHitsOnAroundPos(cell_center)(cell_size / 2.3 )(  1.0 ) test_hit:true --clr:red
 				--hit_data = this._getHitsOnAroundPos(cell_center)(cell_size / 2.5 )(  1.0 ) test_hit:true --clr:red
 				
@@ -127,14 +132,14 @@ struct GridSupportSeeder_v
 	function _initGrid =
 	(
 		--format "\n"; print "GridSupportSeeder_v._initGrid()"
-
-		bbox = if sel_verts.isEmpty and sel_faces.isEmpty then this._getBbox() else this.getSelectedVertsXYBounds target_objects[1]
+		--bbox = if verts_process.isEmpty and faces_to_hit.isEmpty then this._getBbox() else this.getSelectedVertsXYBounds target_objects[1]
+		bbox = this._getBbox()
 		
 		p1 = bbox[1]
 		p2 = bbox[2]
 		p3 = bbox[3]
 		p4 = bbox[4]
-		
+		 
 		grid_center = ( p1 + p2 + p3 + p4 ) / 4
 
 		size_x = p4.x - p1.x
@@ -460,7 +465,7 @@ struct GridSupportSeeder_v
 		hit_data = this._intersectRayWithObjects ( Ray pos [0,0,1] )
 		
 		/* TEST IF HIT HITS SELECTED FACE */ 
-		if not sel_faces.isEmpty and hit_data != undefined and sel_faces[hit_data[3]] == false then 
+		if not faces_to_hit.isEmpty and hit_data != undefined and faces_to_hit[hit_data[3]] == false then 
 			hit_data = undefined
 		
 		
@@ -512,8 +517,8 @@ struct GridSupportSeeder_v
 		--format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
-		if sel_verts.count > 0 then
-			for vert in verts_of_face where not sel_verts[vert] do 
+		if verts_process.count > 0 then
+			for vert in verts_of_face where not verts_process[vert] do 
 				verts_of_face[vert] = false
 	
 		closest_vert = undefined
@@ -594,7 +599,6 @@ struct GridSupportSeeder_v
 				mesh_node = copy this.target_objects[i]
 				
 				convertTo mesh_node TriMeshGeometry
-					
 				
 				setUserPropVal mesh_node "GRID_SUPPORT_SEEDER_SNAPSHOT" true
 				
@@ -604,27 +608,25 @@ struct GridSupportSeeder_v
 				this.intersect_objs[i] = target_objects[i]
 	),
 	
-	/** Set intersect faces
+	/** Set faces for test intetest ray
 	 */
-	function _setIntersectFaces =
+	function _setFacesToTestHits =
 	(
-		--format "\n"; print "GridSupportSeeder_v._setIntersectFaces()"
+		--format "\n"; print "GridSupportSeeder_v._setFacesToTestHits()"
 		
 		intescect_obj = intersect_objs[1]
 		
-		sel_verts = polyop.getVertSelection target_objects[1]
-		
 		
 		/* GET FACES WITH ALL VERTS IN SELCTION */ 
-		faces_of_verts = meshop.getFacesUsingVert intescect_obj sel_verts
+		faces_of_verts = meshop.getFacesUsingVert intescect_obj verts_process
 
 		verts_of_faces = meshop.getVertsUsingFace intescect_obj faces_of_verts
 		
-		border_vets = verts_of_faces - sel_verts
+		border_vets = verts_of_faces - verts_process
 		
 		border_faces = meshop.getFacesUsingVert intescect_obj border_vets
 
-		sel_faces = faces_of_verts - border_faces
+		faces_to_hit = faces_of_verts - border_faces
 	),
 	
 	/** Get bbox
@@ -670,7 +672,7 @@ struct GridSupportSeeder_v
 		min_y = 0.0
 		max_y = 0.0
 
-		for i in sel_verts do
+		for i in verts_process do
 		(
 			p = polyop.getVert src_obj i
 			

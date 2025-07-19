@@ -96,7 +96,7 @@ macroscript	maxtoprint_get_convex_verts
 category:	"maxtoprint"
 buttontext:	"CONVEX"
 toolTip:	"VERTS"
-icon:	"across:3|width:96|height:32|tooltip:CTRL: Reset selection"
+icon:	"across:2|width:96|height:32|tooltip:CTRL: Reset selection"
 (
 	on execute do
 	(
@@ -159,15 +159,68 @@ toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
   */
 macroscript	maxtoprint_inner_verts_select
 category:	"maxtoprint"
-buttontext:	"INNER"
-toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
+buttontext:	"I N N E R"
+toolTip:	"Select verts which are inside object.\n\nE.G: If objects or elements intersect"
 --icon:	"tooltip:CTRL: Reset selection"
 (
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-07-VERTEX_SELECTION\Lib\getInternalVertsOfObject\getInternalVertsOfObject.ms"
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-02-ISLANDS\Lib\getInternalVertsOfObject\getInternalVertsOfObject.ms"
 
-		selectConcexOrBottomFacesOrVers #TOP
+		if selection.count > 0 then
+		(
+			_selection = for o in selection collect o
+			inside_verts_all = #()
+			
+			
+			for obj in _selection do 
+			(
+				inside_verts = getInternalVertsOfObject obj _selection
+				
+				append inside_verts_all inside_verts
+			)
+				--select _selection[1]
+		
+			if _selection.count == 1 then
+			(
+				select _selection[1]
+					
+				(VertSelector_v( _selection[1])).selectVerts inside_verts_all[1] 
+			)
+			else
+			(
+				for i = 1 to _selection.count do
+				(
+					select _selection[i]
+					
+					(VertSelector_v( _selection[i])).selectVerts inside_verts_all[i] 
+				)
+				
+				--select _selection
+				--
+				--max modify mode
+				--
+				--if classOf ( modPanel.getCurrentObject() ) != Edit_Poly then
+				--	modPanel.addModToSelection (Edit_Poly ()) ui:on
+				--
+				--
+				--for i = 1 to _selection.count do
+				--(
+				--	format "inside_verts_all[i]: %\n" inside_verts_all[i]
+				--	
+				--	select _selection[i]
+				--
+				--	subObjectLevel = 1
+				--
+				--	_selection[i].modifiers[#Edit_Poly].select #Vertex #{} node:_selection[i]
+				--	_selection[i].modifiers[#Edit_Poly].select #Vertex inside_verts_all[i] node:_selection[i]
+				--)
+				
+				select _selection
+				
+				--subObjectLevel = 1
+			)
+		)
 	)
 )
 

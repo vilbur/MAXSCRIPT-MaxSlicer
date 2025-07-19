@@ -487,8 +487,6 @@ struct SupportObject_v
 				hit_distance = distance ray_pos hit.pos
 			
 			--format "HIT: %\n" hit
-			if hit != undefined then
-				Point pos:hit.pos size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ sync_key as string )
 			
 			/* GET HIT POSITION DIR VECTOR */ 
 			--if hit != undefined then

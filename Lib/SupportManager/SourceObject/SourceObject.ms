@@ -24,7 +24,7 @@ struct SourceObject_v
 	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
 	--direction_down = [0,0,-1],
-	exclude_vertex_colors = #( black as string ),
+	exclude_vertex_colors = #( white as string , black as string ),
 	
 	/* dependency */
 	VertexColors, --"./../../../content/rollouts-Main/rollout-06-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
@@ -56,20 +56,18 @@ struct SourceObject_v
 		
 		--format "classOf obj: %\n" ( classOf obj )
 		verts_sel	= getVertSelection obj.mesh
-		--format "verts_sel: %\n" verts_sel
+
  		supports_exists = Supports.keys as BitArray
 
-		timer_color = timeStamp()
-		FORMAT "_getVertsByColors() "
-		verts_by_colors = this._getVertsByColors()
-		format "TIME: % ms\n" (( timeStamp()) - timer_color)
-		
+		verts_by_colors = VertexColors.getVertsAndColors()
+
 		colored_verts = this._getColoredVerts(verts_by_colors)
-		format "COLORED_VERTS: %\n" colored_verts
+		
+		verts_by_colors = this._replaceWhiteWithObjectColor(verts_by_colors)
 
 		/* GEt SELECTED or COLORED verts */ 
-		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-		format "WTF 1\n"
+		verts_process =  if verts_sel.isEmpty then colored_verts else verts_sel
+
 		
 		if verts_process.isEmpty then
 		(
@@ -77,8 +75,7 @@ struct SourceObject_v
 			
 			return #()
 		)
-		
-		format "WTF 2\n"
+
 		/*-----------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
@@ -105,6 +102,7 @@ struct SourceObject_v
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
 		--format "VERTS_PROCESS: % ms\n" (( timeStamp()) - timer_verts_process)
 		format "VERTS_PROCESS:   %\n" verts_process
+		format "VERTS_PROCESS:   %\n" verts_process.numberSet
 		format "SUPPORTS_EXISTS: %\n" supports_exists
 		if verts_process.numberSet > all_verts.numberSet then
 			messageBox "SHIT" title:"Title"  beep:false
@@ -133,13 +131,18 @@ struct SourceObject_v
 		--for vertex_color in verts_by_colors.keys do
 		--	format "vertex_color: % VERTS: %\n" vertex_color verts_by_colors[vertex_color]
 		
+		--if not queryBox ("Create supports from "+verts_process.numberSet as string +" verts ?") then
+			--return NewSupportObjects --return
+			
+		format "verts_by_colors: %\n" verts_by_colors
 		
-		
+		format "verts_by_colors.keys: %\n" verts_by_colors.keys
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
 		timer_generate = timeStamp()
-		for vertex_color in verts_by_colors.keys do
+		
+		for vertex_color in verts_by_colors.keys where not verts_by_colors[vertex_color].isEmpty do
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
 				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
@@ -631,58 +634,50 @@ struct SourceObject_v
 	  * @return Dictionary KEY:"color" VALUE:#{verts of color}
 	  
 	 */
-	function _getVertsByColors =
+	function _replaceWhiteWithObjectColor verts_by_colors =
 	(
-		 --format "\n"; print "SourceObject_v._getVertsByColors()"
-	/** Shift wirecolor sligtly to +1 - Helper points are shifter -1
-	  *
-	  *
-	  *
-	  * Each level of points has different wirecolor for better selection
-	  */
-	function _shiftWirecolor wirecolor =
-	(
-		--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
-		--format "WIRECOLOR:	% \n" wirecolor
-		i = 1
+		 --format "\n"; print "SourceObject_v._replaceWhiteWithObjectColor()"
+		/** Shift wirecolor sligtly to +1 - Helper points are shifter -1
+		  *
+		  *
+		  *
+		  * Each level of points has different wirecolor for better selection
+		  */
+		function _shiftWirecolor wirecolor =
+		(
+			--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
+			--format "WIRECOLOR:	% \n" wirecolor
+			i = 1
+	
+			wirecolor_shifted = copy wirecolor
+	
+			if wirecolor_shifted.r <= 254 then wirecolor_shifted.r += i
+			if wirecolor_shifted.g <= 254 then wirecolor_shifted.g += i
+			if wirecolor_shifted.b <= 254 then wirecolor_shifted.b += i
+			--format "WIRECOLOR_SHIFTED:	% \n" wirecolor_shifted
+	
+			wirecolor_shifted as string --return
+		)
 
-		wirecolor_shifted = copy wirecolor
-
-		if wirecolor_shifted.r <= 254 then wirecolor_shifted.r += i
-		if wirecolor_shifted.g <= 254 then wirecolor_shifted.g += i
-		if wirecolor_shifted.b <= 254 then wirecolor_shifted.b += i
-		--format "WIRECOLOR_SHIFTED:	% \n" wirecolor_shifted
-
-		wirecolor_shifted --return
-	)
-
-		 
-		 
-		if VertexColors == undefined then 
-			VertexColors = VertexColors_v(obj)
-
-		--verts_by_colors = VertexColors.getVertsAndColors()
-		verts_by_colors = VertexColors.getVertsAndColors exclude:exclude_vertex_colors
-		
-		obj_wirecolor = _shiftWirecolor obj.wirecolor
-		
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
-		verts_by_colors[ obj_wirecolor as string ] = if ( white_verts = verts_by_colors[ white as string ] ) != undefined then white_verts else all_verts
+		verts_by_colors[ _shiftWirecolor obj.wirecolor ] = verts_by_colors[ white as string ]
 
 		/* REMOVE WHITE */ 
 		RemoveDictValue verts_by_colors ( white as string )
 
 		verts_by_colors --return
 	),
-
+	
 	/** Flattern dictionary
 	 */
 	function _getColoredVerts verts_by_colors =
 	(
-		--format "\n"; print "SourceObject_v._getColoredVerts()"
+		format "\n"; print "SourceObject_v._getColoredVerts()"
 		flattern_dict = #{}
 
-		for key in verts_by_colors.keys where key != obj.wirecolor as string do flattern_dict += verts_by_colors[key]
+		--for key in verts_by_colors.keys where key != white as string do flattern_dict += verts_by_colors[key]
+		for key in verts_by_colors.keys do
+			if findItem exclude_vertex_colors key == 0 do flattern_dict += verts_by_colors[key]
 
 		flattern_dict --return
 	),
@@ -750,6 +745,7 @@ struct SourceObject_v
 		this._saveObjectRotation()
 
 		Normals = SourceObjectNormals_v(obj)
-
+		
+		VertexColors = VertexColors_v(obj)
 	)
 )

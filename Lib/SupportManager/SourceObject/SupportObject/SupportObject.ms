@@ -716,6 +716,8 @@ struct SupportObject_v
 			
 			support_obj = SplineShape wirecolor:wirecolor
 		
+			source_obj.layer.addNode support_obj
+		
 			support_key = (getHandleByAnim support_obj) as string
 		)
 		else /* USE OLD OBEJCT - RESET SPLINE */ 

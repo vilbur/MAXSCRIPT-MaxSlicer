@@ -95,7 +95,7 @@ struct MeshVertToColorVertexConvertor_v
 			format "faces.count: %\n" faces.count
 			--format "faces: %\n" faces
 
-			if faces.count > 0 then
+			if faces != undefined and faces.count > 0 then
 			(
 				if not get_single_vert then
 					CPV_verts_all[i] = for face_id in faces collect getMapVertFromFace(vert)(face_id)

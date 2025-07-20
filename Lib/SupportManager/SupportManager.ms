@@ -119,7 +119,9 @@ struct SupportManager_v
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
 		-- format "SUPPORTS_EXISTS: %\n" supports_exists
 
-		/* GENERATE NEW SUPPORTS */ 
+		/*------------------------------------------------------------------------------
+			GENERATE NEW SUPPORTS
+		--------------------------------------------------------------------------------*/ 
 		SupportObjectsNew = SourceObject.generateSupports obj_type:obj_type
 
 		new_nodes = for SupportObject in SupportObjectsNew collect SupportObject.support_obj

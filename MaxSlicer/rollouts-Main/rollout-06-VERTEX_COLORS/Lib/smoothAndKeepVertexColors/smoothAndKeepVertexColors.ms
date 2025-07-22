@@ -10,13 +10,13 @@ function smoothAndKeepVertexColors obj =
 	(
 		exclude_vertex_colors = #( white as string , black as string )
 		
-		verts = #{}
+		verts_colored = #{}
 	
-		--for key in verts_by_colors.keys where key != white as string do verts += verts_by_colors[key]
+		--for key in verts_by_colors.keys where key != white as string do verts_colored += verts_by_colors[key]
 		for key in verts_by_colors.keys do
-			if findItem exclude_vertex_colors key == 0 do verts += verts_by_colors[key]
+			if findItem exclude_vertex_colors key == 0 do verts_colored += verts_by_colors[key]
 	
-		verts --return
+		verts_colored --return
 	)
 	/*
 	  Function to test if a color is near to grey
@@ -38,7 +38,7 @@ function smoothAndKeepVertexColors obj =
 	
 	select obj
 	
-	verts = #{}
+	verts_colored = #{}
 	verts_black = #{}
 	verts_white = #{}
 	
@@ -78,6 +78,8 @@ function smoothAndKeepVertexColors obj =
 	
 	/* MODIFY VERTEX COLORS */ 
 	for clr in verts_by_colors_smooth.keys do
+	(
+		format "COLOR: % is gray: %\n" clr (isColorNearGrey ( _color = execute clr ) )
 		if isColorNearGrey ( _color = execute clr ) then
 			case of
 			(
@@ -89,7 +91,8 @@ function smoothAndKeepVertexColors obj =
 			
 		/* APPLY COLOR WHICH IS FOUND ON INSMOOTHED OBJECT - gradient colors are wanished to black\white */ 
 		else if findItem verts_by_colors.keys clr > 0 then
-			verts += verts_by_colors_smooth[clr]
+			verts_colored += verts_by_colors_smooth[clr]
+	)
 			
 	
 	
@@ -105,7 +108,7 @@ function smoothAndKeepVertexColors obj =
 	/*------------------------------------------------------------------------------
 		SET VERTEX COLORS
 	--------------------------------------------------------------------------------*/
-	polyop.setVertColor obj.baseobject 0 (verts_all_smoothed - verts) white
+	polyop.setVertColor obj.baseobject 0 (verts_all_smoothed - verts_colored) white
 	polyop.setVertColor obj.baseobject 0 (black_verts - black_verts_outline) black
 	
 	

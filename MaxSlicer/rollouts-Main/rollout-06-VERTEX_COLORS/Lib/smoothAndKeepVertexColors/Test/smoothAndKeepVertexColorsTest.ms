@@ -34,7 +34,7 @@ function createTestObject =
 
 --obj if selection.count > 0 then selection[1] else createTestObject()
 
-obj = createTestObject()
+--obj = createTestObject()
 
 obj	= selection[1]
 

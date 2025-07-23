@@ -39,3 +39,6 @@ function createTestObject =
 obj	= selection[1]
 
 smoothAndKeepVertexColors( obj )
+
+
+

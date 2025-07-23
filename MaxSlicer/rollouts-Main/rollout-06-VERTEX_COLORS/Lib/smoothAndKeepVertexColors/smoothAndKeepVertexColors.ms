@@ -35,32 +35,61 @@ function smoothAndKeepVertexColors obj =
 	/*------------------------------------------------------------------------------
 		
 	--------------------------------------------------------------------------------*/
-	
-	select obj
+	if not classof obj.baseobject == Editable_Poly then
+	(
+		messageBox ("Object "+obj.name+" is not Editable Poly") title:"smoothAndKeepVertexColors"
+		return false
+	)
+
 	
 	verts_colored = #{}
 	verts_black = #{}
 	verts_white = #{}
 	
+	msmooth = undefined
 	
-	epoly	= Edit_Poly  name:"EPOLY_SMOOTH_VERTEX_COLORS"
-	msmooth	= meshsmooth name:"MESHSMOOTH_VERTEX_COLORS" oldMapping:true ignoreSel:false
-	
+	--epoly	= Edit_Poly  name:"EPOLY_SMOOTH_VERTEX_COLORS"
+
 	VertexColors = VertexColors_v(obj)
 	
 	verts_by_colors = VertexColors.getVertsAndColors()
 	
 	colored_verts = getColoredVerts (verts_by_colors)
 	
-	/* ADD EDIT POLY MODIFIER */ 
-	modPanel.addModToSelection ( epoly ) --ui:on
-
-	select_faces = obj.modifiers[#EPOLY_SMOOTH_VERTEX_COLORS].getSelection #FACE
-
-	/* SMOOTH OBJECT */ 
-	modPanel.addModToSelection ( msmooth ) ui:on
+	for i = 1 to obj.modifiers.count while msmooth == undefined where classOf obj.modifiers[i] == meshsmooth do
+		msmooth = obj.modifiers[i]
+		
+	if msmooth == undefined then
+	(
+		select obj
+		
+		max modify mode
+		
+		current_mod = modPanel.getCurrentObject()
+		format "current_mod: %\n" current_mod
+		current_mod.GetSelection #Vertex
+		
+		select_faces = if classOf current_mod != Editable_Poly or classOf current_mod != Edit_Poly then
+		(
+			/* ADD EDIT POLY MODIFIER */ 
+			modPanel.addModToSelection ( Edit_Poly  name:"EPOLY_SMOOTH_VERTEX_COLORS" ) --ui:on
+		
+			obj.modifiers[#EPOLY_SMOOTH_VERTEX_COLORS].getSelection #FACE
+		)
+		else
+			current_mod.GetSelection #FACE
+		
+		/* APPLY ONLY ON SELECTED FACES */ 
+		if not select_faces.isEmpty then
+			subObjectLevel = 4 -- and ignoreSel:false MUST BE SET TO SMOOTH ONLY SELECTION
+		
+		/* SMOOTH OBJECT */ 
+		msmooth	= meshsmooth name:"MESHSMOOTH_VERTEX_COLORS" oldMapping:true ignoreSel:false
+		
+		modPanel.addModToSelection ( msmooth ) ui:on
 	
-	obj.modifiers[#MESHSMOOTH_VERTEX_COLORS].ignoreSel = not select_faces.isEmpty -- smooth only selected
+		obj.modifiers[#MESHSMOOTH_VERTEX_COLORS].ignoreSel = select_faces.isEmpty -- smooth only selected
+	)
 	
 	
 	/* COLLPASE STACK TO MESHMOOTH */ 
@@ -76,7 +105,9 @@ function smoothAndKeepVertexColors obj =
 	verts_by_colors_smooth = VertexColors_smooth.getVertsAndColors()
 		
 	
-	/* MODIFY VERTEX COLORS */ 
+	/*------------------------------------------------------------------------------
+		RESET VERTEX COLORS
+	--------------------------------------------------------------------------------*/
 	for clr in verts_by_colors_smooth.keys do
 	(
 		format "COLOR: % is gray: %\n" clr (isColorNearGrey ( _color = execute clr ) )
@@ -84,9 +115,9 @@ function smoothAndKeepVertexColors obj =
 			case of
 			(
 				/* SET GREY TO BLACK */ 
-				(_color.r < 128): verts_black += verts_by_colors_smooth[clr]
+				(_color.r <= 128): verts_black += verts_by_colors_smooth[clr]
 				/* SET GREY TO WHITE */ 
-				(_color.r > 128): verts_white += verts_by_colors_smooth[clr]
+				(_color.r >  128): verts_white += verts_by_colors_smooth[clr]
 			)
 			
 		/* APPLY COLOR WHICH IS FOUND ON INSMOOTHED OBJECT - gradient colors are wanished to black\white */ 
@@ -94,22 +125,21 @@ function smoothAndKeepVertexColors obj =
 			verts_colored += verts_by_colors_smooth[clr]
 	)
 			
-	
-	
 	/*------------------------------------------------------------------------------
-		GET BLACK VERTS
+		SET BLACK AND WHITE VERTS
 	--------------------------------------------------------------------------------*/
+	
+	/* GET BLACK VERTS */ 
 	black_faces	= polyop.getFacesUsingVert obj verts_black
 	black_verts	= polyop.getVertsUsingFace obj black_faces
 	black_verts_inv	= polyop.getVertsUsingFace obj -black_faces
 	
 	black_verts_outline = black_verts * black_verts_inv
 
-	/*------------------------------------------------------------------------------
-		SET VERTEX COLORS
-	--------------------------------------------------------------------------------*/
+	/* SET VERTEX COLOR */ 
 	polyop.setVertColor obj.baseobject 0 (verts_all_smoothed - verts_colored) white
 	polyop.setVertColor obj.baseobject 0 (black_verts - black_verts_outline) black
+	--polyop.setVertColor obj.baseobject 0 (black_verts) black
 	
 	
 )

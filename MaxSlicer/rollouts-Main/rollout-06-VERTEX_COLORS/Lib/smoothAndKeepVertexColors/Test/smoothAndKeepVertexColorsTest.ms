@@ -1,5 +1,6 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
+filein( getFilenamePath(getSourceFileName()) + "/../../VertexColors/VertexColors.ms" )	--"./../../VertexColors/VertexColors.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../smoothAndKeepVertexColors.ms" )	--"./../smoothAndKeepVertexColors.ms"
 
 
@@ -34,7 +35,7 @@ function createTestObject =
 
 --obj if selection.count > 0 then selection[1] else createTestObject()
 
---obj = createTestObject()
+obj = createTestObject()
 
 obj	= selection[1]
 

@@ -6,18 +6,19 @@ function smoothAndKeepVertexColors obj =
 	
 	/** Flattern dictionary
 	 */
-	function getColoredVerts verts_by_colors =
+	function getColoredVerts source_vertex_colors =
 	(
 		exclude_vertex_colors = #( white as string , black as string )
 		
 		verts_colored = #{}
 	
-		--for key in verts_by_colors.keys where key != white as string do verts_colored += verts_by_colors[key]
-		for key in verts_by_colors.keys do
-			if findItem exclude_vertex_colors key == 0 do verts_colored += verts_by_colors[key]
+		--for key in source_vertex_colors.keys where key != white as string do verts_colored += source_vertex_colors[key]
+		for key in source_vertex_colors.keys do
+			if findItem exclude_vertex_colors key == 0 do verts_colored += source_vertex_colors[key]
 	
 		verts_colored --return
 	)
+	
 	/*
 	  Function to test if a color is near to grey
 	*/
@@ -41,24 +42,24 @@ function smoothAndKeepVertexColors obj =
 		return false
 	)
 
-	
+	/* VARIABLES */ 
+	msmooth = undefined
+
 	verts_colored = #{}
 	verts_black = #{}
 	verts_white = #{}
 	
-	msmooth = undefined
-	
-	--epoly	= Edit_Poly  name:"EPOLY_SMOOTH_VERTEX_COLORS"
-
 	VertexColors = VertexColors_v(obj)
+		
+	source_vertex_colors = VertexColors.getVertsAndColors()
 	
-	verts_by_colors = VertexColors.getVertsAndColors()
+	colored_verts = getColoredVerts (source_vertex_colors)
 	
-	colored_verts = getColoredVerts (verts_by_colors)
-	
+	/* SEARCH FOR MESHMOOTH */ 
 	for i = 1 to obj.modifiers.count while msmooth == undefined where classOf obj.modifiers[i] == meshsmooth do
 		msmooth = obj.modifiers[i]
 		
+	/* ADD MESHMOOTH - if not found*/ 
 	if msmooth == undefined then
 	(
 		select obj
@@ -121,7 +122,7 @@ function smoothAndKeepVertexColors obj =
 			)
 			
 		/* APPLY COLOR WHICH IS FOUND ON INSMOOTHED OBJECT - gradient colors are wanished to black\white */ 
-		else if findItem verts_by_colors.keys clr > 0 then
+		else if findItem source_vertex_colors.keys clr > 0 then
 			verts_colored += verts_by_colors_smooth[clr]
 	)
 			

@@ -81,15 +81,14 @@ function smoothAndKeepVertexColors obj =
 			current_mod.GetSelection #FACE
 		
 		/* APPLY ONLY ON SELECTED FACES */ 
-		if not select_faces.isEmpty then
-			subObjectLevel = 4 -- and ignoreSel:false MUST BE SET TO SMOOTH ONLY SELECTION
+		subObjectLevel = if not select_faces.isEmpty then 4 else 0 -- and ignoreSel:false MUST BE SET TO SMOOTH ONLY SELECTION
 		
 		/* SMOOTH OBJECT */ 
-		msmooth	= meshsmooth name:"MESHSMOOTH_VERTEX_COLORS" oldMapping:true ignoreSel:false
+		msmooth	= meshsmooth name:"MESHSMOOTH_VERTEX_COLORS" oldMapping:true ignoreSel:select_faces.isEmpty
 		
 		modPanel.addModToSelection ( msmooth ) ui:on
 	
-		obj.modifiers[#MESHSMOOTH_VERTEX_COLORS].ignoreSel = select_faces.isEmpty -- smooth only selected
+		--obj.modifiers[#MESHSMOOTH_VERTEX_COLORS].ignoreSel = select_faces.isEmpty -- smooth only selected
 	)
 	
 	

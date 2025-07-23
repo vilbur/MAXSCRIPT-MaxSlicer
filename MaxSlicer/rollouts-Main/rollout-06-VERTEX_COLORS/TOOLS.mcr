@@ -1,3 +1,6 @@
+filein( getFilenamePath(getSourceFileName()) + "/Lib/smoothAndKeepVertexColors/smoothAndKeepVertexColors.ms" )	--"./Lib/smoothAndKeepVertexColors/smoothAndKeepVertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/copyVertexColors/copyVertexColors.ms" )	--"./Lib/copyVertexColors/copyVertexColors.ms"
+
 /**
   */
 macroscript	epoly_vertex_color_reset_cpv_verts
@@ -120,11 +123,7 @@ icon:	"across:2"
 	--on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
 	on execute do
-	--if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
 	(
-		--filein
-		format "EventFired: %\n" EventFired
-		
 		_selection = for obj in selection where classOf obj.baseobject == Editable_Poly collect obj 
 		
 		--for obj in selection do
@@ -132,34 +131,27 @@ icon:	"across:2"
 		(
 			obj_source	= _selection[1]
 			
-			VertexColors_source = VertexColors_v(obj_source)
-	
 			target_objects = deleteItem _selection 1
-			
+		
 			msg = "SOURCE OBJECT:\n\n"+obj_source.name+ "\n\n\nTARGET OBJECTS:\n"
 			--obj_target	= selection[2]
-	
+		
 			for target_object in target_objects do
 				msg += "\n" + target_object.name
 			
 			
 			if queryBox ( "Copy vertex colors ?\n\n" + msg) title:"COPY VERTEX COLORS" then
 			(
-				verts_by_colors = VertexColors_source.getVertsAndColors()
 				
-				for target_object in target_objects do
-					for vertex_color in verts_by_colors.keys do
-						(VertexColorProcessor_v(target_object)).setVertexColor verts_by_colors[vertex_color] ( execute vertex_color )
-						
-				FORMAT "\n----------------\n\nVERTEX COLORS COPIED\n\n%" msg
+				copyVertexColors (obj_source) (target_objects)
+				
+				FORMAT "\n----------------\n\nVERTEX COLORS COPIED" 
 			)
-		
 		)
 		else
 			messageBox "Select 2 objects at least.\n\n1st Object is SOURCE OBJECT" title:"COPY \ PASTE COLORS"
-		--CompleteRedraw()
-		--
-		--messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
+			
+		CompleteRedraw()
 	)
 )
 
@@ -173,9 +165,10 @@ icon:	"across:2"
 (
 	on execute do
 	(
-		filein( getFilenamePath(getSourceFileName()) + "/Lib/smoothAndKeepVertexColors/smoothAndKeepVertexColors.ms" )	--"./Lib/smoothAndKeepVertexColors/smoothAndKeepVertexColors.ms"
 		
-		for obj in selection do
+		_selection = for obj in selection where classOf obj.baseobject == Editable_Poly collect obj 
+		
+		for obj in _selection do
 			smoothAndKeepVertexColors(obj)
 		
 	)

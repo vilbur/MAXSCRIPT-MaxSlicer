@@ -92,7 +92,7 @@ struct MeshVertToColorVertexConvertor_v
 			--format "vert: %\n" vert
 
 			faces =  ( meshop.getFacesUsingVert obj_mesh vert ) as Array
-			format "faces.count: %\n" faces.count
+			--format "faces.count: %\n" faces.count
 			--format "faces: %\n" faces
 
 			if faces != undefined and faces.count > 0 then

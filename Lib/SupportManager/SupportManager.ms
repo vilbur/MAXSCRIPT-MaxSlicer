@@ -174,7 +174,8 @@ struct SupportManager_v
 		SUPPORT_OPTIONS.getValuesFromUi()
 		
 		/* FILTER VALID SUPPORTS */ 
-		supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
+		--supports = for Support in supports where isTallEnough Support.support_obj collect Support.support_obj
+		supports = for support_obj in supports where isTallEnough support_obj collect support_obj
 		
 		
 		/*------------------------------------------------------------------------------

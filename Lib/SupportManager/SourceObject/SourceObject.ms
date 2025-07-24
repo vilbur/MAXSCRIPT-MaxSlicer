@@ -60,10 +60,12 @@ struct SourceObject_v
  		supports_exists = Supports.keys as BitArray
 
 		verts_by_colors = VertexColors.getVertsAndColors()
-
+		
 		colored_verts = this._getColoredVerts(verts_by_colors)
 		
 		verts_by_colors = this._replaceWhiteWithObjectColor(verts_by_colors)
+		format "verts_by_colors: %\n" verts_by_colors
+		format "verts_by_colors.keys: %\n" verts_by_colors.keys
 
 		/* GEt SELECTED or COLORED verts */ 
 		verts_process =  if verts_sel.isEmpty then colored_verts else verts_sel
@@ -134,9 +136,7 @@ struct SourceObject_v
 		--if not queryBox ("Create supports from "+verts_process.numberSet as string +" verts ?") then
 			--return NewSupportObjects --return
 			
-		format "verts_by_colors: %\n" verts_by_colors
-		
-		format "verts_by_colors.keys: %\n" verts_by_colors.keys
+
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
@@ -660,7 +660,11 @@ struct SourceObject_v
 		)
 
 		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
-		verts_by_colors[ _shiftWirecolor obj.wirecolor ] = verts_by_colors[ white as string ]
+		
+		
+		verts_color_by_object = if verts_by_colors[ white as string ] != undefined then verts_by_colors[ white as string ] else all_verts
+		
+		verts_by_colors[ _shiftWirecolor obj.wirecolor ] = verts_color_by_object
 
 		/* REMOVE WHITE */ 
 		RemoveDictValue verts_by_colors ( white as string )
@@ -676,7 +680,7 @@ struct SourceObject_v
 		flattern_dict = #{}
 
 		--for key in verts_by_colors.keys where key != white as string do flattern_dict += verts_by_colors[key]
-		for key in verts_by_colors.keys do
+		for key in verts_by_colors.keys where verts_by_colors[key] != undefined do
 			if findItem exclude_vertex_colors key == 0 do flattern_dict += verts_by_colors[key]
 
 		flattern_dict --return

@@ -107,6 +107,10 @@ struct SupportManager_v
 		--this._removeDeletedNodes()
 		--SLICER_SYSTEM.toggleModifiers false
 		
+		/* CLOSE LAYER MANAGER BEFORE SELECTION */
+		if LayerManager.isDialogOpen() then
+			is_manager_open = LayerManager.closeDialog()
+		
 		max modify mode
 		
 		--SUPPORT_OPTIONS.getValuesFromUi()

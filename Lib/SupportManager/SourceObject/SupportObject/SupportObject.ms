@@ -479,8 +479,6 @@ struct SupportObject_v
 					/* GET DISTANCE TO HIT */ 
 					if ( hit = intersectRay source_obj _ray ) != undefined then 
 						hit_distance = distance ray_pos hit.pos
-						
-
 				)
 			)
 			else /* GET DISTANCE TO HIT IN CENTER */ 

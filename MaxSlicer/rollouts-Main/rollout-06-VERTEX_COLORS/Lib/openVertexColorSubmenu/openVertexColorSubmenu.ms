@@ -6,7 +6,10 @@
   *
   
   
-  USES COLOR_NAMES: --"./../../../../../Lib/COLOR_NAMES/COLOR_NAMES.ms"
+  USES:
+	COLOR_NAMES: --"./../../../../../Lib/COLOR_NAMES/COLOR_NAMES.ms"
+	
+	"./../callMethodByVertexColor/callMethodByVertexColor.ms"
   
  */
 function openVertexColorSubmenu method =

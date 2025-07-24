@@ -25,7 +25,16 @@ struct SupportLeg_v
 		
 		hit_leg = this._testHitOfSourceObject()
 		
-		Support.points[3] = if hit_leg != undefined then hit_leg.pos else this._getBasePointPos (bottom_point_pos_z)
+		Support.points[3] = if hit_leg != undefined then
+		(
+			point_3_pos = copy Support.points[2]
+			
+			point_3_pos.z = hit_leg.pos.z
+			
+			point_3_pos
+		)
+		else
+			this._getBasePointPos (bottom_point_pos_z)
 	),
 
 	private
@@ -62,7 +71,7 @@ struct SupportLeg_v
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
 		hit = Support.intersectRaySourceObject ( Support.points[2] ) [0,0,-1]
 		
-		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		/*  */
 		if hit != undefined and hit.pos.z <= 0 then
 			hit = undefined
 

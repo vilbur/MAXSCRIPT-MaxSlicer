@@ -35,10 +35,22 @@
 </folder>
 <livefolder id="1f6fb6b3-7eb6-42fb-a2cd-eafd6b09c953" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="Lib" url="Lib/">
 </livefolder>
-<livefolder id="74a24c1c-abd1-4b0e-8c4a-b9b736ebabb1" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="SupportManager" url="Lib/SupportManager/">
-</livefolder>
+<folder id="cdadb282-60f8-40cf-a8fa-68dbbae7d049" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="SupportManager">
+</folder>
 <livefolder id="d8834c38-8860-4c4d-913c-c450d788b39e" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="MaxSlicer" url="MaxSlicer/">
 </livefolder>
+<file id="7ceb926b-79a4-4389-8024-b78c302fd293" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SupportLeg.ms" url="Lib/SupportManager/SourceObject/SupportObject/SupportLeg/SupportLeg.ms">
+</file>
+<file id="953d035d-5866-4c50-806e-d79440fa661e" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SupportObject.ms" url="Lib/SupportManager/SourceObject/SupportObject/SupportObject.ms">
+</file>
+<livefolder id="9e4cf1df-c7bd-4503-8f5a-6a27fd4dfa71" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SupportManager" url="Lib/SupportManager/">
+</livefolder>
+<file id="ecd00032-6ec9-43c7-8b84-44cc364bbb35" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SupportRaft.ms" url="Lib/SupportManager/SourceObject/SupportObject/SupportRaft/SupportRaft.ms">
+</file>
+<file id="efadbd97-1232-4bcb-9ebe-ecfab5ef04f1" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SourceObject.ms" url="Lib/SupportManager/SourceObject/SourceObject.ms">
+</file>
+<file id="f483107c-a7ee-42fd-ab2d-70edfe032b1d" idref="cdadb282-60f8-40cf-a8fa-68dbbae7d049" name="SupportManager.ms" url="Lib/SupportManager/SupportManager.ms">
+</file>
 <preference-set idref="12089a42-ba37-4a31-ace1-064f036ed6fb" id="project" preftype="project">
   <long id="prefs_version">1</long>
 </preference-set>

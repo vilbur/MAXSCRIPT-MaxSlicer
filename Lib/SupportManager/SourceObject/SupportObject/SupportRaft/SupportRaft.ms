@@ -99,7 +99,7 @@ struct SupportRaft_v
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    hit_raft = this._testHitOfSourceObject( normal_length )
-		 -- format "HIT_RAFT: %\n" hit_raft
+		  --format "HIT_RAFT: %\n" hit_raft
 		 
 		/*------------------------------------------------------------------------------
 			IF LEG EXISTS

@@ -119,7 +119,7 @@ struct VertexColorProcessor_v
 		)
 		/* GET ALL COLORED VERTS */ 
 		else
-			verts_by_colors = VertexColors.getColoredVerts()
+			verts_by_colors = VertexColors.getColoredVerts exclude:#( black as string )
 			
 		this._callMethod (method) (verts_by_colors)
 	),

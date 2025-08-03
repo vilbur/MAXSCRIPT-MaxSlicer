@@ -1,3 +1,4 @@
+filein( getFilenamePath(getSourceFileName()) + "/../getInternalVertsOfObject/getInternalVertsOfObject.ms" )	--"./../getInternalVertsOfObject/getInternalVertsOfObject.ms"
 
 /** Select verts by cavity
 	All verts are used if nothing selected
@@ -165,7 +166,7 @@ toolTip:	"Select verts which are inside object.\n\nE.G: If objects or elements i
 (
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-02-ISLANDS\Lib\getInternalVertsOfObject\getInternalVertsOfObject.ms"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxSlicer\MaxSlicer\rollouts-Main\rollout-02-ISLANDS\Lib\getInternalVertsOfObject\getInternalVertsOfObject.ms"
 
 		if selection.count > 0 then
 		(
@@ -196,29 +197,7 @@ toolTip:	"Select verts which are inside object.\n\nE.G: If objects or elements i
 					(VertSelector_v( _selection[i])).selectVerts inside_verts_all[i] 
 				)
 				
-				--select _selection
-				--
-				--max modify mode
-				--
-				--if classOf ( modPanel.getCurrentObject() ) != Edit_Poly then
-				--	modPanel.addModToSelection (Edit_Poly ()) ui:on
-				--
-				--
-				--for i = 1 to _selection.count do
-				--(
-				--	format "inside_verts_all[i]: %\n" inside_verts_all[i]
-				--	
-				--	select _selection[i]
-				--
-				--	subObjectLevel = 1
-				--
-				--	_selection[i].modifiers[#Edit_Poly].select #Vertex #{} node:_selection[i]
-				--	_selection[i].modifiers[#Edit_Poly].select #Vertex inside_verts_all[i] node:_selection[i]
-				--)
-				
 				select _selection
-				
-				--subObjectLevel = 1
 			)
 		)
 	)

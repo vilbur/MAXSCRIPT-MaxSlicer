@@ -85,7 +85,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: direction:undefined dir_vector:undefined normal_world:undefined wirecolor: =
 	(
-		 -- format "\n===========================================================\n"
+		  --format "\n===========================================================\n"
 		  --format "\n"; print "SupportObject_v.generateSupport()"
 		  --format "wirecolor: %\n" wirecolor
 		  --format "direction: %\n" direction
@@ -458,7 +458,7 @@ struct SupportObject_v
 		(
 			hit = intersectRay source_obj _ray
 			
-			-- format "HIT: %\n" hit
+			 --format "HIT A: %\n" hit
 			/*------------------------------------------------------------------------------
 				TRY HIT ON CENTER OF SUPPORT
 			------------------------------------------------------------------------------*/
@@ -479,12 +479,13 @@ struct SupportObject_v
 					/* GET DISTANCE TO HIT */ 
 					if ( hit = intersectRay source_obj _ray ) != undefined then 
 						hit_distance = distance ray_pos hit.pos
+					--format "HIT B: %\n" hit
 				)
 			)
 			else /* GET DISTANCE TO HIT IN CENTER */ 
 				hit_distance = distance ray_pos hit.pos
 			
-			--format "HIT: %\n" hit
+			--format "HIT C: %\n" hit
 			
 			/* GET HIT POSITION DIR VECTOR */ 
 			--if hit != undefined then
@@ -494,17 +495,22 @@ struct SupportObject_v
 				append hits #( _ray, hit )
  		)
 		
-		/* GET CLOSLOSEST HIT */ 
-		for ray_hit in hits do
-		(
-            dist = distance ray_hit[1].pos ray_hit[2].pos
-            
-			if dist < closest_dist then
-            (
-                closest_dist = dist
-                closest_hit = hit
-            )			
-		)
+		/* GET CLOSLOSEST HIT */
+		if hits.count > 1 then
+			for ray_hit in hits do
+			(
+				dist = distance ray_hit[1].pos ray_hit[2].pos
+				
+				if dist < closest_dist then
+				(
+					closest_dist = dist
+					closest_hit = ray_hit[2]
+				)			
+			)
+			
+		else if hits.count == 1 then
+			closest_hit = hits[1][2]
+
 
 		closest_hit --return
 	),
@@ -594,7 +600,7 @@ struct SupportObject_v
 			
 			/* CREATE LEG */ 
 			SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
-			
+			--format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
 			/* CREATE FOOT */ 
 			if SupportLeg.hit_leg == undefined and foot_exists then 
 				SupportFoot.createFoot() --"./SupportFoot/SupportFoot.ms"

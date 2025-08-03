@@ -88,6 +88,7 @@ struct VertexColors_v
 
 		this._getVertsByColors (verts) exclude:exclude
 		
+		/* FLAT DICTIONARY -- KEY: vertex_index VALUE: vertex_color */ 
 		if flat then
 		(
 			colored_verts = Dictionary #INTEGER
@@ -209,7 +210,7 @@ struct VertexColors_v
 	 */
 	function _getVertsByColors verts_get_colors exclude: =
 	(
-		 -- format "\n"; print "VertexColors_v._getVertsByColors()"
+		  --format "\n"; print "VertexColors_v._getVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
 
@@ -228,6 +229,7 @@ struct VertexColors_v
 			if findItem exclude colors_data.key == 0 then
 				verts_by_colors[ colors_data.key ] = (all_verts_empty + verts_of_color)
 
+		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 		verts_by_colors --return
 	),
 

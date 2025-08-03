@@ -1,6 +1,6 @@
 /** Smooth and keep vertex colors
  */
-function smoothAndKeepVertexColors obj =
+function smoothAndKeepVertexColors obj quiet:false =
 (
 	format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
 	
@@ -52,21 +52,25 @@ function smoothAndKeepVertexColors obj =
 			snap.name = "snap"
 			last_meshmooth = 0
 			
+			
+			/* SEARCH FOR MESHMOOTH MODIFIER */ 		
 			for i = 1 to snap.modifiers.count where classOf snap.modifiers[i] == meshsmooth do 
 				last_meshmooth = i
-					
+			
+			/* DELETE ALL MODIFIER ABOVE MESHMOOTH MODIFIER */ 		
 			if last_meshmooth > 0 then
 				for i = 1 to last_meshmooth do
 					deleteModifier snap 1
 			
+			/* COLLAPSE OBJECT */ 
 			convertTo snap PolyMeshObject
 			
+			/* GET VERTEX COLORS */ 
 			VertexColors = VertexColors_v(snap)
 				
 			source_vertex_colors = VertexColors.getVertsAndColors()
 			
 			delete snap
-			
 		)
 		else
 			source_vertex_colors = (VertexColors_v(obj)).getVertsAndColors()
@@ -79,7 +83,9 @@ function smoothAndKeepVertexColors obj =
 	--------------------------------------------------------------------------------*/
 	if not classof obj.baseobject == Editable_Poly then
 	(
-		messageBox ("Object "+obj.name+" is not Editable Poly") title:"smoothAndKeepVertexColors"
+		if not quiet then
+			messageBox ("Object "+obj.name+" is not Editable Poly") title:"smoothAndKeepVertexColors"
+		
 		return false
 	)
 
@@ -209,10 +215,18 @@ function smoothAndKeepVertexColors obj =
 	polyop.setVertColor obj.baseobject 0 black_verts black
 	--polyop.setVertColor obj.baseobject 0 (verts_white - verts_colored ) white
 	--polyop.setVertColor obj.baseobject 0 (black_verts) black
-	format "vertex_colors_result: %\n" vertex_colors_resultvertex_colors_result
+	--format "vertex_colors_result: %\n" vertex_colors_resultvertex_colors_result
+	format "---------------------------------------------------------------\n"
+	format "white_verts.numberSet: %\n" white_verts.numberSet
+	format "verts_all_smoothed.numberSet: %\n" verts_all_smoothed.numberSet
+	format "TEST: %\n\n" (not white_verts.isEmpty and white_verts.numberSet != verts_all_smoothed.numberSet)
 	
-	vertex_colors_result[white as string] = white_verts
-	vertex_colors_result[black as string] = black_verts
+	
+	if not white_verts.isEmpty and white_verts.numberSet != verts_all_smoothed.numberSet then
+		vertex_colors_result[ white as string ] = white_verts
+		
+	if not black_verts.isEmpty then
+		vertex_colors_result[ black as string ] = black_verts
 
 	vertex_colors_result --return
 )

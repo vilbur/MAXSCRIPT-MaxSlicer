@@ -103,13 +103,17 @@ struct SupportManager_v
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
 		 --format "\n"; print "SupportManager_v.generateSupports()"
-		--format "source_obj: %\n" source_obj
+		format "\n-------------------------------------\n"
+		format "GENERATE SUPPORTS FOR: %\n" source_obj
+		 
 		--this._removeDeletedNodes()
 		--SLICER_SYSTEM.toggleModifiers false
 		
 		/* CLOSE LAYER MANAGER BEFORE SELECTION */
 		if LayerManager.isDialogOpen() then
 			is_manager_open = LayerManager.closeDialog()
+		
+		select source_obj
 		
 		max modify mode
 		

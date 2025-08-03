@@ -37,8 +37,9 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
+		  format "\n===========================================================\n"
 		 format "\n"; print "SourceObject_v.generateSupports()"
-		 --format "SourceObject.obj: %\n" obj
+		 format "SOURCE OBJECT: %\n" obj
 		 --format "classOf obj: %\n" ( classOf obj )
 		--format "OBJ_TYPE: %\n" obj_type
 		
@@ -101,7 +102,9 @@ struct SourceObject_v
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		--timer_verts_process = timeStamp()
-		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) collect vert ) as BitArray
+		normal_limit = if direction == #DOWN then -0.3 else -0.2
+		
+		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) limit:normal_limit collect vert ) as BitArray
 		--format "VERTS_PROCESS: % ms\n" (( timeStamp()) - timer_verts_process)
 		format "VERTS_PROCESS:   %\n" verts_process
 		format "VERTS_PROCESS:   %\n" verts_process.numberSet

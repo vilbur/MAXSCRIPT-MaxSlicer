@@ -69,8 +69,9 @@ struct SupportLeg_v
 	function _testHitOfSourceObject =
 	(
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
+		--Point pos:Support.points[2] size:1
 		hit = Support.intersectRaySourceObject ( Support.points[2] ) [0,0,-1]
-		
+		--format "hit: %\n" hit
 		/*  */
 		if hit != undefined and hit.pos.z <= 0 then
 			hit = undefined

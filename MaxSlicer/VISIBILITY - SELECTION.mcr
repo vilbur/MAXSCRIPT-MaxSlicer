@@ -13,12 +13,40 @@
 macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
 buttontext:	"S O U  R C E"
-tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
+tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more\n\nCTRL+ALT+SHIFT: DELETE ALL CHILDREN"
 icon:	"across:3|height:32|width:128|border:false"
 (
 	on execute do
-		undo "Show\Hide Source" on
-			selectHideUnhideSupports type:#SOURCE state:true
+	(
+		if keyboard.controlPressed and keyboard.altPressed and keyboard.shiftPressed then
+		(
+			
+			if queryBox ("DELETE ALL CHILDREN ?") title:"Title"  beep:false then
+			(
+				objects_by_visibility	= for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
+				
+				  /* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
+				  objs_input = if selection.count > 0 then selection as Array else objects_by_visibility
+			  
+				  /* GET INPUT SOURCE OBJECTS */ 
+				  source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
+	
+				  delete_objects = #()
+				  if source_objects.count > 0 then
+				  (
+					--for source_object in source_objects where source_object.children.count do 
+					for source_object in source_objects do
+						delete_objects = join delete_objects  source_object.children
+					
+					delete delete_objects
+				  )
+			)
+			
+		)
+		else
+			undo "Show\Hide Source" on
+				selectHideUnhideSupports type:#SOURCE state:true
+	)
 )
 
 /*

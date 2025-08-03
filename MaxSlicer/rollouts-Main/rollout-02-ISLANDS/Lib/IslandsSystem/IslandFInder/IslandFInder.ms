@@ -1,6 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/LowestVertIslandFinder/LowestVertIslandFinder.ms" )	--"./LowestVertIslandFinder/LowestVertIslandFinder.ms"
 filein( getFilenamePath(getSourceFileName()) + "/IslandPerLayerFinder/IslandPerLayerFinder.ms" )	--"./IslandPerLayerFinder/IslandPerLayerFinder.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../../getInternalVertsOfObject/getInternalVertsOfObject.ms" )	--"./../../getInternalVertsOfObject/getInternalVertsOfObject.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../../getInternalVertsOfObject/getInternalVertsOfObject.ms" )	--"./../../getInternalVertsOfObject/getInternalVertsOfObject.ms"
 
 /** Island finder
  */

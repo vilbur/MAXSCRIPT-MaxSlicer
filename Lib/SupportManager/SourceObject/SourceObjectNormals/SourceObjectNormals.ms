@@ -84,15 +84,21 @@ struct SourceObjectNormals_v
 	
 	/** Is vertex normal pointing DOWN or SIDE but not UP
 	 */
-	function isNormalValid vert =
+	function isNormalValid vert limit:0.0 =
 	(
 		--format "\n"; print "SourceObjectNormals_v.isNormalValid()"
-		--format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
-		is_normal_valid = normals_world[vert].z <= 0
-		--if not (is_normal_valid = normals_world[vert].z <= 0 ) then
-			--format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
+		----format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
+		--format "normals_world[vert].z: %\n" normals_world[vert].z
+		--
+		--format "limit: %\n" limit
+		--format "TEST: %\n" (normals_world[vert].z <= limit)
 		
-		--is_normal_valid --return
+		is_normal_valid = normals_world[vert].z <= limit
+		
+		if not is_normal_valid then
+			format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
+		
+		is_normal_valid --return
 	),
 	
 	/** Save normals to user props

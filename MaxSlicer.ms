@@ -6,6 +6,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/M
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms"
 
+
 /* UI GLOBALS */
 global DIALOG_maxslicer
 global DIALOG_slicer_slider
@@ -43,6 +44,7 @@ filein( getFilenamePath(getSourceFileName()) + "/MaxSlicer/rollouts-Main/rollout
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms" )	--"./Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms"
+
 
 current_dir = getFilenamePath(getSourceFileName())
 

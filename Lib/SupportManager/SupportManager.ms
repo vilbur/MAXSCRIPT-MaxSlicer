@@ -1,5 +1,8 @@
 global SOURCE_OBJECT_TRANSFORM
 
+if EXPORT_SIZE == undefined then
+	global EXPORT_SIZE = 1
+
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms" )	--"./onEvents/bindOnObjectDeletedCallback/bindOnObjectDeletedCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
@@ -1327,7 +1330,6 @@ struct SupportManager_v
 	(
 		-- format "\n"; print "SupportManager_v.onCreate()"
 		if SLICER_SYSTEM != undefined then SLICER_SYSTEM.toggleModifiers false
-		
 		
 		this._loadSourceObjectsFromScene()
 		

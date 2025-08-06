@@ -50,7 +50,7 @@ pos_z = 1.5
 pos_z = 3
 pos_z = 10
 
---if selection.count =C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-VIEWPORTS\04-[Layout-Presets].mcr= 0 then
+if selection.count == 0 then
 (
 	delete objects
 	
@@ -135,7 +135,7 @@ obj_type = #SUPPORT
 -- obj_type = #RAFT
 
 /* GENERATE */
---generateSupportsOrRafts obj_type:obj_type
+generateSupportsOrRafts obj_type:obj_type
 
 
 --format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS.base_width

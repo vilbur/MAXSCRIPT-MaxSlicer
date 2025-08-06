@@ -348,7 +348,9 @@ struct SupportOptions_v
 	on create do
 	(
 		format "\n"; print "SupportOptions_v.create()"
-		this._enabledDependantControls()
+		
+		if ROLLOUT_generator != undefined then -- if UI open
+			this._enabledDependantControls()
 		
 		--format "THIS: %\n" this
 		/* CHECK CONTRUCT PROPERTY - DISBALE ON TESTING */ 

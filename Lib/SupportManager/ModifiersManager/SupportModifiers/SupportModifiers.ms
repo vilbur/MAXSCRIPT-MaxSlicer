@@ -91,7 +91,7 @@ struct SupportModifiers_v
 		/* GENERATE MATERIAL ID */
 		sweep_mod.UseSectionIDs	= off
 		sweep_mod.UsePathIDs	= on
-
+		
 		sweep_mod --return
 	),
 
@@ -228,7 +228,7 @@ struct SupportModifiers_v
 					
 						--format \"ATTRIBUTE CHANGED "+mod_name+"\\n\"
 					
-						 --format \"obj: %\\n\" obj
+						 format \"obj: %\\n\" obj
 						
 						obj.modifiers[#"+mod_name+"].amount.controller.update() -- fires refresh other modifiers[mod_name] which fires param wiring script
 					)

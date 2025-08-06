@@ -47,8 +47,8 @@ struct ModifiersManager_v
 		
 			modifiers = if obj_type == #SUPPORT then SupportModifiers[#DEFAULT].mods_support else SupportModifiers[#DEFAULT].mods_raft
 
-			for _mod in modifiers do
-			-- format "_mod: %\n" _mod
+			--for _mod in modifiers do
+			-- FORMAT "_mod: %\n" _mod
 			
 			max modify mode
 			--max create mode
@@ -61,10 +61,10 @@ struct ModifiersManager_v
 			this._setSweepRadius (_objects[1] ) obj_type
 			
 			/* WIRE PARAMETERS */ 
-			this._wireBarAndTopWidth _objects[1]
-			
+			this._wireTopWidthToBarWidth _objects[1]
+						
 			if obj_type == #SUPPORT then
-				this._wireBarWidthToBase _objects[1]
+				this._wireBaseWidthToBarWidth _objects[1]
 		)
 		
 		/*==============================================================================
@@ -231,13 +231,12 @@ struct ModifiersManager_v
 		this._setSweepRadius (_objects[1]) to_type
 
 		/* REWIRE MODIFIER PARAMETERS */ 
-		this._wireBarAndTopWidth _objects[1]
+		this._wireTopWidthToBarWidth _objects[1]
 	),
 
 	/*==============================================================================
 		WIRE PARAMS
 	================================================================================*/
-	
 	
 	/** CHMAFER VALUE DEPENDS ON SWEEP RADIUS AND CUSTOM ATRRIBUTE
 		
@@ -249,9 +248,9 @@ struct ModifiersManager_v
 		3. Update chamfer value
 	  
 	 */
-	function _wireBarAndTopWidth obj =
+	function _wireTopWidthToBarWidth obj =
 	(
-		--format "\n"; print "ModifiersManager_v._wireBarAndTopWidth()"
+		--format "\n"; print "ModifiersManager_v._wireTopWidthToBarWidth()"
 		/* CREATE SCRIPT */ 
 		top_width_script = float_script ()
 		
@@ -264,7 +263,7 @@ struct ModifiersManager_v
 		
 		/* BIND TO CUSTOM ATTRIBUTE OF CHAMFER MODIFIER */ 
 		top_width_script.addTarget "MaxSlicer"  obj[#Modified_Object][#TOP_WIDTH].MaxSlicer
-		
+		 
 		
 		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; (((bar_width.radius * 2.0) - MaxSlicer.top_width)    / 2.0 ) / (if EXPORT_SIZE != undefined then EXPORT_SIZE else 1)"
 		--top_width_script.script  = "format \"FLOAT SCRIPT\\n\"; 0.25"
@@ -284,9 +283,9 @@ struct ModifiersManager_v
 		3. Update chamfer value
 	  
 	 */
-	function _wireBarWidthToBase obj =
+	function _wireBaseWidthToBarWidth obj =
 	(
-		--format "\n"; print "ModifiersManager_v._wireBarWidthToBase()"
+		--format "\n"; print "ModifiersManager_v._wireBaseWidthToBarWidth()"
 		----if obj.modifiers[#BASE_WIDTH] != undefined then
 		/* CREATE SCRIPT */ 
 		base_width_script = float_script ()

@@ -30,7 +30,6 @@ clr_pink =  ( color 255 190 200 ) as string
 verts_colors[ "yellow"	] = #{ 113 }
 verts_colors[ "orange"	] = #{ 57 }
 verts_colors[ clr_pink	] = #{ 115 }
--- verts_colors[ clr_blue	] = #{ 22 }
 verts_colors[ clr_blue	] = #{ 85 }
 verts_colors[ "green"	] = #{ 42 }
 verts_colors[ "gray"	] = #{ 32 }
@@ -50,7 +49,7 @@ pos_z = 1.5
 pos_z = 3
 pos_z = 10
 
---if selection.count == 0 then
+if selection.count == 0 then
 (
 	delete objects
 	
@@ -64,9 +63,9 @@ select_verts = #{}
 --select_verts += verts_colors["yellow"]
 --select_verts += verts_colors["orange"]
 --select_verts += verts_colors[clr_pink]
-select_verts += verts_colors[clr_cyan]
+--select_verts += verts_colors[clr_cyan]
 --select_verts += verts_colors["green"]
---select_verts += verts_colors[clr_blue]
+select_verts += verts_colors[clr_blue]
 --select_verts += #{ 40 }
 
 if select_verts.numberSet > 0 then
@@ -119,8 +118,8 @@ SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
 
 /* SET RAFT MODE */ 
 --SUPPORT_OPTIONS.raft_mode = 0 -- CUSTOM
-SUPPORT_OPTIONS.raft_mode = 1 -- MIN
---SUPPORT_OPTIONS.raft_mode = 2 -- AUTO
+--SUPPORT_OPTIONS.raft_mode = 1 -- MIN
+SUPPORT_OPTIONS.raft_mode = 2 -- AUTO
 
 
 /* UNLOCK  RAFT LENGTH  */

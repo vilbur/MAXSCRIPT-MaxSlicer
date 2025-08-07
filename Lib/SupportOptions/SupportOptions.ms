@@ -329,7 +329,7 @@ struct SupportOptions_v
 						2: #AUTO
 					)
 		
-		ROLLOUT_generator.SPIN_normal_length.enabled = raft_direction == #NORMAL and raft_mode == #CUSTOM 
+		ROLLOUT_generator.SPIN_raft_length.enabled = raft_direction == #NORMAL and raft_mode == #CUSTOM 
 		
 		/*------------------------------------------------------------------------------
 			SEEDER

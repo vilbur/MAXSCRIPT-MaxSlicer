@@ -30,6 +30,7 @@ struct SupportObject_v
 	hit_leg,
 	
 	/* dependency */
+	SupportPin	= SupportPin_v(this),
 	SupportRaft	= SupportRaft_v(this),
 	SupportLeg	= SupportLeg_v (this),
 	SupportFoot	= SupportFoot_v(this),
@@ -132,9 +133,12 @@ struct SupportObject_v
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
-		this._setSupportLinePoints update_or_generate:#GENERATE
-		
+		--SupportPin.createPin()
+		--this.points[2] = this.points[1] + ( this.min_raft_length * this.dir_vector )
 
+		this._setSupportLinePoints update_or_generate:#GENERATE
+		format "POINTS.count: %\n" points.count
+		
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
@@ -184,17 +188,19 @@ struct SupportObject_v
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 			
+		second_knot_pos = getKnotPoint support_obj spline_1 2
+			
 		if direction != undefined then this.direction = direction
 
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
 
-		points = #(first_knot_pos, support_obj.pos)
+		points = #(first_knot_pos, second_knot_pos, support_obj.pos)
 		
 		this._setNormalLenght update_raft:update_raft
 
-		this.dir_vector = if dir_vector == undefined then normalize (points[2] - points[1]) else dir_vector
+		this.dir_vector = if dir_vector == undefined then normalize (points[3] - points[2]) else dir_vector
 		
 		this._keepVectorDown()
 
@@ -335,7 +341,7 @@ struct SupportObject_v
 			if not this._isFirstPointAboveGround() then
 				return false
 			
-			points_distance = distance points[1] points[2]
+			points_distance = distance points[2] points[3]
 
 			/*------------------------------------------------------------------------------------------
 				SIMPLE SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
@@ -583,16 +589,24 @@ struct SupportObject_v
 	
 	private
 
-	/** Set support line points
-	 */
+	/*------------------------------------------------------------------------------
+	  
+		SET SUPPORT LINE POINTS
+		
+	--------------------------------------------------------------------------------*/
 	function _setSupportLinePoints update_or_generate:#UPDATE =
  	(
 		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		-- format "obj_type: %\n" obj_type
+		
+		if update_or_generate != #UPDATE then
+			points[2] = points[1] + ( min_raft_length * dir_vector )
+
+		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
-		   -- format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
-
+		    format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		
 		/* CREATE LEG */ 
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
 		(
@@ -605,7 +619,7 @@ struct SupportObject_v
 			if SupportLeg.hit_leg == undefined and foot_exists then 
 				SupportFoot.createFoot() --"./SupportFoot/SupportFoot.ms"
 		)
-
+		
 		this._setFootExists()
 	),
 	
@@ -655,17 +669,17 @@ struct SupportObject_v
 	--	)
 	--),
 	
-	/** • AVOID SUPORT UNDER GROUND
+	/** AVOID SUPORT UNDER GROUND
 	 */
 	--function _isFirstPointAboveGround first_knot_pos dir_vector =
 	function _isFirstPointAboveGround =
 	(
-		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()"
-		points[1].z > 0.0
+		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()" 
+		points[1].z > 0.0 
 	),
 	
-	/** • ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
-	  * • AVOID TO FLIP DIR VECTOR TO BACKSIDE
+	/**  ALLOW TO MOVE SUPPORT IN ONLY GIVEN ANGLE
+	  *  AVOID TO FLIP DIR VECTOR TO BACKSIDE
 	  *		
 	  * 1)Create future dir vetor from OLD FISRT POSITION and new SUPPORT POSITION
 	  *		  
@@ -743,7 +757,7 @@ struct SupportObject_v
 		-- format "\n"; print "SupportObject_v._setNormalLenght()"
 		
 		this.normal_length = if update_raft and not SUPPORT_OPTIONS.lock_normal_length then
-			 distance points[1] points[2]
+			 distance points[2] points[3]
 		else
 			getUserPropVal support_obj "NORMAL_LENGTH"
 	),
@@ -1079,7 +1093,7 @@ struct SupportObject_v
 	function _saveFirstKnotPos =
 	(
 		--format "\n"; print "SupportObject_v._saveFirstKnotPos()"
-		setUserPropVal support_obj "FIRST_KNOT_POS" points[1]
+		setUserPropVal support_obj "FIRST_KNOT_POS" points[2]
 	),
 
 	/** Support is displayed as box if dir_vector or support position is not valid
@@ -1095,8 +1109,8 @@ struct SupportObject_v
 	(
 		-- format "\n"; print "SupportObject_v._alignPivotToRaft()"
 		--support_obj = $
-		--dir = normalize (support_obj.pos - points[1])
-		--dir = normalize ( points[1] - support_obj.pos )
+		--dir = normalize (support_obj.pos - points[2])
+		--dir = normalize ( points[2] - support_obj.pos )
 		--dir = normalize ( (  getKnotPoint support_obj spline_1 1 ) - ( getKnotPoint support_obj spline_1 2 ) )
 		dir = this.dir_vector * -1
 		

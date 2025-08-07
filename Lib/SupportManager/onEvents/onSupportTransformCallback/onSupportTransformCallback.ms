@@ -97,9 +97,12 @@ function bindSupportToTransformEvent supports =
 		live_update_max_objects_count = SUPPORT_OPTIONS.live_update_max_objects_count
 		
 
-		/*------------------------------------------------------------------------------
-			WHEN MULTIPLE SUPPORTS TRANSFORM
-		------------------------------------------------------------------------------*/
+		/*==============================================================================
+		
+				WHEN MULTIPLE SUPPORTS TRANSFORM
+		
+		================================================================================*/
+		
 		if selection.count > live_update_max_objects_count then
 		(
 			/* START TIMEOUT */ 		
@@ -110,9 +113,12 @@ function bindSupportToTransformEvent supports =
 			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
 		)
 		
-		/*------------------------------------------------------------------------------
-			FIRE UPDATE WHEN SINGLE SUPPORT TRANSFORM
-		------------------------------------------------------------------------------*/
+		/*==============================================================================
+		
+				FIRE UPDATE WHEN SINGLE SUPPORT TRANSFORM
+		
+		================================================================================*/
+		
 		else if support.isSelected then
 			SUPPORT_MANAGER.updateSupports #( support ) update_raft:true direction:#CUSTOM
 		

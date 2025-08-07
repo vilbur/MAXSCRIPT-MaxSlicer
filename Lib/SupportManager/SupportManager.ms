@@ -361,15 +361,15 @@ struct SupportManager_v
 			SourceObjects[sync_key].updateSupports support_nodes:supports_by_source[sync_key] update_raft:update_raft direction:direction 
 			
 		/* UPDATE ALL BEAMS OF SUPPORTS */
-		--this._updateBeamsBySupports(supports_by_source.keys)
-		this._updateBeamsBySupports( this._flatternDictionary(supports_by_source))
-		
-		/* UPDATE ALL SHAPES */ 
+		----this._updateBeamsBySupports(supports_by_source.keys)
+		--this._updateBeamsBySupports( this._flatternDictionary(supports_by_source))
+		--
+		--/* UPDATE ALL SHAPES */ 
 		this.updateShapes()
-
-		/*	IMPORTANT PREVENT CRASH: setPivotToPoint(2) -- MUST BE AFTER updateShape */ 
-		for SupportObject in this.getSupportAndRaftObjects support_nodes do
-			SupportObject.setPivotToPoint(2)
+		--
+		--/*	IMPORTANT PREVENT CRASH: setPivotToPoint(2) -- MUST BE AFTER updateShape */ 
+		--for SupportObject in this.getSupportAndRaftObjects support_nodes do
+		--	SupportObject.setPivotToPoint(3)
 			
 		--supports = this.getSupportAndRaftObjects support_nodes
 		

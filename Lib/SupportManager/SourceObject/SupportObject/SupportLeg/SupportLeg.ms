@@ -25,9 +25,9 @@ struct SupportLeg_v
 		
 		hit_leg = this._testHitOfSourceObject()
 		
-		Support.points[3] = if hit_leg != undefined then
+		Support.points[4] = if hit_leg != undefined then
 		(
-			point_3_pos = copy Support.points[2]
+			point_3_pos = copy Support.points[3]
 			
 			point_3_pos.z = hit_leg.pos.z
 			
@@ -45,7 +45,7 @@ struct SupportLeg_v
 	(
 		--format "\n"; print "SupportLeg_v._getBasePointPos()"
 		
-		base_point_pos = copy Support.points[2]
+		base_point_pos = copy Support.points[3]
 		
 		base_point_pos.z = bottom_point_pos_z
 		
@@ -69,8 +69,8 @@ struct SupportLeg_v
 	function _testHitOfSourceObject =
 	(
 		--format "\n"; print "SupportObject_v._testHitOfSourceObject()"
-		--Point pos:Support.points[2] size:1
-		hit = Support.intersectRaySourceObject ( Support.points[2] ) [0,0,-1]
+		--Point pos:Support.points[3] size:1
+		hit = Support.intersectRaySourceObject ( Support.points[3] ) [0,0,-1]
 		--format "hit: %\n" hit
 		/*  */
 		if hit != undefined and hit.pos.z <= 0 then

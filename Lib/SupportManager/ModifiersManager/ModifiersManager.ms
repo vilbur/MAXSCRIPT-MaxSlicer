@@ -320,7 +320,7 @@ struct ModifiersManager_v
 		 --format "\n"; print "SupportModifiers_v.setSweepRadius()"
 		mod_name = if obj_type == #RAFT then #RAFT_WIDTH else #BAR_WIDTH
 
-		interpolation_Steps = 4
+		interpolation_Steps = 2
 		
 		max modify mode
 

@@ -30,7 +30,6 @@ struct SupportObject_v
 	hit_leg,
 	
 	/* dependency */
-	SupportPin	= SupportPin_v(this),
 	SupportRaft	= SupportRaft_v(this),
 	SupportLeg	= SupportLeg_v (this),
 	SupportFoot	= SupportFoot_v(this),
@@ -39,8 +38,8 @@ struct SupportObject_v
 	changed_props = Dictionary(),
 
 	direction,
-	dir_vector,
-	normal_world,
+	pin_vector,
+	raft_vector,
 	raft_mode,
 
 	
@@ -64,9 +63,11 @@ struct SupportObject_v
 	is_on_ground = false,
 	
 	/* static */ 
-	dir_vector_angle_range = 80,
+	raft_vector_angle_range = 80,
 	
-	this_props  = #( #DIRECTION, #DIR_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	this_props  = #( #DIRECTION, #PIN_VECTOR, #RAFT_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	--this_props  = #( #DIRECTION, #RAFT_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	--this_props  = #( #DIRECTION, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #NORMAL_LENGTH, #TOP_WIDTH, #FOOT_ENABLED, #RAFT_MODE ),	-- props of this saved to node userProps WHICH ARE LOADED FROM OTPION when generate
 	
 	
@@ -81,10 +82,10 @@ struct SupportObject_v
 	/** Generate support
 	  * 
 	  * @param point3	first_knot_pos	top position of support
-	  * @param #DOWN|point3	direction	dir_vector of direction from 1st to 2nd point
+	  * @param #DOWN|point3	direction	raft_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:undefined dir_vector:undefined normal_world:undefined wirecolor: =
+	function generateSupport vertex_index first_knot_pos: direction:undefined raft_vector:undefined pin_vector:undefined wirecolor: =
 	(
 		  --format "\n===========================================================\n"
 		  --format "\n"; print "SupportObject_v.generateSupport()"
@@ -101,10 +102,11 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		if direction != undefined then  this.direction = direction
 		
-		if dir_vector != undefined then  this.dir_vector = dir_vector
+		if raft_vector != undefined then  this.raft_vector = raft_vector
 		
-		if normal_world != undefined then  this.normal_world = normal_world
+		if pin_vector != undefined then  this.pin_vector = pin_vector
 		
+		--this.pin_vector = this.raft_vector
 		  --format "this.DIRECTION: %\n" this.direction
 
 		this.points = #( first_knot_pos )
@@ -134,10 +136,10 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		--SupportPin.createPin()
-		--this.points[2] = this.points[1] + ( this.min_raft_length * this.dir_vector )
+		this.points[2] = this._getPinPointPosition(points[1])
 
 		this._setSupportLinePoints update_or_generate:#GENERATE
-		format "POINTS.count: %\n" points.count
+		--format "POINTS.count: %\n" points.count
 		
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
@@ -149,7 +151,7 @@ struct SupportObject_v
 		
 		this._setName(vertex_index)
 		
-		this.setPivotToPoint(2)
+		this.setPivotToPoint(3)
 		
 		--this._alignPivotToRaft()
 
@@ -175,9 +177,10 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined dir_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined raft_vector:undefined =
 	(
-		-- format "\n----------------------------------------------\n"
+		 --format "\n----------------------------------------------\n"
+		 --format "first_knot_pos: %\n" first_knot_pos
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		
 		/*------------------------------------------------------------------------------
@@ -188,8 +191,9 @@ struct SupportObject_v
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 			
-		second_knot_pos = getKnotPoint support_obj spline_1 2
-			
+		--second_knot_pos = getKnotPoint support_obj spline_1 2
+		second_knot_pos = this._getPinPointPosition(first_knot_pos)
+
 		if direction != undefined then this.direction = direction
 
 		/*------------------------------------------------------------------------------
@@ -198,9 +202,11 @@ struct SupportObject_v
 
 		points = #(first_knot_pos, second_knot_pos, support_obj.pos)
 		
+		
+		
 		this._setNormalLenght update_raft:update_raft
 
-		this.dir_vector = if dir_vector == undefined then normalize (points[3] - points[2]) else dir_vector
+		this.raft_vector = if raft_vector == undefined then normalize (points[3] - points[2]) else raft_vector
 		
 		this._keepVectorDown()
 
@@ -208,12 +214,12 @@ struct SupportObject_v
 			return false
 
 		if not this.vectorIsInRangeCone() then
-			this.dir_vector = this._findVectorByAngle this.dir_vector ( dir_vector_angle_range  )
+			this.raft_vector = this._findVectorByAngle this.raft_vector ( raft_vector_angle_range  )
 			
 			
 		this._disbaleBoxMode()
 
-		--this._checkChangedProps dir_vector_current:this.dir_vector -- MUST BE EXECUTED BEFORE this._setDirVector() for recognizing of chaged value
+		--this._checkChangedProps raft_vector_current:this.raft_vector -- MUST BE EXECUTED BEFORE this._setRaftVector() for recognizing of chaged value
 
 		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
 		
@@ -229,6 +235,7 @@ struct SupportObject_v
 		this._postUpdate()
 		
 		--this._alignPivotToRaft() -- THIS MAKES SUPPORT "JIGGLE AND JUMPING"
+		this.setPivotToPoint(3)
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
@@ -273,22 +280,22 @@ struct SupportObject_v
 		this.updateSupport update_raft:( to_type == #RAFT )
 		
 		/* POST UPDATE */ 
-		this.setPivotToPoint(2)
+		this.setPivotToPoint(3)
 		
 		this._alignPivotToRaft()
 	),
 
 	/** Rebulid support
 	 */
-	function rebulidSupport dir_vector: =
+	function rebulidSupport raft_vector: =
 	(
 		-- format "\n"; print "SupportObject_v.rebulidSupport()"
-		-- format "dir_vector: %\n" dir_vector
+		-- format "raft_vector: %\n" raft_vector
 		index = getUserPropVal support_obj "INDEX"
 		
-		if dir_vector == undefined  then 
-			dir_vector = getUserPropVal support_obj "DIR_VECTOR"
-		  -- format "dir_vector: %\n" dir_vector
+		if raft_vector == undefined  then 
+			raft_vector = getUserPropVal support_obj "RAFT_VECTOR"
+		  -- format "raft_vector: %\n" raft_vector
 
 		--wirecolor = getUserPropVal support_obj "WIRECOLOR"
 		support_obj.boxmode = false
@@ -300,9 +307,9 @@ struct SupportObject_v
 		--first_knot_pos = getKnotPoint support_obj spline_1 1
 		--first_knot_pos = support_obj.pivot
 		
-		this.generateSupport index first_knot_pos:(getKnotPoint support_obj spline_1 1) direction:direction dir_vector:dir_vector --wirecolor:support_obj.wirecolor
+		this.generateSupport index first_knot_pos:(getKnotPoint support_obj spline_1 1) direction:direction raft_vector:raft_vector --wirecolor:support_obj.wirecolor
 		
-		--this.setPivotToPoint(2)
+		--this.setPivotToPoint(3)
 	),
 	
 	/** Update support height
@@ -407,7 +414,7 @@ struct SupportObject_v
 		*/
 		function shiftPointPerpendicularOnPlane origin_point direction_vector shift_distance plane =
 		(
-			-- Project dir vector to selected plane
+			-- Project raft vector to selected plane
 			case plane of
 			(
 				#XY: projected_vector = normalize [direction_vector.x, direction_vector.y, 0]
@@ -577,7 +584,7 @@ struct SupportObject_v
 	/** Set pivot to position
 	  *
 	  *	IMPORTANT PREVENT CRASH:
-	  *		NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
+	  *		NEVER RUN ON UPDATE: this.setPivotToPoint(3) -- must be after updateShape
 	  *
 	 */
 	function setPivotToPoint index =
@@ -594,18 +601,23 @@ struct SupportObject_v
 		SET SUPPORT LINE POINTS
 		
 	--------------------------------------------------------------------------------*/
+	/**
+        point vert	= 1
+        point pin	= 2
+        point raft	= 3
+        point leg	= 4
+        point foot	= 5
+	  
+	  */
 	function _setSupportLinePoints update_or_generate:#UPDATE =
  	(
-		 -- format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
+		--format "update_or_generate: %\n" update_or_generate
 		-- format "obj_type: %\n" obj_type
-		
-		if update_or_generate != #UPDATE then
-			points[2] = points[1] + ( min_raft_length * dir_vector )
-
 		
 		/* CREATE RAFT */ 
 		SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
-		    format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+		    --format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 		
 		/* CREATE LEG */ 
 		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
@@ -623,10 +635,20 @@ struct SupportObject_v
 		this._setFootExists()
 	),
 	
+	/** Get pin point position
+	 */
+	function _getPinPointPosition first_knot_pos =
+	(
+		--format "\n"; print "SupportObject_v._getPinPointPosition()"
+		
+		first_knot_pos + ( min_raft_length * pin_vector )
+
+	),
+	
 	/** Methods needs to be done after this._setSupportLinePoints()
 
 		IMPORTANT PREVENT CRASH:
-			NEVER RUN ON UPDATE: this.setPivotToPoint(2) -- must be after updateShape
+			NEVER RUN ON UPDATE: this.setPivotToPoint(3) -- must be after updateShape
 			
 		THIS ALSO ALOW TO PIVOT BE FREE WHEN: SupportRaft.hit_raft == true or SupportLeg.hit_leg == true
 	 */
@@ -671,7 +693,7 @@ struct SupportObject_v
 	
 	/** AVOID SUPORT UNDER GROUND
 	 */
-	--function _isFirstPointAboveGround first_knot_pos dir_vector =
+	--function _isFirstPointAboveGround first_knot_pos raft_vector =
 	function _isFirstPointAboveGround =
 	(
 		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()" 
@@ -689,13 +711,13 @@ struct SupportObject_v
 	(
 		-- format "\n"; print "SupportObject_v.vectorIsInRangeCone()"
 		 
-		if distance normal_world this.dir_vector > 0.001 then
+		if distance pin_vector this.raft_vector > 0.001 then
 		(
-			dot_product = dot (normalize normal_world) (normalize this.dir_vector)
+			dot_product = dot (normalize pin_vector) (normalize this.raft_vector)
 			
 			theAngle = acos(dot_product)
 			
-			theAngle < dir_vector_angle_range --return
+			theAngle < raft_vector_angle_range --return
 		)
 		else
 			true --return true if vectors are equal
@@ -709,7 +731,7 @@ struct SupportObject_v
 	function _findVectorByAngle vector2 _angle =
 	(
 		  --format "\n"; print "SupportObject_v._findVectorByAngle()"
-		dir_x = normal_world -- Create orthonormal basis in the plane
+		dir_x = pin_vector -- Create orthonormal basis in the plane
 
 		/*  Remove projection of vector2 on dir_x to get perpendicular direction */ 
 		proj = (dot vector2 dir_x) * dir_x
@@ -810,7 +832,7 @@ struct SupportObject_v
 				setUserPropVal support_obj key val
 		)
 
-        --setUserPropVal support_obj "DIR_VECTOR" dir_vector
+        --setUserPropVal support_obj "RAFT_VECTOR" raft_vector
 	),
 	
 	/** Load user props from node
@@ -827,19 +849,19 @@ struct SupportObject_v
 	  * 
 	  * 
 	 */
-	function _checkChangedProps dir_vector_current:undefined =
+	function _checkChangedProps raft_vector_current:undefined =
 	(
 		-- format "\n"; print "SupportObject_v._checkChangedProps()"
 
 		/** Get current values
 		 */
-		function getCurrentValues dir_vector_current =
+		function getCurrentValues raft_vector_current =
 		(
 			-- format "\n"; print "SupportObject_v.getCurrentValues()"
 			--bar_width_current = support_obj.modifiers[#BAR_WIDTH][#Cylinder_Section].radius * 2
 			this.changed_props = Dictionary()
 			
-			changed_props[#DIR_VECTOR]   = dir_vector_current
+			changed_props[#RAFT_VECTOR]   = raft_vector_current
 			
 			changed_props[#BAR_WIDTH]   = getUserPropVal support_obj "BAR_WIDTH"
 			
@@ -882,6 +904,7 @@ struct SupportObject_v
 		function syncProperties =
 		(
 			--format "\n"; print "SupportObject_v.syncProperties()"
+			--format "CHANGED_PROPS: %\n" changed_props
 			for prop in changed_props.keys do
 			(
 				/* UPDATE THIS */ 
@@ -892,7 +915,7 @@ struct SupportObject_v
 			)
 		)
 		
-		getCurrentValues( dir_vector_current )
+		getCurrentValues( raft_vector_current )
 		
 		compareValuesWithPropertisOfThis()
 		
@@ -929,7 +952,7 @@ struct SupportObject_v
 		space_for_chamfer = 0.25
 
 		
-		update_minimal_lenght  = force_set or changed_props[#DIR_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
+		update_minimal_lenght  = force_set or changed_props[#RAFT_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
         update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 
@@ -937,7 +960,7 @@ struct SupportObject_v
 		
 		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		--if update_minimal_lenght then
-			min_lenght_by_angle = if this.dir_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.dir_vector )
+			min_lenght_by_angle = if this.raft_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.raft_vector )
 
 		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
@@ -979,13 +1002,13 @@ struct SupportObject_v
 	
 	/** KEEP RAFT PONT BELLOW FIRST
 	  * 
-	  * Make sure that dir_vector of support is not horizontal or up
+	  * Make sure that raft_vector of support is not horizontal or up
 	 */
 	function _keepVectorDown =
 	(
 		-- format "\n"; print "SupportObject_v._keepVectorDown()"
-		if this.dir_vector.z > 0 then
-			this.dir_vector.z = -0.1
+		if this.raft_vector.z > 0 then
+			this.raft_vector.z = -0.1
 	),
 	
 	/** SET CORECT NUMBER OF KNOTS ON OBJECT
@@ -1096,7 +1119,7 @@ struct SupportObject_v
 		setUserPropVal support_obj "FIRST_KNOT_POS" points[2]
 	),
 
-	/** Support is displayed as box if dir_vector or support position is not valid
+	/** Support is displayed as box if raft_vector or support position is not valid
 	 */
 	function _disbaleBoxMode =
 	(
@@ -1112,7 +1135,7 @@ struct SupportObject_v
 		--dir = normalize (support_obj.pos - points[2])
 		--dir = normalize ( points[2] - support_obj.pos )
 		--dir = normalize ( (  getKnotPoint support_obj spline_1 1 ) - ( getKnotPoint support_obj spline_1 2 ) )
-		dir = this.dir_vector * -1
+		dir = this.raft_vector * -1
 		
 		axis = #z
 
@@ -1188,7 +1211,7 @@ struct SupportObject_v
 	
 	/** Get minimal lenght of segment by angle to KEEP CLEAND CORNERS OF SWEEP MODIFIER 
 	 */
-	function _getMinLenghtByAngle dir_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfalse */=
+	function _getMinLenghtByAngle raft_vector /*first_knot_pos:undefined second_knot_pos:undefined*/ /*add_bar:false add_chamfalse */=
 	(
 		 -- format "\n"; print "SupportObject_v._getMinimalLenghtByAngle()"
 		-- format "first_knot_pos:  %\n" first_knot_pos
@@ -1210,9 +1233,9 @@ struct SupportObject_v
 	
 		vector_leg = [ 0, 0, -1 ]
 	
-		dir_vector = normalize ( dir_vector * -1 )
+		raft_vector = normalize ( raft_vector * -1 )
 		
-		angle_of_leg = acos (dot dir_vector vector_leg) -- get angle between
+		angle_of_leg = acos (dot raft_vector vector_leg) -- get angle between
 		 -- format "angle_of_leg:    %\n" angle_of_leg
 		percentage_by_angle = getPercentageByAngle(angle_of_leg)
 

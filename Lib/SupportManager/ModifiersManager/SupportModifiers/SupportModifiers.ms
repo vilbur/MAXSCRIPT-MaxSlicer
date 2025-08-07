@@ -33,10 +33,10 @@ struct SupportModifiers_v
 		mods_support[8]	= this._sweepSetup	(sweep	name:"BAR_WIDTH")	--(OPTIONS.getModVal #BAR_WIDTH )
 		mods_support[7]	= this._volSelectSetup	(Vol__Select	name:"select_base")	(OPTIONS.getMatId  #BASE )
 		mods_support[6]	= this._extrudeSetup	(Face_Extrude	name:"BASE_WIDTH")	(OPTIONS.getModVal #BASE_WIDTH / EXPORT_SIZE )
-		mods_support[5]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE / EXPORT_SIZE )
+		mods_support[5]	= this._chamferSetup	(Chamfer	name:"chamfer_base")	(OPTIONS.getModVal #CHAMFER_BASE / EXPORT_SIZE ) selectionoption:#BORDER
 		mods_support[4]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
-		--mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal (#TOP_WIDTH / EXPORT_SIZE) obj_type:#SUPPORT )	 --selection_option:#ALL  materialoption:#DIFFERENT
-		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	( top_width_support )	 --selection_option:#ALL  materialoption:#DIFFERENT
+		--mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	(OPTIONS.getModVal (#TOP_WIDTH / EXPORT_SIZE) obj_type:#SUPPORT )	 --selectionoption:#ALL  materialoption:#DIFFERENT
+		mods_support[3]	= this._chamferSetup	(Chamfer	name:"TOP_WIDTH")	( top_width_support )	 --selectionoption:#ALL  materialoption:#DIFFERENT
 		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select_top")	(OPTIONS.getMatId  #TOP )
 		mods_support[1]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND_TOP")	(OPTIONS.getModVal #EXTEND_TOP / EXPORT_SIZE )
 
@@ -123,7 +123,7 @@ struct SupportModifiers_v
 	  *
 	  * @param #DIFFERENT|#OFF materialoption
 	  */
-	function _chamferSetup chamfer_mod amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
+	function _chamferSetup chamfer_mod amount selectionoption:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
 	(
 		--format "\n"; print "SupportModifiers_v._chamfer()"
 
@@ -133,15 +133,20 @@ struct SupportModifiers_v
 			
 		
 		/* GET SELECTION */ 
-		chamfer_mod.selectionoption = case selection_option of
+		chamfer_mod.selectionoption = case selectionoption of
 		(
 			#STACK:	0 -- from stack
+			#BORDER:	3 -- border edges of selected faces
 			#ALL:	5 -- all edges
 		)
 		
 		/* AVOID ARTIFACTS if raft is short */ 
 		chamfer_mod.limiteffect = true
-
+		
+		--chamfer_mod.miteringType = 4 -- corner option: Tri
+		chamfer_mod.miteringType = 5 -- corner option: Quad
+		
+		
 		/* SET CHAMFER VALUES */
 		chamfer_mod.amount = amount 
 

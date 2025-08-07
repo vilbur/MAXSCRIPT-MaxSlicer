@@ -154,14 +154,14 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				dir_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+				raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 
 								--first_knot_pos:verts_pos[vert] \
 				success = SupportObject.generateSupport vert \
 								first_knot_pos:(this._getSupportPosition(vert)) \
 								direction:direction \
-								dir_vector:dir_vector \
-								normal_world:Normals.normals_world[vert] \
+								pin_vector:Normals.normals_world[vert] \
+								raft_vector:raft_vector \
 								wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
 
 				
@@ -294,7 +294,7 @@ struct SourceObject_v
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 			
-		dir_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
+		raft_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_leg	= undefined
@@ -302,7 +302,7 @@ struct SourceObject_v
 		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(vert)
 		
 		/* REBUILD SUPPORT */ 
-		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] dir_vector:dir_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
+		SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] raft_vector:raft_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
  	),
 
 	/** Convert support to raft or vice versa
@@ -371,7 +371,7 @@ struct SourceObject_v
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 
 			/* GET VECTOR  */ 
-			dir_vector = this._getDirVector direction index
+			raft_vector = this._getRaftVector direction index
 
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			if direction == #CUSTOM then 
@@ -383,19 +383,19 @@ struct SourceObject_v
 				first_knot_pos = verts_pos[index]
 
 			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
-			if dir_vector == undefined or dir_vector.z < 0 then
+			if raft_vector == undefined or raft_vector.z < 0 then
 			(
 				/*------------------------------------------------------------------------------
 					UPDATE SUPPORT
 				--------------------------------------------------------------------------------*/
 				if not Support.support_obj.boxmode then
-					Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction dir_vector:dir_vector
+					Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction raft_vector:raft_vector
 					 
 				/*------------------------------------------------------------------------------
 					RESTORE FROM BOX MODE IF VECTOR BECOME VALID
 				--------------------------------------------------------------------------------*/
 				else
-					Support.rebulidSupport dir_vector:dir_vector
+					Support.rebulidSupport raft_vector:raft_vector
 			)
 			/*------------------------------------------------------------------------------
 				DISABLE SUPPORT IF NOT VALID
@@ -448,7 +448,7 @@ struct SourceObject_v
 			(
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 				
-				dir_vector = this._getDirVector direction index
+				raft_vector = this._getRaftVector direction index
 
 				if not Support.isBoxMode() then
 				(
@@ -458,7 +458,7 @@ struct SourceObject_v
 						Support.enableBoxMode()
 				)
 				else
-					Support.rebulidSupport dir_vector:dir_vector
+					Support.rebulidSupport raft_vector:raft_vector
 				
 			)
 			else
@@ -584,18 +584,19 @@ struct SourceObject_v
 	private
 
 	
-	/** Get dir vector
+	/** Get raft vector
 	 */
-	function _getDirVector direction index =
+	function _getRaftVector direction index =
 	(
-		-- format "\n"; print "SourceObject_v._getDirVector()"
+		-- format "\n"; print "SourceObject_v._getRaftVector()"
 		case direction of
 			(
 				(#DOWN):   [ 0, 0, -1 ]
 				(#NORMAL): Normals.normals_world[index]
 			)
 	),
-		/** Get support by node
+	
+	/** Get support by node
 	 */
 	function _getSupportByNode support_node =
 	(

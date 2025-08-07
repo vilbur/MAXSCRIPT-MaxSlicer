@@ -125,6 +125,7 @@ SUPPORT_OPTIONS.raft_mode = 0 -- CUSTOM
 
 /* UNLOCK  RAFT LENGTH  */
 SUPPORT_OPTIONS.lock_normal_length = false
+SUPPORT_OPTIONS.lock_normal_length = true
 
 
 /* FOOT ENABLED */

@@ -25,10 +25,10 @@ struct SupportRaft_v
 	 */
 	function createRaft update_or_generate: =
 	(
-		format "\n----------------------------------------------\n"
-		 format "\n"; print "SupportRaft_v.createRaft()"
+		--format "\n----------------------------------------------\n"
+		 --format "\n"; print "SupportRaft_v.createRaft()"
 		-- format "Support.obj_type: %\n" Support.obj_type
-		-- format "Support.dir_vector:    %\n" Support.dir_vector
+		-- format "Support.raft_vector:    %\n" Support.raft_vector
 		
 		/*------------------------------------------------------------------------------
 			HELPERS
@@ -40,9 +40,9 @@ struct SupportRaft_v
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[3].z ) ( min_z_pos )
 
-		function notSupportInMininmalMode = Support.dir_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
+		function notSupportInMininmalMode = Support.raft_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
-		function getSecondPointPosition Support normal_length = Support.points[2] + ( normal_length * Support.dir_vector )
+		function getSecondPointPosition Support normal_length = Support.points[2] + ( normal_length * Support.raft_vector )
 		
 		
 		/*------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ struct SupportRaft_v
 		
 		normal_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.normal_length
 		
-		format "SUPPORT_OPTIONS.raft_mode: %\n" SUPPORT_OPTIONS.raft_mode
+		--format "SUPPORT_OPTIONS.raft_mode: %\n" SUPPORT_OPTIONS.raft_mode
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
 		if update_or_generate == #GENERATE then
 		(
@@ -87,7 +87,7 @@ struct SupportRaft_v
 			)
 		)
 
-		format "NORMAL_LENGTH: %\n" normal_length
+		--format "NORMAL_LENGTH: %\n" normal_length
 			
 		/* SET 2nd POINT */ 
 		Support.points[3] = getSecondPointPosition (Support) (normal_length)
@@ -95,7 +95,7 @@ struct SupportRaft_v
 
 		/* TEST HIT SOURCE OBJECT */ 
 	    hit_raft = this._testHitOfSourceObject( normal_length )
-		format "HIT_RAFT: %\n" hit_raft
+		--format "HIT_RAFT: %\n" hit_raft
 		 
 		/*------------------------------------------------------------------------------
 			IF LEG EXISTS
@@ -170,8 +170,8 @@ struct SupportRaft_v
 		--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 		
 		/* SAVE DIR VECTOR IF SUPPORT IS NOT MINIMAL */ 
-		if notSupportInMininmalMode() then 
-			setUserPropVal Support.support_obj "DIR_VECTOR" Support.dir_vector
+		--if notSupportInMininmalMode() then 
+			--setUserPropVal Support.support_obj "RAFT_VECTOR" Support.raft_vector
 		
 		--if raftHasFullLenght() then
 		/* SAVE RAFT LENGTH IF NOT LOCKED, AUTO OR NOT SHORTENED */ 
@@ -190,7 +190,7 @@ struct SupportRaft_v
 		triangle_height = Support.points[2].z - pos_z
 		--format "triangle_height: %\n" triangle_height
 		--line_vector = normalize ( Support.points[2] - Support.points[3] )
-		line_vector = Support.dir_vector
+		line_vector = Support.raft_vector
 		
 		--format "line_vector: %\n" line_vector
 
@@ -211,9 +211,9 @@ struct SupportRaft_v
 	function _extendSecondPoint raft_length =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
-		--format "Support.dir_vector: %\n" Support.dir_vector
+		--format "Support.raft_vector: %\n" Support.raft_vector
 		--line_vector = normalize ( Support.points[3] - Support.points[2] )
-		line_vector = Support.dir_vector
+		line_vector = Support.raft_vector
 		--format "line_vector.z: %\n" line_vector.z
 		
 		--if line_vector.z < 0 then
@@ -229,7 +229,7 @@ struct SupportRaft_v
 		
 		ray_pos = Support.points[2]
 		 
-		hit = Support.intersectRaySourceObject (ray_pos)  ( Support.dir_vector )
+		hit = Support.intersectRaySourceObject (ray_pos)  ( Support.raft_vector )
 		-- format "hit: %\n" hit
 		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
 		if hit != undefined and Support.obj_type == #SUPPORT and distance ray_pos hit.pos > max_distance then

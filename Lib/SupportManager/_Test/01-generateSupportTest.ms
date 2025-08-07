@@ -100,15 +100,15 @@ SUPPORT_OPTIONS.base_width	= 10
 
 
 /* SET NORMAL LENGTH */ 
-SUPPORT_OPTIONS.normal_length	= 0 -- AUTO NORMAL LENGTH 
--- SUPPORT_OPTIONS.normal_length	= 0.5
--- SUPPORT_OPTIONS.normal_length	= 0.75
--- SUPPORT_OPTIONS.normal_length	= 1
-SUPPORT_OPTIONS.normal_length	= 2
-SUPPORT_OPTIONS.normal_length	= 5
--- SUPPORT_OPTIONS.normal_length	= 10
--- SUPPORT_OPTIONS.normal_length	= 20
---SUPPORT_OPTIONS.normal_length	= 30
+SUPPORT_OPTIONS.raft_length	= 0 -- AUTO NORMAL LENGTH 
+-- SUPPORT_OPTIONS.raft_length	= 0.5
+-- SUPPORT_OPTIONS.raft_length	= 0.75
+-- SUPPORT_OPTIONS.raft_length	= 1
+SUPPORT_OPTIONS.raft_length	= 2
+SUPPORT_OPTIONS.raft_length	= 5
+-- SUPPORT_OPTIONS.raft_length	= 10
+-- SUPPORT_OPTIONS.raft_length	= 20
+--SUPPORT_OPTIONS.raft_length	= 30
 
 
 
@@ -118,14 +118,14 @@ SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
 
 
 /* SET RAFT MODE */ 
-SUPPORT_OPTIONS.raft_mode = 0 -- CUSTOM
---SUPPORT_OPTIONS.raft_mode = 1 -- MIN
+--SUPPORT_OPTIONS.raft_mode = 0 -- CUSTOM
+SUPPORT_OPTIONS.raft_mode = 1 -- MIN
 --SUPPORT_OPTIONS.raft_mode = 2 -- AUTO
 
 
 /* UNLOCK  RAFT LENGTH  */
-SUPPORT_OPTIONS.lock_normal_length = false
-SUPPORT_OPTIONS.lock_normal_length = true
+SUPPORT_OPTIONS.lock_raft_length = false
+SUPPORT_OPTIONS.lock_raft_length = true
 
 
 /* FOOT ENABLED */

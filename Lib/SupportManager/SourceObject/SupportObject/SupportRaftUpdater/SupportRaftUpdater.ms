@@ -12,7 +12,7 @@ struct SupportRaftUpdater_v
 	
 	/* user properties */
 	base_height,
-	normal_length,
+	raft_length,
 	foot_enabled = true,
 
 	/* modifier values */ 	
@@ -136,7 +136,7 @@ struct SupportRaftUpdater_v
 	function _getUserProperties =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._getNodeUserProperties()"
-		for prop in #( "BASE_HEIGHT", "NORMAL_LENGTH", "FOOT_ENABLED" ) where getProperty this ( prop as name ) == undefined do
+		for prop in #( "BASE_HEIGHT", "RAFT_LENGTH", "FOOT_ENABLED" ) where getProperty this ( prop as name ) == undefined do
 			setProperty this prop ( getUserPropVal support_obj prop )
 	),
 
@@ -189,7 +189,7 @@ struct SupportRaftUpdater_v
 			if num_of_knots == 2 then
 			(
 				/* IF SUPPORT IS SHORTEN BY GROUND */
-				if this._getDistanceOfKnots 1 2 < normal_length then
+				if this._getDistanceOfKnots 1 2 < raft_length then
 				(
 					point_2_pos_full_length = this._extendSecondPointToNormalLenght()
 				
@@ -290,23 +290,23 @@ struct SupportRaftUpdater_v
 		(
 			--format "DISTANCE: %\n" (this._getDistanceOfKnots 1 3)
 			--format "NORMAL:   %\n" (this._getDistanceOfKnots 1 2)
-			--format "normal_length: %\n" normal_length
+			--format "raft_length: %\n" raft_length
 			
 
 			
 			space_for_normal    = point_1_pos.z - SupportObject.min_foot_pos
-			is_space_for_normal = space_for_normal > normal_length --+ min_height_offset 
+			is_space_for_normal = space_for_normal > raft_length --+ min_height_offset 
 			--format "space_for_normal: %\n" space_for_normal
 			
 			--format "IS SPACE FOR NORMAL: %\n" is_space_for_normal
-			--format "IS NORMAL SHORT: %\n" (this._getDistanceOfKnots 1 2 < normal_length)
+			--format "IS NORMAL SHORT: %\n" (this._getDistanceOfKnots 1 2 < raft_length)
 			
 			
-			if is_space_for_normal and this._getDistanceOfKnots 1 2 < normal_length then
+			if is_space_for_normal and this._getDistanceOfKnots 1 2 < raft_length then
 			(
 				--format "SET NORMAL LENGTH\n"
 				
-				this._setKnotToZposition (2) (point_1_pos.z - normal_length)
+				this._setKnotToZposition (2) (point_1_pos.z - raft_length)
 			)
 			else if not is_space_for_normal then
 			(
@@ -572,7 +572,7 @@ struct SupportRaftUpdater_v
 
 		line_vector = normalize ( point_2_pos - point_1_pos )
 		
-		point_1_pos + ( normal_length * line_vector ) -- return
+		point_1_pos + ( raft_length * line_vector ) -- return
 	),
 	
 	--/** Extend second point to gound

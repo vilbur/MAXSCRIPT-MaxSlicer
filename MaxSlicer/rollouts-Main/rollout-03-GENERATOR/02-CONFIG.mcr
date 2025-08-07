@@ -85,7 +85,7 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Length"
 tooltip:	"Length of raft part of support\n\nFOR AUTO LENGTH RESET TO 0.0"
-icon:	"ACROSS:4|control:spinner|id:SPIN_normal_length|offset:[ 44, 22 ]|fieldwidth:24|range:[ 0.0, 999, 3 ]|fieldwidth:32"
+icon:	"ACROSS:4|control:spinner|id:SPIN_raft_length|offset:[ 44, 22 ]|fieldwidth:24|range:[ 0.0, 999, 3 ]|fieldwidth:32"
 (
 	on execute do
 	(
@@ -110,13 +110,13 @@ macroscript	_print_option_lock_normal
 category:	"_3D-Print"
 buttontext:	"LOCK"
 tooltip:	"Lock length of support direction on move"
-icon:	"ACROSS:4|control:checkbox|id:CBX_lock_normal_length|offset:[ 50, 22 ]"
+icon:	"ACROSS:4|control:checkbox|id:CBX_lock_raft_length|offset:[ 50, 22 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-12104-898B-9313D1AAECD4 */
 	--on isEnabled return selection.count > 0
 
 	on execute do
-		SUPPORT_OPTIONS.lock_normal_length = EventFired.val
+		SUPPORT_OPTIONS.lock_raft_length = EventFired.val
 		--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 

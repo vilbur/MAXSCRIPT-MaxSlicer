@@ -35,66 +35,66 @@ struct SupportRaft_v
 		--------------------------------------------------------------------------------*/
 		
 		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
-		function raftHasFullLenght    = isMoreThen ( this.raftLenght() )  ( Support.normal_length )
+		function raftHasFullLenght    = isMoreThen ( this.raftLenght() )  ( Support.raft_length )
 		function isSpaceForRaftAndLeg = isMoreThen ( Support.points[2].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[3].z ) ( min_z_pos )
 
 		function notSupportInMininmalMode = Support.raft_vector != [0,0,-1] --and ( Support.direction != #NORMAL or Support.direction != #CUSTOM )
 		
-		function getSecondPointPosition Support normal_length = Support.points[2] + ( normal_length * Support.raft_vector )
+		function getSecondPointPosition Support raft_length = Support.points[2] + ( raft_length * Support.raft_vector )
 		
 		
 		/*------------------------------------------------------------------------------
 			CREATE RAFT
 		--------------------------------------------------------------------------------*/
 		
-		normal_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.normal_length
+		raft_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.raft_length
 		
 		--format "SUPPORT_OPTIONS.raft_mode: %\n" SUPPORT_OPTIONS.raft_mode
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
 		if update_or_generate == #GENERATE then
 		(
-			normal_length = case SUPPORT_OPTIONS.raft_mode of
+			raft_length = case SUPPORT_OPTIONS.raft_mode of
 			(
-				0: Support.normal_length -- CUSTOM RAFT LENGTH
+				0: Support.raft_length -- CUSTOM RAFT LENGTH
 				
 				1: Support.min_raft_length -- MINIMAL RAFT LENGTH
 				
 				2: (                       -- SEARCH FOR SPACE FOR LEG
 					
 					/* START SEARCH WITH MINIMAL RAFT LENGTH */ 
-					normal_length = Support.min_raft_length
+					raft_length = Support.min_raft_length
 					
-					second_point = getSecondPointPosition (Support) (normal_length)
+					second_point = getSecondPointPosition (Support) (raft_length)
 			
 					/* SEARCH FOR RAFT LENGTH WHERE IS POSSIBLE TO CREATE LEG	*/ 
-					while (hit_raft_auto = Support.intersectRaySourceObject ( second_point ) [0,0,-1]) != undefined and normal_length <= 10 do
+					while (hit_raft_auto = Support.intersectRaySourceObject ( second_point ) [0,0,-1]) != undefined and raft_length <= 10 do
 					(
 						/* EXTEND RAFT LENGTH ABOUT SUPPORT WIDTH EACH TIME */ 
-						normal_length += Support.bar_width
+						raft_length += Support.bar_width
 						
 						/* SET TEMP SECOND POINT FOR NEXT LOOP */ 
-						second_point = getSecondPointPosition (Support) (normal_length)
+						second_point = getSecondPointPosition (Support) (raft_length)
 					)
 					
-					--format "NORMAL_LENGTH: %\n" normal_length
+					--format "RAFT_LENGTH: %\n" raft_length
 					
-					normal_length += 0.1
+					raft_length += 0.1
 					
-					normal_length --return
+					raft_length --return
 				 )
 			)
 		)
 
-		--format "NORMAL_LENGTH: %\n" normal_length
+		--format "RAFT_LENGTH: %\n" raft_length
 			
 		/* SET 2nd POINT */ 
-		Support.points[3] = getSecondPointPosition (Support) (normal_length)
+		Support.points[3] = getSecondPointPosition (Support) (raft_length)
 		
 
 		/* TEST HIT SOURCE OBJECT */ 
-	    hit_raft = this._testHitOfSourceObject( normal_length )
+	    hit_raft = this._testHitOfSourceObject( raft_length )
 		--format "HIT_RAFT: %\n" hit_raft
 		 
 		/*------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ struct SupportRaft_v
 			(
 				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 				if not raftHasFullLenght() then
-					this._extendSecondPoint( normal_length )
+					this._extendSecondPoint( raft_length )
 				
 				/* SHORTEN REAFT IF ITS TOO LONG and goes under min size of leg ( foot can not be created ) */ 
 				if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
@@ -119,7 +119,7 @@ struct SupportRaft_v
 				if not raftHasMinLenght() then
 				(
 					/* MAKE SURE THAT RAFT HAS MINIMAL LENGTH ( at least ) */ 
-					this._extendSecondPoint( normal_length )
+					this._extendSecondPoint( raft_length )
 					
 					/* SET RAFT POINT TO GROUND - if support is too low on the ground */ 
 					if Support.points[3].z < Support.min_leg_pos then
@@ -170,13 +170,13 @@ struct SupportRaft_v
 		--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 		
 		/* SAVE DIR VECTOR IF SUPPORT IS NOT MINIMAL */ 
-		--if notSupportInMininmalMode() then 
-			--setUserPropVal Support.support_obj "RAFT_VECTOR" Support.raft_vector
+		if notSupportInMininmalMode() then 
+			setUserPropVal Support.support_obj "RAFT_VECTOR" Support.raft_vector
 		
 		--if raftHasFullLenght() then
 		/* SAVE RAFT LENGTH IF NOT LOCKED, AUTO OR NOT SHORTENED */ 
-		if Support.obj_type == #SUPPORT and not SUPPORT_OPTIONS.lock_normal_length and Support.normal_length > 0 and raftHasFullLenght() then
-			setUserPropVal Support.support_obj "NORMAL_LENGTH" normal_length
+		if Support.obj_type == #SUPPORT and not SUPPORT_OPTIONS.lock_raft_length and Support.raft_length > 0 and raftHasFullLenght() then
+			setUserPropVal Support.support_obj "RAFT_LENGTH" raft_length
 
 	),
 	

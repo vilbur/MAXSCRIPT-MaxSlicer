@@ -36,8 +36,8 @@ struct SupportOptions_v
 	
 	/* SUPPORT OBJECT OPTIONS */
 	raft_mode = 1, -- 0: CUSTOM | 1: MIN | 2: AUTO
-	lock_normal_length = true,
-	normal_length	= 3,
+	lock_raft_length = true,
+	raft_length	= 3,
 
 
 	bottom_layers_count = 15,

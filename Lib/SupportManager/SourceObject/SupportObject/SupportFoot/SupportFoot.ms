@@ -5,9 +5,7 @@ struct SupportFoot_v
 	/* construct */
 	Support, -- parent class
 
-
 	/* required */
-	
 
 	/* properties */
 	
@@ -21,9 +19,7 @@ struct SupportFoot_v
 	 */
 	function createFoot =
 	(
-		--format "\n"; print "SupportFoot_v.createFoot()"
-		--format "pos_z: %\n" (Support.base_height / EXPORT_SIZE )
-		
+		--format "\n"; print "SupportFoot_v.createFoot()"		
 		this._alignKnotToPreviousKnot index:4 pos_z:( Support.base_height / EXPORT_SIZE )
 
 		this._alignKnotToPreviousKnot index:5 pos_z:0
@@ -31,18 +27,6 @@ struct SupportFoot_v
 		Support.foot_exists = true
 	),
 	
-	--/** Set foot to ground
-	-- */
-	--function setFootToGround =
-	--(
-	--	--format "\n"; print "SupportLeg_v.setFootToGround()"
-	--	--format "Support.points: %\n" Support.points
-	--	--
-	--	Support.points[3].z = Support.base_height
-	--	
-	--	Support.points[4].z = 0
-	--	--format "Support.points: %\n" Support.points
-	--),
 	
 	private
 	
@@ -66,5 +50,4 @@ struct SupportFoot_v
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
-
 )

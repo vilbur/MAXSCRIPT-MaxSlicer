@@ -136,7 +136,7 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		
 		--SupportPin.createPin()
-		this.points[2] = this._getPinPointPosition(points[1])
+		--this.points[2] = this._getPinPointPosition(points[1])
 
 		this._setSupportLinePoints update_or_generate:#GENERATE
 		--format "POINTS.count: %\n" points.count
@@ -317,7 +317,7 @@ struct SupportObject_v
 	 */
 	function updateSupportHeight  =
 	(
-		 -- format "\n"; print "SupportObject_v.updateSupportHeight()"
+		--format "\n"; print "SupportObject_v.updateSupportHeight()"
 		 -- format "support_obj:  %\n" support_obj.name
 		function isTallEnough = support_obj.pos.z > min_foot_pos
 		
@@ -336,7 +336,6 @@ struct SupportObject_v
 		
 		--set_min_limits = update_raft == true or min_raft_length == undefined
 		
-		
 		if  min_raft_length == undefined then
 			this._setMinLimints(direction) force_set:true
 		
@@ -352,9 +351,9 @@ struct SupportObject_v
 			points_distance = distance points[2] points[3]
 			
 			/*------------------------------------------------------------------------------------------
-				SIMPLE SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
+				SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
 			--------------------------------------------------------------------------------------------*/
-			
+
 			if isTallEnough() and not points_distance < raft_length and (( foot_enabled and foot_exists ) or not foot_enabled ) then
 			(
 				num_knots = numKnots support_obj spline_1
@@ -363,11 +362,12 @@ struct SupportObject_v
 				
 				if foot_exists then
 					setKnotZposition (num_knots - 1) base_height
-					
 			)
+			
 			/*------------------------------------------------------------------------------------------
 				UPDATE RAFT, LEG AND FOOT
 			--------------------------------------------------------------------------------------------*/
+			
 			else
 			(
 				this._setSupportLinePoints()
@@ -381,29 +381,7 @@ struct SupportObject_v
 		)
 	),
 
-	--/** Update base height
-	-- */
-	--function updateBaseHeight =
-	--(
-	--	-- format "\n"; print "SupportObject_v.updateBaseHeight()"
-	--	 format "support_obj: %\n" support_obj.name
-	--	if this.is_on_ground then
-	--	(
-	--		ground_knot = numKnots support_obj spline_1
-	--		base_knot   = ground_knot - 1
-	--		
-	--		base_knot_pos   = getKnotPoint support_obj spline_1 base_knot
-	--		base_knot_pos.z = SUPPORT_OPTIONS.base_height
-	--		
-	--		setKnotPoint support_obj spline_1 base_knot base_knot_pos
-	--		
-	--		setUserPropVal support_obj "BASE_HEIGHT" SUPPORT_OPTIONS.base_height
-	--	
-	--		SUPPORT_MANAGER.updateShapeAdd (support_obj)
-	--	)
-	--),
-	
-	
+
 	/** TEST COLLISION WITH SOURCE OBJECT
 	 */
 	function intersectRaySourceObject pos dir =
@@ -597,11 +575,11 @@ struct SupportObject_v
 	
 	private
 
-	/*------------------------------------------------------------------------------
-	  
-		SET SUPPORT LINE POINTS
-		
-	--------------------------------------------------------------------------------*/
+	/*==============================================================================
+	
+			SET SUPPORT LINE POINTS
+	
+	================================================================================*/
 	/**
         point vert	= 1
         point pin	= 2
@@ -615,25 +593,54 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		--format "update_or_generate: %\n" update_or_generate
 		-- format "obj_type: %\n" obj_type
-		
-		/* CREATE RAFT */ 
-		SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
-		    --format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
-		
-		/* CREATE LEG */ 
-		if obj_type == #SUPPORT and points[2].z > 0 and SupportRaft.hit_raft == undefined then
+		this.points[2] = this._getPinPointPosition(points[1])
+		--format "points[2].z: %\n" points[2].z
+		--format "points.count: %\n" points.count
+
+		--if points[2].z > 0 then
+		if points[this.points.count].z > 0 then
 		(
-			foot_exists = foot_enabled and SupportRaft.foot_space_exists
+			/* CREATE RAFT */ 
+			SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
+				--format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 			
 			/* CREATE LEG */ 
-			SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
-			--format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
-			/* CREATE FOOT */ 
-			if SupportLeg.hit_leg == undefined and foot_exists then 
-				SupportFoot.createFoot() --"./SupportFoot/SupportFoot.ms"
+			if SupportRaft.hit_raft == undefined then
+			(
+				foot_exists = foot_enabled and SupportRaft.foot_space_exists
+				
+				/* CREATE LEG */ 
+				SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
+				--format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
+				/* CREATE FOOT */ 
+				if SupportLeg.hit_leg == undefined and foot_exists then 
+					SupportFoot.createFoot() --"./SupportFoot/SupportFoot.ms"
+			)
+		)
+		else
+		(
+			this._alignKnotToPreviousKnot index:2 pos_z:0
+			
+			for i = points.count to 3 by -1 do
+				deleteItem points i
 		)
 		
+		
+		
+		
 		this._setFootExists()
+	),
+	
+	/** Align next knot bellow
+	 */
+	function _alignKnotToPreviousKnot index: pos_z: =
+	(
+		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
+		pos = copy this.points[index - 1]
+		
+		pos.z = pos_z
+		
+		this.points[index] = pos
 	),
 	
 	/** Get points positions
@@ -653,7 +660,6 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v._getPinPointPosition()"
 		
 		first_knot_pos + ( min_raft_length * pin_vector )
-
 	),
 	
 	/** Methods needs to be done after this._setSupportLinePoints()
@@ -943,7 +949,7 @@ struct SupportObject_v
 	 */
 	function _setMinLimints direction force_set:true =
 	(
-		-- format "\n"; print "SupportObject_v._setMinLimints()"
+		 --format "\n"; print "SupportObject_v._setMinLimints()"
 		-- format "bar_width: %\n" bar_width
 		-- format "top_width: %\n" top_width
 
@@ -991,6 +997,8 @@ struct SupportObject_v
 		--if update_min_foot_pos then
 			min_foot_pos = min_lenght_by_angle + base_height + dilatation
 		
+		--format "min_leg_pos: %\n" min_leg_pos
+		--format "min_foot_pos: %\n" min_foot_pos
 		
 		if EXPORT_SIZE != 1.0 then
 		(

@@ -21,45 +21,30 @@ struct SupportLeg_v
 	function createLeg bottom_point_pos_z =
 	(
 		--format "\n"; print "SupportLeg_v.createLeg()"
-		--format "bottom_point_pos_z: %\n" bottom_point_pos_z
-		
-		hit_leg = this._testHitOfSourceObject()
-		
-		Support.points[4] = if hit_leg != undefined then
+
+		if Support.points[3].z > 0 then
 		(
-			point_3_pos = copy Support.points[3]
+			hit_leg = this._testHitOfSourceObject()
 			
-			point_3_pos.z = hit_leg.pos.z
+			if hit_leg != undefined then
+				bottom_point_pos_z = hit_leg.pos.z
 			
-			point_3_pos
+			
+			Support.points[4] = this._alignKnotToPreviousKnot index:4 pos_z:bottom_point_pos_z
 		)
-		else
-			this._getBasePointPos (bottom_point_pos_z)
 	),
 
 	private
 	
-	/** Get base point
-	 */
-	function _getBasePointPos bottom_point_pos_z =
-	(
-		--format "\n"; print "SupportLeg_v._getBasePointPos()"
-		
-		base_point_pos = copy Support.points[3]
-		
-		base_point_pos.z = bottom_point_pos_z
-		
-		base_point_pos --return
-	),
 	
 	/** Align next knot bellow
 	 */
-	function _alignKnotToPreviousKnot index: bottom_point_pos_z: =
+	function _alignKnotToPreviousKnot index: pos_z: =
 	(
 		--format "\n"; print "SupportRaftUpdater_v._alignKnotToPreviousKnot()"
 		pos = copy Support.points[index - 1]
 		
-		pos.z = bottom_point_pos_z
+		pos.z = pos_z
 		
 		Support.points[index] = pos
 	),

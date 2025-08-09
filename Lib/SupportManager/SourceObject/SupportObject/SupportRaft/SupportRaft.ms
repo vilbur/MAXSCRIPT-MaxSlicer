@@ -34,9 +34,9 @@ struct SupportRaft_v
 			HELPERS
 		--------------------------------------------------------------------------------*/
 		
-		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_raft_length )
+		function raftHasMinLenght     = isMoreThen ( this.raftLenght() )  ( Support.min_length_by_angle )
 		function raftHasFullLenght    = isMoreThen ( this.raftLenght() )  ( Support.raft_length )
-		function isSpaceForRaftAndLeg = isMoreThen ( Support.points[2].z) ( Support.min_raft_length + Support.min_leg_pos + 0.2 )
+		function isSpaceForRaftAndLeg = isMoreThen ( Support.points[2].z) ( Support.min_length_by_angle + Support.min_leg_pos + 0.2 )
 
 		function isLegPointAboveMinLimit min_z_pos = isMoreThen ( Support.points[3].z ) ( min_z_pos )
 
@@ -49,7 +49,7 @@ struct SupportRaft_v
 			CREATE RAFT
 		--------------------------------------------------------------------------------*/
 		
-		raft_length = if Support.raft_mode == 1 then Support.min_raft_length else Support.raft_length
+		raft_length = if Support.raft_mode == 1 then Support.min_length_by_angle else Support.raft_length
 		
 		--format "SUPPORT_OPTIONS.raft_mode: %\n" SUPPORT_OPTIONS.raft_mode
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */
@@ -59,12 +59,12 @@ struct SupportRaft_v
 			(
 				0: Support.raft_length -- CUSTOM RAFT LENGTH
 				
-				1: Support.min_raft_length -- MINIMAL RAFT LENGTH
+				1: Support.min_length_by_angle -- MINIMAL RAFT LENGTH
 				
 				2: (                       -- SEARCH FOR SPACE FOR LEG
 					
 					/* START SEARCH WITH MINIMAL RAFT LENGTH */ 
-					raft_length = Support.min_raft_length
+					raft_length = Support.min_length_by_angle
 					
 					second_point = getSecondPointPosition (Support) (raft_length)
 			
@@ -153,7 +153,7 @@ struct SupportRaft_v
 		
 			if Support.obj_type == #RAFT and not raftHasMinLenght() then
 			(
-				add_to_min_distance = (Support.min_raft_length * 1.5 ) - distance Support.points[2] Support.points[3]
+				add_to_min_distance = (Support.min_length_by_angle * 1.5 ) - distance Support.points[2] Support.points[3]
 
 				line_vector = normalize (Support.points[3] - Support.points[2])
 

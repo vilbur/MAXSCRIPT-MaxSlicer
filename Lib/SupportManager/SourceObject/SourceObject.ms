@@ -345,8 +345,8 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		format "\n****************************************************\n"
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n****************************************************\n"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 		  -- format "update_normals: %\n" update_normals
 
@@ -365,15 +365,15 @@ struct SourceObject_v
 		for index in SupportsToUpdate.keys do
 		(
 			Support = SupportsToUpdate[index]
-
+			
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
-
+			
 			/* GET VECTOR  */ 
 			--pin_vector = this._getRaftVector direction index
 			vert_normal = Normals.normals_world[index]
-
+			
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			if direction == #CUSTOM then 
 				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
@@ -382,7 +382,7 @@ struct SourceObject_v
 			/* UPDATE 1st POINT - if support has been moved on its own */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
-
+			
 			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
 			if vert_normal == undefined or vert_normal.z < 0 then
 			(
@@ -395,8 +395,8 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					RESTORE FROM BOX MODE IF VECTOR BECOME VALID
 				--------------------------------------------------------------------------------*/
-				else
-					Support.rebulidSupport pin_vector:vert_normal
+				--else
+					--Support.rebulidSupport pin_vector:vert_normal
 			)
 			/*------------------------------------------------------------------------------
 				DISABLE SUPPORT IF NOT VALID

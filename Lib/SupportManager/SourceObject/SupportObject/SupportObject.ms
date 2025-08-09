@@ -51,7 +51,7 @@ struct SupportObject_v
 	
 	/* minimal dimensions */
 	min_lenght_by_angle,
-	min_raft_length,
+	min_length_by_angle,
 	
 	min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	min_leg_pos,     -- min length of raft part to avoid sweep artifact on leg knot
@@ -221,7 +221,7 @@ struct SupportObject_v
 
 		--this._checkChangedProps raft_vector_current:this.raft_vector -- MUST BE EXECUTED BEFORE this._setRaftVector() for recognizing of chaged value
 
-		this._setMinLimints(direction) force_set:(update_raft == true or min_raft_length == undefined)
+		this._setMinLimints(direction) force_set:(update_raft == true or min_length_by_angle == undefined)
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS
@@ -334,9 +334,9 @@ struct SupportObject_v
 		)
 		
 		
-		--set_min_limits = update_raft == true or min_raft_length == undefined
+		--set_min_limits = update_raft == true or min_length_by_angle == undefined
 		
-		if  min_raft_length == undefined then
+		if  min_length_by_angle == undefined then
 			this._setMinLimints(direction) force_set:true
 		
 		if is_on_ground then
@@ -659,7 +659,7 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._getPinPointPosition()"
 		
-		first_knot_pos + ( min_raft_length * pin_vector )
+		first_knot_pos + ( min_length_by_angle * pin_vector )
 	),
 	
 	/** Methods needs to be done after this._setSupportLinePoints()
@@ -970,7 +970,7 @@ struct SupportObject_v
 
 		
 		update_minimal_lenght  = force_set or changed_props[#PIN_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 
-        update_min_raft_length = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
+        update_min_length_by_angle = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 
         min_length_for_chamfer = ( bar_width - top_width ) * space_for_chamfer
@@ -981,13 +981,13 @@ struct SupportObject_v
 
 		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
-		--if update_min_raft_length then
-			--min_raft_length = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
-			min_raft_length = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+		--if update_min_length_by_angle then
+			--min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
 			
-		min_raft_length = roundFloat min_raft_length 2
+		min_length_by_angle = roundFloat min_length_by_angle 2
 
-		-- format "min_raft_length: %\n" min_raft_length
+		-- format "min_length_by_angle: %\n" min_length_by_angle
 	
 		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		--if update_minimal_lenght then
@@ -1006,7 +1006,7 @@ struct SupportObject_v
 			--min_foot_pos -= base_height
 
 			min_leg_pos /= EXPORT_SIZE
-			min_raft_length = roundFloat (min_raft_length / EXPORT_SIZE) 2
+			min_length_by_angle = roundFloat (min_length_by_angle / EXPORT_SIZE) 2
 			min_lenght_by_angle /= EXPORT_SIZE
 		)
 	),

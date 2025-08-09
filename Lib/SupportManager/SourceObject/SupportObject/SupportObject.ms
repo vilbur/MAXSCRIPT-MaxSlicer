@@ -200,13 +200,13 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
+		this._setMinLimints(direction) force_set:(update_raft == true or min_length_by_angle == undefined)
 
 		points = this._getPointsPositions(first_knot_pos)
 		
 		this.raft_vector =  normalize (points[3] - points[2])
 		
 		this._setNormalLenght update_raft:update_raft
-
 		
 		this._keepVectorDown()
 
@@ -221,7 +221,6 @@ struct SupportObject_v
 
 		--this._checkChangedProps raft_vector_current:this.raft_vector -- MUST BE EXECUTED BEFORE this._setRaftVector() for recognizing of chaged value
 
-		this._setMinLimints(direction) force_set:(update_raft == true or min_length_by_angle == undefined)
 		
 		/*------------------------------------------------------------------------------
 			UPDATE SUPPORT LINE POINTS

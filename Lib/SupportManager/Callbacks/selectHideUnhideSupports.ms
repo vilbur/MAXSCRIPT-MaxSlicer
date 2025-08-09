@@ -85,6 +85,33 @@ function selectHideUnhideSupports type: state: select_mode:keyboard.controlPress
 		--LayerManager.editLayerByName ""
 )
 
+--/** Select supports by ground
+-- */
+--function selectSupportsByGround state =
+--(
+--	--format "\n"; print ".selectSupportsByGround()"
+--		
+--	fn arraysAreSame arr1 arr2 = with PrintAllElements on arr1 as string == arr2 as string
+--	
+--	fn floatsAreEqual f1 f2 eps:0.001 = f1 == f2 OR abs (f1 - f2) <= eps
+--	
+--	_selection = selection as Array
+--	
+--	supports_and_rafts = SUPPORT_MANAGER.getSupportAndRaftObjects ( _selection ) get_nodes:true
+--		
+--	supports_on_ground = for support in supports_and_rafts where floatsAreEqual support.min.z 0.0 == state collect support
+--	
+--	suffix = if state then "ON THE GROUND" else "NOT ON THE GROUND"
+--	
+--	case of
+--	(
+--	   (arraysAreSame _selection supports_on_ground):	messageBox ( "ALL SUPPORTS \n\n" + suffix ) --title:"Title"  beep:false
+--	   (supports_on_ground.count == 0 ):             	messageBox ( "ANY SUPPORT \n\n"  + suffix ) --title:"Title"  beep:false
+--	
+--		default: select supports_on_ground
+--	)
+--)
+
 
 /*------------------------------------------------------------------------------
 

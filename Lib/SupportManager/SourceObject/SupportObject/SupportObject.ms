@@ -1,4 +1,3 @@
-filein( getFilenamePath(getSourceFileName()) + "/SupportRaft/SupportRaft.ms" )	--"./SupportRaft/SupportRaft.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportLeg/SupportLeg.ms" )	--"./SupportLeg/SupportLeg.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportFoot/SupportFoot.ms" )	--"./SupportFoot/SupportFoot.ms"
 
@@ -135,9 +134,6 @@ struct SupportObject_v
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
 		
-		--SupportPin.createPin()
-		--this.points[2] = this._getPinPointPosition(points[1])
-
 		this._setSupportLinePoints update_or_generate:#GENERATE
 		--format "POINTS.count: %\n" points.count
 		
@@ -511,16 +507,17 @@ struct SupportObject_v
 	function isRaft =
 	(
 		 -- format "\n"; print "SupportObject_v.isRaft()"
+		support_obj.min.z > 0.0
 		 
-		if isValidNode support_obj then
-			getUserPropVal support_obj "RAFT_KEY" != undefined
-			
-		else
-		(
-			-- format "\n!!!!!!!!!!!!!!!!!!!!!!!!! isValidNode \n"
-			
-			false --return
-		)
+		--if isValidNode support_obj then
+		--	getUserPropVal support_obj "RAFT_KEY" != undefined
+		--	
+		--else
+		--(
+		--	-- format "\n!!!!!!!!!!!!!!!!!!!!!!!!! isValidNode \n"
+		--	
+		--	false --return
+		--)
 	),
 
 	/** Is vector pointing down
@@ -808,13 +805,15 @@ struct SupportObject_v
 		--support_obj = SupportObject.support_obj
 		
 		--support_key_prop = toUpper (SupportObject.obj_type as string ) + "_KEY"
-		support_or_raft = if obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
+		--support_or_raft = if obj_type == #SUPPORT then "SUPPORT_KEY" else "RAFT_KEY"
+		
+		
 		--support_key_val  = (getHandleByAnim support_obj) as string
 		--setUserPropVal support_obj "WIRECOLOR" SupportObject.wirecolor
 	
 		setUserPropVal support_obj "SYNC_KEY" sync_key
 		
-		setUserPropVal support_obj support_or_raft support_key
+		setUserPropVal support_obj "SUPPORT_KEY" support_key
 		
 		setUserPropVal support_obj "INDEX" vert
 		

@@ -51,7 +51,6 @@ filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManag
   *
   * 					4a) RAFT     Same as support obejct, but ends on last point in chain
   * 					4b) SUPPORT: Line connecting all points in chain.
-  *
   *		 					5) BEAM: Cross lines between supports
   *
   *

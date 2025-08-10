@@ -50,7 +50,7 @@ pos_z = 0 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 -- pos_z = 3
 -- pos_z = 10
 
- if selection.count == 0 then
+ -- if selection.count == 0 then
 (
 	delete objects
 	
@@ -63,9 +63,9 @@ pos_z = 0 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 /* SELECT VERTS  BY COLORS */ 
 select_verts = #{}
  
--- select_verts += verts_colors["yellow"]
--- select_verts += verts_colors["orange"]
--- select_verts += verts_colors[clr_pink]
+select_verts += verts_colors["yellow"]
+select_verts += verts_colors["orange"]
+select_verts += verts_colors[clr_pink]
 select_verts += verts_colors[clr_cyan]
 select_verts += verts_colors["green"]
 select_verts += verts_colors[clr_blue]
@@ -115,14 +115,14 @@ SUPPORT_OPTIONS.raft_length	= 5
 
 
 /* RAFT DIRECTION */ 
-SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
--- SUPPORT_OPTIONS.raft_direction	= 1 -- DOWN
+-- SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
+SUPPORT_OPTIONS.raft_direction	= 1 -- DOWN
 
 
 /* SET RAFT MODE */ 
 --SUPPORT_OPTIONS.raft_mode = 0 -- CUSTOM
---SUPPORT_OPTIONS.raft_mode = 1 -- MIN
- SUPPORT_OPTIONS.raft_mode = 2 -- AUTO
+SUPPORT_OPTIONS.raft_mode = 1 -- MIN
+ -- SUPPORT_OPTIONS.raft_mode = 2 -- AUTO
 
 
 /* UNLOCK  RAFT LENGTH  */

@@ -1,3 +1,4 @@
+filein( getFilenamePath(getSourceFileName()) + "/SupportRaft/SupportRaft.ms" )	--"./SupportRaft/SupportRaft.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportLeg/SupportLeg.ms" )	--"./SupportLeg/SupportLeg.ms"
 filein( getFilenamePath(getSourceFileName()) + "/SupportFoot/SupportFoot.ms" )	--"./SupportFoot/SupportFoot.ms"
 
@@ -20,7 +21,7 @@ struct SupportObject_v
 	sync_key,
 	support_key, -- pointer of support`s node -- used for both types: #SUPPORT and #RAFT
 	
-	is_updated_now = false, -- on\off update mode of raft part
+	is_updating_now = false, -- on\off update mode of raft part
 	
 	/* generate properties */
 	points = #(),

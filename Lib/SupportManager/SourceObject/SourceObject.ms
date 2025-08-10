@@ -424,10 +424,11 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight = 
 	(
-		 -- format "\n****************************************************\n"
-		 -- format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		  format "\n****************************************************\n"
+		  format "\n"; print "SourceObject_v.updateSupportsHeight()"
 		 --format "Normals.normals_world: %\n" Normals.normals_world
-		--format "supports.count: %\n" (Supports.count)
+		format "Supports.keys: %\n" Supports.keys
+		format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
 		/* GET SUPPORTS TO UPDATE */ 
 		
@@ -437,12 +438,13 @@ struct SourceObject_v
 			this.updateNormals (Supports)
 
 		
-		for index in Supports.keys where not Supports[index].isRaft() and isValidNode Supports[index].support_obj do
+		--for index in Supports.keys where not Supports[index].isRaft() and isValidNode Supports[index].support_obj do
+		for index in Supports.keys where Supports[index].is_on_ground and isValidNode Supports[index].support_obj do
 		(
 			-- format "\n"
 			-- format "index: %\n" index
 			Support = Supports[index]
-			-- format "Support: %\n" Support
+			 format "SUPPORT: %\n" Support
 			-- format "NORMAL: %\n" (Normals.normals_world[index].z)
 			
 			if Normals.normals_world[index].z < 0 then

@@ -100,13 +100,14 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			SET PARAMS
 		--------------------------------------------------------------------------------*/
-		if direction != undefined then  this.direction = direction
+		if direction != undefined then
+			this.direction = direction
 		
-		--if raft_vector != undefined then  this.raft_vector = raft_vector
+		if pin_vector != undefined then
+			this.pin_vector = pin_vector
 		
-		if pin_vector != undefined then  this.pin_vector = this.raft_vector = pin_vector
 		
-		--this.pin_vector = this.raft_vector
+		this.raft_vector = if direction == #DOWN then [ 0, 0, -1 ] else pin_vector
 		  --format "this.DIRECTION: %\n" this.direction
 
 		this.points = #( first_knot_pos )
@@ -616,14 +617,13 @@ struct SupportObject_v
 		)
 		else
 		(
+			/* SET 2nd KNOT TO GROUND */ 
 			this._alignKnotToPreviousKnot index:2 pos_z:0
 			
+			/* MAKE 2 KNOTS SPLINE */ 
 			for i = points.count to 3 by -1 do
 				deleteItem points i
 		)
-		
-		
-		
 		
 		this._setFootExists()
 	),
@@ -654,7 +654,8 @@ struct SupportObject_v
 	 */
 	function _getPinPointPosition first_knot_pos =
 	(
-		--format "\n"; print "SupportObject_v._getPinPointPosition()"
+		format "\n"; print "SupportObject_v._getPinPointPosition()"
+		format "min_length_by_angle: %\n" min_length_by_angle
 		
 		first_knot_pos + ( min_length_by_angle * pin_vector )
 	),
@@ -983,6 +984,7 @@ struct SupportObject_v
 		--if update_min_length_by_angle then
 			--min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
 			min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			--min_length_by_angle = min_lenght_by_angle --+ min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
 			
 		min_length_by_angle = roundFloat min_length_by_angle 2
 

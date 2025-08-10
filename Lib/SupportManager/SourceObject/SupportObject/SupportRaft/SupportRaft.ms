@@ -68,6 +68,7 @@ struct SupportRaft_v
 				
 				/* MINIMAL raft length */ 
 				1: Support.min_length_by_angle
+				--1: 0.1
 				
 				/* AUTO raft length */ 
 				2: (
@@ -115,7 +116,7 @@ struct SupportRaft_v
 		if hit_raft == undefined then
 		(
 			
-			if Support.obj_type == #SUPPORT then
+			--if Support.obj_type == #SUPPORT then
 			(
 				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 				if not raftHasFullLenght() then
@@ -148,8 +149,8 @@ struct SupportRaft_v
 					Support.points[3] = pos
 				)
 			)
-			else
-				this._shortenRaftOnDirection( 0 )
+			--else
+				--this._shortenRaftOnDirection( 0 )
 		)
 		
 		/*------------------------------------------------------------------------------

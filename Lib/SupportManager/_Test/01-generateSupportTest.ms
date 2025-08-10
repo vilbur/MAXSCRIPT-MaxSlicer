@@ -27,9 +27,10 @@ clr_blue =  ( color 30 144 255 ) as string
 clr_cyan =  ( color 0 255 255 ) as string
 clr_pink =  ( color 255 190 200 ) as string
 
+verts_colors[ "red"	]     = #{ 56 }
 verts_colors[ "yellow"	] = #{ 113 }
 verts_colors[ "orange"	] = #{ 57 }
-verts_colors[ clr_pink	] = #{ 115 }
+verts_colors[ clr_pink	] = #{ 58 }
 verts_colors[ clr_blue	] = #{ 85 }
 verts_colors[ "green"	] = #{ 42 }
 verts_colors[ "gray"	] = #{ 32 }
@@ -47,7 +48,7 @@ pos_z = 0 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 -- pos_z = 1.2
 -- pos_z = 1.5
 -- pos_z = 2
--- pos_z = 3
+pos_z = 3
 -- pos_z = 10
 
  -- if selection.count == 0 then
@@ -62,7 +63,8 @@ pos_z = 0 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 
 /* SELECT VERTS  BY COLORS */ 
 select_verts = #{}
- 
+
+select_verts += verts_colors["red"]
 select_verts += verts_colors["yellow"]
 select_verts += verts_colors["orange"]
 select_verts += verts_colors[clr_pink]
@@ -115,8 +117,8 @@ SUPPORT_OPTIONS.raft_length	= 5
 
 
 /* RAFT DIRECTION */ 
--- SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
-SUPPORT_OPTIONS.raft_direction	= 1 -- DOWN
+SUPPORT_OPTIONS.raft_direction	= 2 -- NORMAL
+-- SUPPORT_OPTIONS.raft_direction	= 1 -- DOWN
 
 
 /* SET RAFT MODE */ 

@@ -54,7 +54,7 @@ icon:	"across:4|align:#LEFT|control:radiobuttons|unselect:false|items:#( 'DOWN',
 		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
 		ROLLOUT_generator.RB_raft_mode.enabled = EventFired.val == 2
 		
-		ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
+		ROLLOUT_generator.SPIN_raft_length.enabled = EventFired.val == 2 and ROLLOUT_generator.RB_raft_mode.state == 0
 		
 		/* RESUME CALLBACKS */ 
 		resumeSupportTransformEvent()
@@ -73,7 +73,7 @@ icon:	"across:4|control:radiobuttons|unselect:true|items:#( 'MIN', 'AUTO' )|offs
 	(
 		--format "EventFired: %\n" EventFired
 		/* ENABLE DISBALE DEPENDENT CONTROLS */ 
-		ROLLOUT_generator.SPIN_normal_length.enabled = EventFired.val == 0
+		ROLLOUT_generator.SPIN_raft_length.enabled = EventFired.val == 0
 		
 		SUPPORT_OPTIONS.raft_mode = EventFired.val
 	)

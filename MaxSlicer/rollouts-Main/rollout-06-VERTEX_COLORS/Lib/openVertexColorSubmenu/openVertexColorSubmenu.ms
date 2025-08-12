@@ -47,7 +47,13 @@ function openVertexColorSubmenu method =
 		Menu.separator()
 	)
 	
-
+	if method == #HIDE then
+	(
+		Menu.item "&BLACK & WHITE"	( call_method_by_vertex_color + "#( black, white )"	)
+		
+	)
+	
+	/* ALL COLORS */ 
 	if method == #HIDE or method == #UNHIDE or method == #ISOLATE then
 	(
 		Menu.item "&ALL COLORS"	( call_method_by_vertex_color + "undefined"	)
@@ -55,7 +61,8 @@ function openVertexColorSubmenu method =
 		Menu.separator()
 	)	
 	
-
+	/* EACH COLOR */ 
+	
 	Menu.item "&WHITE"	( call_method_by_vertex_color + "white"	)
 	Menu.item "&GRAY"	( call_method_by_vertex_color + "gray"	)
 	Menu.item "B&LACK"	( call_method_by_vertex_color + "black"	)

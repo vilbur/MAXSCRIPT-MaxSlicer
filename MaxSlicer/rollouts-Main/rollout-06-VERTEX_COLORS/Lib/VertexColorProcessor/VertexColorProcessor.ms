@@ -94,9 +94,9 @@ struct VertexColorProcessor_v
 	 */
 	function byColor method colors =
 	(
-		 -- format "\n"; print "VertexColorProcessor_v.byColor()"
-		 -- format "colors: %\n" colors
-		 --format "obj: %\n" obj
+		--format "\n"; print "VertexColorProcessor_v.byColor()"
+		--format "method: %\n" method
+		--format "colors: %\n" colors
 		
 		if VertexColors == undefined then
 			VertexColors	= VertexColors_v(obj)
@@ -106,6 +106,8 @@ struct VertexColorProcessor_v
 		/* GET VERTS BY COLORS */ 
 		if colors != undefined then
 		(
+			if classOf colors == string then colors = execute colors
+			
 			if classOf colors != Array then colors = #(colors)
 			
 			--all_verts_by_colors = VertexColors.getVertsAndColors()

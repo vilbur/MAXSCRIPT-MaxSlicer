@@ -14,13 +14,15 @@ struct SourceObjectNormals_v
 	--Supports = Dictionary #INTEGER, -- KEY:vertex_index VALUE:SupportObject|RaftObject
 
 	/* private */
-	--verts_process,
+	en_mod,
 
 	--verts_pos,
 
 	normals_local, -- Array fot store vertex normals in object space
 	normals_world, -- Array fot store vertex normals in world space
 
+	down_verts = #{}, -- Array fot store vertex normals in world space
+	down_faces = #{}, -- Array fot store vertex normals in world space
 	--obj_rotation, -- store object rotation to find if world n1`ormals needs to be recount
 	--
 	--direction_down = [0,0,-1],
@@ -96,7 +98,7 @@ struct SourceObjectNormals_v
 		is_normal_valid = normals_world[vert].z <= limit
 		
 		if not is_normal_valid then
-			format "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
+			FORMAT "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
 		
 		is_normal_valid --return
 	),
@@ -116,29 +118,89 @@ struct SourceObjectNormals_v
 	function _updateLocalVertexNormalsByModifier verts =
 	(
 		--format "\n"; print "SourceObjectNormals_v._updateLocalVertexNormalsByModifier()"
+		--format "classOf obj: %\n" ( classOf obj )
+		
+		en_mod = Edit_Normals()
 
-		eMod = Edit_Normals()
+		addModifier obj en_mod
 
-		addModifier obj eMod
-
+		total_normals = en_mod.GetNumNormals()
+		
 		for vert in verts do
 		(
 			local_normal = point3 0 0 0
 
 			normal_ids = #{}
 			
-			eMod.ConvertVertexSelection #{vert} normal_ids node:obj
+			en_mod.ConvertVertexSelection #{vert} normal_ids node:obj
 
 			for normal in normal_ids do
-				local_normal += eMod.GetNormal normal node:obj
+				local_normal += en_mod.GetNormal normal node:obj
+			
+			
+			
+			
+			if (has_down_faces = this._setDownFaces vert) then
+				down_verts[vert] = true
 				
 			normals_local[vert] = normalize local_normal
 			
 		)
-
-		deleteModifier obj eMod
+		
+		format "DOWN_FACES:\n%\n" down_faces
+		
+		deleteModifier obj en_mod
 	),
+	
+	/** Get down faces
+	 */
+	function _setDownFaces vert =
+	(
+		obj_pos	= obj.pos
+		obj_transform	= obj.transform
+		
+		--num_faces = getNumFaces obj
+		down_faces_of_vert = #{}
+	
+		faces_of_verts = polyop.getFacesUsingVert obj #{vert}
+		format "\nFACES_OF_VERTS:\n%\n" faces_of_verts
+		for face in faces_of_verts do 
+		--for f = 1 to num_faces do
+		(
+			format "\n"
+			format "face: %\n" face
+			z_sum      = 0.0
+			normal_ids = #{}
+			
+			en_mod.ConvertFaceSelection  #{face} normal_ids node:obj
+			format "normal_ids: %\n" normal_ids
+			
+			for nid in normal_ids do
+			(
+				_normal = en_mod.GetNormal nid
+				
+				_normal = normalize ( _normal * obj_transform - obj_pos)
+				format "_normal: %\n" _normal
+				
+				z_sum += _normal.z
+			)
 
+			avg_z = z_sum / normal_ids.numberSet
+
+			if avg_z == -1 then
+				down_faces_of_vert[face] = true
+		
+		)
+		
+		/* ADD FACE TO DOWN FACES */ 
+		for face in down_faces_of_vert do
+			down_faces[face] = true
+		
+		/* RETURN BOOLEAN */ 
+		not down_faces_of_vert.isEmpty --return
+		--format "\n"; print "SourceObjectNormals_v.getDownFaces()"
+	),
+	
 	/** Get verts normals
 	 */
 	function _updateLocalNormals verts =

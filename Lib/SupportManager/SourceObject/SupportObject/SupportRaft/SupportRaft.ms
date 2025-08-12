@@ -101,31 +101,35 @@ struct SupportRaft_v
 
 		--format "RAFT_LENGTH: %\n" raft_length
 			
-		/* SET 2nd POINT */ 
-		Support.points[3] = getRaftEndPoint (Support) (raft_length)
+		/*------------------------------------------------------------------------------
+			SET POINT  OF RAFT END
+		--------------------------------------------------------------------------------*/
 		
+		Support.points[3] = getRaftEndPoint (Support) (raft_length)
 
-		/* TEST HIT SOURCE OBJECT */ 
+		/*------------------------------------------------------------------------------
+			TEST HIT SOURCE OBJECT
+		--------------------------------------------------------------------------------*/
+		
 	    hit_raft = this._testHitOfSourceObject( raft_length )
-		--format "HIT_RAFT: %\n" hit_raft
 		 
 		/*------------------------------------------------------------------------------
-			IF LEG EXISTS
+			MANAGE CASE OF SUUPORT IS LOW ABOVE GROUND
 		--------------------------------------------------------------------------------*/
-
 		if hit_raft == undefined then
 		(
-			
 			--if Support.obj_type == #SUPPORT then
 			(
 				/* EXTEND RAFT TO FULL LENGTH BEFORE UPDATE */ 
 				if not raftHasFullLenght() then
 					this._extendSecondPoint( raft_length )
 				
+				
 				/* SHORTEN REAFT IF ITS TOO LONG and goes under min size of leg ( foot can not be created ) */ 
 				if not isLegPointAboveMinLimit( Support.min_foot_pos ) then
 					this._shortenRaftOnDirection( Support.min_foot_pos )
 					--this._shortenRaftOnDirection( Support.min_foot_pos + 0.1 )
+	
 	
 				/* IF RAFT IS TOO SHORT ( small support without foot ) */ 
 				if not raftHasMinLenght() then
@@ -137,6 +141,7 @@ struct SupportRaft_v
 					if Support.points[3].z < Support.min_leg_pos then
 						this._shortenRaftOnDirection( Support.min_leg_pos )
 				)
+				
 				
 				/* SUPPORT MINIMAL MODE - only 2 points straight to ground - if support has not minimla height */ 
 				if Support.points[3].z > Support.points[2].z then
@@ -163,14 +168,14 @@ struct SupportRaft_v
 			
 			--Point pos:hit_raft.pos size:0.5 wirecolor:red box:true name:("GRID-SEEDER-HELPER-HIT-"+ Support.sync_key as string )
 		
-			if Support.obj_type == #RAFT and not raftHasMinLenght() then
-			(
-				add_to_min_distance = (Support.min_length_by_angle * 1.5 ) - distance Support.points[2] Support.points[3]
-
-				line_vector = normalize (Support.points[3] - Support.points[2])
-
-				Support.points[3] = Support.points[3] + ( add_to_min_distance * line_vector )
-			)
+			--if Support.obj_type == #RAFT and not raftHasMinLenght() then
+			--(
+			--	add_to_min_distance = (Support.min_length_by_angle * 1.5 ) - distance Support.points[2] Support.points[3]
+			--
+			--	line_vector = normalize (Support.points[3] - Support.points[2])
+			--
+			--	Support.points[3] = Support.points[3] + ( add_to_min_distance * line_vector )
+			--)
 		)
 		
 		
@@ -222,7 +227,7 @@ struct SupportRaft_v
 	 */
 	function _extendSecondPoint raft_length =
 	(
-		--format "\n"; print "SupportRaftUpdater_v._extendSecondPoint()"
+		format "\n"; print "SupportRaft_v._extendSecondPoint()"
 		--format "Support.raft_vector: %\n" Support.raft_vector
 		--line_vector = normalize ( Support.points[3] - Support.points[2] )
 		line_vector = Support.raft_vector

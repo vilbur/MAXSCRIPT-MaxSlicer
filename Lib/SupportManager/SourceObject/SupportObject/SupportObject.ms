@@ -654,8 +654,8 @@ struct SupportObject_v
 	 */
 	function _getPinPointPosition first_knot_pos =
 	(
-		format "\n"; print "SupportObject_v._getPinPointPosition()"
-		format "min_length_by_angle: %\n" min_length_by_angle
+		--format "\n"; print "SupportObject_v._getPinPointPosition()"
+		--format "min_length_by_angle: %\n" min_length_by_angle
 		
 		first_knot_pos + ( min_length_by_angle * pin_vector )
 	),

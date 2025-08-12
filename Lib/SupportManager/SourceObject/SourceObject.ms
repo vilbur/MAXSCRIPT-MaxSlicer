@@ -139,7 +139,8 @@ struct SourceObject_v
 		--if not queryBox ("Create supports from "+verts_process.numberSet as string +" verts ?") then
 			--return NewSupportObjects --return
 			
-
+		format "Normals.down_faces: %\n" Normals.down_faces
+		format "Normals.down_verts: %\n" Normals.down_verts
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORTS FOR EACH COLOR 
 		--------------------------------------------------------------------------------*/
@@ -149,23 +150,50 @@ struct SourceObject_v
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
 				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
-				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
-		
+				raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+				
+				wirecolor = if Normals.down_verts[vert] then black else (execute vertex_color)
+				
+				
+				support_position = if Normals.down_verts[vert] then
+				(
+					sum_pos = [0,0,0]
+					
+					faces_of_verts = polyop.getFacesUsingVert obj #{vert}
+
+					down_faces_of_vert = faces_of_verts * Normals.down_faces
+					
+					face_cemters = for down_face in down_faces_of_vert collect polyop.getFaceCenter obj down_face
+									
+					for p in face_cemters do
+						sum_pos += p
+
+					sum_pos / face_cemters.count
+				)
+				else
+					this._getSupportPosition(vert)
+				
+				pin_vector = if Normals.down_verts[vert] then [0,0,-1] else Normals.normals_world[vert]
+				
+				
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
 
 								--first_knot_pos:verts_pos[vert] \
-				success = SupportObject.generateSupport vert \
-								first_knot_pos:(this._getSupportPosition(vert)) \
+				result = SupportObject.generateSupport vert \
+								first_knot_pos:support_position \
 								direction:direction \
-								pin_vector:Normals.normals_world[vert] \
+								pin_vector:pin_vector \
 								raft_vector:raft_vector \
-								wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
+								wirecolor: wirecolor --"./SupportObject/SupportObject.ms"
+								--pin_vector:Normals.normals_world[vert] \
+								--first_knot_pos:(this._getSupportPosition(vert)) \
+								--wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
 
 				
-				if success then
+				if result then
 				(
 					/* ADD TO ARRAYS */
 					this.Supports[vert] = SupportObject
@@ -366,22 +394,25 @@ struct SourceObject_v
 		(
 			Support = SupportsToUpdate[index]
 			
+			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
+			if direction == #CUSTOM then 
+				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
+				
+						
 			/* UPDATE SECOND POINT - to keep direction down */ 
 			if direction == undefined then
 				direction = getUserPropVal Support.support_obj "DIRECTION"
+			
 			
 			/* GET VECTOR  */ 
 			--pin_vector = this._getRaftVector direction index
 			vert_normal = Normals.normals_world[index]
 			
-			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
-			if direction == #CUSTOM then 
-				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
-				
-			
+
 			/* UPDATE 1st POINT - if support has been moved on its own */ 
 			if update_knot_1 then
 				first_knot_pos = verts_pos[index]
+			
 			
 			/* IF VECTOR IS VALID THEN UPDATE SUPPORT */ 
 			if vert_normal == undefined or vert_normal.z < 0 then
@@ -395,8 +426,8 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					RESTORE FROM BOX MODE IF VECTOR BECOME VALID
 				--------------------------------------------------------------------------------*/
-				--else
-					--Support.rebulidSupport pin_vector:vert_normal
+				else
+					Support.rebulidSupport pin_vector:vert_normal
 			)
 			/*------------------------------------------------------------------------------
 				DISABLE SUPPORT IF NOT VALID

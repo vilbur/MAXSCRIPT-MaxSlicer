@@ -97,7 +97,7 @@ struct SourceObject_v
 
 		Normals.setWorldSpaceVertexNormals(verts_process)
 		
-		Normals.setDownFaces(verts_process)
+		Normals.setDownFaces()
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		--timer_verts_process = timeStamp()

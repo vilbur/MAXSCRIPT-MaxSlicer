@@ -43,12 +43,14 @@ function prepareObject verts =
 	radius = 100
 	
 	obj = Cylinder radius:radius height:50 sides:(segments - 2 ) slice:on slicefrom:( 360 - seg_angle ) sliceto:seg_angle transform:( Matrix3 [0, 1, 0] [0, 0, 1] [1, 0, 0] [0, 0, radius + 50 ] ) isSelected:on
+
+	Rotate obj ( AngleAxis 8.777 [1,0,0])
 	
 	addModifier obj ( meshsmooth sepBySmGroups:true )
-	
-	convertTo obj PolyMeshObject
-	
-	setVertsColors(obj)verts
+	--
+	--convertTo obj PolyMeshObject
+	--
+	--setVertsColors(obj)verts
 	
 	obj --return
 )
@@ -56,11 +58,11 @@ function prepareObject verts =
 
 verts = #{ 29, 40, 45 }
 
---obj = prepareObject(verts)
+obj = prepareObject(verts)
 
-obj = objects[1]
-
-SourceObjectNormals = SourceObjectNormals_v(obj)
-
-
-SourceObjectNormals.setLocalVertexNormals(verts)
+--obj = objects[1]
+--
+--SourceObjectNormals = SourceObjectNormals_v(obj)
+--
+--
+--SourceObjectNormals.setLocalVertexNormals(verts)

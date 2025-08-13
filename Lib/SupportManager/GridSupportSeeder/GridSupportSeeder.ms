@@ -5,6 +5,12 @@
   
   SCREEN: --"./Doc/select-verts-up-down.gif"
   
+  DEBUG MODE HELPERS displays:
+		GREEN:  Grid cell
+		YELLOW: Search for hit in cell
+		RED:    Hit
+  
+  
  */
 struct GridSupportSeeder_v
 (
@@ -53,6 +59,7 @@ struct GridSupportSeeder_v
 	(
 		--format "\n"; print "GridSupportSeeder_v.getClosestVertsOfEmptyCells()"
 	   --format "cell_objects: %\n" cell_objects
+	   --format "verts_process: %\n" verts_process
 		--format "grid_type: %\n" grid_type
 		this.cell_objects = if classOf cell_objects != Array then #(cell_objects) else cell_objects
 
@@ -64,10 +71,10 @@ struct GridSupportSeeder_v
 		
 		--verts_process = polyop.getVertSelection target_objects[1]
 		
-		if verts_process.isEmpty then
-			verts_all = #{1.. ( getNumVerts target_objects[1] )}
+		--if verts_process.isEmpty then
+			--verts_process = #{1.. ( getNumVerts target_objects[1].mesh )}
 		
-		--this._setFacesToTestHits()
+		this._setFacesToTestHits()
 		--format "SEL_FACES: %\n" faces_to_hit
 		
 		/* SQUARE GRID */
@@ -78,7 +85,7 @@ struct GridSupportSeeder_v
 		(
 			this.segments_count_keep = false
 		 
-			this._initGrid()
+			this._initSquareGrid()
 			
 			this._sortNodesToMatrix()
 			
@@ -129,11 +136,14 @@ struct GridSupportSeeder_v
 	
 	/** Set grid
 	 */
-	function _initGrid =
+	function _initSquareGrid =
 	(
-		--format "\n"; print "GridSupportSeeder_v._initGrid()"
-		--bbox = if verts_process.isEmpty and faces_to_hit.isEmpty then this._getBbox() else this.getSelectedVertsXYBounds target_objects[1]
-		bbox = this._getBbox()
+		format "\n"; print "GridSupportSeeder_v._initSquareGrid()"
+		
+		bbox = if verts_process.isEmpty and faces_to_hit.isEmpty then this._getBbox() else this._getSelectedVertsXYBounds target_objects[1]
+		--format "bbox: %\n" bbox
+		--bbox = this._getBbox()
+		
 		
 		p1 = bbox[1]
 		p2 = bbox[2]
@@ -656,39 +666,27 @@ struct GridSupportSeeder_v
 	/* 
 	Get min and max XY values of selected verts in Editable Poly or Edit Poly modifier
 	*/
-	function getSelectedVertsXYBounds src_obj =
+	function _getSelectedVertsXYBounds src_obj =
 	(
 		-- format "\n"; print "GridSupportSeeder_v._getBbox()"
 		--if isKindOf src_obj Editable_Poly or isKindOf src_obj Edit_Poly then
 		--(
 			-- get selected verts
 		--if verts.isEmpty then (return undefined) -- no selected verts
-		
 
-		first_found = true
-
-		min_x = 0.0
-		max_x = 0.0
-		min_y = 0.0
-		max_y = 0.0
+		min_x = 1e9
+		max_x = -1e9
+		min_y = 1e9
+		max_y = -1e9
 
 		for i in verts_process do
 		(
-			p = polyop.getVert src_obj i
+			pos = polyop.getVert src_obj i
 			
-			if first_found then
-			(
-				min_x = p.x ; max_x = p.x
-				min_y = p.y ; max_y = p.y
-				first_found = false
-			)
-			else
-			(
-				if p.x < min_x then min_x = p.x
-				if p.x > max_x then max_x = p.x
-				if p.y < min_y then min_y = p.y
-				if p.y > max_y then max_y = p.y
-			)
+			if pos.x < min_x then min_x = pos.x
+			if pos.x > max_x then max_x = pos.x
+			if pos.y < min_y then min_y = pos.y
+			if pos.y > max_y then max_y = pos.y
 		)
 		
 		this._getCornerPointsOnGround min_x max_x min_y max_y

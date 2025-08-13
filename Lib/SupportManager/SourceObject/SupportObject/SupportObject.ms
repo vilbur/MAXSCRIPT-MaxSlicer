@@ -178,8 +178,8 @@ struct SupportObject_v
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined pin_vector:undefined =
 	(
 		 --format "\n----------------------------------------------\n"
-		 --format "first_knot_pos: %\n" first_knot_pos
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
+		 --format "first_knot_pos: %\n" first_knot_pos
 		
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
@@ -202,7 +202,8 @@ struct SupportObject_v
 
 		points = this._getPointsPositions(first_knot_pos)
 		
-		this.raft_vector =  normalize (points[3] - points[2])
+		--this.raft_vector =  normalize (points[3] - points[2])
+		this.raft_vector = if pin_vector != undefined then pin_vector else normalize (points[3] - points[2])
 		
 		this._setNormalLenght update_raft:update_raft
 		
@@ -655,6 +656,7 @@ struct SupportObject_v
 	function _getPinPointPosition first_knot_pos =
 	(
 		--format "\n"; print "SupportObject_v._getPinPointPosition()"
+		--format "pin_vector: %\n" pin_vector
 		--format "min_length_by_angle: %\n" min_length_by_angle
 		
 		first_knot_pos + ( min_length_by_angle * pin_vector )
@@ -711,7 +713,8 @@ struct SupportObject_v
 	--function _isFirstPointAboveGround first_knot_pos raft_vector =
 	function _isFirstPointAboveGround =
 	(
-		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()" 
+		--format "\n"; print "SupportObject_v._isFirstPointAboveGround()"
+		--format "points: %\n" points
 		points[1].z > 0.0 
 	),
 	

@@ -11,20 +11,25 @@ function seedSupportsBellowSelection grid_type debug:false =
 	
 	
 	objects_by_visibility	= for obj in objects where obj.isHidden == false collect obj -- GET ONLY VISIBILITY OBJECTS - if select mode
-		
+	
+	
 	/* GET INPUT OBEJCTS - SELECTION or objects BY VISIBILITY */ 
 	objs_input = if selection.count > 0 then selection as Array else objects_by_visibility
 
+	
 	/* GET INPUT SOURCE OBJECTS */ 
 	source_objects = SUPPORT_MANAGER.getObjectsByType objs_input type:#SOURCE
 	--format "SOURCE_OBJECTS: %\n" source_objects
 	
+	
 	/* TEST IF SOURCE OBJECT IS SELECTED */ 
 	select_by_source_objects = with PrintAllElements on ( sort ( for obj in selection collect getHandleByAnim obj ) ) as string == ( sort (for obj in source_objects collect getHandleByAnim obj ) ) as string
+	
 	
 	/* USE SOURCE OBJECTS AS INPUT IF NOTHING SELECTED */ 
 	if source_objects.count == 0 and selection.count > 0 then
 		objs_input = source_objects = selection as Array
+	
 	
 	/* GET OBJECTS BY TYPE */ 	
 	supports = SUPPORT_MANAGER.getObjectsByType objs_input type:#SUPPORT --hierarchy:select_more
@@ -35,13 +40,18 @@ function seedSupportsBellowSelection grid_type debug:false =
 	if source_objects.count == 0 then
 		return false
 	
-	
+	/*------------------------------------------------------------------------------
+		SET GRID SEEDER
+	--------------------------------------------------------------------------------*/
 	Seeder = GridSupportSeeder_v(source_objects)
 	
 	--Seeder.cell_size = 30
 	Seeder.cell_size = ROLLOUT_SUPPORTS.SPIN_cell_size.value
 	
 	Seeder.debug = debug
+	
+	if (vertex_sel = getVertSelection source_objects[1].mesh).numberSet > 0 then
+		Seeder.verts_process = vertex_sel
 	
 	--grid_type = if ROLLOUT_SUPPORTS.RB_seeder_mode.state then #RADIAL else #GRID
 	
@@ -115,7 +125,7 @@ icon:	"ACROSS:5|width:80|height:32|offset:[ -2, 0 ]"
 macroscript	_print_support_seeder_grid_debug
 category:	"_3D-Print"
 buttontext:	"G R I D"
-tooltip:	"DEBUG MODE: SHOW OR DELETE HELPERS OF GRID AND HITS"
+tooltip:	"DEBUG MODE: SHOW OR DELETE HELPERS OF GRID AND HITS\n\nDEBUG MODE HELPERS displays:\n  GREEN: Grid cell\n YELLOW: Search for hit in cell\n     RED: Hit"
 icon:	"ACROSS:5|width:80|height:32|offset:[ -4, 0 ]"
 (
 	on execute do

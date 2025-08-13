@@ -227,7 +227,7 @@ struct SupportRaft_v
 	 */
 	function _extendSecondPoint raft_length =
 	(
-		format "\n"; print "SupportRaft_v._extendSecondPoint()"
+		--format "\n"; print "SupportRaft_v._extendSecondPoint()"
 		--format "Support.raft_vector: %\n" Support.raft_vector
 		--line_vector = normalize ( Support.points[3] - Support.points[2] )
 		line_vector = Support.raft_vector

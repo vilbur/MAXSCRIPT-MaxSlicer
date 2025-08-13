@@ -383,7 +383,7 @@ struct SupportManager_v
 	 */
 	function updateBySourceObject source_objects what_to_update =
 	(
-		  -- format "\n"; print "SupportManager_v.updateBySourceObject()"
+		format "\n"; print "SupportManager_v.updateBySourceObject()"
 		-- format "what_to_update: %\n" what_to_update
 		
 		updated_supports = #()

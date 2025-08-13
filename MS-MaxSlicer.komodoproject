@@ -3,8 +3,6 @@
 <project id="12089a42-ba37-4a31-ace1-064f036ed6fb" kpf_version="5" name="MS-MaxSlicer.komodoproject">
 <livefolder id="0bfe2f64-c9ed-488d-9900-888053ee3ec9" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="SUPPORTS" url="MaxSlicer/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-11-SUPPORTS/">
 </livefolder>
-<livefolder id="157c0184-9eae-4f1f-bebd-a8357fae3682" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-00-SOURCE OBJECT" url="MaxSlicer/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-00-SOURCE%20OBJECT/">
-</livefolder>
 <livefolder id="3f8cb66b-bbf6-4a8c-843c-97f4c465f424" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="SLICER" url="MaxSlicer/rollouts-Main/rollout-01-SLICER/">
 </livefolder>
 <livefolder id="53f51288-1e5e-4dcc-b783-13de635d4cc0" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="RAFTS" url="MaxSlicer/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-12-RAFTS/">
@@ -18,6 +16,8 @@
 <livefolder id="76a80363-f12d-4f51-9268-f367775b5a38" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="GENERATOR" url="MaxSlicer/rollouts-Main/rollout-03-GENERATOR/">
 </livefolder>
 <livefolder id="9edd82eb-5441-49d7-afcb-8c842bb70d73" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="SELECTION" url="MaxSlicer/rollouts-Main/rollout-05-SELECTION/">
+</livefolder>
+<livefolder id="a91edc9f-0e14-4fc4-8d95-be165cc7e4d6" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="rollout-00-SOURCE OBJECT" url="MaxSlicer/rollouts-Main/rollout-03-GENERATOR/rollouts-Generator/rollout-00-SOURCE%20OBJECT/">
 </livefolder>
 <livefolder id="accff6df-eff5-45f6-8b77-06d094480756" idref="06112c53-4a9d-4438-af63-a32caa6ae30a" name="TOOLS" url="MaxSlicer/rollouts-Main/rollout-05-TOOLS/">
 </livefolder>

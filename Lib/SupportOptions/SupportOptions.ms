@@ -181,10 +181,12 @@ struct SupportOptions_v
 		function isValueControl ctrl = findItem load_value_control_types (((classOf ctrl) as string ) as name ) > 0
 		
 		for ctrl in roll.controls do
+			/* GET CONTROLS FROM SUBROLLOUTS */ 
 			if ( classOf_ctrl = classOf ctrl ) == SubRollout then
 				for subroll in ctrl.rollouts do
 					this.getControlsWithOptionValue (subroll) (controls)
 					
+			/* GET CONTROLS FROM MAIN ROLLOUT */ 
 			else if isValueControl(ctrl) then
 				append controls ctrl
 				

@@ -38,9 +38,9 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		  --format "\n===========================================================\n"
+		  format "\n===========================================================\n"
 		 format "\n"; print "SourceObject_v.generateSupports()"
-		 format "SOURCE OBJECT: %\n" obj
+		 --format "SOURCE OBJECT: %\n" obj
 		 
 		 --macros.run "_3D-Print" "_print_reset_source_object_userprops"
 		 
@@ -62,7 +62,7 @@ struct SourceObject_v
 		
 		--format "classOf obj: %\n" ( classOf obj )
 		verts_sel	= getVertSelection obj.mesh
-		format "verts_sel: %\n" verts_sel
+		--format "verts_sel: %\n" verts_sel
 
  		supports_exists = Supports.keys as BitArray
 
@@ -137,13 +137,13 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys where not verts_by_colors[vertex_color].isEmpty do
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
-				--format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
+				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 				
 				--wirecolor = if Normals.down_verts[vert] then black else (execute vertex_color)
 
 				pin_vector = this._getPinVector direction vert
-				format "pin_vector: %\n" pin_vector
+				--format "pin_vector: %\n" pin_vector
 				
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
@@ -190,17 +190,20 @@ struct SourceObject_v
 	 */
 	function _getSupportPosition vert =
 	(
-		format "\n"; print "SourceObject_v._getSupportPosition()"
-		format "%: %\n" vert (Normals.down_verts[vert])
+		--format "\n"; print "SourceObject_v._getSupportPosition()"
+		--format "%: %\n" vert (Normals.down_verts[vert])
 		if Normals.down_verts[vert] then
 		(
 			sum_pos = [0,0,0]
 			
 			--faces_of_vert = polyop.getFacesUsingVert obj #{vert}
 			faces_of_vert = meshop.getFacesUsingVert obj.mesh #{vert}
-			format "faces_of_vert: %\n" faces_of_vert
+			--format "faces_of_vert: %\n" faces_of_vert
 			down_faces_of_vert = faces_of_vert * Normals.down_faces
-			format "down_faces_of_vert: %\n" down_faces_of_vert
+			--format "down_faces_of_vert: %\n" down_faces_of_vert
+			down_faces_of_vert += meshop.getPolysUsingFace obj.mesh down_faces_of_vert
+
+			
 		--	face_centers = for down_face in down_faces_of_vert collect polyop.getFaceCenter obj down_face
 			--face_centers = for down_face in down_faces_of_vert collect meshop.getFaceCenter obj.mesh down_face
 			face_centers = for down_face in down_faces_of_vert collect (meshop.getFaceCenter obj.mesh down_face) * obj.transform
@@ -708,7 +711,8 @@ struct SourceObject_v
 	 */
 	function _updateNormals supports_to_update =
 	(
-		 --format "\n"; print "SourceObject_v._updateNormals()"
+		--format "\n"; print "SourceObject_v._updateNormals()"
+		 
 		supports_keys = supports_to_update.keys as BitArray
 		 --format "supports_keys: %\n" supports_keys
 		

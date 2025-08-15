@@ -39,8 +39,8 @@ struct SourceObject_v
 	function generateSupports obj_type:#SUPPORT =
 	(
 		  --format "\n===========================================================\n"
-		 --format "\n"; print "SourceObject_v.generateSupports()"
-		 --format "SOURCE OBJECT: %\n" obj
+		 format "\n"; print "SourceObject_v.generateSupports()"
+		 format "SOURCE OBJECT: %\n" obj
 		 
 		 --macros.run "_3D-Print" "_print_reset_source_object_userprops"
 		 
@@ -62,6 +62,7 @@ struct SourceObject_v
 		
 		--format "classOf obj: %\n" ( classOf obj )
 		verts_sel	= getVertSelection obj.mesh
+		format "verts_sel: %\n" verts_sel
 
  		supports_exists = Supports.keys as BitArray
 
@@ -189,17 +190,17 @@ struct SourceObject_v
 	 */
 	function _getSupportPosition vert =
 	(
-		--format "\n"; print "SourceObject_v._getSupportPosition()"
-		--format "%: %\n" vert (Normals.down_verts[vert])
+		format "\n"; print "SourceObject_v._getSupportPosition()"
+		format "%: %\n" vert (Normals.down_verts[vert])
 		if Normals.down_verts[vert] then
 		(
 			sum_pos = [0,0,0]
 			
-			--faces_of_verts = polyop.getFacesUsingVert obj #{vert}
-			faces_of_verts = meshop.getFacesUsingVert obj.mesh #{vert}
-
-			down_faces_of_vert = faces_of_verts * Normals.down_faces
-			
+			--faces_of_vert = polyop.getFacesUsingVert obj #{vert}
+			faces_of_vert = meshop.getFacesUsingVert obj.mesh #{vert}
+			format "faces_of_vert: %\n" faces_of_vert
+			down_faces_of_vert = faces_of_vert * Normals.down_faces
+			format "down_faces_of_vert: %\n" down_faces_of_vert
 		--	face_centers = for down_face in down_faces_of_vert collect polyop.getFaceCenter obj down_face
 			--face_centers = for down_face in down_faces_of_vert collect meshop.getFaceCenter obj.mesh down_face
 			face_centers = for down_face in down_faces_of_vert collect (meshop.getFaceCenter obj.mesh down_face) * obj.transform
@@ -716,7 +717,7 @@ struct SourceObject_v
 
 		Normals.setWorldSpaceVertexNormals ( supports_keys )
 		
-		Normals.setDownFaces( supports_keys )
+		Normals.setDownFaces()
 
 		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
 		--for vert in supports_keys do

@@ -126,7 +126,7 @@ struct SourceObjectNormals_v
 	 */
 	function _setLocalNormalsByModifier verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v._setLocalNormalsByModifier()"
+		format "\n"; print "SourceObjectNormals_v._setLocalNormalsByModifier()"
 		--format "\n**********************************************************\n"
 		--format "classOf obj: %\n" ( classOf obj )
 		
@@ -184,19 +184,22 @@ struct SourceObjectNormals_v
 	 */
 	function _updateLocalNormals verts =
 	(
-		--format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
+		format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
+		format "verts.numberSet: %\n" verts.numberSet
 		--format "\n#######################################################\n"
 		
-		--format "verts.numberSet: %\n" verts.numberSet
 		timer_updateLocalNormals = timeStamp()
 		
 		obj_mesh = obj.mesh
 
 		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
-
+		format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
+		
 		for face in faces_of_verts do
 		(
+			timer_face = timeStamp()
 			face_normal = getFaceNormal	obj_mesh face
+			format "face: % ms\n" (( timeStamp()) - timer_face)
 			
 			/* SAVE FACE NORMAL */ 
 			this.normals_faces_local[face] = face_normal
@@ -213,7 +216,7 @@ struct SourceObjectNormals_v
 		/* NORMALIZE EACH NORMAL */ 
 		for vert in verts do normals_local[vert] = normalize normals_local[vert]
 
-		--format "updateLocalNormals: % ms\n" (( timeStamp()) - timer_updateLocalNormals)
+		format "updateLocalNormals: % ms\n" (( timeStamp()) - timer_updateLocalNormals)
 		--format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
 	),
 	

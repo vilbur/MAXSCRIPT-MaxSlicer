@@ -92,7 +92,7 @@ function bindSupportToTransformEvent supports =
 		
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
-		-- format "WTF\n"
+		--format "\n"; print "onSupportTransformCallback.ms.bindSupportToTransformEvent()"
 		/* SET HOW MANY SUPPORT MUST BE SELECETED FOR LIVE UPDATE */   
 		live_update_max_objects_count = SUPPORT_OPTIONS.live_update_max_objects_count
 		

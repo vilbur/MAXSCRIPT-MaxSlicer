@@ -22,14 +22,14 @@ function toggleSupportFoot state =
 	)
 	format "state: %\n" state
 	
-	for SupportObject in SupportObjects where SupportObject.is_on_ground do
-	(
-		SupportObject.foot_enabled = state
+	pauseSupportTransformEvent()
 		
-		SupportObject.updateSupport()
-	)
+	for SupportObject in SupportObjects where SupportObject.is_on_ground do
+		SupportObject.updateSupport foot_enabled:state
 
 	SUPPORT_MANAGER.updateShapes()
+	
+	resumeSupportTransformEvent()
 )
 
 
@@ -51,11 +51,19 @@ icon:	"ACROSS:4"
 macroscript	_print_support_toggle_foot_false
 category:	"_3D-Print"
 buttontext:	"FOOT Toggle"
-tooltip:	"DISABLE Foot"
+tooltip:	"SELECT supports WITHOUT foot"
 icon:	""
 (
 	on execute do
-		toggleSupportFoot(false)
+	(
+		SupportObjects = SUPPORT_MANAGER.getSupportObjects ( selection as Array ) obj_type:#SUPPORT
+		format "SupportObjects: %\n" SupportObjects	
+		
+		disabled_foot = for SupportObject in SupportObjects where SupportObject.foot_enabled == false collect SupportObject.support_obj
+		format "disabled_foot: %\n" disabled_foot
+		if disabled_foot.count > 0 then
+			select disabled_foot
+	)
 )
 
 

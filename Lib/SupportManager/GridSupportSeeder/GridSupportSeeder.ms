@@ -525,16 +525,19 @@ struct GridSupportSeeder_v
 	function _getClosestVertToHit hitted_object hit_pos hitted_face =
 	(
 		--format "\n"; print "GridSupportSeeder_v._getClosestVertToHit()"
+	
+		closest_dist = 1e9
+		closest_vert = undefined
+		closest_pos  = undefined
+
 		verts_of_face = meshop.getVertsUsingFace hitted_object hitted_face
 	
+		/* USE ONLY PRROCESS VERTS */ 
 		if verts_process.count > 0 then
 			for vert in verts_of_face where not verts_process[vert] do 
 				verts_of_face[vert] = false
-	
-		closest_vert = undefined
-		closest_dist = 1e9
-		closest_pos  = undefined
-	
+				
+		/* FIND CLOSEST VERT TO HIT ON FACE */ 
 		for v in verts_of_face do
 		(
 			vpos = getVert hitted_object v
@@ -548,6 +551,10 @@ struct GridSupportSeeder_v
 				closest_pos  = vpos
 			)
 		)
+		
+		/* AVOID USE OTHER VERTS ON SAME FACE */ 
+		if closest_vert != undefined then
+			verts_process -= verts_of_face
 
 		if mode == #VERTS then closest_vert else closest_pos -- return
 	),

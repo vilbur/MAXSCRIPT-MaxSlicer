@@ -104,8 +104,8 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		 --format "\n"; print "SupportManager_v.generateSupports()"
-		--format "\n-------------------------------------\n"
+		format "\n"; print "SupportManager_v.generateSupports()"
+		format "\n===========================================================\n"
 		--format "GENERATE SUPPORTS FOR: %\n" source_obj
 		 
 		--this._removeDeletedNodes()

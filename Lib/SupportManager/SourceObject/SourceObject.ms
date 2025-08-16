@@ -38,8 +38,8 @@ struct SourceObject_v
 	 */
 	function generateSupports obj_type:#SUPPORT =
 	(
-		  format "\n===========================================================\n"
-		 format "\n"; print "SourceObject_v.generateSupports()"
+		--format "\n-------------------------------------\n"
+		 --format "\n"; print "SourceObject_v.generateSupports()"
 		 --format "SOURCE OBJECT: %\n" obj
 		 
 		 --macros.run "_3D-Print" "_print_reset_source_object_userprops"
@@ -102,7 +102,9 @@ struct SourceObject_v
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		--timer_verts_process = timeStamp()
-		normal_limit = if direction == #DOWN then -0.3 else -0.2
+		--normal_limit = if direction == #DOWN then -0.3 else -0.2
+		normal_limit = 0.0
+		
 		
 		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) limit:normal_limit collect vert ) as BitArray
 
@@ -138,7 +140,11 @@ struct SourceObject_v
 			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 			(
 				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
-				raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
+				
+				if Normals.down_verts[vert] then
+					direction = #DOWN
+					
+				--raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
 				
 				--wirecolor = if Normals.down_verts[vert] then black else (execute vertex_color)
 
@@ -221,36 +227,6 @@ struct SourceObject_v
 
 
 	
---	/* 
---	Get all face indices of faces pointing downward
---	*/
---	function _getDownwardFaces =
---	(
---		format "\n"; print "SourceObject_v._getDownwardFaces()"
---		--if isKindOf src_obj Editable_Poly or isKindOf src_obj Edit_Poly then
---		--(
---			face_count = meshop.getNumFaces obj.mesh
---			format "face_count: %\n" face_count
---
---			down_faces = #{}
---	
---			for f = 1 to face_count do
---			(
---				--format "\n"
---				n = getFaceNormal obj.mesh f
-----format "n: % TEST: %\n" n (n.z < -0.9)
---				if n.z < -0.95 then down_faces[f] = true
---			)
---	
---			-- return
---			down_faces
---		--)
---		--else
---		--(
---		--	undefined
---		--)
---	),
-
 	/*==============================================================================
 	
 		RESET
@@ -262,7 +238,7 @@ struct SourceObject_v
 	 */
 	function resetSupports support_nodes =
 	(
-		-- format "\n"; print "SourceObject_v.resetSupports()"
+		 format "\n"; print "SourceObject_v.resetSupports()"
 		--format "support_nodes: %\n" support_nodes
 		/* GET SUPPORTS TO RESET */ 
 		SupportsToReset = this._getSupports support_nodes:support_nodes
@@ -601,7 +577,8 @@ struct SourceObject_v
 		case direction of
 			(
 				(#DOWN):   [ 0, 0, -1 ]
-				(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]		
+				(#NORMAL): Normals.normals_world[index]
+				--(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
 			)
 	),
 	--/** Get pin vector

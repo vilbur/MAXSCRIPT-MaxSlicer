@@ -65,9 +65,7 @@ struct SupportObject_v
 	/* static */ 
 	raft_vector_angle_range = 80,
 	
-	this_props  = #( #DIRECTION, #PIN_VECTOR, #RAFT_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
-	--this_props  = #( #DIRECTION, #RAFT_VECTOR, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
-	--this_props  = #( #DIRECTION, #NORMAL_WORLD, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	this_props  = #(  #PIN_VECTOR, #RAFT_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #RAFT_LENGTH, #TOP_WIDTH, #FOOT_ENABLED, #RAFT_MODE ),	-- props of this saved to node userProps WHICH ARE LOADED FROM OTPION when generate
 	
 	
@@ -75,17 +73,18 @@ struct SupportObject_v
 
 	spline_1 = 1, -- each support line has ony 1 spline
 	
-	dilatation  = 0.05, 
+	dilatation  = 0.05,
+	
+	space_for_chamfer = 0.25,
 
 	public
 
 	/** Generate support
 	  * 
 	  * @param point3	first_knot_pos	top position of support
-	  * @param #DOWN|point3	direction	raft_vector of direction from 1st to 2nd point
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: direction:undefined pin_vector:undefined wirecolor: =
+	function generateSupport vertex_index first_knot_pos: pin_vector:undefined wirecolor: =
 	(
 		  --format "\n===========================================================\n"
 		  --format "\n"; print "SupportObject_v.generateSupport()"
@@ -130,7 +129,7 @@ struct SupportObject_v
 		this._fillThisWithOptionValues()
 		--format "BAR_WIDTH: %\n" bar_width
 		
-		this._setMinLimints (direction)
+		this._setMinLimints ()
 		
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
@@ -175,7 +174,7 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined pin_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false pin_vector:undefined =
 	(
 		 --format "\n----------------------------------------------\n"
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
@@ -198,7 +197,7 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
-		this._setMinLimints(direction) force_set:(update_raft == true or min_length_by_angle == undefined)
+		this._setMinLimints force_set:(update_raft == true or min_length_by_angle == undefined)
 
 		points = this._getPointsPositions(first_knot_pos)
 		
@@ -950,7 +949,7 @@ struct SupportObject_v
 		support - 135° > remove 45% of bar with
 		support - 180° > remove 0%  of bar with
 	 */
-	function _setMinLimints direction force_set:true =
+	function _setMinLimints force_set:true =
 	(
 		 --format "\n"; print "SupportObject_v._setMinLimints()"
 		-- format "bar_width: %\n" bar_width
@@ -969,7 +968,6 @@ struct SupportObject_v
             space_for_chamfer = 1    -- PRODUCE LONG RAFT		  -- raft has additional length 
 			
 		*/ 
-		space_for_chamfer = 0.25
 
 		
 		update_minimal_lenght  = force_set or changed_props[#PIN_VECTOR]  != undefined or changed_props[#BAR_WIDTH] != undefined 

@@ -58,8 +58,8 @@ struct SupportRaft_v
 		
 		
 		--raft_length = Support.min_length_by_angle
-		raft_length = if update_or_generate == #GENERATE then Support.raft_length else this.raftLenght()
-		--raft_length = Support.raft_length
+		--raft_length = if update_or_generate == #GENERATE then Support.raft_length else this.raftLenght()
+		raft_length = Support.raft_length
 		
 
 		/* IF RAFT LENGTH IS 0 THEN MIN RAFT LENGTH IS USED */

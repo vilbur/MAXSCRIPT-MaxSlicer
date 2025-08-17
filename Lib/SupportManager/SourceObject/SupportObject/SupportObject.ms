@@ -204,7 +204,7 @@ struct SupportObject_v
 
 		--this.raft_vector = if pin_vector != undefined then pin_vector else normalize (points[3] - points[2])
 		--format "RAFT_VECTOR: %\n" this.raft_vector
-		this._setNormalLenght update_raft:update_raft
+		this._setRaftLenght update_raft:update_raft
 		
 
 		if not this._isFirstPointAboveGround() then
@@ -247,8 +247,9 @@ struct SupportObject_v
 	function _sanitizeRaftEndPosition =
 	(
 		--format "\n"; print "SupportObject_v._sanitizeRaftEndPosition()"
+		--format "TEST: %\n" (points[3].z < min_foot_pos)
 		if points[3].z < min_foot_pos then
-			points[3].z = min_foot_pos  + dilatation
+			points[3].z = min_foot_pos  + 0.5
 			--points[3].z = base_height + 0.5
 		
 		if points[3].z > points[2].z then
@@ -366,10 +367,10 @@ struct SupportObject_v
 			
 			points_distance = distance points[2] points[3]
 			
-			/*------------------------------------------------------------------------------------------
-				SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
+			--/*------------------------------------------------------------------------------------------
+			--	SET KNOTS TO GROUND IF SUPPORT IS TALL EANOUGH, NOT SHORTEN AND FOOT EXISTS
 			--------------------------------------------------------------------------------------------*/
-
+			
 			if isTallEnough() and not points_distance < raft_length and (( foot_enabled and foot_exists ) or not foot_enabled ) then
 			(
 				num_knots = numKnots support_obj spline_1
@@ -395,6 +396,8 @@ struct SupportObject_v
 			
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
+		--format "points[1].z: %\n" points[1].z
+		points[1].z >= 0.05 --return
 	),
 
 
@@ -587,7 +590,8 @@ struct SupportObject_v
 	(
 		 --format "\n"; print "SupportObject_v.setPivotToPoint()"
 		--support_obj.pivot = getKnotPoint support_obj spline_1 2
-		support_obj.pivot = points[index]
+		if points[index] != undefined then 
+			support_obj.pivot = points[index]
 	),
 	
 	private
@@ -624,8 +628,8 @@ struct SupportObject_v
 		
 		--format "points[2].z: %\n" points[2].z
 
-		--if points[2].z > 0 then
-		if points[this.points.count].z > 0 then
+		if points[2].z > 0 then
+		--if points[this.points.count].z > 0 then
 		(
 			/* CREATE RAFT */ 
 			SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
@@ -652,6 +656,7 @@ struct SupportObject_v
 		)
 		else
 		(
+			--format "WTF\n"
 			/* SET 2nd KNOT TO GROUND */ 
 			this._alignKnotToPreviousKnot index:2 pos_z:0
 			
@@ -827,9 +832,9 @@ struct SupportObject_v
 	  * 3) Use saved length if support is updated BUT NORMAL LENGTH IS LOCKED
 	  * 
 	 */
-	function _setNormalLenght update_raft:false =
+	function _setRaftLenght update_raft:false =
 	(
-		-- format "\n"; print "SupportObject_v._setNormalLenght()"
+		-- format "\n"; print "SupportObject_v._setRaftLenght()"
 		
 		this.raft_length = if update_raft and not SUPPORT_OPTIONS.lock_raft_length then
 			 distance points[2] points[3]

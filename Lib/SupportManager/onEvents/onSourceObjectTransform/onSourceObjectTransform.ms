@@ -65,18 +65,20 @@ function onSourceObjectTransform sender evt =
 	
 	
 	source_objects = for source_object in SOURCE_OBJECT_TRANSFORM.moved_objects where findItem SOURCE_OBJECT_TRANSFORM.binded_objects source_object > 0 collect source_object 
-		
-	for source_object in source_objects do 
+	
+	--format "TEST: %\n" (not mouse.buttonStates[1] )
+	--format "\n"
+	--format "mouse.inAbort: %\n" mouse.inAbort
+	--format "mouse.posUnscaled: %\n" mouse.posUnscaled
+	/* UPDATE WHEN LBM IS RELEASED */ 
+	if not mouse.buttonStates[1] then
 	(
-		/* UPDATE WHEN LBM IS RELEASED */ 
-		if not mouse.buttonStates[1] then
+		pauseSupportTransformEvent()
+		
+		for source_object in source_objects do 
 		(
 			--clearListener(); print("Cleared in:\n"+getSourceFileName())
-			  -- format "\n===========================================================\n"
-			 -- format "\n"; print "onSourceObjectTransform()"
-			--format "SOURCE_OBJECTS: %\n" source_objects
-			
-			pauseSupportTransformEvent()
+			--format "\n===========================================================\n"
 			
 			transform_data = SOURCE_OBJECT_TRANSFORM.transform_data[(getHandleByAnim source_object) as string ]
 	
@@ -123,18 +125,14 @@ function onSourceObjectTransform sender evt =
 					
 				--)
 				
-				
-			for source_object in source_objects do 
-				SOURCE_OBJECT_TRANSFORM.setTransformData(source_object)
-					
-			--SOURCE_OBJECT_TRANSFORM.moved_objects = #()
-			
-			resumeSupportTransformEvent()
-			
-			
-			removeTimeout sender
-			
 		)
+			
+		for source_object in source_objects do 
+			SOURCE_OBJECT_TRANSFORM.setTransformData(source_object)
+				
+		resumeSupportTransformEvent()
+		
+		removeTimeout sender
 	)
 )
 

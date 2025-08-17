@@ -92,19 +92,23 @@ struct SourceObject_v
 		/*-----------------------------------------------------------------------------
 			NORMALS OF VERTS
 		--------------------------------------------------------------------------------*/
-		Normals.setLocalVertexNormals(verts_process)
+		Normals.initFacesLocalNormals(verts_process)
 		
 		Normals.saveNormalsToUserProps()
 
-		Normals.setWorldSpaceVertexNormals(verts_process)
+		Normals.setLocalVertexNormals(verts_process)
 		
-		Normals.setDownFaces()
+		Normals.setWorldSpaceVertexNormals()
+		Normals.setWorldSpaceFaceNormals()
+		
+		Normals.setDownFaces(verts_process)
 		
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE - BUT NOT UP */
 		--timer_verts_process = timeStamp()
 		--normal_limit = if direction == #DOWN then -0.3 else -0.2
 		normal_limit = 0.0
-		
+		format "faces_local: %\n" Normals.faces_local
+
 		
 		verts_process = ( for index in verts_process where Normals.isNormalValid(index) limit:normal_limit collect index ) as BitArray
 
@@ -144,8 +148,8 @@ struct SourceObject_v
 				direction = if Normals.down_verts[index] then #DOWN else #NORMAL
 
 					
-				--raft_vector = if direction == #NORMAL then Normals.normals_world[index] else [0,0,-1]
-				--raft_vector = if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index] 
+				--raft_vector = if direction == #NORMAL then Normals.verts_world[index] else [0,0,-1]
+				--raft_vector = if Normals.down_verts[index] then [0,0,-1] else Normals.verts_world[index] 
 				--raft_vector = Normals.normals_world[index] 
 				
 				--wirecolor = if Normals.down_verts[index] then black else (execute vertex_color)
@@ -155,7 +159,7 @@ struct SourceObject_v
 				
 				--pin_vector = this._getPinVector direction index
 				--pin_vector =  if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
-				pin_vector =  Normals.normals_world[index]
+				pin_vector =  Normals.verts_world[index]
 				--format "pin_vector: %\n" pin_vector
 				
 				/*------------------------------------------------------------------------------
@@ -171,9 +175,10 @@ struct SourceObject_v
 								wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
 								--raft_vector:raft_vector \
 								--wirecolor: wirecolor --"./SupportObject/SupportObject.ms"
-								--pin_vector:Normals.normals_world[index] \
+								--pin_vector:Normals.verts_world[index] \
 								--first_knot_pos:(this._getSupportPosition(index)) \
 
+				
 				
 				if result then
 				(
@@ -194,7 +199,8 @@ struct SourceObject_v
 		/*------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------*/
 		SOURCE_OBJECT_TRANSFORM.bindSourceObjectTransformEvent ( obj )
-		
+		format "faces_local: %\n" Normals.faces_local
+
 		/* RETURN */
 		NewSupportObjects
 	),
@@ -223,7 +229,7 @@ struct SourceObject_v
 			Normals.setLocalVertexNormals(verts)
 		
 		
-		----if Normals.normals_world == undefined then
+		----if Normals.verts_world == undefined then
 			Normals.setWorldSpaceVertexNormals(verts)
 
 		this.getVertsPositions(verts)
@@ -240,7 +246,7 @@ struct SourceObject_v
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 			
-		raft_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[index] else [0,0,-1] -- direction NORMAL|DOWN
+		raft_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.verts_world[index] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_leg	= undefined
@@ -292,18 +298,25 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes: update_knot_1:true update_raft:true direction:undefined update_normals:false =
 	(
-		--format "\n****************************************************\n"
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n****************************************************\n"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		--format "update_normals: %\n" update_normals
-
+		format "update_normals: %\n" update_normals
+		format "Normals.normals_local: %\n" Normals.normals_local
 		/* GET SUPPORTS TO UPDATE */ 
 		SupportsToUpdate = this._getSupports support_nodes:support_nodes
 		
-		/* GET NORMALS */ 
-		if update_normals or Normals.normals_world == undefined then
-			this._updateNormals (SupportsToUpdate)
 		
+		--if Normals.normals_local == undefined then
+			--Normals.setLocalVertexNormals (SupportsToUpdate.keys as BitArray)
+		
+		--else
+		/* GET NORMALS */ 
+		if update_normals then
+			this._updateNormals (SupportsToUpdate)
+
+		format "normals_faces_local: %\n"  Normals.normals_faces_local			
+		--format "NORMALS_LOCAL: %\n" Normals.normals_local
 		/*------------------------------------------------------------------------------
 		  
 			UPDATE EACH SUPPORT
@@ -315,7 +328,7 @@ struct SourceObject_v
 			
 			direction = if Normals.down_verts[index] then #DOWN else #NORMAL
 			
-			reset_raft_vector = direction != Support.direction 
+			reset_raft_vector = direction == #DOWN and direction != Support.direction 
 			
 			--format "direction TEST: %\n" (  direction != Support.direction )
 			
@@ -331,7 +344,7 @@ struct SourceObject_v
 			
 			/* GET VECTOR  */ 
 			--pin_vector = this._getPinVector direction index
-			pin_vector = Normals.normals_world[index] 
+			pin_vector = Normals.verts_world[index] 
 			
 
 			/* UPDATE 1st POINT - if support has been moved on its own */ 
@@ -363,7 +376,9 @@ struct SourceObject_v
 			else 
 				Support.dis()
 		)
-		
+		--format "NORMALS_LOCAL: %\n" Normals.normals_local
+		format "normals_faces_local: %\n"  Normals.normals_faces_local
+
 		free SupportsToUpdate
 	),
 
@@ -386,7 +401,7 @@ struct SourceObject_v
 	(
 		  --format "\n****************************************************\n"
 		  --format "\n"; print "SourceObject_v.updateSupportsHeight()"
-		 --format "Normals.normals_world: %\n" Normals.normals_world
+		 --format "Normals.verts_world: %\n" Normals.verts_world
 		--format "Supports.keys: %\n" Supports.keys
 		--format "supports.count: %\n" (Supports.count)
 		--for key in Supports.keys where not Supports[key].isRaft() and Supports[key].foot_enabled do
@@ -394,7 +409,7 @@ struct SourceObject_v
 		
 		/* GET VECTOR  */
 		--Normals.setWorldSpaceVertexNormals ( Supports.keys as BitArray )
-		if Normals.normals_world == undefined then
+		if Normals.verts_world == undefined then
 			this._updateNormals (Supports)
 
 		
@@ -405,9 +420,9 @@ struct SourceObject_v
 			-- format "index: %\n" index
 			Support = Supports[index]
 			 --format "SUPPORT: %\n" Support
-			-- format "NORMAL: %\n" (Normals.normals_world[index].z)
+			-- format "NORMAL: %\n" (Normals.verts_world[index].z)
 			
-			if Normals.normals_world[index].z < 0 then
+			if Normals.verts_world[index].z < 0 then
 			(
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 				
@@ -585,12 +600,12 @@ struct SourceObject_v
 	function _getPinVector direction index =
 	(
 		-- format "\n"; print "SourceObject_v._getPinVector()"
-		if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
+		if Normals.down_verts[index] then [0,0,-1] else Normals.verts_world[index]
 		--case direction of
 		--	(
 		--		(#DOWN):   [ 0, 0, -1 ]
-		--		(#NORMAL): Normals.normals_world[index]
-		--		--(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
+		--		(#NORMAL): Normals.verts_world[index]
+		--		--(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.verts_world[index]
 		--	)
 	),
 	--/** Get pin vector
@@ -598,7 +613,7 @@ struct SourceObject_v
 	--function _getPinVector index =
 	--(
 	--	--format "\n"; print "SourceObject_v._getPinVector()"
-	--	if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]		
+	--	if Normals.down_verts[index] then [0,0,-1] else Normals.verts_world[index]		
 	--),
 	--
 	/** Get support by node
@@ -700,22 +715,24 @@ struct SourceObject_v
 	 */
 	function _updateNormals supports_to_update =
 	(
-		--format "\n"; print "SourceObject_v._updateNormals()"
+		format "\n"; print "SourceObject_v._updateNormals()"
 		 
 		supports_keys = supports_to_update.keys as BitArray
 		 --format "supports_keys: %\n" supports_keys
 		
-		if Normals.normals_local == undefined then
-			Normals.setLocalVertexNormals( supports_keys )
+		--if Normals.normals_local == undefined then
+		Normals.initFacesLocalNormals( supports_keys )
+		Normals.setLocalVertexNormals ( supports_keys )
 
-		Normals.setWorldSpaceVertexNormals ( supports_keys )
+		Normals.setWorldSpaceVertexNormals ()
+		Normals.setWorldSpaceFaceNormals ()
 		
-		Normals.setDownFaces()
+		Normals.setDownFaces(supports_keys)
 
 		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
 		--for index in supports_keys do
 		for index in supports_keys where isValidNode Supports[index].support_obj do
-			setUserPropVal Supports[index].support_obj "PIN_VECTOR" Normals.normals_world[index]
+			setUserPropVal Supports[index].support_obj "PIN_VECTOR" Normals.verts_world[index]
 	),
 	
 	/** Get rounded object rotation

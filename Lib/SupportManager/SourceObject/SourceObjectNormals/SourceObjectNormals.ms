@@ -8,88 +8,82 @@ struct SourceObjectNormals_v
 
 	/* required */
 	/* properties */
-
-	all_verts,
-
-	normals_local, -- Array fot store vertex normals in object space
-	normals_world, -- Array fot store vertex normals in world space
-
-	normals_faces_local = #(),
-	--normals_faces_world = #(),
+	faces_local = #(), -- local face normals
+	faces_world = #(), -- world face normals
+	
+	verts_local = #(), -- Array fot store vertex normals in object space
+	verts_world = #(), -- Array fot store vertex normals in world space
 	
 	down_verts = #{}, -- Array fot store vertex normals in world space
 	down_faces = #{}, -- Array fot store vertex normals in world space
-	--Supports = Dictionary #INTEGER, -- KEY:vertex_index VALUE:SupportObject|RaftObject
 
 	/* private */
-	en_mod,
-	
 	/* dependency */
 	/* reference */
 	/* inhered */
 	
 	/*
 	 */
-	function setLocalVertexNormals verts =
+	function initFacesLocalNormals verts =
 	(
 		FORMAT "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		
+		if not this.loadNormalsLocal() then
+		(
+			obj_mesh = obj.mesh
+			
+			--normals_local[getNumFaces obj_mesh] = undefined
+			
+			for face in meshop.getFacesUsingVert obj_mesh verts do
+				faces_local[face] = getFaceNormal	obj_mesh face
+		)
+		
+		--	this._setLocalNormalsByModifier( verts )
+		--else
+		--	this._updateLocalNormals( verts )
+	),
+	
+	/** Set local vertex normals
+	 */
+	function setLocalVertexNormals verts =
+	(
+		--format "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		obj_mesh = obj.mesh
+		
 		this._initNormalsLocalArray()
 
-		
-		if not this.loadNormalsLocal() then
-			this._setLocalNormalsByModifier( verts )
-		else
-			this._updateLocalNormals( verts )
-	),
+		face_of_verts = meshop.getFacesUsingVert obj_mesh verts
 
+		--for face = 1 to faces_local.count where (face_normal = faces_local[i]) != undefined do 
+		for face in face_of_verts  where (face_normal = faces_local[face]) != undefined do  
+		(
+			/* GET VERTS OF FACE */ 
+			face_verts = getFace	obj_mesh face
+			
+			/* SAVE NORMAL FOR EACH VERTEX */ 
+			verts_local[face_verts[1]] += face_normal
+			verts_local[face_verts[2]] += face_normal
+			verts_local[face_verts[3]] += face_normal
+		)
+	),
+	
 	/** Set world space vertex normals
 	 */
-	function setWorldSpaceVertexNormals verts =
+	function setWorldSpaceVertexNormals =
 	(
-		--format "\n"; print "SourceObjectNormals_v.setWorldSpaceVertexNormals()"
-		--format "verts: %\n" verts
-		
-		normals_world = this._getWorldSpaceNormals normals_local
-	),
-
-	/** Load normals local
-	 */
-	function loadNormalsLocal =
-	(
-		--format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
-		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
-			this.normals_local = normals_local_loaded
-		--format "normals_local_loaded: %\n" normals_local_loaded
-		normals_local_loaded != undefined
+		verts_world = this._getWorldSpaceNormals verts_local
 	),
 	
-	/** Is vertex normal pointing DOWN or SIDE but not UP
+	/** Set world space face normals
 	 */
-	function isNormalValid vert limit:0.0 =
+	function setWorldSpaceFaceNormals =
 	(
-		--format "\n"; print "SourceObjectNormals_v.isNormalValid()"
-		----format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
-
-		is_normal_valid = normals_world[vert].z <= limit
-		
-		if not is_normal_valid then
-			FORMAT "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert normals_world[vert]
-		
-		is_normal_valid --return
+		faces_world = this._getWorldSpaceNormals faces_local
 	),
-	
-	/** Save normals to user props
-	 */
-	function saveNormalsToUserProps =
-	(
-		--format "\n"; print "SourceObjectNorwmals_v.saveNormalsRoUserProps()"
-		setUserPropVal obj "normals_local"	normals_local
-	), 
 	
 	/** Update down faces
 	 */
-	function setDownFaces =
+	function setDownFaces verts =
 	(
 		FORMAT "\n"; print "SourceObjectNormals_v.setDownFaces()"
 		--format "normals_faces_local: %\n" normals_faces_local
@@ -99,13 +93,15 @@ struct SourceObjectNormals_v
 		this.down_verts = #{} -- Array fot store vertex normals in world space
 		this.down_faces = #{} -- Array fot store vertex normals in world space
 		
-		normals_faces_world = this._getWorldSpaceNormals (normals_faces_local)
+		obj_mesh = obj.mesh
+
+		face_of_verts = meshop.getFacesUsingVert obj_mesh verts
 		
 		
-		for f = 1 to normals_faces_world.count \
-			where normals_faces_world[f] != undefined do
+		for f in face_of_verts \
+			where faces_world[f] != undefined do
 			(
-				if normals_faces_world[f].z == -1 then
+				if faces_world[f].z == -1 then
 				(
 					/* ADD FACE TO DOWN FACES */ 
 					this.down_faces[f] = true
@@ -116,110 +112,34 @@ struct SourceObjectNormals_v
 				)
 			)
 			
-		--format "DOWN_VERTS: %\n" this.down_verts
-		--format "DOWN_FACES: %\n" this.down_faces
+		format "DOWN_VERTS: %\n" this.down_verts
+		format "DOWN_FACES: %\n" this.down_faces
+	),
+	
+	/** Save normals to user props
+	 */
+	function saveNormalsToUserProps =
+	(
+		--format "\n"; print "SourceObjectNorwmals_v.saveNormalsRoUserProps()"
+		setUserPropVal obj "FACES_LOCAL"	faces_local
+	),
+	
+	/** Is vertex normal pointing DOWN or SIDE but not UP
+	 */
+	function isNormalValid vert limit:0.0 =
+	(
+		--format "\n"; print "SourceObjectNormals_v.isNormalValid()"
+		----format "\n"; format "SourceObjectNormals_v.isNormalValid: % %\n" normals_world[vert] (normals_world[vert].z < 0)
+
+		is_normal_valid = verts_world[vert].z <= limit
+		
+		if not is_normal_valid then
+			FORMAT "--------- WARNING: NOT CREATED SUPPORT OF VERT: % NORMAL IS NOT POINTING DOWN:% \n" vert verts_world[vert]
+		
+		is_normal_valid --return
 	),
 	
 	private
-
-	/** Get local vertex normals by modifier
-	 */
-	function _setLocalNormalsByModifier verts =
-	(
-		format "\n"; print "SourceObjectNormals_v._setLocalNormalsByModifier()"
-		--format "\n**********************************************************\n"
-		--format "classOf obj: %\n" ( classOf obj )
-		
-		en_mod = Edit_Normals()
-
-		addModifier obj en_mod
-
-		--total_normals = en_mod.GetNumNormals()
-		
-		for vert in verts do
-		(
-			local_normal = point3 0 0 0
-
-			normal_ids_verts = #{}
-			
-			en_mod.ConvertVertexSelection #{vert} normal_ids_verts node:obj
-
-			for normal in normal_ids_verts do
-				local_normal += en_mod.GetNormal normal node:obj
-			
-			normals_local[vert] = normalize local_normal
-			
-			
-			for face in meshop.getFacesUsingVert obj.mesh vert do
-			(
-				--format "FACE: %\n" face
-				--local_normal = point3 0 0 0
-				--
-				--normal_ids_faces = #{}
-				--
-				--en_mod.ConvertFaceSelection  #{face} normal_ids_faces node:source_obj			
-				--format "normal_ids_faces: %\n" normal_ids_faces
-				--for normal in normal_ids_faces do
-				--(
-				--	--_normal = en_mod.GetNormal normal node:obj
-				--	_normal = getFaceNormal	obj.mesh face
-				--	format "_normal: %\n" _normal
-				--	
-				--	
-				--	local_normal += _normal
-				--	--local_normal += en_mod.GetNormal normal node:obj
-				--)
-				local_normal = getFaceNormal	obj.mesh face
-				--format "local_normal: %\n" local_normal
-				
-				this.normals_faces_local[face] = normalize local_normal
-				--this.normals_faces_local[face] = getFaceNormal	obj.mesh face
-			)
-		)
-		
-		deleteModifier obj en_mod
-	),
-
-	/** Get verts normals
-	 */
-	function _updateLocalNormals verts =
-	(
-		format "\n"; print "SourceObjectNormals_v._updateLocalNormals()"
-		format "verts.numberSet: %\n" verts.numberSet
-		--format "\n#######################################################\n"
-		
-		timer_updateLocalNormals = timeStamp()
-		
-		obj_mesh = obj.mesh
-
-		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
-		format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
-		
-		for face in faces_of_verts do
-		(
-			timer_face = timeStamp()
-			face_normal = getFaceNormal	obj_mesh face
-			format "face: % ms\n" (( timeStamp()) - timer_face)
-			
-			/* SAVE FACE NORMAL */ 
-			this.normals_faces_local[face] = face_normal
-
-			/* GET VERTS OF FACE */ 
-			face_verts = getFace	obj_mesh face
-			
-			/* SAVE NORMAL FOR EACH VERTEX */ 
-			normals_local[face_verts[1]] += face_normal
-			normals_local[face_verts[2]] += face_normal
-			normals_local[face_verts[3]] += face_normal
-		)
-
-		/* NORMALIZE EACH NORMAL */ 
-		for vert in verts do normals_local[vert] = normalize normals_local[vert]
-
-		format "updateLocalNormals: % ms\n" (( timeStamp()) - timer_updateLocalNormals)
-		--format "SourceObjectNormals._updateLocalNormals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
-	),
-	
 	
 	/**  get world space normla
 	 */
@@ -236,31 +156,35 @@ struct SourceObjectNormals_v
 		
 		world_normals --return
 	),
-		
+	
+	/** Load normals local
+	 */
+	function loadNormalsLocal =
+	(
+		format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
+		if ( faces_local_loaded = getUserPropVal obj "FACES_LOCAL" ) != undefined then
+			this.faces_local = faces_local_loaded
+
+		faces_local_loaded != undefined
+	),
+	
 	/** Set vertex normals empty array
 	 */
 	function _initNormalsLocalArray =
 	(
 		--format "\n"; print "SourceObjectNormals_v._initNormalsLocalArray()"
+		vertex_count = getNumVerts obj.mesh
 		
-		if (normals_local != undefined and normals_local.count != all_verts.numberSet ) \
-		or normals_local == undefined then
-		(
-			normals_local = this.all_verts as Array
-
-			for i = 1 to normals_local.count do
-				normals_local[i] = point3 0 0 0
-		)
-		
-		this.normals_faces_local[getNumFaces obj.mesh]	= undefined
-		
+		if  verts_local.count == 0 then
+			for i = 1 to vertex_count do
+				verts_local[i] = point3 0 0 0
 	),
-
+	
 	/**
 	 */
 	on create do
 	(
 		--format "\n"; print "SourceObjectNormals.onCreate()"
-		all_verts = #{1..(getNumVerts obj.mesh)}
+
 	)
 )

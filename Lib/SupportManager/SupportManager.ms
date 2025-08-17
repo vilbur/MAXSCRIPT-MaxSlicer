@@ -1142,7 +1142,7 @@ struct SupportManager_v
 			--supports = SourceObject.getSupportNodes()
 			SourceObject.getSupportNodes()
 	
-			SourceObject.Normals.loadNormalsLocal()
+			--SourceObject.Normals.loadNormalsLocal()
 
 
 			SourceObjects[sync_key] = SourceObject

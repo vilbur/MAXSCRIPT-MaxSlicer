@@ -84,11 +84,11 @@ struct SupportObject_v
 	  * @param point3	first_knot_pos	top position of support
 	  * @param color	wirecolor	of support object
 	 */
-	function generateSupport vertex_index first_knot_pos: pin_vector:undefined wirecolor: =
+	function generateSupport vertex_index first_knot_pos: pin_vector:undefined direction:undefined wirecolor: =
 	(
 		  --format "\n===========================================================\n"
 		  --format "\n"; print "SupportObject_v.generateSupport()"
-		  --format "wirecolor: %\n" wirecolor
+		  --format "pin_vector: %\n" pin_vector
 		  --format "direction: %\n" direction
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
@@ -105,9 +105,11 @@ struct SupportObject_v
 		if pin_vector != undefined then
 			this.pin_vector = pin_vector
 		
-		
-		this.raft_vector = if direction == #DOWN then [ 0, 0, -1 ] else pin_vector
-		  --format "this.DIRECTION: %\n" this.direction
+		--if this.direction == #DOWN then
+			--this.pin_vector = [ 0, 0, -1 ]
+
+		--this.raft_vector = if direction == #DOWN then [ 0, 0, -1 ] else pin_vector
+		this.raft_vector = this.pin_vector
 
 		this.points = #( first_knot_pos )
 
@@ -175,22 +177,29 @@ struct SupportObject_v
 	  *    • If Support was transformed
 	  * 
 	 */
-	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false pin_vector:undefined =
+	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined pin_vector:undefined reset_raft_vector:false =
 	(
 		 --format "\n----------------------------------------------\n"
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		 --format "first_knot_pos: %\n" first_knot_pos
 		--format "support_obj.pos.z: %\n" support_obj.pos.z
 		/*------------------------------------------------------------------------------
-			SANITIZE PARAMETERS
+			SET PARAMS
 		--------------------------------------------------------------------------------*/
+		if direction != undefined then
+			this.direction = direction
+
 		if pin_vector != undefined then
 			this.pin_vector = pin_vector
 
 		/* GET 1st knot POSITION FROM LINE */ 
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
-			
+		
+		--if reset_raft_vector then
+			--this.raft_vector = this.pin_vector
+			--this.raft_vector = getUserPropVal support_obj "RAFT_VECTOR"
+		
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
@@ -200,7 +209,8 @@ struct SupportObject_v
 
 		this._sanitizeRaftEndPosition()
 		
-		this._setRaftVector()
+		--if not reset_raft_vector then
+			this._getRaftVector(reset_raft_vector)
 
 		--this.raft_vector = if pin_vector != undefined then pin_vector else normalize (points[3] - points[2])
 		--format "RAFT_VECTOR: %\n" this.raft_vector
@@ -223,7 +233,7 @@ struct SupportObject_v
 			
 		this._disbaleBoxMode()
 
-		--this._checkChangedProps raft_vector_current:this.raft_vector -- MUST BE EXECUTED BEFORE this._setRaftVector() for recognizing of chaged value
+		--this._checkChangedProps raft_vector_current:this.raft_vector -- MUST BE EXECUTED BEFORE this._getRaftVector() for recognizing of chaged value
 
 		
 		/*------------------------------------------------------------------------------
@@ -626,7 +636,6 @@ struct SupportObject_v
 		--format "points.z: %\n" points[this.points.count].z
 		--format "TEST: %\n" (points[this.points.count].z >0)
 		
-		--format "points[2].z: %\n" points[2].z
 
 		if points[2].z > 0 then
 		--if points[this.points.count].z > 0 then
@@ -635,9 +644,10 @@ struct SupportObject_v
 			SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
 			--format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
 			is_space_for_leg = isSpaceForRaftAndLeg()
-			
+			--format "points[3].z: %\n" points[3].z
+			--format "min_foot_pos: %\n" min_foot_pos
 			foot_space_exists = isLegPointAboveMinLimit( min_foot_pos )
-			--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
+			--format "foot_space_exists: %\n" foot_space_exists
 			--format "%: %\n" points[3].z min_foot_pos
 		
 			/* CREATE LEG */ 
@@ -666,6 +676,8 @@ struct SupportObject_v
 		)
 		
 		this._setFootExists()
+		--format "FOOT_EXISTS: %\n" foot_exists
+		--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
 	),
 	
 	/** Align next knot bellow
@@ -698,8 +710,10 @@ struct SupportObject_v
 		--format "pin_vector: %\n" pin_vector
 		--format "min_length_by_angle: %\n" min_length_by_angle
 		
+		pin_vector_used = if direction == #DOWN then [ 0, 0, -1 ] else pin_vector
+		
 		--first_knot_pos + ( min_length_by_angle * pin_vector )
-		first_knot_pos + ( (bar_width / 2) * pin_vector )
+		first_knot_pos + ( (bar_width / 2) * pin_vector_used )
 	),
 	
 	/** Methods needs to be done after this._setSupportLinePoints()
@@ -1069,11 +1083,11 @@ struct SupportObject_v
 	  * 
 	  * Make sure that raft_vector of support is not horizontal or up
 	 */
-	function _setRaftVector =
+	function _getRaftVector reset_raft_vector =
 	(
-		-- format "\n"; print "SupportObject_v._setRaftVector()"
+		-- format "\n"; print "SupportObject_v._getRaftVector()"
 		
-		this.raft_vector = normalize (points[3] - points[2])
+		this.raft_vector = if reset_raft_vector then getUserPropVal support_obj "RAFT_VECTOR" else normalize (points[3] - points[2])
 
 		/* KEEP VECTOR POINTING DOWN ( avoid horizontal raft ) */ 
 		if this.raft_vector.z > -0.1 then

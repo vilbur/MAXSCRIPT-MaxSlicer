@@ -106,7 +106,7 @@ struct SourceObject_v
 		normal_limit = 0.0
 		
 		
-		verts_process = ( for vert in verts_process where Normals.isNormalValid(vert) limit:normal_limit collect vert ) as BitArray
+		verts_process = ( for index in verts_process where Normals.isNormalValid(index) limit:normal_limit collect index ) as BitArray
 
 		/*------------------------------------------------------------------------------
 			POSITIONS OF VERTS
@@ -137,18 +137,25 @@ struct SourceObject_v
 		timer_generate = timeStamp()
 		
 		for vertex_color in verts_by_colors.keys where not verts_by_colors[vertex_color].isEmpty do
-			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
+			for index in verts_by_colors[vertex_color] where not supports_exists[index]  do
 			(
-				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
+				--format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" index vertex_color
 				
-				if Normals.down_verts[vert] then
-					direction = #DOWN
-					
-				--raft_vector = if direction == #NORMAL then Normals.normals_world[vert] else [0,0,-1]
-				
-				--wirecolor = if Normals.down_verts[vert] then black else (execute vertex_color)
+				direction = if Normals.down_verts[index] then #DOWN else #NORMAL
 
-				pin_vector = this._getPinVector direction vert
+					
+				--raft_vector = if direction == #NORMAL then Normals.normals_world[index] else [0,0,-1]
+				--raft_vector = if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index] 
+				--raft_vector = Normals.normals_world[index] 
+				
+				--wirecolor = if Normals.down_verts[index] then black else (execute vertex_color)
+
+				--support_pos = verts_pos[index]
+				support_pos = this._getSupportPosition index
+				
+				--pin_vector = this._getPinVector direction index
+				--pin_vector =  if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
+				pin_vector =  Normals.normals_world[index]
 				--format "pin_vector: %\n" pin_vector
 				
 				/*------------------------------------------------------------------------------
@@ -156,22 +163,22 @@ struct SourceObject_v
 				--------------------------------------------------------------------------------*/
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
 
-								--first_knot_pos:verts_pos[vert] \
-				result = SupportObject.generateSupport vert \
-								first_knot_pos:(this._getSupportPosition vert) \
+								--first_knot_pos:verts_pos[index] \
+				result = SupportObject.generateSupport index \
+								first_knot_pos:support_pos \
 								direction:direction \
 								pin_vector:pin_vector \
-								raft_vector:raft_vector \
 								wirecolor: (execute vertex_color) --"./SupportObject/SupportObject.ms"
+								--raft_vector:raft_vector \
 								--wirecolor: wirecolor --"./SupportObject/SupportObject.ms"
-								--pin_vector:Normals.normals_world[vert] \
-								--first_knot_pos:(this._getSupportPosition(vert)) \
+								--pin_vector:Normals.normals_world[index] \
+								--first_knot_pos:(this._getSupportPosition(index)) \
 
 				
 				if result then
 				(
 					/* ADD TO ARRAYS */
-					this.Supports[vert] = SupportObject
+					this.Supports[index] = SupportObject
 		
 					/* LINK SUPPORT TO SOURCE OBJECT */ 
 					SupportObject.support_obj.parent = obj
@@ -180,7 +187,7 @@ struct SourceObject_v
 					append NewSupportObjects SupportObject
 				)
 				else
-					(format "\n";	print ("! VERTEX "+vert as string +" IS BELLOW GROUND - SUPPORT IS NOT CREATED"))
+					(format "\n";	print ("! VERTEX "+index as string +" IS BELLOW GROUND - SUPPORT IS NOT CREATED"))
 			)
 		
 		--format "generate: % ms\n" (( timeStamp()) - timer_generate)
@@ -191,42 +198,7 @@ struct SourceObject_v
 		/* RETURN */
 		NewSupportObjects
 	),
-	
-	/** Get support position
-	 */
-	function _getSupportPosition vert =
-	(
-		--format "\n"; print "SourceObject_v._getSupportPosition()"
-		--format "%: %\n" vert (Normals.down_verts[vert])
-		if Normals.down_verts[vert] then
-		(
-			sum_pos = [0,0,0]
-			
-			--faces_of_vert = polyop.getFacesUsingVert obj #{vert}
-			faces_of_vert = meshop.getFacesUsingVert obj.mesh #{vert}
-			--format "faces_of_vert: %\n" faces_of_vert
-			down_faces_of_vert = faces_of_vert * Normals.down_faces
-			--format "down_faces_of_vert: %\n" down_faces_of_vert
-			down_faces_of_vert += meshop.getPolysUsingFace obj.mesh down_faces_of_vert
 
-			
-		--	face_centers = for down_face in down_faces_of_vert collect polyop.getFaceCenter obj down_face
-			--face_centers = for down_face in down_faces_of_vert collect meshop.getFaceCenter obj.mesh down_face
-			face_centers = for down_face in down_faces_of_vert collect (meshop.getFaceCenter obj.mesh down_face) * obj.transform
-							
-			for pos in face_centers do
-				--format "pos: %\n" pos
-				sum_pos += pos
-		
-			sum_pos / face_centers.count
-		)
-		else
-			verts_pos[vert] --return
-		
-	),
-
-
-	
 	/*==============================================================================
 	
 		RESET
@@ -238,7 +210,7 @@ struct SourceObject_v
 	 */
 	function resetSupports support_nodes =
 	(
-		 format "\n"; print "SourceObject_v.resetSupports()"
+		 --format "\n"; print "SourceObject_v.resetSupports()"
 		--format "support_nodes: %\n" support_nodes
 		/* GET SUPPORTS TO RESET */ 
 		SupportsToReset = this._getSupports support_nodes:support_nodes
@@ -256,28 +228,28 @@ struct SourceObject_v
 
 		this.getVertsPositions(verts)
 		
-		for vert in SupportsToReset.keys do 
-			this.resetSupport SupportsToReset[vert] vert
+		for index in SupportsToReset.keys do 
+			this.resetSupport SupportsToReset[index] index
 	),
 	
 	/** Re-generate support using (same) support node
 	 */
-	function resetSupport SupportObject vert =
+	function resetSupport SupportObject index =
 	(
 		--format "\n"; print ("SourceObject_v.resetSupport( "+SupportObject.support_obj.name+" )")
 		if VertexColors == undefined then 
 			VertexColors = VertexColors_v(obj)
 			
-		raft_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[vert] else [0,0,-1] -- direction NORMAL|DOWN
+		raft_vector = if SUPPORT_OPTIONS.raft_direction == 2 then Normals.normals_world[index] else [0,0,-1] -- direction NORMAL|DOWN
 
 		SupportObject.hit_raft	= undefined
 		SupportObject.hit_leg	= undefined
 		
-		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(vert)
+		SupportObject.support_obj.wirecolor = VertexColors._getVertColor(index)
 		
 		/* REBUILD SUPPORT */ 
-		--SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] raft_vector:raft_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
-		SupportObject.generateSupport vert first_knot_pos:(this._getSupportPosition vert) raft_vector:raft_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
+		--SupportObject.generateSupport index first_knot_pos:verts_pos[index] raft_vector:raft_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
+		SupportObject.generateSupport index first_knot_pos:(this._getSupportPosition index) raft_vector:raft_vector wirecolor:wirecolor normal_world:SupportObject.normal_world
  	),
 
 	/** Convert support to raft or vice versa
@@ -341,6 +313,12 @@ struct SourceObject_v
 		(
 			Support = SupportsToUpdate[index]
 			
+			direction = if Normals.down_verts[index] then #DOWN else #NORMAL
+			
+			reset_raft_vector = direction != Support.direction 
+			
+			--format "direction TEST: %\n" (  direction != Support.direction )
+			
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
 			--if direction == #CUSTOM then 
 				--setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
@@ -353,7 +331,7 @@ struct SourceObject_v
 			
 			/* GET VECTOR  */ 
 			--pin_vector = this._getPinVector direction index
-			pin_vector = this._getPinVector direction index
+			pin_vector = Normals.normals_world[index] 
 			
 
 			/* UPDATE 1st POINT - if support has been moved on its own */ 
@@ -371,7 +349,7 @@ struct SourceObject_v
 					UPDATE SUPPORT
 				--------------------------------------------------------------------------------*/
 				if not Support.support_obj.boxmode then
-					Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft direction:direction pin_vector:pin_vector
+					Support.updateSupport first_knot_pos:first_knot_pos update_raft:update_raft pin_vector:pin_vector direction:direction reset_raft_vector:reset_raft_vector
 					 
 				/*------------------------------------------------------------------------------
 					RESTORE FROM BOX MODE IF VECTOR BECOME VALID
@@ -512,9 +490,9 @@ struct SourceObject_v
 	
 	/** Get verts positions
 	  * 
-	  * NOTEICE: undefined item is returned if vert is not in verts param
+	  * NOTEICE: undefined item is returned if index is not in verts param
 	  * 
-	  * @return array of verts positions where index of item is vert index
+	  * @return array of verts positions where index of item is index index
 	 */
 	function getVertsPositions verts =
 	(
@@ -540,9 +518,9 @@ struct SourceObject_v
 
 		for i = 1 to verts_process_pos.count do
 		(
-			vert = verts_array[i]
+			index = verts_array[i]
 
-			verts_pos[vert] = verts_process_pos[i]
+			verts_pos[index] = verts_process_pos[i]
 		)
 
 		verts_pos --return
@@ -569,24 +547,58 @@ struct SourceObject_v
 	private
 
 	
+	/** Get support position
+	 */
+	function _getSupportPosition index =
+	(
+		--format "\n"; print "SourceObject_v._getSupportPosition()"
+		--format "%: %\n" index (Normals.down_verts[index])
+		if Normals.down_verts[index] then
+		(
+			sum_pos = [0,0,0]
+			
+			--faces_of_vert = polyop.getFacesUsingVert obj #{index}
+			faces_of_vert = meshop.getFacesUsingVert obj.mesh #{index}
+			--format "faces_of_vert: %\n" faces_of_vert
+			down_faces_of_vert = faces_of_vert * Normals.down_faces
+			--format "down_faces_of_vert: %\n" down_faces_of_vert
+			down_faces_of_vert += meshop.getPolysUsingFace obj.mesh down_faces_of_vert
+
+			
+		--	face_centers = for down_face in down_faces_of_vert collect polyop.getFaceCenter obj down_face
+			--face_centers = for down_face in down_faces_of_vert collect meshop.getFaceCenter obj.mesh down_face
+			face_centers = for down_face in down_faces_of_vert collect (meshop.getFaceCenter obj.mesh down_face) * obj.transform
+							
+			for pos in face_centers do
+				--format "pos: %\n" pos
+				sum_pos += pos
+		
+			sum_pos / face_centers.count
+		)
+		else
+			verts_pos[index] --return
+		
+	),
+
 	/** Get raft vector
 	 */
 	function _getPinVector direction index =
 	(
 		-- format "\n"; print "SourceObject_v._getPinVector()"
-		case direction of
-			(
-				(#DOWN):   [ 0, 0, -1 ]
-				(#NORMAL): Normals.normals_world[index]
-				--(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
-			)
+		if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
+		--case direction of
+		--	(
+		--		(#DOWN):   [ 0, 0, -1 ]
+		--		(#NORMAL): Normals.normals_world[index]
+		--		--(#NORMAL): if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]
+		--	)
 	),
 	--/** Get pin vector
 	-- */
-	--function _getPinVector vert =
+	--function _getPinVector index =
 	--(
 	--	--format "\n"; print "SourceObject_v._getPinVector()"
-	--	if Normals.down_verts[vert] then [0,0,-1] else Normals.normals_world[vert]		
+	--	if Normals.down_verts[index] then [0,0,-1] else Normals.normals_world[index]		
 	--),
 	--
 	/** Get support by node
@@ -701,9 +713,9 @@ struct SourceObject_v
 		Normals.setDownFaces()
 
 		/* UPDATE WORLD NORMAL IN OBJECT PROPERTIES */ 
-		--for vert in supports_keys do
-		for vert in supports_keys where isValidNode Supports[vert].support_obj do
-			setUserPropVal Supports[vert].support_obj "PIN_VECTOR" Normals.normals_world[vert]
+		--for index in supports_keys do
+		for index in supports_keys where isValidNode Supports[index].support_obj do
+			setUserPropVal Supports[index].support_obj "PIN_VECTOR" Normals.normals_world[index]
 	),
 	
 	/** Get rounded object rotation

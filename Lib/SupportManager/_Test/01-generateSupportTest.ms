@@ -46,10 +46,10 @@ pos_z = 0 -- TEST MINIMAL SIZE OF RED AND ORANGE SUPPORT
 -- pos_z = 0.5 
 -- pos_z = 1
 -- pos_z = 1.2
--- pos_z = 1.5
+pos_z = 1.5
 -- pos_z = 2
 pos_z = 3
--- pos_z = 10
+pos_z = 10
 
  -- if selection.count == 0 then
 (

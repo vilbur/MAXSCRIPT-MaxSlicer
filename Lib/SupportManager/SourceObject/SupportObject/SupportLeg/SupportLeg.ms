@@ -21,6 +21,7 @@ struct SupportLeg_v
 	function createLeg bottom_point_pos_z =
 	(
 		--format "\n"; print "SupportLeg_v.createLeg()"
+		--format "bottom_point_pos_z: %\n" bottom_point_pos_z
 
 		if Support.points[3].z > 0 then
 		(

@@ -50,9 +50,9 @@ struct SupportObject_v
 	top_width,
 	
 	/* minimal dimensions */
-	min_lenght_by_angle,
 	min_length_by_angle,
-	
+	min_length_pin_vector,
+	    
 	min_foot_pos,   -- minimal z position of leg knot where foot can be created, value is varied by angle of support
 	min_leg_pos,     -- min length of raft part to avoid sweep artifact on leg knot
 	min_support_pos,
@@ -70,7 +70,7 @@ struct SupportObject_v
 	
 	
 	private
-
+	foot_space_exists = true,
 	spline_1 = 1, -- each support line has ony 1 spline
 	
 	dilatation  = 0.05,
@@ -131,6 +131,7 @@ struct SupportObject_v
 		
 		this._setMinLimints ()
 		
+		
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
 		--------------------------------------------------------------------------------*/
@@ -179,7 +180,7 @@ struct SupportObject_v
 		 --format "\n----------------------------------------------\n"
 		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		 --format "first_knot_pos: %\n" first_knot_pos
-		
+		--format "support_obj.pos.z: %\n" support_obj.pos.z
 		/*------------------------------------------------------------------------------
 			SANITIZE PARAMETERS
 		--------------------------------------------------------------------------------*/
@@ -190,29 +191,34 @@ struct SupportObject_v
 		if first_knot_pos == undefined then
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 			
-		--second_knot_pos = getKnotPoint support_obj spline_1 2
-
-		if direction != undefined then this.direction = direction
-
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
 		this._setMinLimints force_set:(update_raft == true or min_length_by_angle == undefined)
+		
+		this._setPointsPositions(first_knot_pos)
 
-		points = this._getPointsPositions(first_knot_pos)
+		this._sanitizeRaftEndPosition()
 		
-		--this.raft_vector =  normalize (points[3] - points[2])
-		this.raft_vector = if pin_vector != undefined then pin_vector else normalize (points[3] - points[2])
-		
+		this._setRaftVector()
+
+		--this.raft_vector = if pin_vector != undefined then pin_vector else normalize (points[3] - points[2])
+		--format "RAFT_VECTOR: %\n" this.raft_vector
 		this._setNormalLenght update_raft:update_raft
 		
-		this._keepVectorDown()
 
 		if not this._isFirstPointAboveGround() then
 			return false
 
+		
 		if not this.vectorIsInRangeCone() then
+		(
+			--return false
+			--format "*********************************************************\n"
 			this.raft_vector = this._findVectorByAngle this.raft_vector ( raft_vector_angle_range  )
+			--format "this.raft_vector: %\n" this.raft_vector
+		)
+		
 			
 			
 		this._disbaleBoxMode()
@@ -232,11 +238,24 @@ struct SupportObject_v
 		this._postUpdate()
 		
 		--this._alignPivotToRaft() -- THIS MAKES SUPPORT "JIGGLE AND JUMPING"
-		this.setPivotToPoint(3)
+		this.setPivotToPoint( if points.count > 2 then 3 else 2 )
 
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
-	
+	/** Sanitize pivot position
+	 */
+	function _sanitizeRaftEndPosition =
+	(
+		--format "\n"; print "SupportObject_v._sanitizeRaftEndPosition()"
+		if points[3].z < min_foot_pos then
+			points[3].z = min_foot_pos  + dilatation
+			--points[3].z = base_height + 0.5
+		
+		if points[3].z > points[2].z then
+			points[3].z = points[2].z
+			
+			
+	),
 	/** Convert SUPPORT to RAFT and vice versa
 	  *
 	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
@@ -334,13 +353,13 @@ struct SupportObject_v
 		--set_min_limits = update_raft == true or min_length_by_angle == undefined
 		
 		if  min_length_by_angle == undefined then
-			this._setMinLimints(direction) force_set:true
+			this._setMinLimints force_set:true
 		
 		if is_on_ground then
 		(
 			first_knot_pos = getKnotPoint support_obj spline_1 1
 			
-			points = this._getPointsPositions(first_knot_pos)
+			this._setPointsPositions(first_knot_pos)
 			
 			if not this._isFirstPointAboveGround() then
 				return false
@@ -588,25 +607,41 @@ struct SupportObject_v
 	  */
 	function _setSupportLinePoints update_or_generate:#UPDATE =
  	(
+		
+		function isSpaceForRaftAndLeg = ( points[2].z) >= ( min_length_by_angle + min_leg_pos + 0.2 )
+		
+		function isLegPointAboveMinLimit min_z_pos = ( points[3].z ) >= ( min_z_pos )
+		
+		--format "\n----------------------------------------------\n"
 		--format "\n"; print "SupportObject_v._setSupportLinePoints()"
 		--format "update_or_generate: %\n" update_or_generate
 		-- format "obj_type: %\n" obj_type
 		this.points[2] = this._getPinPointPosition(points[1])
-		--format "points[2].z: %\n" points[2].z
+		
 		--format "points.count: %\n" points.count
+		--format "points.z: %\n" points[this.points.count].z
+		--format "TEST: %\n" (points[this.points.count].z >0)
+		
+		--format "points[2].z: %\n" points[2].z
 
 		--if points[2].z > 0 then
 		if points[this.points.count].z > 0 then
 		(
 			/* CREATE RAFT */ 
 			SupportRaft.createRaft update_or_generate:update_or_generate --"./SupportRaft/SupportRaft.ms"
-				--format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+			--format "SupportRaft.hit_raft: %\n" SupportRaft.hit_raft
+			is_space_for_leg = isSpaceForRaftAndLeg()
 			
+			foot_space_exists = isLegPointAboveMinLimit( min_foot_pos )
+			--format "FOOT_SPACE_EXISTS: %\n" foot_space_exists
+			--format "%: %\n" points[3].z min_foot_pos
+		
 			/* CREATE LEG */ 
 			if SupportRaft.hit_raft == undefined then
 			(
-				foot_exists = foot_enabled and SupportRaft.foot_space_exists
-				
+				--format "foot_space_exists: %\n" foot_space_exists
+				foot_exists = foot_enabled and foot_space_exists
+				--format "FOOT_EXISTS: %\n" foot_exists
 				/* CREATE LEG */ 
 				SupportLeg.createLeg( if foot_exists then base_height else 0 ) --"./SupportLeg/SupportLeg.ms"
 				--format "SupportLeg.hit_leg: %\n" SupportLeg.hit_leg
@@ -642,12 +677,12 @@ struct SupportObject_v
 	
 	/** Get points positions
 	 */
-	function _getPointsPositions first_knot_pos =
+	function _setPointsPositions first_knot_pos =
 	(
-		--format "\n"; print "SupportObject_v._getPointsPositions()"
+		--format "\n"; print "SupportObject_v._setPointsPositions()"
 		second_knot_pos = this._getPinPointPosition(first_knot_pos)
 
-		#(first_knot_pos, second_knot_pos, support_obj.pos)
+		points = #(first_knot_pos, second_knot_pos, support_obj.pos)
 	),
 	
 	/** Get pin point position
@@ -658,7 +693,8 @@ struct SupportObject_v
 		--format "pin_vector: %\n" pin_vector
 		--format "min_length_by_angle: %\n" min_length_by_angle
 		
-		first_knot_pos + ( min_length_by_angle * pin_vector )
+		--first_knot_pos + ( min_length_by_angle * pin_vector )
+		first_knot_pos + ( (bar_width / 2) * pin_vector )
 	),
 	
 	/** Methods needs to be done after this._setSupportLinePoints()
@@ -974,18 +1010,20 @@ struct SupportObject_v
         update_min_length_by_angle = force_set or changed_props[#TOP_WIDTH]   != undefined or update_minimal_lenght
         update_min_foot_pos    = force_set or changed_props[#BASE_HEIGHT] != undefined or update_minimal_lenght
 
+		--min_length_pin_vector = (this._getMinLenghtByAngle ( this.pin_vector )) * space_for_chamfer
+		
         min_length_for_chamfer = ( bar_width - top_width ) * space_for_chamfer
 		
 		/* MINIMAL SIZE OF RAFT depends on with of sweep modifier and angle of line corners */
 		--if update_minimal_lenght then
-			min_lenght_by_angle = if this.pin_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.pin_vector )
+			min_length_by_angle = if this.raft_vector.z == -1 then dilatation else this._getMinLenghtByAngle ( this.raft_vector )
 
 		
 		/* MINIMAL LENGTH OF SUPPORT to avoid artifacts of sweep modifier */
 		--if update_min_length_by_angle then
-			--min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
-			min_length_by_angle = min_lenght_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
-			--min_length_by_angle = min_lenght_by_angle --+ min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			--min_length_by_angle = min_length_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			min_length_by_angle = min_length_by_angle + min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
+			--min_length_by_angle = min_length_by_angle --+ min_length_for_chamfer -- + dilatation -- chamfer is removing length of raft also
 			
 		min_length_by_angle = roundFloat min_length_by_angle 2
 
@@ -993,11 +1031,11 @@ struct SupportObject_v
 	
 		/* MINIMAL Z POZIOTION WHERE LEG WIHTOUT FOOT IS CREATED */ 
 		--if update_minimal_lenght then
-			min_leg_pos = min_lenght_by_angle --+ dilatation 
+			min_leg_pos = min_length_by_angle --+ dilatation 
 	
 		/* MINIMAL Z POZIOTION WHERE FOOT IS CREATED */ 
 		--if update_min_foot_pos then
-			min_foot_pos = min_lenght_by_angle + base_height + dilatation
+			min_foot_pos = min_length_by_angle + base_height + dilatation
 		
 		--format "min_leg_pos: %\n" min_leg_pos
 		--format "min_foot_pos: %\n" min_foot_pos
@@ -1009,7 +1047,7 @@ struct SupportObject_v
 
 			min_leg_pos /= EXPORT_SIZE
 			min_length_by_angle = roundFloat (min_length_by_angle / EXPORT_SIZE) 2
-			min_lenght_by_angle /= EXPORT_SIZE
+			min_length_by_angle /= EXPORT_SIZE
 		)
 	),
 	
@@ -1021,14 +1059,19 @@ struct SupportObject_v
 		for knot = 1 to numKnots support_obj spline_1 collect getKnotPoint support_obj spline_1 knot
 	),
 	
-	/** KEEP RAFT PONT BELLOW FIRST
+	/** SET RAFT VECTOR by points position
+	  *  KEEP RAFT PONT BELLOW PREVIOUS POINT
 	  * 
 	  * Make sure that raft_vector of support is not horizontal or up
 	 */
-	function _keepVectorDown =
+	function _setRaftVector =
 	(
-		-- format "\n"; print "SupportObject_v._keepVectorDown()"
-		if this.raft_vector.z > 0 then
+		-- format "\n"; print "SupportObject_v._setRaftVector()"
+		
+		this.raft_vector = normalize (points[3] - points[2])
+
+		/* KEEP VECTOR POINTING DOWN ( avoid horizontal raft ) */ 
+		if this.raft_vector.z > -0.1 then
 			this.raft_vector.z = -0.1
 	),
 	
@@ -1129,7 +1172,10 @@ struct SupportObject_v
 	function _setFootExists =
 	(
 		 --format "\n"; print "SupportObject_v._setFootExists()"
-		foot_exists = obj_type != #RAFT and SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and SupportRaft.foot_space_exists
+		 --format "SupportRaft.hit_raft:          %\n" SupportRaft.hit_raft
+		 --format "SupportLeg.hit_leg:            %\n" SupportLeg.hit_leg
+		 
+		foot_exists = SupportRaft.hit_raft == undefined and SupportLeg.hit_leg == undefined and this.foot_space_exists
 	),
 
 	/** Save first knot pos

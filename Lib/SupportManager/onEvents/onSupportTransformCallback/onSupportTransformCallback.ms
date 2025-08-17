@@ -120,6 +120,7 @@ function bindSupportToTransformEvent supports =
 		================================================================================*/
 		
 		else if support.isSelected then
+		--else if support.isSelected and support.pos.z > 0 then
 			SUPPORT_MANAGER.updateSupports #( support ) update_raft:true direction:#CUSTOM
 		
 	)

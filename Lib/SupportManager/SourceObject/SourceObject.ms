@@ -342,13 +342,13 @@ struct SourceObject_v
 			Support = SupportsToUpdate[index]
 			
 			/* SAVE #CUSTOM DIRECTION IF SUPPORT HAS BEEN MOVE ON ITS OWN */ 
-			if direction == #CUSTOM then 
-				setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
+			--if direction == #CUSTOM then 
+				--setUserPropVal Support.support_obj "DIRECTION" #CUSTOM
 				
 						
 			/* UPDATE SECOND POINT - to keep direction down */ 
-			if direction == undefined then
-				direction = getUserPropVal Support.support_obj "DIRECTION"
+			--if direction == undefined then
+				--direction = getUserPropVal Support.support_obj "DIRECTION"
 			
 			
 			/* GET VECTOR  */ 
@@ -383,7 +383,7 @@ struct SourceObject_v
 				DISABLE SUPPORT IF NOT VALID
 			--------------------------------------------------------------------------------*/
 			else 
-				Support.enableBoxMode()
+				Support.dis()
 		)
 		
 		free SupportsToUpdate

@@ -27,8 +27,8 @@ struct SourceObjectNormals_v
 	function initFacesLocalNormals verts =
 	(
 		FORMAT "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
-		
-		if not this.loadNormalsLocal() then
+		this.loadNormalsLocal()
+		--if not this.loadNormalsLocal() then
 		(
 			obj_mesh = obj.mesh
 			
@@ -88,7 +88,6 @@ struct SourceObjectNormals_v
 		FORMAT "\n"; print "SourceObjectNormals_v.setDownFaces()"
 		--format "normals_faces_local: %\n" normals_faces_local
 	
-		timer_setDownFaces = timeStamp()
 
 		this.down_verts = #{} -- Array fot store vertex normals in world space
 		this.down_faces = #{} -- Array fot store vertex normals in world space
@@ -103,12 +102,14 @@ struct SourceObjectNormals_v
 			(
 				if faces_world[f].z == -1 then
 				(
+					timer_face = timeStamp()
 					/* ADD FACE TO DOWN FACES */ 
 					this.down_faces[f] = true
 					--this.down_faces += meshop.getPolysUsingFace obj.mesh #{f}
 			
 					/* ADD VERTS OF DOWN FACES */ 		
 					this.down_verts += meshop.getVertsUsingFace obj.mesh #{f}
+					--format "face: % ms\n" (( timeStamp()) - timer_face)
 				)
 			)
 			
@@ -161,7 +162,7 @@ struct SourceObjectNormals_v
 	 */
 	function loadNormalsLocal =
 	(
-		format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
+		--format "\n"; print "SourceObjectNormals_v.loadNormalsLocal()"
 		if ( faces_local_loaded = getUserPropVal obj "FACES_LOCAL" ) != undefined then
 			this.faces_local = faces_local_loaded
 

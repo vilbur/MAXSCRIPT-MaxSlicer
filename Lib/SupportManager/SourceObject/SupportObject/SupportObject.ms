@@ -86,9 +86,9 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: pin_vector:undefined direction:undefined wirecolor: =
 	(
-		  --format "\n===========================================================\n"
-		  --format "\n"; print "SupportObject_v.generateSupport()"
-		  --format "pin_vector: %\n" pin_vector
+		--format "\n===========================================================\n"
+		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "pin_vector: %\n" pin_vector
 		  --format "direction: %\n" direction
 		-- format "vertex_index: %\n" vertex_index
 		--format "EXPORT_SIZE: %\n" EXPORT_SIZE
@@ -105,10 +105,7 @@ struct SupportObject_v
 		if pin_vector != undefined then
 			this.pin_vector = pin_vector
 		
-		--if this.direction == #DOWN then
-			--this.pin_vector = [ 0, 0, -1 ]
 
-		--this.raft_vector = if direction == #DOWN then [ 0, 0, -1 ] else pin_vector
 		this.raft_vector = this.pin_vector
 
 		this.points = #( first_knot_pos )
@@ -179,9 +176,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined pin_vector:undefined reset_raft_vector:false =
 	(
-		 --format "\n----------------------------------------------\n"
-		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
+		 format "\n----------------------------------------------\n"
+		format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		 --format "first_knot_pos: %\n" first_knot_pos
+		 format "update_raft: %\n" update_raft
+		 format "pin_vector: %\n" pin_vector
+		 format "reset_raft_vector: %\n" reset_raft_vector
 		--format "support_obj.pos.z: %\n" support_obj.pos.z
 		/*------------------------------------------------------------------------------
 			SET PARAMS
@@ -203,6 +203,8 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			PREPARE UPDATE
 		----------------------------------------------------------------------------------*/
+		
+		
 		this._setMinLimints force_set:(update_raft == true or min_length_by_angle == undefined)
 		
 		this._setPointsPositions(first_knot_pos)
@@ -399,10 +401,10 @@ struct SupportObject_v
 			(
 				this._setSupportLinePoints()
 			
-				this._disbaleBoxMode()
 				
 				this._postUpdate()
 			)
+				this._disbaleBoxMode()
 			
 			SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		)
@@ -1087,7 +1089,7 @@ struct SupportObject_v
 	(
 		-- format "\n"; print "SupportObject_v._getRaftVector()"
 		
-		this.raft_vector = if reset_raft_vector then getUserPropVal support_obj "RAFT_VECTOR" else normalize (points[3] - points[2])
+		this.raft_vector = if reset_raft_vector == true then getUserPropVal support_obj "RAFT_VECTOR" else normalize (points[3] - points[2])
 
 		/* KEEP VECTOR POINTING DOWN ( avoid horizontal raft ) */ 
 		if this.raft_vector.z > -0.1 then

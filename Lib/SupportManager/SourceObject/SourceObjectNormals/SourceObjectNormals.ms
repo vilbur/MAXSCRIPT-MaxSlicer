@@ -89,6 +89,7 @@ struct SourceObjectNormals_v
 	function setDownFaces verts =
 	(
 		FORMAT "\n"; print "SourceObjectNormals_v.setDownFaces()"
+		--format "\n"; print "SourceObjectNormals_v.setDownFaces()"
 		--format "normals_faces_local: %\n" normals_faces_local
 	
 

@@ -37,14 +37,16 @@ struct SupportObject_v
 	/* SUPPORT PROPERTIES */
 	changed_props = Dictionary(),
 
+	/* vectors */ 
 	direction,
 	pin_vector,
 	raft_vector,
 	raft_mode,
 
 	
-	bar_width,
+	/* dimensions */ 
 	raft_length,
+	bar_width,
 	base_height,
 	base_width,
 	top_width,
@@ -65,12 +67,15 @@ struct SupportObject_v
 	/* static */ 
 	raft_vector_angle_range = 80,
 	
-	this_props  = #(  #PIN_VECTOR, #RAFT_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
+	/* userProps of node */ 
+	this_props  = #( #PIN_VECTOR, #RAFT_VECTOR, #FOOT_EXISTS, #IS_ON_GROUND ),	-- props of this saved to node userProps
 	option_keys = #( #BAR_WIDTH, #BASE_HEIGHT, #BASE_WIDTH, #RAFT_LENGTH, #TOP_WIDTH, #FOOT_ENABLED, #RAFT_MODE ),	-- props of this saved to node userProps WHICH ARE LOADED FROM OTPION when generate
 	
 	
 	private
+	
 	foot_space_exists = true,
+	
 	spline_1 = 1, -- each support line has ony 1 spline
 	
 	dilatation  = 0.05,
@@ -104,7 +109,6 @@ struct SupportObject_v
 		
 		if pin_vector != undefined then
 			this.pin_vector = pin_vector
-		
 
 		this.raft_vector = this.pin_vector
 
@@ -126,10 +130,8 @@ struct SupportObject_v
 		this._saveUserPropsToSupport(vertex_index)
 		
 		this._fillThisWithOptionValues()
-		--format "BAR_WIDTH: %\n" bar_width
 		
 		this._setMinLimints ()
-		
 		
 		/*------------------------------------------------------------------------------
 			SET SUPPORT LINE POINTS
@@ -137,7 +139,7 @@ struct SupportObject_v
 		
 		this._setSupportLinePoints update_or_generate:#GENERATE
 		--format "POINTS.count: %\n" points.count
-		
+	
 		/*------------------------------------------------------------------------------
 			CREATE SUPPORT
 		--------------------------------------------------------------------------------*/
@@ -176,12 +178,12 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos:undefined update_raft:true update_leg:false direction:undefined pin_vector:undefined reset_raft_vector:false =
 	(
-		 format "\n----------------------------------------------\n"
-		format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
+		 --format "\n----------------------------------------------\n"
+		--format "\n"; print ("SupportObject_v.updateSupport(\""+support_obj.name+"\")")
 		 --format "first_knot_pos: %\n" first_knot_pos
-		 format "update_raft: %\n" update_raft
-		 format "pin_vector: %\n" pin_vector
-		 format "reset_raft_vector: %\n" reset_raft_vector
+		 --format "update_raft: %\n" update_raft
+		 --format "pin_vector: %\n" pin_vector
+		 --format "reset_raft_vector: %\n" reset_raft_vector
 		--format "support_obj.pos.z: %\n" support_obj.pos.z
 		/*------------------------------------------------------------------------------
 			SET PARAMS
@@ -890,7 +892,6 @@ struct SupportObject_v
 		 -- format "\n"; print "SupportObject_v._fillThisWithOptionValues()"
 
 		for prop_key in option_keys do
-			--setProperty this prop_key ( SUPPORT_OPTIONS.getModVal prop_key )
 			setProperty this prop_key ( SUPPORT_OPTIONS.getProp prop_key )
 	),
 	
@@ -913,10 +914,10 @@ struct SupportObject_v
 	
 	/** Load user props from node
 	 */
-	function _loadUserPropsFromNode =
+	function _fillThisWithNodeUserProps =
 	(
-		-- format "\n"; print "SupportObject_v._loadUserPropsFromNode()"
-		for prop_key in this_props +option_keys do
+		-- format "\n"; print "SupportObject_v._fillThisWithNodeUserProps()"
+		for prop_key in this_props + option_keys do
 			setProperty this prop_key ( getUserPropVal support_obj ( toUpper ( prop_key as string )) )
 	),
 
@@ -1377,10 +1378,12 @@ struct SupportObject_v
 	 */
 	on create do
 	(
-		 -- format "\n"; print "SupportObject.onCreate()"
+		  --format "\n"; print "SupportObject.onCreate()"
 		--this._setSupportRaftUpdater()
 		if support_obj != undefined then
-			this._loadUserPropsFromNode()
+			this._fillThisWithNodeUserProps()
+			
+		--format "raft_length: %\n" raft_length
 	)
 
 )

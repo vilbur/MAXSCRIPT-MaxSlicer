@@ -17,6 +17,9 @@ struct SourceObjectNormals_v
 	down_verts = #{}, -- Array fot store vertex normals in world space
 	down_faces = #{}, -- Array fot store vertex normals in world space
 
+	--normal_limit_of_horizontal_face = 2.5, -- angle of face`s z normal where face is considered as horizontal -- 0° is horizontal | 90° is vertical
+	normal_limit_of_horizontal_face = 177.5, -- angle of face`s z normal where face is considered as horizontal -- 0 is up | 180° is down
+	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -26,7 +29,7 @@ struct SourceObjectNormals_v
 	 */
 	function initFacesLocalNormals verts =
 	(
-		FORMAT "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
+		--FORMAT "\n"; print "SourceObjectNormals_v.setLocalVertexNormals()"
 		this.loadNormalsLocal()
 		--if not this.loadNormalsLocal() then
 		(
@@ -35,7 +38,7 @@ struct SourceObjectNormals_v
 			--normals_local[getNumFaces obj_mesh] = undefined
 			
 			for face in meshop.getFacesUsingVert obj_mesh verts do
-				faces_local[face] = getFaceNormal	obj_mesh face
+				faces_local[face] = getFaceNormal obj_mesh face
 		)
 		
 		--	this._setLocalNormalsByModifier( verts )
@@ -96,25 +99,32 @@ struct SourceObjectNormals_v
 
 		face_of_verts = meshop.getFacesUsingVert obj_mesh verts
 		
-		
+		--normal_limit = -1
+		--normal_limit = -0.95
 		for f in face_of_verts \
 			where faces_world[f] != undefined do
 			(
-				if faces_world[f].z == -1 then
+				--format "\n%\n" f
+				angle_of_normal = this._getAngleOfNormal(faces_world[f])
+				--format "angle_of_normal: %\n" angle_of_normal
+				--format "normal_limit_of_horizontal_face: %\n" normal_limit_of_horizontal_face
+				--format "faces_world[f]: %\n" faces_world[f]
+				--format "faces_world[f].z: %\n" faces_world[f].z
+				
+				if angle_of_normal >= normal_limit_of_horizontal_face then
 				(
 					timer_face = timeStamp()
 					/* ADD FACE TO DOWN FACES */ 
 					this.down_faces[f] = true
-					--this.down_faces += meshop.getPolysUsingFace obj.mesh #{f}
 			
-					/* ADD VERTS OF DOWN FACES */ 		
-					this.down_verts += meshop.getVertsUsingFace obj.mesh #{f}
-					--format "face: % ms\n" (( timeStamp()) - timer_face)
+                    /* ADD VERTS OF DOWN FACES */ 		
+                    this.down_verts += meshop.getVertsUsingFace obj.mesh #{f}
+                    --format "face: % ms\n" (( timeStamp()) - timer_face)
 				)
 			)
 			
-		format "DOWN_VERTS: %\n" this.down_verts
-		format "DOWN_FACES: %\n" this.down_faces
+		--format "DOWN_VERTS: %\n" this.down_verts
+		--format "DOWN_FACES: %\n" this.down_faces
 	),
 	
 	/** Save normals to user props
@@ -167,6 +177,22 @@ struct SourceObjectNormals_v
 			this.faces_local = faces_local_loaded
 
 		faces_local_loaded != undefined
+	),
+	
+
+	/* 
+	Convert normal vector to angle with ground plane (Z axis).
+	Returns angle in degrees.
+	*/
+	function _getAngleOfNormal normal_vector =
+	(
+		up_vector = [0,0,1]
+		
+		dot_val = dot (normalize normal_vector) (normalize up_vector)
+		
+		dot_val = amax (amin dot_val 1.0) -1.0
+		
+		acos dot_val -- return
 	),
 	
 	/** Set vertex normals empty array

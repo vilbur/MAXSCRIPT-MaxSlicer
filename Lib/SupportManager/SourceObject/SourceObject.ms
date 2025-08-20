@@ -379,7 +379,7 @@ struct SourceObject_v
 				DISABLE SUPPORT IF NOT VALID
 			--------------------------------------------------------------------------------*/
 			else 
-				Support.dis()
+				Support.enableBoxMode()
 		)
 		--format "NORMALS_LOCAL: %\n" Normals.verts_local
 		--format "verts_local: %\n"  Normals.verts_local
@@ -431,7 +431,7 @@ struct SourceObject_v
 			(
 				direction = getUserPropVal Support.support_obj "DIRECTION"
 				
-				raft_vector = this._getPinVector direction index
+				raft_vector = this._getPinVector index
 
 				if not Support.isBoxMode() then
 				(

@@ -28,9 +28,11 @@ struct SupportRaft_v
 	 */
 	function createRaft update_or_generate: raft_vector: =
 	(
-		format "\n----------------------------------------------\n"
-		 format "\n"; print "SupportRaft_v.createRaft()"
+		--format "\n----------------------------------------------\n"
+		 --format "\n"; print "SupportRaft_v.createRaft()"
+		 --format "SUPPORT_OPTIONS.raft_mode: %\n" SUPPORT_OPTIONS.raft_mode
 		-- format "Support.obj_type: %\n" Support.obj_type
+		--format "Support.raft_length: %\n" Support.raft_length
 		-- format "Support.raft_vector:    %\n" Support.raft_vector
 		--for i = 1 to Support.points.count do
 		--format "Support.points[i].z: %\n" Support.points[i].z
@@ -116,8 +118,10 @@ struct SupportRaft_v
 			--raft_length = this.getRaftLenght()
 			--format "pivot: %\n" Support.support_obj.pos
 			--Support.points[3] = Support.support_obj.pos
-			raft_length = Support.raft_length
-
+			--raft_length = Support.raft_length
+			--raft_length = this.raftLenght()
+			raft_length = if Support.direction == #DOWN then 0.1 else Support.min_length_by_angle
+			--format "RAFT_LENGTH: %\n" raft_length
 		)
 
 		Support.points[3] = getRaftEndPoint (raft_length)raft_vector
